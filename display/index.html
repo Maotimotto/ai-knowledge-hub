@@ -160,7 +160,13 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
 .oneline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
 .oneline-card{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid rgba(99,102,241,.08);border-radius:var(--radius-sm);transition:var(--transition);cursor:default}
 .oneline-card:hover{border-color:rgba(99,102,241,.25);background:var(--bg3)}
-.oneline-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.compare-block{margin-bottom:32px}
+.compare-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
+.compare-scroll{overflow-x:auto}
+.rel-edge{stroke:rgba(99,102,241,.12);stroke-width:1.5;transition:var(--transition)}
+.rel-edge.active{stroke:var(--accent);stroke-width:2.5}
+.rel-node{cursor:pointer}
+.oneline-name{font-size:14px;font-weight:700;white-space:nowrap;flex-shrink:0;min-width:80px}
 .oneline-text{font-size:14px;color:var(--fg);line-height:1.5}
 
 @media(max-width:768px){
@@ -637,6 +643,229 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     });
   }
   render();
+})();
+// ===== ANALOGY EXPLANATIONS =====
+(function(){
+  const grid = document.getElementById('analogyGrid');
+  const analogies = [
+    {c:"Transformer",a:"工厂流水线",e:"想象一条工厂流水线：每个工人(Attention Head)同时检查所有零件(输入token)，找出最重要的组合关系。Self-Attention就是让每个词去'看'所有其他词，决定该重点关注谁。",icon:"🏭"},
+    {c:"RAG",a:"开卷考试",e:"LLM是闭卷考生(只靠记忆)，RAG给它配了一本参考书(知识库)。答题前先翻书找相关内容(检索)，再结合自己的理解作答(生成)。书可以随时更新，不用重新培训考生。",icon:"📖"},
+    {c:"Agent",a:"项目经理",e:"Agent就像一个项目经理：接到任务后拆解子任务(规划)、分配给合适的工具执行(工具调用)、检查结果是否合格(反思)、不满意就重新做(迭代)。LLM是它的大脑，工具是它的手脚。",icon:"👔"},
+    {c:"Fine-tuning",a:"岗前培训",e:"通用LLM是大学毕业生(什么都会一点)，Fine-tuning是岗前培训——用特定领域的教材(训练数据)强化训练，让它成为某个领域的专家。LoRA就像只培训它的'副脑'，成本低见效快。",icon:"🎓"},
+    {c:"向量数据库",a:"图书馆索引",e:"传统数据库按书名/ISBN查找(关键词匹配)，向量数据库按'内容相似度'查找——你说'关于勇气的故事'，它能找出《老人与海》，即使书名里没有'勇气'二字。Embedding就是给每本书生成一个'内容DNA'。",icon:"📚"},
+    {c:"LangGraph",a:"流程图执行器",e:"LangGraph就像一个智能流程图执行器：每个方框(节点)是一个任务，箭头(边)决定下一步去哪。支持条件分支('如果结果不好就重做')、并行('同时做A和B')、循环('反复优化直到满意')。",icon:"📊"},
+    {c:"Embedding",a:"DNA序列",e:"Embedding是文本的'DNA'——把一段文字变成一串数字向量。意思相近的文字，DNA也相似('国王'和'女王'的DNA很接近)。有了DNA就能计算任意两段文字的'亲缘关系'。",icon:"🧬"},
+    {c:"Attention",a:"聚光灯",e:"读一句话时，你的大脑会自动聚焦重要的词。Attention机制就是给模型装了聚光灯——处理'苹果发布了新手机'时，灯光会聚焦在'苹果'和'手机'上，而不是'了'和'新'。Multi-Head就是多盏灯从不同角度照。",icon:"💡"},
+    {c:"LoRA",a:"副驾驶",e:"大模型是一辆卡车(参数巨大)，LoRA是在卡车上加一个小小的'副驾驶方向盘'(低秩矩阵)。只需训练这个小方向盘就能改变卡车的行驶方向，而不用重新造一辆卡车。参数量从百亿降到百万级。",icon:"🚗"},
+    {c:"Prompt Engineering",a:"下达指令",e:"同一个员工，你给他模糊指令('做个东西')和精确指令('用React做一个登录页，要求邮箱验证+记住密码')，产出天差地别。Prompt Engineering就是学会给AI下达精确指令的技巧。",icon:"📝"},
+    {c:"量化",a:"图片压缩",e:"模型量化就像把高清图(32位浮点)压缩成缩略图(4位整数)——文件小了很多，加载快了很多，画质略有损失但大多数场景够用。INT4量化能让7B模型从14GB缩小到4GB，一张消费级显卡就能跑。",icon:"🗜️"},
+    {c:"RLHF",a:"师傅带徒弟",e:"RLHF训练分三步：1)徒弟先自学(预训练)；2)师傅给徒弟的作业打分(训练奖励模型)；3)徒弟根据师傅的偏好调整写法(强化学习)。就像学写作——先大量阅读，再让编辑给反馈，最后按编辑口味改稿。",icon:"👨‍🏫"},
+    {c:"向量检索",a:"找相似照片",e:"你在手机相册搜'海滩'，它不是靠文件名找的——而是把每张照片编码成向量，计算和'海滩'这个词向量的距离。距离越近越相似。向量检索就是这个原理，只不过用在文本上。",icon:"🔍"},
+    {c:"ReAct",a:"边想边做",e:"ReAct模式就像一个经验丰富的工人：先想(Thought:这个问题需要查资料)→再做(Action:搜索关键词)→看结果(Observation:找到了3条信息)→继续想(Thought:信息够了，可以回答了)。思考和行动交替进行。",icon:"🤔"},
+    {c:"Guardrails",a:"安检门",e:"AI Guardrails就像机场安检：用户输入要过'入口安检'(检测注入攻击/有害内容)，AI输出要过'出口安检'(检测泄露隐私/有害建议)。不合格的直接拦截，合格的放行。可配置不同严格级别。",icon:"🛡️"},
+    {c:"多模态",a:"五感通才",e:"早期AI只处理文字(只会听)，多模态AI同时理解文字+图片+音频+视频(听+看+读)。就像一个全能翻译，能听懂对话、看懂图表、读懂文档，然后综合所有信息给出答案。GPT-4V就是典型代表。",icon:"👁️"},
+  ];
+  grid.innerHTML = analogies.map(a => `
+    <div class="analogy-card">
+      <div class="analogy-icon">${a.icon}</div>
+      <div class="analogy-concept">${a.c}</div>
+      <div class="analogy-title">好比「${a.a}」</div>
+      <div class="analogy-text">${a.e}</div>
+    </div>
+  `).join('');
+})();
+
+// ===== COMPARISON TABLES =====
+(function(){
+  const box = document.getElementById('compareContent');
+  const tables = [
+    {title:"RAG vs Fine-tuning：什么时候用哪个？",
+     cols:["维度","RAG","Fine-tuning"],
+     rows:[
+       ["核心思路","外挂知识库，检索+生成","修改模型权重，内化知识"],
+       ["适用场景","知识频繁更新、需要引用来源","特定风格/格式、领域术语"],
+       ["数据需求","文档集(无需标注)","标注数据(指令-回答对)"],
+       ["成本","低(只需向量库)","中高(需GPU训练)"],
+       ["更新方式","替换文档即可，即时生效","需重新训练，耗时数小时"],
+       ["幻觉控制","好(有明确来源)","中(可能编造)"],
+       ["推荐组合","先RAG验证效果 → 不够再Fine-tune","RAG+Fine-tune组合效果最佳"],
+     ]},
+    {title:"Agent架构模式对比",
+     cols:["模式","工作方式","适用场景","复杂度"],
+     rows:[
+       ["ReAct","思考→行动→观察，单步循环","简单问答、工具调用","⭐⭐"],
+       ["Plan-and-Execute","先规划全部步骤，再逐步执行","复杂多步任务","⭐⭐⭐"],
+       ["Reflexion","执行→自我反思→改进→重试","需要高质量输出","⭐⭐⭐"],
+       ["Multi-Agent","多个专业Agent协作","大型复杂系统","⭐⭐⭐⭐"],
+       ["Hierarchical","管理者Agent分配任务给工人Agent","团队协作场景","⭐⭐⭐⭐⭐"],
+     ]},
+    {title:"向量数据库选型对比",
+     cols:["数据库","性能","易用性","部署方式","适合场景"],
+     rows:[
+       ["Chroma","中","⭐⭐⭐⭐⭐","嵌入式/Server","原型开发、小规模"],
+       ["Qdrant","高","⭐⭐⭐⭐","Docker/Cloud","中大规模生产"],
+       ["Milvus","极高","⭐⭐⭐","分布式集群","超大规模(亿级)"],
+       ["FAISS","极高","⭐⭐","库(无服务)","纯检索、研究用"],
+       ["Pinecone","高","⭐⭐⭐⭐⭐","SaaS全托管","不想运维、快速上线"],
+       ["Weaviate","高","⭐⭐⭐⭐","Docker/Cloud","需要混合搜索"],
+     ]},
+    {title:"Fine-tuning方法对比",
+     cols:["方法","参数量","显存需求","训练速度","效果"],
+     rows:[
+       ["Full Fine-tuning","100%","极高(>80GB)","慢","最佳"],
+       ["LoRA","0.1-1%","中(16-24GB)","快","接近Full"],
+       ["QLoRA","0.1-1%","低(6-12GB)","快","接近LoRA"],
+       ["Prefix Tuning","<1%","低","极快","中等"],
+       ["Adapter","1-5%","中","中","接近Full"],
+     ]},
+  ];
+  box.innerHTML = tables.map(t => `
+    <div class="compare-block">
+      <h3 class="compare-title">${t.title}</h3>
+      <div class="compare-scroll"><table class="ref-table">
+        <thead><tr>${t.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+  `).join('');
+})();
+
+// ===== CONCEPT RELATIONSHIP MAP =====
+(function(){
+  const svg = document.getElementById('relSvg');
+  const info = document.getElementById('relInfo');
+  const W=1200,H=500;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const deps = {
+    nlp:{pre:["ml"],rel:["transformer","rag"]},
+    transformer:{pre:["nlp"],rel:["llm-stack","attention"]},
+    "llm-stack":{pre:["transformer"],rel:["finetune","inference","rlhf"]},
+    rag:{pre:["nlp","vectordb"],rel:["rag-adv","agent"]},
+    agent:{pre:["llm-stack"],rel:["langgraph","rag"]},
+    langgraph:{pre:["agent"],rel:["project"]},
+    finetune:{pre:["llm-stack"],rel:["inference","serving"]},
+    vectordb:{pre:["dl"],rel:["rag","rag-adv"]},
+    inference:{pre:["llm-stack"],rel:["serving","safety"]},
+    observability:{pre:["inference"],rel:["serving"]},
+    safety:{pre:["llm-stack"],rel:["observability"]},
+    serving:{pre:["inference"],rel:["observability"]},
+    multimodal:{pre:["transformer","cv"],rel:["llm-stack"]},
+    "rag-adv":{pre:["rag","agent"],rel:["langgraph"]},
+    cv:{pre:["dl"],rel:["multimodal"]},
+    dl:{pre:["ml"],rel:["nlp","cv"]},
+    ml:{pre:[],rel:["dl","nlp"]},
+    database:{pre:[],rel:["vectordb"]},
+    docker:{pre:[],rel:["serving","observability"]},
+    interview:{pre:["llm-stack"],rel:["project"]},
+    project:{pre:["rag","agent","langgraph"],rel:["startup"]},
+    startup:{pre:["project"],rel:["finance"]},
+    finance:{pre:["ml"],rel:["startup"]},
+  };
+  // Layout: circular
+  const keys = Object.keys(deps);
+  const pos = {};
+  keys.forEach((k,i) => {
+    const angle = (i/keys.length)*Math.PI*2 - Math.PI/2;
+    const r = 200;
+    pos[k] = {x: W/2 + r*Math.cos(angle), y: H/2 + r*Math.sin(angle)};
+  });
+  // Draw edges
+  const drawn = new Set();
+  Object.entries(deps).forEach(([k,v])=>{
+    [...v.pre,...v.rel].forEach(t=>{
+      if(!pos[t]) return;
+      const key = [k,t].sort().join('-');
+      if(drawn.has(key)) return;
+      drawn.add(key);
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',pos[k].x);line.setAttribute('y1',pos[k].y);
+      line.setAttribute('x2',pos[t].x);line.setAttribute('y2',pos[t].y);
+      line.setAttribute('class','rel-edge');
+      line.dataset.from=k;line.dataset.to=t;
+      svg.appendChild(line);
+    });
+  });
+  // Draw nodes
+  keys.forEach(k=>{
+    const d = DOMAINS.find(dd=>dd.id===k);
+    if(!d||!pos[k]) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('transform',`translate(${pos[k].x},${pos[k].y})`);
+    g.setAttribute('class','rel-node');
+    g.dataset.id=k;
+    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('r',18);c.setAttribute('fill',d.color+'33');c.setAttribute('stroke',d.color);c.setAttribute('stroke-width','2');
+    g.appendChild(c);
+    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('class','node-label');t.setAttribute('dy','4');
+    t.textContent=d.name.length>4?d.name.slice(0,4)+'…':d.name;
+    g.appendChild(t);
+    g.addEventListener('click',()=>{
+      svg.querySelectorAll('.rel-node circle').forEach(c=>c.setAttribute('fill',c.getAttribute('stroke')+'22'));
+      svg.querySelectorAll('.rel-edge').forEach(e=>e.setAttribute('class','rel-edge'));
+      const dep=deps[k];
+      // Highlight current
+      c.setAttribute('fill',d.color+'88');
+      // Highlight prerequisites
+      dep.pre.forEach(p=>{
+        const pn=svg.querySelector(`.rel-node[data-id="${p}"] circle`);
+        if(pn)pn.setAttribute('fill','#22c55e88');
+      });
+      // Highlight related
+      dep.rel.forEach(r=>{
+        const rn=svg.querySelector(`.rel-node[data-id="${r}"] circle`);
+        if(rn)rn.setAttribute('fill','#06b6d488');
+      });
+      // Highlight edges
+      svg.querySelectorAll('.rel-edge').forEach(e=>{
+        if(e.dataset.from===k||e.dataset.to===k) e.setAttribute('class','rel-edge active');
+      });
+      // Show info
+      const preNames=dep.pre.map(p=>DOMAINS.find(dd=>dd.id===p)?.name||p);
+      const relNames=dep.rel.map(r=>DOMAINS.find(dd=>dd.id===r)?.name||r);
+      info.style.display='block';
+      info.innerHTML=`<div style="margin-bottom:8px"><strong>${d.name}</strong></div>
+        <div style="margin-bottom:4px"><span style="color:var(--green)">● 前置知识：</span>${preNames.join('、')||'无'}</div>
+        <div><span style="color:var(--cyan)">● 关联概念：</span>${relNames.join('、')||'无'}</div>`;
+    });
+    svg.appendChild(g);
+  });
+})();
+
+// ===== ONE-LINE SUMMARIES =====
+(function(){
+  const grid = document.getElementById('onelineGrid');
+  const lines = [
+    {n:"NLP基础",s:"让机器理解人类语言的桥梁",c:"#22c55e"},
+    {n:"Transformer",s:"注意力机制让模型学会'重点看哪里'",c:"#6366f1"},
+    {n:"大模型技术栈",s:"从预训练到对齐，造出一个'通才'",c:"#ef4444"},
+    {n:"RAG",s:"给LLM配一个可随时更新的参考资料库",c:"#06b6d4"},
+    {n:"Agent",s:"让LLM学会用工具、做计划、反思改进",c:"#f59e0b"},
+    {n:"LangGraph",s:"用状态图编排复杂的AI工作流",c:"#8b5cf6"},
+    {n:"模型微调",s:"用少量数据把通才训练成领域专家",c:"#ec4899"},
+    {n:"计算机视觉",s:"让机器'看懂'图片和视频",c:"#14b8a6"},
+    {n:"面试宝典",s:"大模型面试的核心考点速查",c:"#f97316"},
+    {n:"项目实战",s:"把知识变成可运行的产品",c:"#84cc16"},
+    {n:"多模态",s:"文字+图片+音频，AI的五感融合",c:"#a855f7"},
+    {n:"推理部署",s:"让大模型跑得快、跑得省",c:"#0ea5e9"},
+    {n:"向量数据库",s:"按语义相似度查找，而非关键词匹配",c:"#10b981"},
+    {n:"可观测性",s:"给AI系统装上仪表盘和黑匣子",c:"#64748b"},
+    {n:"AI安全",s:"给AI装上安检门，防注入防泄露",c:"#dc2626"},
+    {n:"模型服务",s:"把模型包装成API，稳定对外提供服务",c:"#2563eb"},
+    {n:"Docker",s:"把应用和环境打包，到处都能跑",c:"#0db7ed"},
+    {n:"数据库",s:"数据的仓库管理系统",c:"#336791"},
+    {n:"机器学习",s:"从数据中自动发现规律的算法",c:"#ff6f00"},
+    {n:"深度学习",s:"用多层神经网络学习复杂模式",c:"#e65100"},
+    {n:"RAG高级",s:"从基础检索升级到智能检索",c:"#0891b2"},
+    {n:"创业",s:"把技术变成商业价值的路径",c:"#ca8a04"},
+    {n:"金融",s:"AI在金融领域的垂直应用",c:"#059669"},
+  ];
+  grid.innerHTML = lines.map(l=>`
+    <div class="oneline-card" style="border-left:3px solid ${l.c}">
+      <div class="oneline-name" style="color:${l.c}">${l.n}</div>
+      <div class="oneline-text">${l.s}</div>
+    </div>
+  `).join('');
 })();
 </script>
 </body>
