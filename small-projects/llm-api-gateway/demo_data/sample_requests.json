@@ -1,0 +1,84 @@
+{
+  "requests": [
+    {
+      "id": "req-001",
+      "provider": "openai",
+      "model": "gpt-4o",
+      "messages": [{"role": "user", "content": "Explain quantum entanglement in one paragraph."}],
+      "max_tokens": 200,
+      "temperature": 0.7
+    },
+    {
+      "id": "req-002",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-20250514",
+      "messages": [{"role": "user", "content": "Write a haiku about machine learning."}],
+      "max_tokens": 100,
+      "temperature": 0.9
+    },
+    {
+      "id": "req-003",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "messages": [{"role": "system", "content": "You are a helpful coding assistant."}, {"role": "user", "content": "Write a binary search in Python."}],
+      "max_tokens": 300,
+      "temperature": 0.3
+    },
+    {
+      "id": "req-004",
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "messages": [{"role": "user", "content": "Summarize the history of AI in 3 sentences."}],
+      "max_tokens": 150,
+      "temperature": 0.5
+    },
+    {
+      "id": "req-005",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-20250514",
+      "messages": [{"role": "user", "content": "Translate 'Hello, how are you?' to French, Spanish, and German."}],
+      "max_tokens": 100,
+      "temperature": 0.2
+    },
+    {
+      "id": "req-006",
+      "provider": "openai",
+      "model": "gpt-4o",
+      "messages": [{"role": "user", "content": "Analyze the pros and cons of microservices architecture."}],
+      "max_tokens": 500,
+      "temperature": 0.6
+    },
+    {
+      "id": "req-007",
+      "provider": "ollama",
+      "model": "mistral:7b",
+      "messages": [{"role": "user", "content": "Generate a SQL query to find the top 10 customers by revenue."}],
+      "max_tokens": 200,
+      "temperature": 0.4
+    },
+    {
+      "id": "req-008",
+      "provider": "anthropic",
+      "model": "claude-sonnet-4-20250514",
+      "messages": [{"role": "user", "content": "Explain the CAP theorem with examples."}],
+      "max_tokens": 400,
+      "temperature": 0.5
+    },
+    {
+      "id": "req-009",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "messages": [{"role": "user", "content": "Classify this text as positive, negative, or neutral: 'The product is okay but shipping was terrible.'"}],
+      "max_tokens": 50,
+      "temperature": 0.1
+    },
+    {
+      "id": "req-010",
+      "provider": "ollama",
+      "model": "llama3.1:8b",
+      "messages": [{"role": "system", "content": "You are a creative writing assistant."}, {"role": "user", "content": "Write a opening paragraph for a sci-fi novel about AI."}],
+      "max_tokens": 250,
+      "temperature": 0.95
+    }
+  ]
+}

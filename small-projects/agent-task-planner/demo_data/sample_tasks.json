@@ -1,0 +1,64 @@
+{
+  "scenarios": [
+    {
+      "id": "scenario-1",
+      "name": "Research and Report",
+      "description": "Research the latest developments in quantum computing and produce a summary report",
+      "tasks": [
+        {"id": "t1", "action": "search", "description": "Search for recent quantum computing papers", "dependencies": []},
+        {"id": "t2", "action": "read", "description": "Extract key findings from top 5 papers", "dependencies": ["t1"]},
+        {"id": "t3", "action": "analyze", "description": "Identify common themes and breakthroughs", "dependencies": ["t2"]},
+        {"id": "t4", "action": "write", "description": "Draft summary report", "dependencies": ["t3"]},
+        {"id": "t5", "action": "review", "description": "Review and polish the report", "dependencies": ["t4"]}
+      ]
+    },
+    {
+      "id": "scenario-2",
+      "name": "Code Migration",
+      "description": "Migrate a Python project from Flask to FastAPI",
+      "tasks": [
+        {"id": "t1", "action": "analyze", "description": "Inventory all Flask routes and middleware", "dependencies": []},
+        {"id": "t2", "action": "plan", "description": "Map Flask patterns to FastAPI equivalents", "dependencies": ["t1"]},
+        {"id": "t3", "action": "refactor", "description": "Convert routes to FastAPI with Pydantic models", "dependencies": ["t2"]},
+        {"id": "t4", "action": "test", "description": "Run existing tests and fix failures", "dependencies": ["t3"]},
+        {"id": "t5", "action": "deploy", "description": "Update deployment config for uvicorn", "dependencies": ["t4"]}
+      ]
+    },
+    {
+      "id": "scenario-3",
+      "name": "Data Pipeline",
+      "description": "Build an ETL pipeline for customer analytics",
+      "tasks": [
+        {"id": "t1", "action": "extract", "description": "Connect to source databases and extract raw data", "dependencies": []},
+        {"id": "t2", "action": "transform", "description": "Clean, deduplicate, and normalize records", "dependencies": ["t1"]},
+        {"id": "t3", "action": "enrich", "description": "Join with external data sources for enrichment", "dependencies": ["t2"]},
+        {"id": "t4", "action": "load", "description": "Load processed data into analytics warehouse", "dependencies": ["t3"]},
+        {"id": "t5", "action": "validate", "description": "Run data quality checks and generate report", "dependencies": ["t4"]}
+      ]
+    },
+    {
+      "id": "scenario-4",
+      "name": "Incident Response",
+      "description": "Automated incident triage and resolution",
+      "tasks": [
+        {"id": "t1", "action": "detect", "description": "Parse incoming alert and classify severity", "dependencies": []},
+        {"id": "t2", "action": "diagnose", "description": "Query logs and metrics to identify root cause", "dependencies": ["t1"]},
+        {"id": "t3", "action": "remediate", "description": "Execute automated fix or escalation", "dependencies": ["t2"]},
+        {"id": "t4", "action": "verify", "description": "Confirm service health is restored", "dependencies": ["t3"]},
+        {"id": "t5", "action": "document", "description": "Generate post-incident report", "dependencies": ["t4"]}
+      ]
+    },
+    {
+      "id": "scenario-5",
+      "name": "Content Generation",
+      "description": "Generate a multi-channel marketing campaign",
+      "tasks": [
+        {"id": "t1", "action": "research", "description": "Analyze target audience and competitor campaigns", "dependencies": []},
+        {"id": "t2", "action": "brainstorm", "description": "Generate campaign themes and taglines", "dependencies": ["t1"]},
+        {"id": "t3", "action": "write", "description": "Create copy for email, social, and blog", "dependencies": ["t2"]},
+        {"id": "t4", "action": "design", "description": "Generate image prompts for visual assets", "dependencies": ["t2"]},
+        {"id": "t5", "action": "review", "description": "Consistency check across all channels", "dependencies": ["t3", "t4"]}
+      ]
+    }
+  ]
+}

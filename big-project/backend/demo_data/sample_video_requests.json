@@ -1,0 +1,32 @@
+[
+  {
+    "prompt": "一只金色柴犬在樱花树下奔跑的慢动作视频",
+    "style": "cinematic",
+    "duration": 15,
+    "resolution": "4K"
+  },
+  {
+    "prompt": "未来科技城市的夜景，霓虹灯闪烁，飞行汽车穿梭",
+    "style": "anime",
+    "duration": 20,
+    "resolution": "1080p"
+  },
+  {
+    "prompt": "一款高端护肤品的产品展示，背景为白色大理石",
+    "style": "realistic",
+    "duration": 10,
+    "resolution": "1080p"
+  },
+  {
+    "prompt": "小兔子在森林里采蘑菇的动画短片",
+    "style": "cartoon",
+    "duration": 30,
+    "resolution": "1080p"
+  },
+  {
+    "prompt": "无人机航拍海边日落，海浪拍打礁石",
+    "style": "cinematic",
+    "duration": 12,
+    "resolution": "4K"
+  }
+]

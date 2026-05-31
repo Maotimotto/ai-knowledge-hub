@@ -1,0 +1,68 @@
+version: "3.9"
+
+services:
+  gateway:
+    build: ./llm-api-gateway
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - GUARDRAILS_URL=http://guardrails:8004
+      - OBSERVABILITY_URL=http://observability:8003
+    networks:
+      - ai-hub
+    depends_on:
+      - guardrails
+      - observability
+
+  rag-bot:
+    build: ./rag-qa-bot
+    ports:
+      - "8001:8001"
+    environment:
+      - GATEWAY_URL=http://gateway:8000
+      - GUARDRAILS_URL=http://guardrails:8004
+      - OBSERVABILITY_URL=http://observability:8003
+    networks:
+      - ai-hub
+    depends_on:
+      - gateway
+
+  agent-planner:
+    build: ./agent-task-planner
+    ports:
+      - "8002:8002"
+    environment:
+      - GATEWAY_URL=http://gateway:8000
+      - GUARDRAILS_URL=http://guardrails:8004
+      - OBSERVABILITY_URL=http://observability:8003
+    networks:
+      - ai-hub
+    depends_on:
+      - gateway
+
+  observability:
+    build: ./observability-dashboard
+    ports:
+      - "8003:8003"
+    environment:
+      - COLLECT_FROM=gateway:8000,rag-bot:8001,agent-planner:8002
+    networks:
+      - ai-hub
+
+  guardrails:
+    build: ./ai-safety-guardrails
+    ports:
+      - "8004:8004"
+    environment:
+      - OBSERVABILITY_URL=http://observability:8003
+    networks:
+      - ai-hub
+    depends_on:
+      - observability
+
+networks:
+  ai-hub:
+    driver: bridge

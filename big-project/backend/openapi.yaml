@@ -1,0 +1,327 @@
+openapi: 3.0.3
+info:
+  title: AI Content Creator SaaS Platform API
+  version: 1.0.0
+  description: |
+    AI-powered content creation platform with video generation, comment analysis,
+    knowledge retrieval (RAG), and admin management capabilities.
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+security:
+  - BearerAuth: []
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      security: []
+      responses:
+        "200":
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /api/video/generate:
+    post:
+      summary: Generate AI video
+      tags: [Video]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VideoGenerateRequest"
+      responses:
+        "200":
+          description: Video task created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoTaskResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/video/tasks/{id}:
+    get:
+      summary: Get video task status
+      tags: [Video]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Task details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VideoTaskResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/comment/analyze:
+    post:
+      summary: Analyze comment sentiment
+      tags: [Comment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentAnalyzeRequest"
+      responses:
+        "200":
+          description: Analysis result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentAnalyzeResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/comment/reply:
+    post:
+      summary: Generate auto-reply to comment
+      tags: [Comment]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentReplyRequest"
+      responses:
+        "200":
+          description: Generated reply
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommentReplyResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/knowledge/ask:
+    post:
+      summary: Ask knowledge base question (RAG)
+      tags: [Knowledge]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeAskRequest"
+      responses:
+        "200":
+          description: RAG answer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeAskResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/knowledge/ingest:
+    post:
+      summary: Ingest documents into knowledge base
+      tags: [Knowledge]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeIngestRequest"
+      responses:
+        "200":
+          description: Ingestion result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeIngestResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/admin/stats:
+    get:
+      summary: Get platform usage statistics
+      tags: [Admin]
+      responses:
+        "200":
+          description: Platform stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStatsResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+  /api/admin/audit-log:
+    get:
+      summary: Get audit log entries
+      tags: [Admin]
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: Audit log entries
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuditLogResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/ServerError"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status: { type: string, example: "ok" }
+        version: { type: string }
+        uptime: { type: number }
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+        detail: { type: string }
+    VideoGenerateRequest:
+      type: object
+      required: [prompt]
+      properties:
+        prompt: { type: string }
+        style: { type: string, enum: [cinematic, anime, realistic, cartoon] }
+        duration: { type: integer, default: 10 }
+        resolution: { type: string, default: "1080p" }
+    VideoTaskResponse:
+      type: object
+      properties:
+        task_id: { type: string }
+        status: { type: string, enum: [pending, processing, completed, failed] }
+        video_url: { type: string, nullable: true }
+        created_at: { type: string, format: date-time }
+    CommentAnalyzeRequest:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string }
+        platform: { type: string, enum: [weibo, douyin, xiaohongshu, wechat] }
+    CommentAnalyzeResponse:
+      type: object
+      properties:
+        sentiment: { type: string, enum: [positive, negative, neutral] }
+        confidence: { type: number }
+        keywords: { type: array, items: { type: string } }
+        toxicity_score: { type: number }
+    CommentReplyRequest:
+      type: object
+      required: [comment]
+      properties:
+        comment: { type: string }
+        tone: { type: string, enum: [friendly, professional, humorous] }
+        max_length: { type: integer, default: 200 }
+    CommentReplyResponse:
+      type: object
+      properties:
+        reply: { type: string }
+        generated_at: { type: string, format: date-time }
+    KnowledgeAskRequest:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string }
+        top_k: { type: integer, default: 3 }
+        collection: { type: string, default: "default" }
+    KnowledgeAskResponse:
+      type: object
+      properties:
+        answer: { type: string }
+        sources: { type: array, items: { type: string } }
+        confidence: { type: number }
+    KnowledgeIngestRequest:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string }
+        metadata: { type: object }
+        collection: { type: string, default: "default" }
+    KnowledgeIngestResponse:
+      type: object
+      properties:
+        doc_id: { type: string }
+        chunks_created: { type: integer }
+        status: { type: string }
+    AdminStatsResponse:
+      type: object
+      properties:
+        total_videos: { type: integer }
+        total_comments_analyzed: { type: integer }
+        total_knowledge_queries: { type: integer }
+        active_users: { type: integer }
+    AuditLogResponse:
+      type: object
+      properties:
+        entries:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp: { type: string, format: date-time }
+              user: { type: string }
+              action: { type: string }
+              resource: { type: string }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }

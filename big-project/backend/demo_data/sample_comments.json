@@ -1,0 +1,12 @@
+[
+  {"id": 1, "text": "这个产品真的太棒了，强烈推荐给大家！", "sentiment": "positive", "platform": "weibo", "likes": 234},
+  {"id": 2, "text": "等了好久终于收到了，质量一般般吧", "sentiment": "neutral", "platform": "douyin", "likes": 45},
+  {"id": 3, "text": "包装太差了，东西都碎了，差评！", "sentiment": "negative", "platform": "xiaohongshu", "likes": 189},
+  {"id": 4, "text": "客服态度很好，耐心解答了我所有问题", "sentiment": "positive", "platform": "wechat", "likes": 67},
+  {"id": 5, "text": "价格偏高，性价比一般", "sentiment": "negative", "platform": "weibo", "likes": 112},
+  {"id": 6, "text": "第二次购买了，一如既往的好", "sentiment": "positive", "platform": "douyin", "likes": 301},
+  {"id": 7, "text": "物流很快，三天就到了", "sentiment": "positive", "platform": "xiaohongshu", "likes": 23},
+  {"id": 8, "text": "颜色和图片差别太大了，不推荐", "sentiment": "negative", "platform": "weibo", "likes": 156},
+  {"id": 9, "text": "用了一周感觉还行，待观察", "sentiment": "neutral", "platform": "wechat", "likes": 8},
+  {"id": 10, "text": "颜值很高，朋友们都问我在哪买的", "sentiment": "positive", "platform": "douyin", "likes": 445}
+]
