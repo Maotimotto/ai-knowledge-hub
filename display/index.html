@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 知识吸收仪表盘</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#232340;
+  --fg:#e2e8f0;--fg2:#94a3b8;--fg3:#64748b;
+  --accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
+  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --transition:all .3s cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;min-height:100vh;overflow-x:hidden}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+
+/* === NAV === */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,102,241,.15);padding:0 24px}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px}
+.nav-logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.nav-tabs{display:flex;gap:4px;margin-left:24px;overflow-x:auto;flex:1}
+.nav-tab{padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--fg2);transition:var(--transition);white-space:nowrap;border:none;background:none;font-family:inherit}
+.nav-tab:hover{color:var(--fg);background:rgba(99,102,241,.1)}
+.nav-tab.active{color:#fff;background:var(--accent)}
+
+/* === LAYOUT === */
+.container{max-width:1400px;margin:0 auto;padding:24px}
+.section{display:none;animation:fadeIn .4s ease}
+.section.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.section-title{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--fg),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.section-desc{color:var(--fg2);margin-bottom:32px;font-size:15px}
+
+/* === KNOWLEDGE GRAPH === */
+.graph-container{position:relative;background:var(--bg2);border-radius:var(--radius);border:1px solid rgba(99,102,241,.12);overflow:hidden;min-height:600px}
+.graph-container svg{width:100%;height:600px}
+.graph-node{cursor:pointer;transition:var(--transition)}
+.graph-node:hover .node-circle{filter:drop-shadow(0 0 12px var(--accent))}
+.node-circle{transition:var(--transition)}
+.node-label{font-size:11px;fill:var(--fg);text-anchor:middle;pointer-events:none;font-family:inherit}
+.graph-edge{stroke:rgba(99,102,241,.2);stroke-width:1.5;fill:none}
+.graph-tooltip{position:absolute;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:10;max-width:260px;box-shadow:var(--shadow)}
+.graph-tooltip.show{opacity:1}
+
+/* === CONCEPT CARDS === */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.card{perspective:800px;height:220px;cursor:pointer}
+.card-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
+.card:hover .card-inner{transform:rotateY(180deg)}
+.card-front,.card-back{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;padding:24px;display:flex;flex-direction:column}
+.card-front{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid rgba(99,102,241,.15)}
+.card-back{background:linear-gradient(135deg,var(--accent3),var(--accent));transform:rotateY(180deg);color:#fff}
+.card-num{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:8px;letter-spacing:1px}
+.card-name{font-size:18px;font-weight:700;margin-bottom:12px}
+.card-diff{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;width:fit-content}
+.diff-easy{background:rgba(34,197,94,.15);color:var(--green)}
+.diff-medium{background:rgba(234,179,8,.15);color:var(--yellow)}
+.diff-hard{background:rgba(239,68,68,.15);color:var(--red)}
+.card-topics{color:var(--fg2);font-size:12px;margin-top:auto;line-height:1.8}
+.card-back-title{font-size:15px;font-weight:700;margin-bottom:12px;opacity:.9}
+.card-back ul{list-style:none;font-size:13px;line-height:2}
+.card-back li::before{content:"→ ";opacity:.7}
+
+/* === QUICK REF === */
+.ref-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.ref-tab{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--fg2);border:1px solid transparent;transition:var(--transition);font-family:inherit}
+.ref-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.ref-content{display:none}
+.ref-content.active{display:block}
+.ref-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid rgba(99,102,241,.1)}
+.ref-table th{background:var(--bg3);padding:12px 16px;text-align:left;font-size:13px;color:var(--accent2);font-weight:600;border-bottom:1px solid rgba(99,102,241,.1)}
+.ref-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg2)}
+.ref-table tr:hover td{background:rgba(99,102,241,.04)}
+.ref-table code{background:var(--bg4);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--cyan)}
+
+/* === LEARNING PATHS === */
+.path-selector{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
+.path-btn{padding:12px 24px;border-radius:var(--radius);cursor:pointer;background:var(--bg3);color:var(--fg2);border:2px solid transparent;transition:var(--transition);font-family:inherit;font-size:14px;font-weight:600}
+.path-btn.active{border-color:var(--accent);color:#fff;background:rgba(99,102,241,.1)}
+.path-btn:hover{border-color:rgba(99,102,241,.4)}
+.path-flow{display:none}
+.path-flow.active{display:block}
+.path-steps{position:relative;padding-left:40px}
+.path-step{position:relative;padding:16px 0 32px 24px;border-left:2px solid var(--bg4)}
+.path-step:last-child{border-left-color:transparent}
+.path-step::before{content:'';position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--bg4);border:2px solid var(--accent);transition:var(--transition)}
+.path-step.done::before{background:var(--accent)}
+.path-step-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.path-step-desc{font-size:13px;color:var(--fg2)}
+.path-step-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.path-tag{padding:2px 10px;border-radius:12px;font-size:11px;background:rgba(99,102,241,.12);color:var(--accent2)}
+
+/* === PROGRESS === */
+.progress-bar-wrap{background:var(--bg3);border-radius:20px;height:12px;overflow:hidden;margin-bottom:8px}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--cyan));border-radius:20px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-stats{display:flex;gap:32px;margin-bottom:32px;flex-wrap:wrap}
+.stat{background:var(--bg2);border:1px solid rgba(99,102,241,.1);border-radius:var(--radius);padding:20px 24px;min-width:160px}
+.stat-val{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:13px;color:var(--fg2);margin-top:4px}
+.progress-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.prog-item{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid rgba(99,102,241,.08);border-radius:var(--radius-sm);transition:var(--transition)}
+.prog-item:hover{border-color:rgba(99,102,241,.25)}
+.prog-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--fg3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
+.prog-check.checked{background:var(--accent);border-color:var(--accent)}
+.prog-check.checked::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.prog-name{font-size:14px;font-weight:600}
+.prog-cat{font-size:11px;color:var(--fg3)}
+
+/* Responsive */
+@media(max-width:768px){
+  .nav-inner{gap:8px}
+  .nav-logo{font-size:15px}
+  .nav-tab{padding:6px 10px;font-size:12px}
+  .container{padding:16px}
+  .cards-grid{grid-template-columns:1fr}
+  .progress-list{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">🧠 AI 知识仪表盘</div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="graph">知识图谱</button>
+      <button class="nav-tab" data-tab="cards">概念卡片</button>
+      <button class="nav-tab" data-tab="ref">速查表</button>
+      <button class="nav-tab" data-tab="paths">学习路径</button>
+      <button class="nav-tab" data-tab="progress">进度追踪</button>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- KNOWLEDGE GRAPH -->
+<section class="section active" id="sec-graph">
+  <h2 class="section-title">知识图谱</h2>
+  <p class="section-desc">点击节点查看详情，拖拽可平移视图。线条表示知识依赖关系。</p>
+  <div class="graph-container" id="graphBox">
+    <svg id="graphSvg"></svg>
+    <div class="graph-tooltip" id="tooltip"></div>
+  </div>
+</section>
+
+<!-- CONCEPT CARDS -->
+<section class="section" id="sec-cards">
+  <h2 class="section-title">概念卡片</h2>
+  <p class="section-desc">悬停翻转卡片，查看每个领域的核心知识点速览。</p>
+  <div class="cards-grid" id="cardsGrid"></div>
+</section>
+
+<!-- QUICK REF -->
+<section class="section" id="sec-ref">
+  <h2 class="section-title">速查表</h2>
+  <p class="section-desc">常用公式、API模式、架构模式快速参考。</p>
+  <div class="ref-tabs" id="refTabs"></div>
+  <div id="refContents"></div>
+</section>
+
+<!-- LEARNING PATHS -->
+<section class="section" id="sec-paths">
+  <h2 class="section-title">学习路径</h2>
+  <p class="section-desc">选择你的职业方向，按照推荐顺序学习。</p>
+  <div class="path-selector" id="pathSelector"></div>
+  <div id="pathFlows"></div>
+</section>
+
+<!-- PROGRESS -->
+<section class="section" id="sec-progress">
+  <h2 class="section-title">进度追踪</h2>
+  <p class="section-desc">勾选已掌握的知识点，进度自动保存到本地。</p>
+  <div class="progress-stats" id="progStats"></div>
+  <div class="progress-list" id="progList"></div>
+</section>
+
+</div>
+
+<script>
+// ===== DATA =====
+const DOMAINS = [
+  {id:"nlp",name:"NLP基础",num:"01",diff:"easy",cat:"基础",color:"#22c55e",
+    topics:["分词与词向量","语言模型(N-gram→NN)","序列标注(NER/POS)","文本分类与情感分析","Attention机制基础"],
+    desc:"自然语言处理基础，是一切大模型技术的前置知识。"},
+  {id:"transformer",name:"Transformer架构",num:"02",diff:"medium",cat:"核心",color:"#6366f1",
+    topics:["Self-Attention计算","Multi-Head Attention","位置编码(正弦/旋转)","Encoder-Decoder结构","层归一化(Pre-LN/Post-LN)"],
+    desc:"现代大模型的核心架构，理解Transformer是理解一切LLM的关键。"},
+  {id:"llm-stack",name:"大模型技术栈",num:"03",diff:"hard",cat:"核心",color:"#ef4444",
+    topics:["预训练(Pre-training)","Scaling Laws","RLHF/DPO对齐","Tokenization(BPE/SentencePiece)","分布式训练(FSDP/DeepSpeed)"],
+    desc:"大模型从训练到部署的完整技术栈。"},
+  {id:"rag",name:"RAG技术",num:"04",diff:"medium",cat:"应用",color:"#eab308",
+    topics:["检索-增强生成原理","文档切分策略","Embedding模型选择","Reranking策略","评估(忠实度/相关性)"],
+    desc:"检索增强生成，让大模型利用外部知识库回答问题。"},
+  {id:"agent",name:"Agent开发",num:"05",diff:"hard",cat:"应用",color:"#ef4444",
+    topics:["ReAct模式","工具调用(Function Calling)","规划与推理","多Agent协作","记忆机制(短期/长期)"],
+    desc:"AI Agent是LLM应用的高级形态，能自主规划和执行任务。"},
+  {id:"langgraph",name:"LangGraph",num:"06",diff:"medium",cat:"框架",color:"#06b6d4",
+    topics:["状态图(StateGraph)","条件路由","人机交互节点","持久化与检查点","流式输出"],
+    desc:"基于图的Agent编排框架，适合构建复杂的有状态工作流。"},
+  {id:"finetune",name:"模型微调",num:"07",diff:"hard",cat:"训练",color:"#ef4444",
+    topics:["全量微调 vs LoRA/QLoRA","数据准备与清洗","超参数调优","评估指标(BLEU/ROUGE)","合并与导出模型"],
+    desc:"用特定数据微调模型以提升任务表现。"},
+  {id:"cv",name:"计算机视觉基础",num:"08",diff:"medium",cat:"基础",color:"#eab308",
+    topics:["CNN经典架构","目标检测(YOLO/RCNN)","图像分割","ViT视觉Transformer","CLIP多模态对齐"],
+    desc:"计算机视觉基础，多模态开发的前置知识。"},
+  {id:"interview",name:"面试宝典",num:"09",diff:"medium",cat:"综合",color:"#f97316",
+    topics:["机器学习八股","深度学习核心概念","大模型常见面试题","系统设计题","手撕代码题"],
+    desc:"AI/ML岗位面试高频知识点汇总。"},
+  {id:"project",name:"项目实战",num:"10",diff:"hard",cat:"实战",color:"#ef4444",
+    topics:["智能客服系统","文档问答系统","代码助手","AI搜索","数据分析Agent"],
+    desc:"真实项目案例，从需求到上线的完整流程。"},
+  {id:"multimodal",name:"多模态开发",num:"11",diff:"hard",cat:"前沿",color:"#a855f7",
+    topics:["图文理解(GPT-4V)","语音识别(TTS/STT)","视频理解","多模态Embedding","统一多模态架构"],
+    desc:"融合文本、图像、语音的多模态AI开发。"},
+  {id:"inference",name:"LLM推理部署",num:"12",diff:"hard",cat:"工程",color:"#ef4444",
+    topics:["量化(GPTQ/AWQ/GGUF)","KV Cache优化","vLLM/TGI推理引擎","批处理与流式","TensorRT-LLM"],
+    desc:"大模型推理加速与高效部署技术。"},
+  {id:"vectordb",name:"向量数据库",num:"13",diff:"medium",cat:"基础设施",color:"#06b6d4",
+    topics:["向量检索算法(HNSW/IVF)","Milvus/Pinecone/Weaviate","索引优化","混合检索","维度与距离选择"],
+    desc:"存储和检索高维向量的专用数据库，RAG的核心组件。"},
+  {id:"observability",name:"LLM可观测性",num:"14",diff:"medium",cat:"工程",color:"#eab308",
+    topics:["Tracing链路追踪","Token消耗监控","质量评估自动化","LangSmith/Phoenix","日志与告警"],
+    desc:"监控和调试LLM应用的性能与质量。"},
+  {id:"safety",name:"AI安全与护栏",num:"15",diff:"medium",cat:"安全",color:"#f97316",
+    topics:["Prompt注入防御","内容过滤与审核","输出格式约束","越狱攻击防护","Guardrails框架"],
+    desc:"保护LLM应用免受恶意输入和不当输出。"},
+  {id:"serving",name:"模型服务与部署",num:"16",diff:"hard",cat:"工程",color:"#ef4444",
+    topics:["API设计(OpenAI兼容)","负载均衡与扩缩容","A/B测试","CI/CD流水线","GPU集群管理"],
+    desc:"将模型包装为生产级API服务。"},
+  {id:"docker",name:"Docker",num:"+",diff:"easy",cat:"工程",color:"#22c55e",
+    topics:["容器基础概念","Dockerfile编写","Docker Compose","镜像优化","网络与存储"],
+    desc:"容器化技术，AI应用部署的基础设施。"},
+  {id:"database",name:"数据库",num:"+",diff:"easy",cat:"基础",color:"#22c55e",
+    topics:["SQL基础","PostgreSQL","Redis缓存","MongoDB文档存储","数据库设计范式"],
+    desc:"数据存储基础，所有应用的底层支撑。"},
+  {id:"ml",name:"机器学习",num:"+",diff:"medium",cat:"基础",color:"#eab308",
+    topics:["监督/无监督/强化学习","特征工程","模型评估(交叉验证)","经典算法(SVM/RF/XGBoost)","过拟合与正则化"],
+    desc:"机器学习理论基础，深度学习的前置知识。"},
+  {id:"dl",name:"深度学习",num:"+",diff:"medium",cat:"基础",color:"#eab308",
+    topics:["反向传播算法","CNN/RNN/LSTM","优化器(Adam等)","正则化(Dropout/BatchNorm)","PyTorch实战"],
+    desc:"深度学习核心理论与实践。"},
+  {id:"rag-adv",name:"RAG高级模式",num:"+",diff:"hard",cat:"高级",color:"#ef4444",
+    topics:["GraphRAG(知识图谱)","Agentic RAG","多路检索融合","Self-RAG自适应","Corrective RAG纠错"],
+    desc:"RAG的高级架构模式，提升复杂场景下的表现。"},
+  {id:"startup",name:"创业",num:"+",diff:"medium",cat:"商业",color:"#a855f7",
+    topics:["AI产品设计方法论","MVP快速验证","商业模式画布","融资与团队","市场定位与增长"],
+    desc:"AI领域的创业方法论与商业思维。"},
+  {id:"finance",name:"金融",num:"+",diff:"medium",cat:"领域",color:"#f97316",
+    topics:["量化交易基础","金融风控模型","NLP在金融中的应用","合规与监管","金融知识图谱"],
+    desc:"AI在金融领域的应用与实践。"},
+];
+
+const EDGES = [
+  ["nlp","transformer"],["transformer","llm-stack"],["transformer","rag"],
+  ["llm-stack","finetune"],["llm-stack","inference"],["llm-stack","serving"],
+  ["rag","vectordb"],["rag","rag-adv"],["rag","agent"],
+  ["agent","langgraph"],["agent","project"],
+  ["cv","multimodal"],["multimodal","llm-stack"],
+  ["ml","dl"],["ml","nlp"],["dl","transformer"],["dl","cv"],
+  ["finetune","project"],["inference","serving"],
+  ["safety","agent"],["safety","rag"],
+  ["observability","serving"],["observability","agent"],
+  ["database","vectordb"],["database","project"],
+  ["docker","serving"],["docker","inference"],
+  ["interview","nlp"],["interview","transformer"],
+  ["llm-stack","multimodal"],["rag-adv","agent"],
+  ["startup","project"],["finance","project"],
+];
+
+const REFS = [
+  {name:"核心公式",id:"formulas",rows:[
+    ["Self-Attention","<code>Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V</code>"],
+    ["位置编码(正弦)","<code>PE(pos,2i) = sin(pos/10000^(2i/d))</code>"],
+    ["RoPE旋转位置编码","<code>q·e^(iθm), k·e^(iθn)</code> — 旋转矩阵编码相对位置"],
+    ["LoRA低秩分解","<code>W' = W + BA</code>, B∈ℝ^(d×r), A∈ℝ^(r×d), r≪d"],
+    ["交叉熵损失","<code>L = -Σ yᵢlog(ŷᵢ)</code>"],
+    ["余弦相似度","<code>sim(a,b) = a·b / (||a||·||b||)</code>"],
+    ["F1 Score","<code>F1 = 2·P·R / (P+R)</code>"],
+    ["Scaling Law","<code>L(N,D,C) ∝ N^(-α) + D^(-β) + C^(-γ)</code>"],
+  ]},
+  {name:"API模式",id:"api",rows:[
+    ["OpenAI Chat","<code>POST /v1/chat/completions</code> — messages=[{role,content}]"],
+    ["Function Calling","<code>tools=[{type:'function',function:{name,parameters}}]</code>"],
+    ["流式输出","<code>stream:true</code> → SSE (Server-Sent Events)"],
+    ["Embedding","<code>POST /v1/embeddings</code> — input:text → float[]"],
+    ["LangChain LCEL","<code>chain = prompt | llm | parser</code>"],
+    ["LangGraph State","<code>StateGraph(State).add_node().add_edge().compile()</code>"],
+    ["RAG Pipeline","<code>load → split → embed → store → retrieve → generate</code>"],
+    ["vLLM部署","<code>python -m vllm.entrypoints.openai.api_server --model</code>"],
+  ]},
+  {name:"架构模式",id:"arch",rows:[
+    ["ReAct","思考(Thought) → 行动(Action) → 观察(Observation) 循环"],
+    ["RAG基本流","问题 → 检索 → 拼接上下文 → LLM生成 → 返回"],
+    ["Agentic RAG","Agent判断是否需要检索 → 多轮检索 → 自我修正"],
+    ["Multi-Agent","Supervisor分配任务 → Worker执行 → 聚合结果"],
+    ["Guardrails","输入过滤 → Prompt注入检测 → 输出格式校验 → 内容审核"],
+    ["微调流程","数据准备 → 训练(LoRA) → 评估 → 合并 → 导出 → 部署"],
+    ["部署架构","LB → API Gateway → 推理集群(vLLM) → 监控(可观测性)"],
+    ["知识图谱RAG","文档 → 实体抽取 → 图谱构建 → 子图检索 → LLM生成"],
+  ]},
+  {name:"常用命令",id:"cmd",rows:[
+    ["LoRA微调","<code>python train.py --lora_r 16 --lora_alpha 32 --epochs 3</code>"],
+    ["Docker运行","<code>docker run -d --gpus all -p 8000:8000 vllm/vllm-openai</code>"],
+    ["量化模型","<code>python -m awq.quantize --model_path model --w_bit 4</code>"],
+    ["LangSmith","<code>export LANGCHAIN_TRACING_V2=true LANGCHAIN_API_KEY=...</code>"],
+    ["Milvus","<code>docker compose up -d</code> → <code>pymilvus.connections.connect()</code>"],
+    ["FastAPI部署","<code>uvicorn app:app --host 0.0.0.0 --port 8000</code>"],
+    ["Ollama本地","<code>ollama pull llama3 && ollama serve</code>"],
+    ["Git大文件","<code>git lfs track '*.bin' '*.safetensors'</code>"],
+  ]},
+];
+
+const PATHS = [
+  {name:"🤖 AI工程师",id:"ai-eng",steps:[
+    {t:"数学与ML基础",d:"线性代数、概率论、机器学习基本算法",tags:["机器学习","深度学习"]},
+    {t:"NLP与Transformer",d:"分词、词向量、Attention机制、Transformer架构",tags:["NLP基础","Transformer架构"]},
+    {t:"大模型基础",d:"预训练、Tokenization、Scaling Laws、RLHF",tags:["大模型技术栈"]},
+    {t:"RAG应用开发",d:"文档处理、向量检索、Reranking、评估",tags:["RAG技术","向量数据库"]},
+    {t:"Agent与工作流",d:"Function Calling、ReAct、LangGraph编排",tags:["Agent开发","LangGraph"]},
+    {t:"部署与运维",d:"量化、推理引擎、API服务、监控",tags:["LLM推理部署","模型服务与部署","LLM可观测性"]},
+    {t:"项目实战",d:"端到端构建生产级AI应用",tags:["项目实战","Docker"]},
+  ]},
+  {name:"🧠 Agent专家",id:"agent-exp",steps:[
+    {t:"LLM基础",d:"理解大模型能力边界与API使用",tags:["大模型技术栈","Transformer架构"]},
+    {t:"工具调用",d:"Function Calling、工具设计、MCP协议",tags:["Agent开发"]},
+    {t:"规划与推理",d:"ReAct、CoT、ToT推理策略",tags:["Agent开发"]},
+    {t:"LangGraph精通",d:"状态图、条件路由、持久化、流式",tags:["LangGraph"]},
+    {t:"高级RAG",d:"Agentic RAG、GraphRAG、自适应检索",tags:["RAG技术","RAG高级模式","向量数据库"]},
+    {t:"多Agent系统",d:"协作模式、任务分配、冲突解决",tags:["Agent开发","LangGraph"]},
+    {t:"安全与生产",d:"Guardrails、可观测性、评估",tags:["AI安全与护栏","LLM可观测性"]},
+  ]},
+  {name:"⚙️ 微调工程师",id:"finetune-eng",steps:[
+    {t:"深度学习基础",d:"CNN/RNN、优化器、正则化",tags:["深度学习","机器学习"]},
+    {t:"Transformer精通",d:"架构细节、注意力变体、位置编码",tags:["Transformer架构"]},
+    {t:"大模型训练",d:"预训练、分布式训练、混合精度",tags:["大模型技术栈"]},
+    {t:"数据工程",d:"数据收集、清洗、格式化、质量评估",tags:["模型微调"]},
+    {t:"微调实战",d:"LoRA/QLoRA、超参调优、评估",tags:["模型微调"]},
+    {t:"量化与部署",d:"GPTQ/AWQ量化、推理优化",tags:["LLM推理部署","模型服务与部署"]},
+    {t:"评估体系",d:"自动化评估、A/B测试、持续迭代",tags:["LLM可观测性","项目实战"]},
+  ]},
+  {name:"🚀 创业技术栈",id:"startup-tech",steps:[
+    {t:"AI基础认知",d:"理解LLM能力与局限，能做技术选型",tags:["大模型技术栈","Transformer架构"]},
+    {t:"快速原型",d:"用LangChain/RAG快速搭建MVP",tags:["RAG技术","LangGraph","Agent开发"]},
+    {t:"产品设计",d:"AI产品方法论、用户体验、商业模式",tags:["创业"]},
+    {t:"领域深耕",d:"选择垂直领域(金融/医疗/教育等)",tags:["金融","面试宝典"]},
+    {t:"工程化",d:"安全、监控、部署、扩展",tags:["AI安全与护栏","LLM可观测性","模型服务与部署"]},
+    {t:"团队与融资",d:"技术团队搭建、融资策略",tags:["创业"]},
+    {t:"规模化",d:"成本优化、多模型管理、国际化",tags:["LLM推理部署","Docker"]},
+  ]},
+];
+
+// ===== TAB NAVIGATION =====
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ===== KNOWLEDGE GRAPH =====
+(function(){
+  const svg = document.getElementById('graphSvg');
+  const tooltip = document.getElementById('tooltip');
+  const W = 1400, H = 600;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // Position nodes in a force-like layout (precomputed)
+  const positions = {};
+  const cx = W/2, cy = H/2;
+  const layers = [
+    {ids:['ml','database','docker'],y:80},
+    {ids:['dl','nlp'],y:170},
+    {ids:['cv','transformer','vectordb'],y:270},
+    {ids:['llm-stack','rag','interview'],y:370},
+    {ids:['finetune','agent','inference','observability','multimodal','rag-adv'],y:460},
+    {ids:['langgraph','safety','serving','project'],y:550},
+    {ids:['startup','finance'],y:560},
+  ];
+  layers.forEach(layer => {
+    const n = layer.ids.length;
+    layer.ids.forEach((id, i) => {
+      const d = DOMAINS.find(d => d.id === id);
+      positions[id] = {x: (W/(n+1))*(i+1), y: layer.y, data: d};
+    });
+  });
+
+  // Add some horizontal jitter
+  const jitter = {rag:-40,agent:50,finetune:-60,inference:30,multimodal:-20,'rag-adv':60,safety:-30,serving:40,project:-10,startup:-50,finance:50};
+  Object.keys(jitter).forEach(k => { if(positions[k]) positions[k].x += jitter[k]; });
+
+  // Draw edges
+  EDGES.forEach(([from, to]) => {
+    if(!positions[from] || !positions[to]) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg','path');
+    const x1=positions[from].x, y1=positions[from].y, x2=positions[to].x, y2=positions[to].y;
+    const mx = (x1+x2)/2, my = (y1+y2)/2 - 30;
+    line.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+    line.setAttribute('class','graph-edge');
+    svg.appendChild(line);
+  });
+
+  // Draw nodes
+  DOMAINS.forEach(d => {
+    const p = positions[d.id];
+    if(!p) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','graph-node');
+    g.setAttribute('transform',`translate(${p.x},${p.y})`);
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('r', d.num === '+' ? 20 : 26);
+    circle.setAttribute('class','node-circle');
+    circle.setAttribute('fill', d.color + '22');
+    circle.setAttribute('stroke', d.color);
+    circle.setAttribute('stroke-width','2');
+    g.appendChild(circle);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('class','node-label');
+    text.setAttribute('dy','4');
+    text.textContent = d.name.length > 5 ? d.name.slice(0,5)+'…' : d.name;
+    g.appendChild(text);
+
+    g.addEventListener('mouseenter', e => {
+      tooltip.innerHTML = `<strong>${d.name}</strong><br><span style="color:${d.color}">${d.diff}</span> · ${d.cat}<br><br>${d.desc}`;
+      tooltip.classList.add('show');
+    });
+    g.addEventListener('mousemove', e => {
+      const rect = document.getElementById('graphBox').getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 16) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
+    });
+    g.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+
+    svg.appendChild(g);
+  });
+})();
+
+// ===== CONCEPT CARDS =====
+(function(){
+  const grid = document.getElementById('cardsGrid');
+  DOMAINS.forEach(d => {
+    const diffClass = d.diff === 'easy' ? 'diff-easy' : d.diff === 'medium' ? 'diff-medium' : 'diff-hard';
+    const diffLabel = {easy:'入门',medium:'进阶',hard:'高级'}[d.diff];
+    grid.innerHTML += `
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-num">${d.num === '+' ? 'EXTRA' : '#'+d.num}</div>
+            <div class="card-name">${d.name}</div>
+            <span class="card-diff ${diffClass}">${diffLabel} · ${d.cat}</span>
+            <div class="card-topics">${d.topics.slice(0,3).join(' · ')}</div>
+          </div>
+          <div class="card-back">
+            <div class="card-back-title">📌 ${d.name} 核心要点</div>
+            <ul>${d.topics.map(t => `<li>${t}</li>`).join('')}</ul>
+          </div>
+        </div>
+      </div>`;
+  });
+})();
+
+// ===== QUICK REF =====
+(function(){
+  const tabs = document.getElementById('refTabs');
+  const contents = document.getElementById('refContents');
+  REFS.forEach((ref, i) => {
+    tabs.innerHTML += `<button class="ref-tab ${i===0?'active':''}" data-ref="${ref.id}">${ref.name}</button>`;
+    contents.innerHTML += `<div class="ref-content ${i===0?'active':''}" id="ref-${ref.id}">
+      <table class="ref-table"><thead><tr><th style="width:180px">概念</th><th>说明 / 代码</th></tr></thead>
+      <tbody>${ref.rows.map(r => `<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>`;
+  });
+  tabs.addEventListener('click', e => {
+    if(!e.target.classList.contains('ref-tab')) return;
+    tabs.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
+    contents.querySelectorAll('.ref-content').forEach(c => c.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById('ref-'+e.target.dataset.ref).classList.add('active');
+  });
+})();
+
+// ===== LEARNING PATHS =====
+(function(){
+  const sel = document.getElementById('pathSelector');
+  const flows = document.getElementById('pathFlows');
+  PATHS.forEach((p, i) => {
+    sel.innerHTML += `<button class="path-btn ${i===0?'active':''}" data-path="${p.id}">${p.name}</button>`;
+    flows.innerHTML += `<div class="path-flow ${i===0?'active':''}" id="path-${p.id}">
+      <div class="path-steps">${p.steps.map(s => `
+        <div class="path-step">
+          <div class="path-step-title">${s.t}</div>
+          <div class="path-step-desc">${s.d}</div>
+          <div class="path-step-tags">${s.tags.map(t=>`<span class="path-tag">${t}</span>`).join('')}</div>
+        </div>`).join('')}</div></div>`;
+  });
+  sel.addEventListener('click', e => {
+    if(!e.target.classList.contains('path-btn')) return;
+    sel.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
+    flows.querySelectorAll('.path-flow').forEach(f => f.classList.remove('active'));
+    e.target.classList.add('active');
+    document.getElementById('path-'+e.target.dataset.path).classList.add('active');
+  });
+})();
+
+// ===== PROGRESS TRACKER =====
+(function(){
+  const KEY = 'ai-kb-progress';
+  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+  const stats = document.getElementById('progStats');
+  const list = document.getElementById('progList');
+
+  function render(){
+    const total = DOMAINS.length;
+    const done = DOMAINS.filter(d => saved[d.id]).length;
+    const pct = Math.round(done/total*100);
+    stats.innerHTML = `
+      <div><div class="stat"><div class="stat-val">${done}/${total}</div><div class="stat-label">已完成</div></div></div>
+      <div><div class="stat"><div class="stat-val">${pct}%</div><div class="stat-label">完成率</div></div></div>
+      <div style="flex:1"><div class="stat"><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div><div class="stat-label">总体进度</div></div></div>`;
+
+    list.innerHTML = '';
+    DOMAINS.forEach(d => {
+      list.innerHTML += `
+        <div class="prog-item">
+          <div class="prog-check ${saved[d.id]?'checked':''}" data-id="${d.id}"></div>
+          <div><div class="prog-name">${d.name}</div><div class="prog-cat">${d.cat} · ${d.diff === 'easy' ? '入门' : d.diff === 'medium' ? '进阶' : '高级'}</div></div>
+        </div>`;
+    });
+
+    list.querySelectorAll('.prog-check').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        if(saved[id]) delete saved[id]; else saved[id] = true;
+        localStorage.setItem(KEY, JSON.stringify(saved));
+        render();
+      });
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

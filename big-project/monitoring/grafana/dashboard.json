@@ -1,0 +1,47 @@
+{
+  "dashboard": {
+    "title": "AI创作工坊 - 监控面板",
+    "uid": "ai-workshop-main",
+    "timezone": "browser",
+    "refresh": "10s",
+    "time": { "from": "now-1h", "to": "now" },
+    "panels": [
+      {
+        "title": "请求速率 (req/s)",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+        "targets": [{ "expr": "rate(http_requests_total[5m])", "legendFormat": "{{method}} {{path}}" }]
+      },
+      {
+        "title": "响应延迟 P95",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+        "targets": [{ "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))", "legendFormat": "P95" }]
+      },
+      {
+        "title": "Token用量",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 6, "x": 0, "y": 8 },
+        "targets": [{ "expr": "sum(llm_tokens_total)", "legendFormat": "Total Tokens" }]
+      },
+      {
+        "title": "错误率",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 6, "x": 6, "y": 8 },
+        "targets": [{ "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m])", "legendFormat": "Error Rate" }]
+      },
+      {
+        "title": "Agent执行分布",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
+        "targets": [{ "expr": "sum by (agent_type) (agent_execution_total)", "legendFormat": "{{agent_type}}" }]
+      },
+      {
+        "title": "API成本追踪",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
+        "targets": [{ "expr": "sum by (provider) (llm_cost_dollars)", "legendFormat": "{{provider}}" }]
+      }
+    ]
+  }
+}

@@ -1,0 +1,151 @@
+version: "3.9"
+
+# AI创作工坊 (AI Creator Workshop) - Full Stack Docker Compose
+# Usage: docker-compose up -d
+
+services:
+  # ─── Application Backend ─────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ai-workshop-backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://ai_workshop:ai_workshop_pass@postgres:5432/ai_workshop
+      - REDIS_URL=redis://redis:6379/0
+      - CHROMADB_HOST=chromadb
+      - CHROMADB_PORT=8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      chromadb:
+        condition: service_started
+    volumes:
+      - ./backend:/app
+      - model-cache:/app/.cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - ai-workshop-net
+
+  # ─── Frontend ────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ai-workshop-frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+  # ─── PostgreSQL ──────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: ai-workshop-postgres
+    environment:
+      POSTGRES_USER: ai_workshop
+      POSTGRES_PASSWORD: ai_workshop_pass
+      POSTGRES_DB: ai_workshop
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ai_workshop"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+  # ─── Redis ───────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: ai-workshop-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+  # ─── ChromaDB (Vector Store) ─────────────────────────
+  chromadb:
+    image: chromadb/chroma:0.4.24
+    container_name: ai-workshop-chromadb
+    ports:
+      - "8100:8000"
+    volumes:
+      - chromadb-data:/chroma/chroma
+    environment:
+      - ANONYMIZED_TELEMETRY=False
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+  # ─── Prometheus (Metrics) ────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: ai-workshop-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/alerting.yml:/etc/prometheus/alerting.yml
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+  # ─── Grafana (Dashboards) ───────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.1
+    container_name: ai-workshop-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - ./monitoring/grafana:/etc/grafana/provisioning/dashboards
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - ai-workshop-net
+
+volumes:
+  postgres-data:
+  redis-data:
+  chromadb-data:
+  prometheus-data:
+  grafana-data:
+  model-cache:
+
+networks:
+  ai-workshop-net:
+    driver: bridge
