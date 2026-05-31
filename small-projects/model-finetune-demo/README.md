@@ -1,12 +1,12 @@
 # Model Fine-tune Demo (模型微调演示)
 
-End-to-end fine-tuning pipeline demonstrating **LoRA (Low-Rank Adaptation)** — the most practical approach for customizing large language models with minimal compute.
+> 端到端LoRA微调管线，演示参数高效微调的完整流程
 
-## What It Does
+## 项目简介
 
-Prepare instruction datasets, fine-tune a language model using LoRA, evaluate results, and compare before/after performance. All with a small model that runs on CPU.
+准备指令数据集、使用LoRA微调语言模型、评估结果并对比前后效果。使用小模型(OPT-350M)在CPU上即可运行，10分钟内完成微调。
 
-## Architecture
+## 架构图
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
@@ -27,84 +27,154 @@ Prepare instruction datasets, fine-tune a language model using LoRA, evaluate re
                     └──────────────┘    └──────────────┘
 ```
 
-## Setup
+---
+
+## 代码走读 (Code Walkthrough)
+
+### `prepare_data.py` — 数据准备与格式化
+
+将原始文本转换为**指令微调格式**(instruction/input/output)。`create_sample_dataset()`生成10条AI知识Q&A样本。`text_to_instructions()`将任意长文本自动切分为指令格式——每两句组成一个instruction-output对。`format_for_training()`将数据格式化为 `### Instruction: ... ### Response: ...` 的标准模板。
+
+- **关键函数**: `text_to_instructions()` — 自动将文本转为指令格式, `save_dataset()` — JSON持久化
+- **核心模式**: 指令微调数据格式、自动数据增强
+
+### `train.py` — LoRA微调训练
+
+使用HuggingFace PEFT库实现LoRA微调。`train()`函数加载基础模型，配置LoRA适配器(rank=8, alpha=16, dropout=0.1)，然后用HuggingFace Trainer训练。关键参数：`target_modules=["q_proj", "v_proj"]`表示只在注意力的Q和V矩阵上添加LoRA。训练后只保存LoRA权重（通常几十MB），而非完整模型。
+
+- **关键函数**: `train()` — LoRA微调主函数, `format_prompt()` — 数据格式化
+- **关键参数**: `lora_rank`(低秩维度), `lora_alpha`(缩放因子), `target_modules`(适配目标层)
+- **核心模式**: PEFT(参数高效微调)、LoRA(低秩适配)、HuggingFace Trainer API
+
+### `evaluate.py` — 模型评估
+
+提供两种评估方式：`compute_perplexity()`计算困惑度（越低越好），`keyword_match_score()`计算预测与参考答案的关键词重叠F1分数。评估流程同时加载基础模型和微调模型进行对比，计算改进百分比。
+
+- **关键函数**: `compute_perplexity()` — 困惑度计算, `keyword_match_score()` — 关键词匹配F1
+- **核心模式**: 困惑度评估、Before/After对比、关键词F1
+
+### `inference.py` — 推理与对比
+
+提供推理和前后对比功能。`generate_response()`加载基础模型，如有LoRA权重则叠加，使用`### Instruction: ... ### Response:`格式生成回答。`compare_before_after()`并排展示基础模型和微调模型对同一问题的回答。
+
+- **关键函数**: `generate_response()` — 单次推理, `compare_before_after()` — 对比展示
+- **核心模式**: LoRA权重加载(`PeftModel.from_pretrained`)、生成参数调优(top_p, temperature)
+
+---
+
+## 运行示例 (Run Examples)
 
 ```bash
+# 安装依赖
 cd model-finetune-demo
 pip install -r requirements.txt
-cp .env.example .env
-# Optional: Set HUGGINGFACE_TOKEN for gated models
-```
 
-## Run
-
-### Step 1: Prepare Data
-```bash
+# Step 1: 准备数据
 python prepare_data.py
-# Creates data/instruction_data.json with sample AI knowledge Q&A
-```
+# 预期输出:
+# ✅ Created dataset with 10 examples at data/instruction_data.json
+# 📝 Sample entry: {"instruction": "Explain what machine learning is...", ...}
 
-### Step 2: Fine-tune
-```bash
+# Step 2: 微调（CPU约10分钟）
 python train.py --epochs 3 --batch-size 2 --lr 2e-4
-# Fine-tunes OPT-350M with LoRA (runs on CPU in ~10 minutes)
-```
+# 预期输出:
+# 📦 Loading base model: facebook/opt-350m
+# 🔧 LoRA configured: 1,234,567 trainable / 350,000,000 total (0.35%)
+# 🚀 Starting fine-tuning...
+# ✅ Model saved to ./output
 
-### Step 3: Evaluate
-```bash
+# Step 3: 评估
 python evaluate.py
-# Computes keyword match scores and shows sample predictions
-```
+# 预期输出:
+# 📊 Evaluation Results:
+#    Keyword Match F1: 0.245
+# 📝 Sample predictions: ...
 
-### Step 4: Compare
-```bash
+# Step 4: 前后对比
 python inference.py --compare
-# Shows side-by-side base vs fine-tuned model responses
-```
+# 预期输出:
+# ============================================================
+# 📝 Prompt: What is machine learning?
+# 🔵 BASE MODEL: (通用回答)
+# 🟢 FINE-TUNED MODEL: (更精确的领域回答)
 
-## Demo Scenarios
+# 自定义参数微调
+python train.py --lora-rank 16 --epochs 5 --model facebook/opt-1.3b
 
-### 1. Fine-tune on AI Knowledge
-```bash
-python prepare_data.py && python train.py --epochs 3
-```
-
-### 2. Use Custom Data
-```bash
-# Add your own instruction data to data/instruction_data.json
-# Format: [{"instruction": "...", "input": "", "output": "..."}]
+# 使用自定义数据
 python train.py --data data/your_data.json
 ```
 
-### 3. Adjust LoRA Parameters
-```bash
-# Higher rank = more capacity, more parameters
-python train.py --lora-rank 16 --epochs 5
-```
+---
 
-## What You Learn
+## 知识映射 (Knowledge Mapping)
 
-- **LoRA**: Low-rank adaptation for parameter-efficient fine-tuning
-- **Instruction Tuning**: Converting raw text to instruction format
-- **PEFT Library**: HuggingFace's Parameter-Efficient Fine-Tuning toolkit
-- **Training Hyperparameters**: Learning rate, batch size, epochs effects
-- **Evaluation**: Perplexity, keyword matching, qualitative comparison
-- **Trade-offs**: Quality vs compute cost, rank vs performance
+**本项目演示的知识点：**
+- LoRA(低秩适配)微调原理与实现
+- 指令微调(Instruction Tuning)数据格式
+- HuggingFace Transformers + PEFT生态
+- 训练超参数调优（学习率、batch size、rank）
+- 模型评估方法（困惑度、关键词匹配）
 
-## Commercial Applications
+**前置知识：**
+- Python基础、PyTorch基础
+- 神经网络基本概念（前向传播、反向传播）
+- Transformer架构基础
 
-| Use Case | Description | Market |
-|----------|-------------|--------|
-| Legal AI | Fine-tune on legal documents and case law | LegalTech |
-| Medical QA | Domain-specific medical knowledge models | HealthTech |
-| Finance | Financial analysis and reporting models | FinTech |
-| Customer Service | Company-specific support models | CX automation |
-| Code Assistant | Language/framework-specific coding models | DevTools |
+**进阶方向：**
+- 完成本项目后 → 用微调后的模型替换 `rag-qa-bot` 中的生成器
+- 深入 → QLoRA(量化LoRA)、全参数微调、RLHF
+- 生产化 → 分布式训练、模型合并与导出(GGUF)
 
-## Key Design Decisions
+**相关知识库文件：**
+- `knowledge-base/07-training/` — 模型训练与微调
+- `knowledge-base/08-peft/` — 参数高效微调(LoRA/QLoRA)
+- `knowledge-base/01-llm-basics/` — Transformer架构
 
-1. **LoRA over full fine-tuning** — 99% fewer trainable parameters
-2. **Small base model (OPT-350M)** — runs on CPU for accessibility
-3. **Instruction format** — standard `### Instruction / ### Response` template
-4. **Simple evaluation** — keyword match + perplexity (no GPU-heavy metrics)
-5. **Before/after comparison** — intuitive quality assessment
+---
+
+## 商业价值扩展 (Commercial Value Extensions)
+
+**目标客户：**
+- 垂直领域AI公司（法律、医疗、金融）
+- 企业AI团队（定制内部助手）
+- AI研究机构（快速实验）
+
+**定价模型：**
+- 微调平台SaaS: $0.10/千token训练 + $0.002/千token推理
+- 企业定制微调: $10,000-$50,000/项目
+- 模型市场: 微调好的垂直模型按订阅出售
+
+**竞品对比：**
+
+| 特性 | 本项目 | OpenAI Fine-tuning | Together.ai | Lamini |
+|------|--------|-------------------|-------------|--------|
+| 开源 | ✅ | ❌ | ❌ | 部分 |
+| CPU运行 | ✅ | ❌ | ❌ | ❌ |
+| LoRA支持 | ✅ | ❌ | ✅ | ✅ |
+| 本地隐私 | ✅ | ❌ | ❌ | ✅ |
+| 自定义架构 | ✅ | ❌ | ✅ | 部分 |
+
+**市场进入策略：**
+1. 开源微调工具链 → 社区积累 → 托管微调平台
+2. 垂直行业模型市场（法律助手、医疗问答）
+3. 企业数据私有化微调咨询服务
+
+---
+
+## 进阶挑战 (Advanced Challenges)
+
+### 🟢 挑战1 (初级): 添加更多评估指标
+在evaluate.py中添加BLEU分数和ROUGE-L分数评估，使用`nltk`和`rouge-score`库。
+- **学习目标**: NLP自动评估指标
+- **提示**: `from nltk.translate.bleu_score import sentence_bleu`
+
+### 🟡 挑战2 (中级): 实现早停(Early Stopping)机制
+当验证集loss连续N个epoch不再下降时自动停止训练，避免过拟合。
+- **学习目标**: 训练策略优化、过拟合防止
+- **提示: 在TrainingArguments中添加`load_best_model_at_end=True`和`evaluation_strategy`
+
+### 🔴 挑战3 (高级): 实现QLoRA(量化LoRA)微调
+将基础模型量化为4bit后再应用LoRA，大幅减少显存占用，使得在消费级GPU上微调更大模型。
+- **学习目标**: 量化技术、QLoRA原理、显存优化
+- **提示**: 使用`bitsandbytes`库的`BitsAndBytesConfig(load_in_4bit=True)`

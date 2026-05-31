@@ -124,6 +124,53 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
   .cards-grid{grid-template-columns:1fr}
   .progress-list{grid-template-columns:1fr}
 }
+
+/* === ANALOGY CARDS === */
+.analogy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.analogy-card{background:var(--bg2);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
+.analogy-card:hover{border-color:rgba(99,102,241,.35);transform:translateY(-2px);box-shadow:var(--shadow)}
+.analogy-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(99,102,241,.08)}
+.analogy-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.analogy-concept{font-size:15px;font-weight:700}
+.analogy-title{font-size:12px;color:var(--accent2)}
+.analogy-body{padding:16px 20px}
+.analogy-text{font-size:13px;color:var(--fg2);line-height:1.7;margin-bottom:12px}
+.analogy-diagram{background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center;overflow-x:auto}
+.analogy-diagram svg{max-width:100%;height:auto}
+
+/* === COMPARISON TABLES === */
+.comp-section{margin-bottom:40px}
+.comp-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
+.comp-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid rgba(99,102,241,.1)}
+.comp-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:12px;color:var(--accent2);font-weight:600;border-bottom:1px solid rgba(99,102,241,.1);white-space:nowrap}
+.comp-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg2);vertical-align:top}
+.comp-table tr:hover td{background:rgba(99,102,241,.04)}
+.comp-table .dim-label{color:var(--accent);font-weight:600;white-space:nowrap}
+
+/* === RELATIONSHIP MAP === */
+.rel-container{background:var(--bg2);border-radius:var(--radius);border:1px solid rgba(99,102,241,.12);overflow:hidden;position:relative}
+.rel-container svg{width:100%;height:500px}
+.rel-info{position:absolute;bottom:16px;left:16px;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;max-width:320px;box-shadow:var(--shadow);display:none;line-height:1.7}
+.rel-info.show{display:block}
+.rel-legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;font-size:12px;color:var(--fg2)}
+.rel-legend span{display:flex;align-items:center;gap:6px}
+.rel-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+/* === ONE-LINE SUMMARIES === */
+.oneline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
+.oneline-card{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid rgba(99,102,241,.08);border-radius:var(--radius-sm);transition:var(--transition);cursor:default}
+.oneline-card:hover{border-color:rgba(99,102,241,.25);background:var(--bg3)}
+.oneline-badge{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.oneline-text{font-size:14px;color:var(--fg);line-height:1.5}
+
+@media(max-width:768px){
+  .analogy-grid{grid-template-columns:1fr}
+  .oneline-grid{grid-template-columns:1fr}
+  .comp-table{font-size:11px}
+  .comp-table th,.comp-table td{padding:8px 10px}
+  .rel-container svg{height:350px}
+  .rel-info{max-width:260px;font-size:12px}
+}
 </style>
 </head>
 <body>
@@ -137,6 +184,10 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
       <button class="nav-tab" data-tab="ref">速查表</button>
       <button class="nav-tab" data-tab="paths">学习路径</button>
       <button class="nav-tab" data-tab="progress">进度追踪</button>
+      <button class="nav-tab" data-tab="analogy">类比解释</button>
+      <button class="nav-tab" data-tab="compare">对比表</button>
+      <button class="nav-tab" data-tab="relmap">关系图</button>
+      <button class="nav-tab" data-tab="oneline">一句话</button>
     </div>
   </div>
 </nav>
@@ -182,6 +233,43 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
   <p class="section-desc">勾选已掌握的知识点，进度自动保存到本地。</p>
   <div class="progress-stats" id="progStats"></div>
   <div class="progress-list" id="progList"></div>
+</section>
+
+<!-- ANALOGY EXPLANATIONS -->
+<section class="section" id="sec-analogy">
+  <h2 class="section-title">类比解释</h2>
+  <p class="section-desc">用生活中的类比来理解复杂概念，让抽象变具体。</p>
+  <div class="analogy-grid" id="analogyGrid"></div>
+</section>
+
+<!-- COMPARISON TABLES -->
+<section class="section" id="sec-compare">
+  <h2 class="section-title">对比表</h2>
+  <p class="section-desc">技术选型一目了然，多维度对比帮助决策。</p>
+  <div id="compareContent"></div>
+</section>
+
+<!-- CONCEPT RELATIONSHIP MAP -->
+<section class="section" id="sec-relmap">
+  <h2 class="section-title">概念关系图</h2>
+  <p class="section-desc">点击概念查看前置知识和关联概念，规划学习路径。</p>
+  <div class="rel-legend">
+    <span><span class="rel-dot" style="background:var(--accent)"></span>当前选中</span>
+    <span><span class="rel-dot" style="background:var(--green)"></span>前置知识</span>
+    <span><span class="rel-dot" style="background:var(--cyan)"></span>关联概念</span>
+    <span><span class="rel-dot" style="background:var(--fg3)"></span>其他</span>
+  </div>
+  <div class="rel-container" id="relBox">
+    <svg id="relSvg"></svg>
+    <div class="rel-info" id="relInfo"></div>
+  </div>
+</section>
+
+<!-- ONE-LINE SUMMARIES -->
+<section class="section" id="sec-oneline">
+  <h2 class="section-title">一句话总结</h2>
+  <p class="section-desc">每个概念用一句话记住核心要点，快速回顾利器。</p>
+  <div class="oneline-grid" id="onelineGrid"></div>
 </section>
 
 </div>
