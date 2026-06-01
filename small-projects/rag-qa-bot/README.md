@@ -110,6 +110,10 @@ curl http://localhost:8001/stats
 - 向量/嵌入的基本概念
 - HTTP API基础
 
+## Dashboard
+
+A visual overview of the RAG pipeline, indexed documents, and retrieval configuration is available at [`dashboard.html`](dashboard.html). Open it directly in any browser.
+
 **进阶方向：**
 - 完成本项目后 → 进阶 `llm-api-gateway`（统一API管理）
 - 深入 → `model-finetune-demo`（自定义嵌入模型）

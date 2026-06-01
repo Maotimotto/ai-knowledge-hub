@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM API Gateway Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #ffffff; color: #1a1a1a; font-size: 16px; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+        .header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; }
+        .header .tag { font-size: 13px; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; }
+        .desc { font-size: 15px; color: #6b7280; margin-bottom: 32px; max-width: 680px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .kpi-card .label { font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+        .kpi-card .value { font-size: 32px; font-weight: 700; margin: 4px 0; }
+        .kpi-card .sub { font-size: 13px; color: #9ca3af; }
+        .section { margin-bottom: 32px; }
+        .section h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .chart-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .chart-card h3 { font-size: 14px; color: #6b7280; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.03em; }
+        canvas { max-height: 260px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); color: #6b7280; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge-avail { background: #f0fdf4; color: #16a34a; }
+        .badge-unavail { background: #fef2f2; color: #dc2626; }
+        .provider-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+        .provider-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 16px; }
+        .provider-card .prov-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .provider-card .prov-models { font-size: 13px; color: #6b7280; }
+        .provider-card .prov-cost { font-size: 13px; color: #9ca3af; margin-top: 8px; }
+        .route-strategy { display: flex; gap: 12px; flex-wrap: wrap; }
+        .strategy-chip {
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 6px;
+            padding: 8px 16px; font-size: 14px; font-weight: 500; color: #374151;
+        }
+        .strategy-chip.active { border-color: #0075de; color: #0075de; background: rgba(0,117,222,0.04); }
+        @media (max-width: 800px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid, .provider-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>LLM API Gateway</h1>
+        <span class="tag">Port 8002</span>
+    </div>
+    <p class="desc">Unified OpenAI-compatible API gateway with intelligent routing, semantic caching, and usage tracking. Routes to OpenAI, Anthropic, and local Ollama models.</p>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">Providers</div>
+            <div class="value">3</div>
+            <div class="sub">OpenAI, Anthropic, Ollama</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Models</div>
+            <div class="value">6</div>
+            <div class="sub">GPT-4o, Claude, Llama, Mistral...</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Routing Strategies</div>
+            <div class="value">4</div>
+            <div class="sub">cost, latency, quality, round-robin</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Cache</div>
+            <div class="value" style="font-size:18px; margin-top:8px;">Semantic</div>
+            <div class="sub">Exact + Jaccard fuzzy match</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Providers</h2>
+        <div class="provider-grid">
+            <div class="provider-card">
+                <div class="prov-name">OpenAI</div>
+                <div class="prov-models">gpt-4o, gpt-4o-mini</div>
+                <div class="prov-cost">$0.005 - $0.01 / 1k tokens</div>
+            </div>
+            <div class="provider-card">
+                <div class="prov-name">Anthropic</div>
+                <div class="prov-models">claude-sonnet-4-20250514</div>
+                <div class="prov-cost">$0.003 - $0.015 / 1k tokens</div>
+            </div>
+            <div class="provider-card">
+                <div class="prov-name">Ollama (Local)</div>
+                <div class="prov-models">llama3.1:8b, mistral:7b</div>
+                <div class="prov-cost">$0.00 / 1k tokens</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Routing Strategies</h2>
+        <div class="route-strategy">
+            <div class="strategy-chip active">cost -- cheapest provider</div>
+            <div class="strategy-chip">latency -- fastest response</div>
+            <div class="strategy-chip">quality -- strongest model</div>
+            <div class="strategy-chip">round-robin -- equal distribution</div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Sample Requests by Provider</h3>
+            <canvas id="providerChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Temperature Distribution</h3>
+            <canvas id="tempChart"></canvas>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Available Models</h2>
+        <table>
+            <thead><tr><th>Model</th><th>Provider</th><th>Cost / 1k tokens</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr><td>gpt-4o</td><td>OpenAI</td><td>$0.010</td><td><span class="badge badge-avail">Available</span></td></tr>
+                <tr><td>gpt-4o-mini</td><td>OpenAI</td><td>$0.005</td><td><span class="badge badge-avail">Available</span></td></tr>
+                <tr><td>claude-sonnet-4-20250514</td><td>Anthropic</td><td>$0.015</td><td><span class="badge badge-avail">Available</span></td></tr>
+                <tr><td>llama3.1:8b</td><td>Ollama</td><td>$0.000</td><td><span class="badge badge-avail">Available</span></td></tr>
+                <tr><td>mistral:7b</td><td>Ollama</td><td>$0.000</td><td><span class="badge badge-avail">Available</span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>Sample Request Log</h2>
+        <table>
+            <thead><tr><th>ID</th><th>Provider</th><th>Model</th><th>Max Tokens</th><th>Temp</th></tr></thead>
+            <tbody>
+                <tr><td>req-001</td><td>openai</td><td>gpt-4o</td><td>200</td><td>0.7</td></tr>
+                <tr><td>req-002</td><td>anthropic</td><td>claude-sonnet-4-20250514</td><td>100</td><td>0.9</td></tr>
+                <tr><td>req-003</td><td>openai</td><td>gpt-4o-mini</td><td>300</td><td>0.3</td></tr>
+                <tr><td>req-004</td><td>ollama</td><td>llama3.1:8b</td><td>150</td><td>0.5</td></tr>
+                <tr><td>req-005</td><td>anthropic</td><td>claude-sonnet-4-20250514</td><td>100</td><td>0.2</td></tr>
+                <tr><td>req-006</td><td>openai</td><td>gpt-4o</td><td>500</td><td>0.6</td></tr>
+                <tr><td>req-007</td><td>ollama</td><td>mistral:7b</td><td>200</td><td>0.4</td></tr>
+                <tr><td>req-008</td><td>anthropic</td><td>claude-sonnet-4-20250514</td><td>400</td><td>0.5</td></tr>
+                <tr><td>req-009</td><td>openai</td><td>gpt-4o-mini</td><td>50</td><td>0.1</td></tr>
+                <tr><td>req-010</td><td>ollama</td><td>llama3.1:8b</td><td>250</td><td>0.95</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const provCtx = document.getElementById('providerChart').getContext('2d');
+new Chart(provCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['OpenAI (4)', 'Anthropic (3)', 'Ollama (3)'],
+        datasets: [{ data: [4, 3, 3], backgroundColor: ['#0075de','#f59e0b','#22c55e'], borderWidth: 0 }]
+    },
+    options: { responsive: true, cutout: '60%',
+        plugins: { legend: { position: 'right', labels: { color: '#374151', font: { size: 12 }, padding: 12 } } } }
+});
+
+const tempCtx = document.getElementById('tempChart').getContext('2d');
+new Chart(tempCtx, {
+    type: 'bar',
+    data: {
+        labels: ['0.0-0.2','0.2-0.4','0.4-0.6','0.6-0.8','0.8-1.0'],
+        datasets: [{ data: [2, 2, 3, 2, 1], backgroundColor: '#0075de', borderRadius: 4, borderSkipped: false }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { display: false }, title: { display: true, text: 'Temperature', color: '#9ca3af' } },
+            y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
+        }
+    }
+});
+</script>
+</body>
+</html>

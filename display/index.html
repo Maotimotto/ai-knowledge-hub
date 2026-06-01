@@ -4,172 +4,176 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 知识吸收仪表盘</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--bg4:#232340;
-  --fg:#e2e8f0;--fg2:#94a3b8;--fg3:#64748b;
-  --accent:#6366f1;--accent2:#818cf8;--accent3:#4f46e5;
-  --green:#22c55e;--yellow:#eab308;--red:#ef4444;--cyan:#06b6d4;
-  --radius:12px;--radius-sm:8px;
-  --shadow:0 4px 24px rgba(0,0,0,.4);
-  --transition:all .3s cubic-bezier(.4,0,.2,1);
+  --bg:#ffffff;--bg2:#f6f5f4;--bg3:#ffffff;--bg4:#f6f5f4;
+  --fg:rgba(0,0,0,.95);--fg2:rgba(0,0,0,.5);--fg3:rgba(0,0,0,.35);
+  --accent:#0075de;--accent-light:rgba(0,117,222,.08);--accent-border:rgba(0,117,222,.2);
+  --green:#2d9d4e;--yellow:#c2900a;--red:#d44;--cyan:#0989a6;
+  --radius:8px;--radius-sm:6px;
+  --border:1px solid rgba(0,0,0,.1);
+  --shadow:0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 2px 8px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.04);
+  --transition:all .2s ease;
 }
 html{scroll-behavior:smooth}
-body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;min-height:100vh;overflow-x:hidden}
-/* Scrollbar */
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;font-size:16px;min-height:100vh;overflow-x:hidden}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
 
 /* === NAV === */
-.nav{position:sticky;top:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid rgba(99,102,241,.15);padding:0 24px}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px}
-.nav-logo{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
-.nav-tabs{display:flex;gap:4px;margin-left:24px;overflow-x:auto;flex:1}
-.nav-tab{padding:8px 16px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;color:var(--fg2);transition:var(--transition);white-space:nowrap;border:none;background:none;font-family:inherit}
-.nav-tab:hover{color:var(--fg);background:rgba(99,102,241,.1)}
-.nav-tab.active{color:#fff;background:var(--accent)}
+.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:var(--border);padding:0 32px}
+.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;height:52px}
+.nav-logo{font-size:16px;font-weight:700;color:var(--fg);white-space:nowrap;letter-spacing:-.3px}
+.nav-logo-mark{color:var(--accent);font-weight:800}
+.nav-tabs{display:flex;gap:2px;margin-left:24px;overflow-x:auto;flex:1}
+.nav-tab{padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--fg2);transition:var(--transition);white-space:nowrap;border:none;background:none;font-family:inherit}
+.nav-tab:hover{color:var(--fg);background:rgba(0,0,0,.04)}
+.nav-tab.active{color:var(--accent);background:var(--accent-light)}
 
 /* === LAYOUT === */
-.container{max-width:1400px;margin:0 auto;padding:24px}
-.section{display:none;animation:fadeIn .4s ease}
+.container{max-width:1400px;margin:0 auto;padding:32px}
+.section{display:none;animation:fadeIn .3s ease}
 .section.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.section-title{font-size:28px;font-weight:700;margin-bottom:8px;background:linear-gradient(135deg,var(--fg),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.section-desc{color:var(--fg2);margin-bottom:32px;font-size:15px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.section-title{font-size:44px;font-weight:800;margin-bottom:8px;color:var(--fg);letter-spacing:-.5px;line-height:1.2}
+.section-desc{color:var(--fg2);margin-bottom:32px;font-size:16px;line-height:1.6}
 
 /* === KNOWLEDGE GRAPH === */
-.graph-container{position:relative;background:var(--bg2);border-radius:var(--radius);border:1px solid rgba(99,102,241,.12);overflow:hidden;min-height:600px}
+.graph-container{position:relative;background:var(--bg2);border-radius:var(--radius);border:var(--border);overflow:hidden;min-height:600px}
 .graph-container svg{width:100%;height:600px}
 .graph-node{cursor:pointer;transition:var(--transition)}
-.graph-node:hover .node-circle{filter:drop-shadow(0 0 12px var(--accent))}
+.graph-node:hover .node-circle{filter:drop-shadow(0 0 8px rgba(0,117,222,.2))}
 .node-circle{transition:var(--transition)}
-.node-label{font-size:11px;fill:var(--fg);text-anchor:middle;pointer-events:none;font-family:inherit}
-.graph-edge{stroke:rgba(99,102,241,.2);stroke-width:1.5;fill:none}
-.graph-tooltip{position:absolute;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:10;max-width:260px;box-shadow:var(--shadow)}
+.node-label{font-size:11px;fill:var(--fg);text-anchor:middle;pointer-events:none;font-family:'Inter','Noto Sans SC',system-ui,sans-serif;font-weight:600}
+.graph-edge{stroke:rgba(0,0,0,.08);stroke-width:1.5;fill:none}
+.graph-tooltip{position:absolute;background:#fff;border:var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;max-width:260px;box-shadow:var(--shadow-md)}
 .graph-tooltip.show{opacity:1}
 
 /* === CONCEPT CARDS === */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
 .card{perspective:800px;height:220px;cursor:pointer}
 .card-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
 .card:hover .card-inner{transform:rotateY(180deg)}
 .card-front,.card-back{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;padding:24px;display:flex;flex-direction:column}
-.card-front{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid rgba(99,102,241,.15)}
-.card-back{background:linear-gradient(135deg,var(--accent3),var(--accent));transform:rotateY(180deg);color:#fff}
-.card-num{font-size:12px;color:var(--accent);font-weight:600;margin-bottom:8px;letter-spacing:1px}
-.card-name{font-size:18px;font-weight:700;margin-bottom:12px}
+.card-front{background:#fff;border:var(--border);box-shadow:var(--shadow)}
+.card-back{background:var(--accent);transform:rotateY(180deg);color:#fff;border-radius:var(--radius)}
+.card-num{font-size:11px;color:var(--accent);font-weight:700;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase}
+.card-name{font-size:18px;font-weight:700;margin-bottom:12px;color:var(--fg)}
 .card-diff{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;width:fit-content}
-.diff-easy{background:rgba(34,197,94,.15);color:var(--green)}
-.diff-medium{background:rgba(234,179,8,.15);color:var(--yellow)}
-.diff-hard{background:rgba(239,68,68,.15);color:var(--red)}
+.diff-easy{background:rgba(45,157,78,.08);color:var(--green)}
+.diff-medium{background:rgba(194,144,10,.08);color:var(--yellow)}
+.diff-hard{background:rgba(221,68,68,.08);color:var(--red)}
 .card-topics{color:var(--fg2);font-size:12px;margin-top:auto;line-height:1.8}
 .card-back-title{font-size:15px;font-weight:700;margin-bottom:12px;opacity:.9}
 .card-back ul{list-style:none;font-size:13px;line-height:2}
-.card-back li::before{content:"→ ";opacity:.7}
+.card-back li::before{content:"— ";opacity:.7}
 
 /* === QUICK REF === */
-.ref-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.ref-tab{padding:6px 14px;border-radius:20px;font-size:13px;cursor:pointer;background:var(--bg3);color:var(--fg2);border:1px solid transparent;transition:var(--transition);font-family:inherit}
+.ref-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
+.ref-tab{padding:6px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fg2);border:var(--border);transition:var(--transition);font-family:inherit}
+.ref-tab:hover{background:rgba(0,0,0,.03)}
 .ref-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .ref-content{display:none}
 .ref-content.active{display:block}
-.ref-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid rgba(99,102,241,.1)}
-.ref-table th{background:var(--bg3);padding:12px 16px;text-align:left;font-size:13px;color:var(--accent2);font-weight:600;border-bottom:1px solid rgba(99,102,241,.1)}
-.ref-table td{padding:10px 16px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg2)}
-.ref-table tr:hover td{background:rgba(99,102,241,.04)}
-.ref-table code{background:var(--bg4);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--cyan)}
+.ref-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:var(--border)}
+.ref-table th{background:var(--bg2);padding:12px 16px;text-align:left;font-size:13px;color:var(--fg2);font-weight:600;border-bottom:var(--border);letter-spacing:.3px}
+.ref-table td{padding:10px 16px;font-size:14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--fg)}
+.ref-table tr:nth-child(even) td{background:var(--bg2)}
+.ref-table tr:hover td{background:rgba(0,117,222,.04)}
+.ref-table code{background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent);font-family:'SF Mono','Fira Code',monospace}
 
 /* === LEARNING PATHS === */
-.path-selector{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap}
-.path-btn{padding:12px 24px;border-radius:var(--radius);cursor:pointer;background:var(--bg3);color:var(--fg2);border:2px solid transparent;transition:var(--transition);font-family:inherit;font-size:14px;font-weight:600}
-.path-btn.active{border-color:var(--accent);color:#fff;background:rgba(99,102,241,.1)}
-.path-btn:hover{border-color:rgba(99,102,241,.4)}
+.path-selector{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
+.path-btn{padding:10px 20px;border-radius:var(--radius);cursor:pointer;background:#fff;color:var(--fg2);border:var(--border);transition:var(--transition);font-family:inherit;font-size:14px;font-weight:600}
+.path-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.path-btn:hover{border-color:rgba(0,0,0,.2)}
 .path-flow{display:none}
 .path-flow.active{display:block}
 .path-steps{position:relative;padding-left:40px}
-.path-step{position:relative;padding:16px 0 32px 24px;border-left:2px solid var(--bg4)}
+.path-step{position:relative;padding:16px 0 32px 24px;border-left:2px solid rgba(0,0,0,.08)}
 .path-step:last-child{border-left-color:transparent}
-.path-step::before{content:'';position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:var(--bg4);border:2px solid var(--accent);transition:var(--transition)}
-.path-step.done::before{background:var(--accent)}
+.path-step::before{content:'';position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,.15);transition:var(--transition)}
+.path-step.done::before{background:var(--accent);border-color:var(--accent)}
 .path-step-title{font-size:16px;font-weight:700;margin-bottom:4px}
-.path-step-desc{font-size:13px;color:var(--fg2)}
+.path-step-desc{font-size:14px;color:var(--fg2)}
 .path-step-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.path-tag{padding:2px 10px;border-radius:12px;font-size:11px;background:rgba(99,102,241,.12);color:var(--accent2)}
+.path-tag{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500;background:var(--accent-light);color:var(--accent)}
 
 /* === PROGRESS === */
-.progress-bar-wrap{background:var(--bg3);border-radius:20px;height:12px;overflow:hidden;margin-bottom:8px}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--cyan));border-radius:20px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.progress-stats{display:flex;gap:32px;margin-bottom:32px;flex-wrap:wrap}
-.stat{background:var(--bg2);border:1px solid rgba(99,102,241,.1);border-radius:var(--radius);padding:20px 24px;min-width:160px}
-.stat-val{font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.progress-bar-wrap{background:rgba(0,0,0,.06);border-radius:20px;height:8px;overflow:hidden;margin-bottom:8px}
+.progress-bar{height:100%;background:var(--accent);border-radius:20px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.progress-stats{display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap}
+.stat{background:#fff;border:var(--border);border-radius:var(--radius);padding:20px 24px;min-width:160px;box-shadow:var(--shadow)}
+.stat-val{font-size:32px;font-weight:800;color:var(--fg);letter-spacing:-.5px}
 .stat-label{font-size:13px;color:var(--fg2);margin-top:4px}
-.progress-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-.prog-item{display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid rgba(99,102,241,.08);border-radius:var(--radius-sm);transition:var(--transition)}
-.prog-item:hover{border-color:rgba(99,102,241,.25)}
-.prog-check{width:20px;height:20px;border-radius:6px;border:2px solid var(--fg3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
+.progress-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
+.prog-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);transition:var(--transition)}
+.prog-item:hover{box-shadow:var(--shadow)}
+.prog-check{width:18px;height:18px;border-radius:4px;border:1.5px solid rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
 .prog-check.checked{background:var(--accent);border-color:var(--accent)}
-.prog-check.checked::after{content:'✓';color:#fff;font-size:12px;font-weight:700}
+.prog-check.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
 .prog-name{font-size:14px;font-weight:600}
-.prog-cat{font-size:11px;color:var(--fg3)}
-
-/* Responsive */
-@media(max-width:768px){
-  .nav-inner{gap:8px}
-  .nav-logo{font-size:15px}
-  .nav-tab{padding:6px 10px;font-size:12px}
-  .container{padding:16px}
-  .cards-grid{grid-template-columns:1fr}
-  .progress-list{grid-template-columns:1fr}
-}
+.prog-cat{font-size:12px;color:var(--fg2)}
 
 /* === ANALOGY CARDS === */
-.analogy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
-.analogy-card{background:var(--bg2);border:1px solid rgba(99,102,241,.12);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
-.analogy-card:hover{border-color:rgba(99,102,241,.35);transform:translateY(-2px);box-shadow:var(--shadow)}
-.analogy-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(99,102,241,.08)}
-.analogy-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.analogy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.analogy-card{background:#fff;border:var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
+.analogy-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.analogy-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(0,0,0,.06)}
+.analogy-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg2)}
 .analogy-concept{font-size:15px;font-weight:700}
-.analogy-title{font-size:12px;color:var(--accent2)}
+.analogy-title{font-size:12px;color:var(--accent);font-weight:500}
 .analogy-body{padding:16px 20px}
-.analogy-text{font-size:13px;color:var(--fg2);line-height:1.7;margin-bottom:12px}
-.analogy-diagram{background:var(--bg);border-radius:var(--radius-sm);padding:12px;text-align:center;overflow-x:auto}
+.analogy-text{font-size:14px;color:var(--fg2);line-height:1.7}
+.analogy-diagram{background:var(--bg2);border-radius:var(--radius-sm);padding:12px;text-align:center;overflow-x:auto}
 .analogy-diagram svg{max-width:100%;height:auto}
 
 /* === COMPARISON TABLES === */
 .comp-section{margin-bottom:40px}
 .comp-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
-.comp-table{width:100%;border-collapse:collapse;background:var(--bg2);border-radius:var(--radius);overflow:hidden;border:1px solid rgba(99,102,241,.1)}
-.comp-table th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:12px;color:var(--accent2);font-weight:600;border-bottom:1px solid rgba(99,102,241,.1);white-space:nowrap}
-.comp-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--fg2);vertical-align:top}
-.comp-table tr:hover td{background:rgba(99,102,241,.04)}
+.comp-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:var(--border)}
+.comp-table th{background:var(--bg2);padding:10px 14px;text-align:left;font-size:12px;color:var(--fg2);font-weight:600;border-bottom:var(--border);white-space:nowrap;letter-spacing:.3px}
+.comp-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--fg);vertical-align:top}
+.comp-table tr:nth-child(even) td{background:var(--bg2)}
+.comp-table tr:hover td{background:rgba(0,117,222,.04)}
 .comp-table .dim-label{color:var(--accent);font-weight:600;white-space:nowrap}
 
 /* === RELATIONSHIP MAP === */
-.rel-container{background:var(--bg2);border-radius:var(--radius);border:1px solid rgba(99,102,241,.12);overflow:hidden;position:relative}
+.rel-container{background:var(--bg2);border-radius:var(--radius);border:var(--border);overflow:hidden;position:relative}
 .rel-container svg{width:100%;height:500px}
-.rel-info{position:absolute;bottom:16px;left:16px;background:var(--bg3);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;max-width:320px;box-shadow:var(--shadow);display:none;line-height:1.7}
+.rel-info{position:absolute;bottom:16px;left:16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;max-width:320px;box-shadow:var(--shadow-md);display:none;line-height:1.7}
 .rel-info.show{display:block}
 .rel-legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;font-size:12px;color:var(--fg2)}
 .rel-legend span{display:flex;align-items:center;gap:6px}
 .rel-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.rel-edge{stroke:rgba(0,0,0,.06);stroke-width:1.5;transition:var(--transition)}
+.rel-edge.active{stroke:var(--accent);stroke-width:2}
+.rel-node{cursor:pointer}
 
 /* === ONE-LINE SUMMARIES === */
-.oneline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px}
-.oneline-card{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;background:var(--bg2);border:1px solid rgba(99,102,241,.08);border-radius:var(--radius-sm);transition:var(--transition);cursor:default}
-.oneline-card:hover{border-color:rgba(99,102,241,.25);background:var(--bg3)}
+.oneline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
+.oneline-card{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);transition:var(--transition);cursor:default}
+.oneline-card:hover{box-shadow:var(--shadow)}
 .compare-block{margin-bottom:32px}
 .compare-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
 .compare-scroll{overflow-x:auto}
-.rel-edge{stroke:rgba(99,102,241,.12);stroke-width:1.5;transition:var(--transition)}
-.rel-edge.active{stroke:var(--accent);stroke-width:2.5}
-.rel-node{cursor:pointer}
 .oneline-name{font-size:14px;font-weight:700;white-space:nowrap;flex-shrink:0;min-width:80px}
-.oneline-text{font-size:14px;color:var(--fg);line-height:1.5}
+.oneline-text{font-size:14px;color:var(--fg2);line-height:1.5}
 
 @media(max-width:768px){
+  .nav-inner{gap:8px}
+  .nav-logo{font-size:14px}
+  .nav-tab{padding:6px 10px;font-size:12px}
+  .container{padding:16px}
+  .section-title{font-size:28px}
+  .cards-grid{grid-template-columns:1fr}
+  .progress-list{grid-template-columns:1fr}
   .analogy-grid{grid-template-columns:1fr}
   .oneline-grid{grid-template-columns:1fr}
   .comp-table{font-size:11px}
@@ -183,7 +187,7 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
 
 <nav class="nav">
   <div class="nav-inner">
-    <div class="nav-logo">🧠 AI 知识仪表盘</div>
+    <div class="nav-logo"><span class="nav-logo-mark">//</span> AI 知识仪表盘</div>
     <div class="nav-tabs">
       <button class="nav-tab active" data-tab="graph">知识图谱</button>
       <button class="nav-tab" data-tab="cards">概念卡片</button>
@@ -263,7 +267,7 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
     <span><span class="rel-dot" style="background:var(--accent)"></span>当前选中</span>
     <span><span class="rel-dot" style="background:var(--green)"></span>前置知识</span>
     <span><span class="rel-dot" style="background:var(--cyan)"></span>关联概念</span>
-    <span><span class="rel-dot" style="background:var(--fg3)"></span>其他</span>
+    <span><span class="rel-dot" style="background:rgba(0,0,0,.2)"></span>其他</span>
   </div>
   <div class="rel-container" id="relBox">
     <svg id="relSvg"></svg>
@@ -283,73 +287,73 @@ body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-se
 <script>
 // ===== DATA =====
 const DOMAINS = [
-  {id:"nlp",name:"NLP基础",num:"01",diff:"easy",cat:"基础",color:"#22c55e",
+  {id:"nlp",name:"NLP基础",num:"01",diff:"easy",cat:"基础",color:"#2d9d4e",
     topics:["分词与词向量","语言模型(N-gram→NN)","序列标注(NER/POS)","文本分类与情感分析","Attention机制基础"],
     desc:"自然语言处理基础，是一切大模型技术的前置知识。"},
-  {id:"transformer",name:"Transformer架构",num:"02",diff:"medium",cat:"核心",color:"#6366f1",
+  {id:"transformer",name:"Transformer架构",num:"02",diff:"medium",cat:"核心",color:"#0075de",
     topics:["Self-Attention计算","Multi-Head Attention","位置编码(正弦/旋转)","Encoder-Decoder结构","层归一化(Pre-LN/Post-LN)"],
     desc:"现代大模型的核心架构，理解Transformer是理解一切LLM的关键。"},
-  {id:"llm-stack",name:"大模型技术栈",num:"03",diff:"hard",cat:"核心",color:"#ef4444",
+  {id:"llm-stack",name:"大模型技术栈",num:"03",diff:"hard",cat:"核心",color:"#d44",
     topics:["预训练(Pre-training)","Scaling Laws","RLHF/DPO对齐","Tokenization(BPE/SentencePiece)","分布式训练(FSDP/DeepSpeed)"],
     desc:"大模型从训练到部署的完整技术栈。"},
-  {id:"rag",name:"RAG技术",num:"04",diff:"medium",cat:"应用",color:"#eab308",
+  {id:"rag",name:"RAG技术",num:"04",diff:"medium",cat:"应用",color:"#c2900a",
     topics:["检索-增强生成原理","文档切分策略","Embedding模型选择","Reranking策略","评估(忠实度/相关性)"],
     desc:"检索增强生成，让大模型利用外部知识库回答问题。"},
-  {id:"agent",name:"Agent开发",num:"05",diff:"hard",cat:"应用",color:"#ef4444",
+  {id:"agent",name:"Agent开发",num:"05",diff:"hard",cat:"应用",color:"#d44",
     topics:["ReAct模式","工具调用(Function Calling)","规划与推理","多Agent协作","记忆机制(短期/长期)"],
     desc:"AI Agent是LLM应用的高级形态，能自主规划和执行任务。"},
-  {id:"langgraph",name:"LangGraph",num:"06",diff:"medium",cat:"框架",color:"#06b6d4",
+  {id:"langgraph",name:"LangGraph",num:"06",diff:"medium",cat:"框架",color:"#0989a6",
     topics:["状态图(StateGraph)","条件路由","人机交互节点","持久化与检查点","流式输出"],
     desc:"基于图的Agent编排框架，适合构建复杂的有状态工作流。"},
-  {id:"finetune",name:"模型微调",num:"07",diff:"hard",cat:"训练",color:"#ef4444",
+  {id:"finetune",name:"模型微调",num:"07",diff:"hard",cat:"训练",color:"#d44",
     topics:["全量微调 vs LoRA/QLoRA","数据准备与清洗","超参数调优","评估指标(BLEU/ROUGE)","合并与导出模型"],
     desc:"用特定数据微调模型以提升任务表现。"},
-  {id:"cv",name:"计算机视觉基础",num:"08",diff:"medium",cat:"基础",color:"#eab308",
+  {id:"cv",name:"计算机视觉基础",num:"08",diff:"medium",cat:"基础",color:"#c2900a",
     topics:["CNN经典架构","目标检测(YOLO/RCNN)","图像分割","ViT视觉Transformer","CLIP多模态对齐"],
     desc:"计算机视觉基础，多模态开发的前置知识。"},
-  {id:"interview",name:"面试宝典",num:"09",diff:"medium",cat:"综合",color:"#f97316",
+  {id:"interview",name:"面试宝典",num:"09",diff:"medium",cat:"综合",color:"#b45309",
     topics:["机器学习八股","深度学习核心概念","大模型常见面试题","系统设计题","手撕代码题"],
     desc:"AI/ML岗位面试高频知识点汇总。"},
-  {id:"project",name:"项目实战",num:"10",diff:"hard",cat:"实战",color:"#ef4444",
+  {id:"project",name:"项目实战",num:"10",diff:"hard",cat:"实战",color:"#d44",
     topics:["智能客服系统","文档问答系统","代码助手","AI搜索","数据分析Agent"],
     desc:"真实项目案例，从需求到上线的完整流程。"},
-  {id:"multimodal",name:"多模态开发",num:"11",diff:"hard",cat:"前沿",color:"#a855f7",
+  {id:"multimodal",name:"多模态开发",num:"11",diff:"hard",cat:"前沿",color:"#7c3aed",
     topics:["图文理解(GPT-4V)","语音识别(TTS/STT)","视频理解","多模态Embedding","统一多模态架构"],
     desc:"融合文本、图像、语音的多模态AI开发。"},
-  {id:"inference",name:"LLM推理部署",num:"12",diff:"hard",cat:"工程",color:"#ef4444",
+  {id:"inference",name:"LLM推理部署",num:"12",diff:"hard",cat:"工程",color:"#d44",
     topics:["量化(GPTQ/AWQ/GGUF)","KV Cache优化","vLLM/TGI推理引擎","批处理与流式","TensorRT-LLM"],
     desc:"大模型推理加速与高效部署技术。"},
-  {id:"vectordb",name:"向量数据库",num:"13",diff:"medium",cat:"基础设施",color:"#06b6d4",
+  {id:"vectordb",name:"向量数据库",num:"13",diff:"medium",cat:"基础设施",color:"#0989a6",
     topics:["向量检索算法(HNSW/IVF)","Milvus/Pinecone/Weaviate","索引优化","混合检索","维度与距离选择"],
     desc:"存储和检索高维向量的专用数据库，RAG的核心组件。"},
-  {id:"observability",name:"LLM可观测性",num:"14",diff:"medium",cat:"工程",color:"#eab308",
+  {id:"observability",name:"LLM可观测性",num:"14",diff:"medium",cat:"工程",color:"#c2900a",
     topics:["Tracing链路追踪","Token消耗监控","质量评估自动化","LangSmith/Phoenix","日志与告警"],
     desc:"监控和调试LLM应用的性能与质量。"},
-  {id:"safety",name:"AI安全与护栏",num:"15",diff:"medium",cat:"安全",color:"#f97316",
+  {id:"safety",name:"AI安全与护栏",num:"15",diff:"medium",cat:"安全",color:"#b45309",
     topics:["Prompt注入防御","内容过滤与审核","输出格式约束","越狱攻击防护","Guardrails框架"],
     desc:"保护LLM应用免受恶意输入和不当输出。"},
-  {id:"serving",name:"模型服务与部署",num:"16",diff:"hard",cat:"工程",color:"#ef4444",
+  {id:"serving",name:"模型服务与部署",num:"16",diff:"hard",cat:"工程",color:"#d44",
     topics:["API设计(OpenAI兼容)","负载均衡与扩缩容","A/B测试","CI/CD流水线","GPU集群管理"],
     desc:"将模型包装为生产级API服务。"},
-  {id:"docker",name:"Docker",num:"+",diff:"easy",cat:"工程",color:"#22c55e",
+  {id:"docker",name:"Docker",num:"+",diff:"easy",cat:"工程",color:"#2d9d4e",
     topics:["容器基础概念","Dockerfile编写","Docker Compose","镜像优化","网络与存储"],
     desc:"容器化技术，AI应用部署的基础设施。"},
-  {id:"database",name:"数据库",num:"+",diff:"easy",cat:"基础",color:"#22c55e",
+  {id:"database",name:"数据库",num:"+",diff:"easy",cat:"基础",color:"#2d9d4e",
     topics:["SQL基础","PostgreSQL","Redis缓存","MongoDB文档存储","数据库设计范式"],
     desc:"数据存储基础，所有应用的底层支撑。"},
-  {id:"ml",name:"机器学习",num:"+",diff:"medium",cat:"基础",color:"#eab308",
+  {id:"ml",name:"机器学习",num:"+",diff:"medium",cat:"基础",color:"#c2900a",
     topics:["监督/无监督/强化学习","特征工程","模型评估(交叉验证)","经典算法(SVM/RF/XGBoost)","过拟合与正则化"],
     desc:"机器学习理论基础，深度学习的前置知识。"},
-  {id:"dl",name:"深度学习",num:"+",diff:"medium",cat:"基础",color:"#eab308",
+  {id:"dl",name:"深度学习",num:"+",diff:"medium",cat:"基础",color:"#c2900a",
     topics:["反向传播算法","CNN/RNN/LSTM","优化器(Adam等)","正则化(Dropout/BatchNorm)","PyTorch实战"],
     desc:"深度学习核心理论与实践。"},
-  {id:"rag-adv",name:"RAG高级模式",num:"+",diff:"hard",cat:"高级",color:"#ef4444",
+  {id:"rag-adv",name:"RAG高级模式",num:"+",diff:"hard",cat:"高级",color:"#d44",
     topics:["GraphRAG(知识图谱)","Agentic RAG","多路检索融合","Self-RAG自适应","Corrective RAG纠错"],
     desc:"RAG的高级架构模式，提升复杂场景下的表现。"},
-  {id:"startup",name:"创业",num:"+",diff:"medium",cat:"商业",color:"#a855f7",
+  {id:"startup",name:"创业",num:"+",diff:"medium",cat:"商业",color:"#7c3aed",
     topics:["AI产品设计方法论","MVP快速验证","商业模式画布","融资与团队","市场定位与增长"],
     desc:"AI领域的创业方法论与商业思维。"},
-  {id:"finance",name:"金融",num:"+",diff:"medium",cat:"领域",color:"#f97316",
+  {id:"finance",name:"金融",num:"+",diff:"medium",cat:"领域",color:"#b45309",
     topics:["量化交易基础","金融风控模型","NLP在金融中的应用","合规与监管","金融知识图谱"],
     desc:"AI在金融领域的应用与实践。"},
 ];
@@ -415,7 +419,7 @@ const REFS = [
 ];
 
 const PATHS = [
-  {name:"🤖 AI工程师",id:"ai-eng",steps:[
+  {name:"AI工程师",id:"ai-eng",steps:[
     {t:"数学与ML基础",d:"线性代数、概率论、机器学习基本算法",tags:["机器学习","深度学习"]},
     {t:"NLP与Transformer",d:"分词、词向量、Attention机制、Transformer架构",tags:["NLP基础","Transformer架构"]},
     {t:"大模型基础",d:"预训练、Tokenization、Scaling Laws、RLHF",tags:["大模型技术栈"]},
@@ -424,7 +428,7 @@ const PATHS = [
     {t:"部署与运维",d:"量化、推理引擎、API服务、监控",tags:["LLM推理部署","模型服务与部署","LLM可观测性"]},
     {t:"项目实战",d:"端到端构建生产级AI应用",tags:["项目实战","Docker"]},
   ]},
-  {name:"🧠 Agent专家",id:"agent-exp",steps:[
+  {name:"Agent专家",id:"agent-exp",steps:[
     {t:"LLM基础",d:"理解大模型能力边界与API使用",tags:["大模型技术栈","Transformer架构"]},
     {t:"工具调用",d:"Function Calling、工具设计、MCP协议",tags:["Agent开发"]},
     {t:"规划与推理",d:"ReAct、CoT、ToT推理策略",tags:["Agent开发"]},
@@ -433,7 +437,7 @@ const PATHS = [
     {t:"多Agent系统",d:"协作模式、任务分配、冲突解决",tags:["Agent开发","LangGraph"]},
     {t:"安全与生产",d:"Guardrails、可观测性、评估",tags:["AI安全与护栏","LLM可观测性"]},
   ]},
-  {name:"⚙️ 微调工程师",id:"finetune-eng",steps:[
+  {name:"微调工程师",id:"finetune-eng",steps:[
     {t:"深度学习基础",d:"CNN/RNN、优化器、正则化",tags:["深度学习","机器学习"]},
     {t:"Transformer精通",d:"架构细节、注意力变体、位置编码",tags:["Transformer架构"]},
     {t:"大模型训练",d:"预训练、分布式训练、混合精度",tags:["大模型技术栈"]},
@@ -442,7 +446,7 @@ const PATHS = [
     {t:"量化与部署",d:"GPTQ/AWQ量化、推理优化",tags:["LLM推理部署","模型服务与部署"]},
     {t:"评估体系",d:"自动化评估、A/B测试、持续迭代",tags:["LLM可观测性","项目实战"]},
   ]},
-  {name:"🚀 创业技术栈",id:"startup-tech",steps:[
+  {name:"创业技术栈",id:"startup-tech",steps:[
     {t:"AI基础认知",d:"理解LLM能力与局限，能做技术选型",tags:["大模型技术栈","Transformer架构"]},
     {t:"快速原型",d:"用LangChain/RAG快速搭建MVP",tags:["RAG技术","LangGraph","Agent开发"]},
     {t:"产品设计",d:"AI产品方法论、用户体验、商业模式",tags:["创业"]},
@@ -470,7 +474,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   const W = 1400, H = 600;
   svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
 
-  // Position nodes in a force-like layout (precomputed)
   const positions = {};
   const cx = W/2, cy = H/2;
   const layers = [
@@ -490,11 +493,9 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     });
   });
 
-  // Add some horizontal jitter
   const jitter = {rag:-40,agent:50,finetune:-60,inference:30,multimodal:-20,'rag-adv':60,safety:-30,serving:40,project:-10,startup:-50,finance:50};
   Object.keys(jitter).forEach(k => { if(positions[k]) positions[k].x += jitter[k]; });
 
-  // Draw edges
   EDGES.forEach(([from, to]) => {
     if(!positions[from] || !positions[to]) return;
     const line = document.createElementNS('http://www.w3.org/2000/svg','path');
@@ -505,7 +506,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     svg.appendChild(line);
   });
 
-  // Draw nodes
   DOMAINS.forEach(d => {
     const p = positions[d.id];
     if(!p) return;
@@ -516,9 +516,9 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
     circle.setAttribute('r', d.num === '+' ? 20 : 26);
     circle.setAttribute('class','node-circle');
-    circle.setAttribute('fill', d.color + '22');
+    circle.setAttribute('fill', d.color + '18');
     circle.setAttribute('stroke', d.color);
-    circle.setAttribute('stroke-width','2');
+    circle.setAttribute('stroke-width','1.5');
     g.appendChild(circle);
 
     const text = document.createElementNS('http://www.w3.org/2000/svg','text');
@@ -558,7 +558,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
             <div class="card-topics">${d.topics.slice(0,3).join(' · ')}</div>
           </div>
           <div class="card-back">
-            <div class="card-back-title">📌 ${d.name} 核心要点</div>
+            <div class="card-back-title">${d.name} 核心要点</div>
             <ul>${d.topics.map(t => `<li>${t}</li>`).join('')}</ul>
           </div>
         </div>
@@ -644,33 +644,37 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   }
   render();
 })();
+
 // ===== ANALOGY EXPLANATIONS =====
 (function(){
   const grid = document.getElementById('analogyGrid');
   const analogies = [
-    {c:"Transformer",a:"工厂流水线",e:"想象一条工厂流水线：每个工人(Attention Head)同时检查所有零件(输入token)，找出最重要的组合关系。Self-Attention就是让每个词去'看'所有其他词，决定该重点关注谁。",icon:"🏭"},
-    {c:"RAG",a:"开卷考试",e:"LLM是闭卷考生(只靠记忆)，RAG给它配了一本参考书(知识库)。答题前先翻书找相关内容(检索)，再结合自己的理解作答(生成)。书可以随时更新，不用重新培训考生。",icon:"📖"},
-    {c:"Agent",a:"项目经理",e:"Agent就像一个项目经理：接到任务后拆解子任务(规划)、分配给合适的工具执行(工具调用)、检查结果是否合格(反思)、不满意就重新做(迭代)。LLM是它的大脑，工具是它的手脚。",icon:"👔"},
-    {c:"Fine-tuning",a:"岗前培训",e:"通用LLM是大学毕业生(什么都会一点)，Fine-tuning是岗前培训——用特定领域的教材(训练数据)强化训练，让它成为某个领域的专家。LoRA就像只培训它的'副脑'，成本低见效快。",icon:"🎓"},
-    {c:"向量数据库",a:"图书馆索引",e:"传统数据库按书名/ISBN查找(关键词匹配)，向量数据库按'内容相似度'查找——你说'关于勇气的故事'，它能找出《老人与海》，即使书名里没有'勇气'二字。Embedding就是给每本书生成一个'内容DNA'。",icon:"📚"},
-    {c:"LangGraph",a:"流程图执行器",e:"LangGraph就像一个智能流程图执行器：每个方框(节点)是一个任务，箭头(边)决定下一步去哪。支持条件分支('如果结果不好就重做')、并行('同时做A和B')、循环('反复优化直到满意')。",icon:"📊"},
-    {c:"Embedding",a:"DNA序列",e:"Embedding是文本的'DNA'——把一段文字变成一串数字向量。意思相近的文字，DNA也相似('国王'和'女王'的DNA很接近)。有了DNA就能计算任意两段文字的'亲缘关系'。",icon:"🧬"},
-    {c:"Attention",a:"聚光灯",e:"读一句话时，你的大脑会自动聚焦重要的词。Attention机制就是给模型装了聚光灯——处理'苹果发布了新手机'时，灯光会聚焦在'苹果'和'手机'上，而不是'了'和'新'。Multi-Head就是多盏灯从不同角度照。",icon:"💡"},
-    {c:"LoRA",a:"副驾驶",e:"大模型是一辆卡车(参数巨大)，LoRA是在卡车上加一个小小的'副驾驶方向盘'(低秩矩阵)。只需训练这个小方向盘就能改变卡车的行驶方向，而不用重新造一辆卡车。参数量从百亿降到百万级。",icon:"🚗"},
-    {c:"Prompt Engineering",a:"下达指令",e:"同一个员工，你给他模糊指令('做个东西')和精确指令('用React做一个登录页，要求邮箱验证+记住密码')，产出天差地别。Prompt Engineering就是学会给AI下达精确指令的技巧。",icon:"📝"},
-    {c:"量化",a:"图片压缩",e:"模型量化就像把高清图(32位浮点)压缩成缩略图(4位整数)——文件小了很多，加载快了很多，画质略有损失但大多数场景够用。INT4量化能让7B模型从14GB缩小到4GB，一张消费级显卡就能跑。",icon:"🗜️"},
-    {c:"RLHF",a:"师傅带徒弟",e:"RLHF训练分三步：1)徒弟先自学(预训练)；2)师傅给徒弟的作业打分(训练奖励模型)；3)徒弟根据师傅的偏好调整写法(强化学习)。就像学写作——先大量阅读，再让编辑给反馈，最后按编辑口味改稿。",icon:"👨‍🏫"},
-    {c:"向量检索",a:"找相似照片",e:"你在手机相册搜'海滩'，它不是靠文件名找的——而是把每张照片编码成向量，计算和'海滩'这个词向量的距离。距离越近越相似。向量检索就是这个原理，只不过用在文本上。",icon:"🔍"},
-    {c:"ReAct",a:"边想边做",e:"ReAct模式就像一个经验丰富的工人：先想(Thought:这个问题需要查资料)→再做(Action:搜索关键词)→看结果(Observation:找到了3条信息)→继续想(Thought:信息够了，可以回答了)。思考和行动交替进行。",icon:"🤔"},
-    {c:"Guardrails",a:"安检门",e:"AI Guardrails就像机场安检：用户输入要过'入口安检'(检测注入攻击/有害内容)，AI输出要过'出口安检'(检测泄露隐私/有害建议)。不合格的直接拦截，合格的放行。可配置不同严格级别。",icon:"🛡️"},
-    {c:"多模态",a:"五感通才",e:"早期AI只处理文字(只会听)，多模态AI同时理解文字+图片+音频+视频(听+看+读)。就像一个全能翻译，能听懂对话、看懂图表、读懂文档，然后综合所有信息给出答案。GPT-4V就是典型代表。",icon:"👁️"},
+    {c:"Transformer",a:"工厂流水线",e:"想象一条工厂流水线：每个工人(Attention Head)同时检查所有零件(输入token)，找出最重要的组合关系。Self-Attention就是让每个词去'看'所有其他词，决定该重点关注谁。",icon:"⚙"},
+    {c:"RAG",a:"开卷考试",e:"LLM是闭卷考生(只靠记忆)，RAG给它配了一本参考书(知识库)。答题前先翻书找相关内容(检索)，再结合自己的理解作答(生成)。书可以随时更新，不用重新培训考生。",icon:"◈"},
+    {c:"Agent",a:"项目经理",e:"Agent就像一个项目经理：接到任务后拆解子任务(规划)、分配给合适的工具执行(工具调用)、检查结果是否合格(反思)、不满意就重新做(迭代)。LLM是它的大脑，工具是它的手脚。",icon:"◆"},
+    {c:"Fine-tuning",a:"岗前培训",e:"通用LLM是大学毕业生(什么都会一点)，Fine-tuning是岗前培训——用特定领域的教材(训练数据)强化训练，让它成为某个领域的专家。LoRA就像只培训它的'副脑'，成本低见效快。",icon:"◇"},
+    {c:"向量数据库",a:"图书馆索引",e:"传统数据库按书名/ISBN查找(关键词匹配)，向量数据库按'内容相似度'查找——你说'关于勇气的故事'，它能找出《老人与海》，即使书名里没有'勇气'二字。Embedding就是给每本书生成一个'内容DNA'。",icon:"▦"},
+    {c:"LangGraph",a:"流程图执行器",e:"LangGraph就像一个智能流程图执行器：每个方框(节点)是一个任务，箭头(边)决定下一步去哪。支持条件分支('如果结果不好就重做')、并行('同时做A和B')、循环('反复优化直到满意')。",icon:"⬡"},
+    {c:"Embedding",a:"DNA序列",e:"Embedding是文本的'DNA'——把一段文字变成一串数字向量。意思相近的文字，DNA也相似('国王'和'女王'的DNA很接近)。有了DNA就能计算任意两段文字的'亲缘关系'。",icon:"◎"},
+    {c:"Attention",a:"聚光灯",e:"读一句话时，你的大脑会自动聚焦重要的词。Attention机制就是给模型装了聚光灯——处理'苹果发布了新手机'时，灯光会聚焦在'苹果'和'手机'上，而不是'了'和'新'。Multi-Head就是多盏灯从不同角度照。",icon:"◉"},
+    {c:"LoRA",a:"副驾驶",e:"大模型是一辆卡车(参数巨大)，LoRA是在卡车上加一个小小的'副驾驶方向盘'(低秩矩阵)。只需训练这个小方向盘就能改变卡车的行驶方向，而不用重新造一辆卡车。参数量从百亿降到百万级。",icon:"▸"},
+    {c:"Prompt Engineering",a:"下达指令",e:"同一个员工，你给他模糊指令('做个东西')和精确指令('用React做一个登录页，要求邮箱验证+记住密码')，产出天差地别。Prompt Engineering就是学会给AI下达精确指令的技巧。",icon:"✎"},
+    {c:"量化",a:"图片压缩",e:"模型量化就像把高清图(32位浮点)压缩成缩略图(4位整数)——文件小了很多，加载快了很多，画质略有损失但大多数场景够用。INT4量化能让7B模型从14GB缩小到4GB，一张消费级显卡就能跑。",icon:"⊞"},
+    {c:"RLHF",a:"师傅带徒弟",e:"RLHF训练分三步：1)徒弟先自学(预训练)；2)师傅给徒弟的作业打分(训练奖励模型)；3)徒弟根据师傅的偏好调整写法(强化学习)。就像学写作——先大量阅读，再让编辑给反馈，最后按编辑口味改稿。",icon:"◈"},
+    {c:"向量检索",a:"找相似照片",e:"你在手机相册搜'海滩'，它不是靠文件名找的——而是把每张照片编码成向量，计算和'海滩'这个词向量的距离。距离越近越相似。向量检索就是这个原理，只不过用在文本上。",icon:"◎"},
+    {c:"ReAct",a:"边想边做",e:"ReAct模式就像一个经验丰富的工人：先想(Thought:这个问题需要查资料)→再做(Action:搜索关键词)→看结果(Observation:找到了3条信息)→继续想(Thought:信息够了，可以回答了)。思考和行动交替进行。",icon:"⟳"},
+    {c:"Guardrails",a:"安检门",e:"AI Guardrails就像机场安检：用户输入要过'入口安检'(检测注入攻击/有害内容)，AI输出要过'出口安检'(检测泄露隐私/有害建议)。不合格的直接拦截，合格的放行。可配置不同严格级别。",icon:"⊟"},
+    {c:"多模态",a:"五感通才",e:"早期AI只处理文字(只会听)，多模态AI同时理解文字+图片+音频+视频(听+看+读)。就像一个全能翻译，能听懂对话、看懂图表、读懂文档，然后综合所有信息给出答案。GPT-4V就是典型代表。",icon:"⊡"},
   ];
   grid.innerHTML = analogies.map(a => `
     <div class="analogy-card">
-      <div class="analogy-icon">${a.icon}</div>
-      <div class="analogy-concept">${a.c}</div>
-      <div class="analogy-title">好比「${a.a}」</div>
-      <div class="analogy-text">${a.e}</div>
+      <div class="analogy-header">
+        <div class="analogy-icon">${a.icon}</div>
+        <div><div class="analogy-concept">${a.c}</div><div class="analogy-title">好比「${a.a}」</div></div>
+      </div>
+      <div class="analogy-body">
+        <div class="analogy-text">${a.e}</div>
+      </div>
     </div>
   `).join('');
 })();
@@ -693,21 +697,21 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     {title:"Agent架构模式对比",
      cols:["模式","工作方式","适用场景","复杂度"],
      rows:[
-       ["ReAct","思考→行动→观察，单步循环","简单问答、工具调用","⭐⭐"],
-       ["Plan-and-Execute","先规划全部步骤，再逐步执行","复杂多步任务","⭐⭐⭐"],
-       ["Reflexion","执行→自我反思→改进→重试","需要高质量输出","⭐⭐⭐"],
-       ["Multi-Agent","多个专业Agent协作","大型复杂系统","⭐⭐⭐⭐"],
-       ["Hierarchical","管理者Agent分配任务给工人Agent","团队协作场景","⭐⭐⭐⭐⭐"],
+       ["ReAct","思考→行动→观察，单步循环","简单问答、工具调用","中"],
+       ["Plan-and-Execute","先规划全部步骤，再逐步执行","复杂多步任务","中高"],
+       ["Reflexion","执行→自我反思→改进→重试","需要高质量输出","中高"],
+       ["Multi-Agent","多个专业Agent协作","大型复杂系统","高"],
+       ["Hierarchical","管理者Agent分配任务给工人Agent","团队协作场景","极高"],
      ]},
     {title:"向量数据库选型对比",
      cols:["数据库","性能","易用性","部署方式","适合场景"],
      rows:[
-       ["Chroma","中","⭐⭐⭐⭐⭐","嵌入式/Server","原型开发、小规模"],
-       ["Qdrant","高","⭐⭐⭐⭐","Docker/Cloud","中大规模生产"],
-       ["Milvus","极高","⭐⭐⭐","分布式集群","超大规模(亿级)"],
-       ["FAISS","极高","⭐⭐","库(无服务)","纯检索、研究用"],
-       ["Pinecone","高","⭐⭐⭐⭐⭐","SaaS全托管","不想运维、快速上线"],
-       ["Weaviate","高","⭐⭐⭐⭐","Docker/Cloud","需要混合搜索"],
+       ["Chroma","中","高","嵌入式/Server","原型开发、小规模"],
+       ["Qdrant","高","中高","Docker/Cloud","中大规模生产"],
+       ["Milvus","极高","中","分布式集群","超大规模(亿级)"],
+       ["FAISS","极高","低","库(无服务)","纯检索、研究用"],
+       ["Pinecone","高","高","SaaS全托管","不想运维、快速上线"],
+       ["Weaviate","高","中高","Docker/Cloud","需要混合搜索"],
      ]},
     {title:"Fine-tuning方法对比",
      cols:["方法","参数量","显存需求","训练速度","效果"],
@@ -761,7 +765,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     startup:{pre:["project"],rel:["finance"]},
     finance:{pre:["ml"],rel:["startup"]},
   };
-  // Layout: circular
   const keys = Object.keys(deps);
   const pos = {};
   keys.forEach((k,i) => {
@@ -769,7 +772,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     const r = 200;
     pos[k] = {x: W/2 + r*Math.cos(angle), y: H/2 + r*Math.sin(angle)};
   });
-  // Draw edges
   const drawn = new Set();
   Object.entries(deps).forEach(([k,v])=>{
     [...v.pre,...v.rel].forEach(t=>{
@@ -785,7 +787,6 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
       svg.appendChild(line);
     });
   });
-  // Draw nodes
   keys.forEach(k=>{
     const d = DOMAINS.find(dd=>dd.id===k);
     if(!d||!pos[k]) return;
@@ -794,7 +795,7 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     g.setAttribute('class','rel-node');
     g.dataset.id=k;
     const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('r',18);c.setAttribute('fill',d.color+'33');c.setAttribute('stroke',d.color);c.setAttribute('stroke-width','2');
+    c.setAttribute('r',18);c.setAttribute('fill',d.color+'22');c.setAttribute('stroke',d.color);c.setAttribute('stroke-width','1.5');
     g.appendChild(c);
     const t = document.createElementNS('http://www.w3.org/2000/svg','text');
     t.setAttribute('class','node-label');t.setAttribute('dy','4');
@@ -804,23 +805,18 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
       svg.querySelectorAll('.rel-node circle').forEach(c=>c.setAttribute('fill',c.getAttribute('stroke')+'22'));
       svg.querySelectorAll('.rel-edge').forEach(e=>e.setAttribute('class','rel-edge'));
       const dep=deps[k];
-      // Highlight current
-      c.setAttribute('fill',d.color+'88');
-      // Highlight prerequisites
+      c.setAttribute('fill',d.color+'66');
       dep.pre.forEach(p=>{
         const pn=svg.querySelector(`.rel-node[data-id="${p}"] circle`);
-        if(pn)pn.setAttribute('fill','#22c55e88');
+        if(pn)pn.setAttribute('fill','#2d9d4e66');
       });
-      // Highlight related
       dep.rel.forEach(r=>{
         const rn=svg.querySelector(`.rel-node[data-id="${r}"] circle`);
-        if(rn)rn.setAttribute('fill','#06b6d488');
+        if(rn)rn.setAttribute('fill','#0989a666');
       });
-      // Highlight edges
       svg.querySelectorAll('.rel-edge').forEach(e=>{
         if(e.dataset.from===k||e.dataset.to===k) e.setAttribute('class','rel-edge active');
       });
-      // Show info
       const preNames=dep.pre.map(p=>DOMAINS.find(dd=>dd.id===p)?.name||p);
       const relNames=dep.rel.map(r=>DOMAINS.find(dd=>dd.id===r)?.name||r);
       info.style.display='block';
@@ -836,29 +832,29 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 (function(){
   const grid = document.getElementById('onelineGrid');
   const lines = [
-    {n:"NLP基础",s:"让机器理解人类语言的桥梁",c:"#22c55e"},
-    {n:"Transformer",s:"注意力机制让模型学会'重点看哪里'",c:"#6366f1"},
-    {n:"大模型技术栈",s:"从预训练到对齐，造出一个'通才'",c:"#ef4444"},
-    {n:"RAG",s:"给LLM配一个可随时更新的参考资料库",c:"#06b6d4"},
-    {n:"Agent",s:"让LLM学会用工具、做计划、反思改进",c:"#f59e0b"},
-    {n:"LangGraph",s:"用状态图编排复杂的AI工作流",c:"#8b5cf6"},
-    {n:"模型微调",s:"用少量数据把通才训练成领域专家",c:"#ec4899"},
-    {n:"计算机视觉",s:"让机器'看懂'图片和视频",c:"#14b8a6"},
-    {n:"面试宝典",s:"大模型面试的核心考点速查",c:"#f97316"},
-    {n:"项目实战",s:"把知识变成可运行的产品",c:"#84cc16"},
-    {n:"多模态",s:"文字+图片+音频，AI的五感融合",c:"#a855f7"},
-    {n:"推理部署",s:"让大模型跑得快、跑得省",c:"#0ea5e9"},
-    {n:"向量数据库",s:"按语义相似度查找，而非关键词匹配",c:"#10b981"},
-    {n:"可观测性",s:"给AI系统装上仪表盘和黑匣子",c:"#64748b"},
-    {n:"AI安全",s:"给AI装上安检门，防注入防泄露",c:"#dc2626"},
-    {n:"模型服务",s:"把模型包装成API，稳定对外提供服务",c:"#2563eb"},
-    {n:"Docker",s:"把应用和环境打包，到处都能跑",c:"#0db7ed"},
-    {n:"数据库",s:"数据的仓库管理系统",c:"#336791"},
-    {n:"机器学习",s:"从数据中自动发现规律的算法",c:"#ff6f00"},
-    {n:"深度学习",s:"用多层神经网络学习复杂模式",c:"#e65100"},
-    {n:"RAG高级",s:"从基础检索升级到智能检索",c:"#0891b2"},
-    {n:"创业",s:"把技术变成商业价值的路径",c:"#ca8a04"},
-    {n:"金融",s:"AI在金融领域的垂直应用",c:"#059669"},
+    {n:"NLP基础",s:"让机器理解人类语言的桥梁",c:"#2d9d4e"},
+    {n:"Transformer",s:"注意力机制让模型学会'重点看哪里'",c:"#0075de"},
+    {n:"大模型技术栈",s:"从预训练到对齐，造出一个'通才'",c:"#d44"},
+    {n:"RAG",s:"给LLM配一个可随时更新的参考资料库",c:"#0989a6"},
+    {n:"Agent",s:"让LLM学会用工具、做计划、反思改进",c:"#b45309"},
+    {n:"LangGraph",s:"用状态图编排复杂的AI工作流",c:"#7c3aed"},
+    {n:"模型微调",s:"用少量数据把通才训练成领域专家",c:"#d44"},
+    {n:"计算机视觉",s:"让机器'看懂'图片和视频",c:"#0989a6"},
+    {n:"面试宝典",s:"大模型面试的核心考点速查",c:"#b45309"},
+    {n:"项目实战",s:"把知识变成可运行的产品",c:"#2d9d4e"},
+    {n:"多模态",s:"文字+图片+音频，AI的五感融合",c:"#7c3aed"},
+    {n:"推理部署",s:"让大模型跑得快、跑得省",c:"#d44"},
+    {n:"向量数据库",s:"按语义相似度查找，而非关键词匹配",c:"#0989a6"},
+    {n:"可观测性",s:"给AI系统装上仪表盘和黑匣子",c:"#c2900a"},
+    {n:"AI安全",s:"给AI装上安检门，防注入防泄露",c:"#b45309"},
+    {n:"模型服务",s:"把模型包装成API，稳定对外提供服务",c:"#d44"},
+    {n:"Docker",s:"把应用和环境打包，到处都能跑",c:"#2d9d4e"},
+    {n:"数据库",s:"数据的仓库管理系统",c:"#2d9d4e"},
+    {n:"机器学习",s:"从数据中自动发现规律的算法",c:"#c2900a"},
+    {n:"深度学习",s:"用多层神经网络学习复杂模式",c:"#c2900a"},
+    {n:"RAG高级",s:"从基础检索升级到智能检索",c:"#0989a6"},
+    {n:"创业",s:"把技术变成商业价值的路径",c:"#7c3aed"},
+    {n:"金融",s:"AI在金融领域的垂直应用",c:"#b45309"},
   ];
   grid.innerHTML = lines.map(l=>`
     <div class="oneline-card" style="border-left:3px solid ${l.c}">

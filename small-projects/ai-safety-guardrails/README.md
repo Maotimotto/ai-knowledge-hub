@@ -123,6 +123,10 @@ curl http://localhost:8100/audit/recent
 - FastAPI基础
 - LLM安全基本概念
 
+## Dashboard
+
+A visual overview of detectors, test cases, and safety policies is available at [`dashboard.html`](dashboard.html). Open it directly in any browser.
+
 **进阶方向：**
 - 完成本项目后 → 将此Guardrails集成到 `rag-qa-bot` 和 `agent-task-planner` 的输入/输出管线
 - 深入 → 基于ML的毒性检测（替换关键词方案）、嵌入式Prompt注入检测

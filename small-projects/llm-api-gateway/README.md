@@ -130,6 +130,10 @@ curl http://localhost:8002/cache/stats
 - HTTP API设计
 - 基本的LLM API使用经验
 
+## Dashboard
+
+A visual overview of providers, models, routing strategies, and sample requests is available at [`dashboard.html`](dashboard.html). Open it directly in any browser.
+
 **进阶方向：**
 - 完成本项目后 → 用此网关替换 `rag-qa-bot` 中的OpenAI直接调用
 - 深入 → 添加流式响应(Streaming)、请求队列、限流

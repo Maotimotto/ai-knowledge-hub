@@ -109,6 +109,10 @@ cat plan_output.json
 - LLM API基本调用
 - JSON数据格式
 
+## Dashboard
+
+A visual overview of the agent architecture, demo scenarios, and task distribution is available at [`dashboard.html`](dashboard.html). Open it directly in any browser.
+
 **进阶方向：**
 - 完成本项目后 → 进阶 `rag-qa-bot`（给Agent添加知识检索能力）
 - 深入 → 实现多Agent协作、自主Agent

@@ -58,6 +58,8 @@
 
 基于Chart.js的实时仪表盘，通过WebSocket接收数据并动态更新图表。包含延迟时序图、成本趋势图、错误率仪表盘等组件。
 
+> Open `dashboard.html` directly in a browser for standalone demo mode, or visit `http://localhost:8003` when the server is running.
+
 ---
 
 ## 运行示例 (Run Examples)

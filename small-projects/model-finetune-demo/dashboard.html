@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Fine-tune Demo Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #ffffff; color: #1a1a1a; font-size: 16px; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+        .header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; }
+        .header .tag { font-size: 13px; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; }
+        .desc { font-size: 15px; color: #6b7280; margin-bottom: 32px; max-width: 680px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .kpi-card .label { font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+        .kpi-card .value { font-size: 32px; font-weight: 700; margin: 4px 0; }
+        .kpi-card .sub { font-size: 13px; color: #9ca3af; }
+        .section { margin-bottom: 32px; }
+        .section h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .chart-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .chart-card h3 { font-size: 14px; color: #6b7280; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.03em; }
+        canvas { max-height: 260px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); color: #6b7280; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .pipeline { display: flex; gap: 0; align-items: center; margin-bottom: 32px; }
+        .pipe-step {
+            flex: 1; text-align: center; padding: 16px 12px;
+            border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; background: #fafafa;
+        }
+        .pipe-step .step-name { font-size: 14px; font-weight: 600; color: #374151; }
+        .pipe-step .step-desc { font-size: 12px; color: #9ca3af; margin-top: 4px; }
+        .pipe-arrow { font-size: 20px; color: #d1d5db; padding: 0 8px; }
+        .config-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .config-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 16px; }
+        .config-card .config-label { font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.04em; }
+        .config-card .config-value { font-size: 18px; font-weight: 600; margin-top: 4px; }
+        @media (max-width: 800px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid, .config-grid { grid-template-columns: 1fr; }
+            .pipeline { flex-direction: column; }
+            .pipe-arrow { transform: rotate(90deg); }
+            .header h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Model Fine-tune Demo</h1>
+        <span class="tag">CLI Tool</span>
+    </div>
+    <p class="desc">End-to-end LoRA fine-tuning pipeline. Prepare instruction datasets, fine-tune language models with parameter-efficient methods, and evaluate before/after results. Runs on CPU with OPT-350M in ~10 minutes.</p>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">Base Model</div>
+            <div class="value" style="font-size:20px; margin-top:8px;">OPT-350M</div>
+            <div class="sub">facebook/opt-350m</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">LoRA Rank</div>
+            <div class="value">8</div>
+            <div class="sub">Alpha: 16, Dropout: 0.1</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Trainable Params</div>
+            <div class="value" style="font-size:20px; margin-top:8px;">0.35%</div>
+            <div class="sub">~1.2M / 350M total</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Training Time</div>
+            <div class="value" style="font-size:20px; margin-top:8px;">~10 min</div>
+            <div class="sub">CPU, 3 epochs</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Pipeline</h2>
+        <div class="pipeline">
+            <div class="pipe-step"><div class="step-name">Prepare Data</div><div class="step-desc">Instruction format</div></div>
+            <div class="pipe-arrow">&#8594;</div>
+            <div class="pipe-step"><div class="step-name">Load Model</div><div class="step-desc">OPT-350M + tokenizer</div></div>
+            <div class="pipe-arrow">&#8594;</div>
+            <div class="pipe-step"><div class="step-name">Apply LoRA</div><div class="step-desc">Q + V projections</div></div>
+            <div class="pipe-arrow">&#8594;</div>
+            <div class="pipe-step"><div class="step-name">Train</div><div class="step-desc">3 epochs, lr=2e-4</div></div>
+            <div class="pipe-arrow">&#8594;</div>
+            <div class="pipe-step"><div class="step-name">Evaluate</div><div class="step-desc">Perplexity + F1</div></div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Simulated Training Loss</h3>
+            <canvas id="lossChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Parameter Distribution</h3>
+            <canvas id="paramChart"></canvas>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>LoRA Configuration</h2>
+        <div class="config-grid">
+            <div class="config-card">
+                <div class="config-label">Target Modules</div>
+                <div class="config-value">q_proj, v_proj</div>
+            </div>
+            <div class="config-card">
+                <div class="config-label">Learning Rate</div>
+                <div class="config-value">2e-4</div>
+            </div>
+            <div class="config-card">
+                <div class="config-label">Batch Size</div>
+                <div class="config-value">2</div>
+            </div>
+            <div class="config-card">
+                <div class="config-label">Epochs</div>
+                <div class="config-value">3</div>
+            </div>
+            <div class="config-card">
+                <div class="config-label">Max Seq Length</div>
+                <div class="config-value">512</div>
+            </div>
+            <div class="config-card">
+                <div class="config-label">Warmup Steps</div>
+                <div class="config-value">10</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Workflow Steps</h2>
+        <table>
+            <thead><tr><th>Step</th><th>Script</th><th>Description</th><th>Output</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>prepare_data.py</td><td>Convert raw text to instruction format (JSON)</td><td>data/instruction_data.json</td></tr>
+                <tr><td>2</td><td>train.py</td><td>LoRA fine-tuning with HuggingFace PEFT</td><td>./output (LoRA weights)</td></tr>
+                <tr><td>3</td><td>evaluate.py</td><td>Perplexity + keyword match F1 evaluation</td><td>Console metrics</td></tr>
+                <tr><td>4</td><td>inference.py</td><td>Generate and compare base vs fine-tuned</td><td>Before/After comparison</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Simulated training loss curve
+const lossLabels = [];
+const baseLoss = [], ftLoss = [];
+for (let i = 0; i <= 30; i++) {
+    lossLabels.push(`Step ${i * 5}`);
+    baseLoss.push(3.2 * Math.exp(-0.04 * i) + 0.8 + Math.random() * 0.1);
+    ftLoss.push(3.0 * Math.exp(-0.06 * i) + 0.5 + Math.random() * 0.08);
+}
+
+const lossCtx = document.getElementById('lossChart').getContext('2d');
+new Chart(lossCtx, {
+    type: 'line',
+    data: {
+        labels: lossLabels,
+        datasets: [
+            { label: 'Base Model Loss', data: baseLoss, borderColor: '#9ca3af', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 },
+            { label: 'Fine-tuned Loss', data: ftLoss, borderColor: '#0075de', backgroundColor: 'transparent', tension: 0.3, pointRadius: 0, borderWidth: 2 }
+        ]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#374151', font: { size: 12 } } } },
+        scales: {
+            x: { ticks: { color: '#9ca3af', font: { size: 10 }, maxTicksLimit: 8 }, grid: { color: 'rgba(0,0,0,0.06)' } },
+            y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: false, title: { display: true, text: 'Loss', color: '#9ca3af' } }
+        }
+    }
+});
+
+const paramCtx = document.getElementById('paramChart').getContext('2d');
+new Chart(paramCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Frozen (348.8M)', 'LoRA A (0.6M)', 'LoRA B (0.6M)'],
+        datasets: [{ data: [348.8, 0.6, 0.6], backgroundColor: ['#e5e7eb','#0075de','#22c55e'], borderWidth: 0 }]
+    },
+    options: { responsive: true, cutout: '60%',
+        plugins: { legend: { position: 'right', labels: { color: '#374151', font: { size: 12 }, padding: 12 } } } }
+});
+</script>
+</body>
+</html>

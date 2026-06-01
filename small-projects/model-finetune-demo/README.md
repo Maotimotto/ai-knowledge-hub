@@ -121,6 +121,10 @@ python train.py --data data/your_data.json
 - 神经网络基本概念（前向传播、反向传播）
 - Transformer架构基础
 
+## Dashboard
+
+A visual overview of the fine-tuning pipeline, LoRA configuration, and training metrics is available at [`dashboard.html`](dashboard.html). Open it directly in any browser.
+
 **进阶方向：**
 - 完成本项目后 → 用微调后的模型替换 `rag-qa-bot` 中的生成器
 - 深入 → QLoRA(量化LoRA)、全参数微调、RLHF

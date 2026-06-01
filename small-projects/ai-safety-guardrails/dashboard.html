@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Safety Guardrails Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+            background: #ffffff; color: #1a1a1a; font-size: 16px; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 40px; }
+        .header {
+            display: flex; justify-content: space-between; align-items: baseline;
+            margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .header h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; }
+        .header .tag { font-size: 13px; color: #6b7280; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; }
+        .desc { font-size: 15px; color: #6b7280; margin-bottom: 32px; max-width: 680px; }
+        .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .kpi-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .kpi-card .label { font-size: 13px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+        .kpi-card .value { font-size: 32px; font-weight: 700; margin: 4px 0; }
+        .kpi-card .sub { font-size: 13px; color: #9ca3af; }
+        .section { margin-bottom: 32px; }
+        .section h2 { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+        .chart-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 20px; }
+        .chart-card h3 { font-size: 14px; color: #6b7280; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.03em; }
+        canvas { max-height: 260px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); color: #6b7280; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+        td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .badge-pass { background: #f0fdf4; color: #16a34a; }
+        .badge-block { background: #fef2f2; color: #dc2626; }
+        .badge-flag { background: #fffbeb; color: #d97706; }
+        .badge-redact { background: #eff6ff; color: #2563eb; }
+        .detector-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .detector-card { border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 16px; }
+        .detector-card .det-name { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .detector-card .det-desc { font-size: 13px; color: #6b7280; }
+        .detector-card .det-count { font-size: 12px; color: #9ca3af; margin-top: 8px; }
+        .policy-row { display: flex; gap: 16px; margin-bottom: 16px; }
+        .policy-card { flex: 1; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; padding: 16px; }
+        .policy-card .pol-name { font-size: 15px; font-weight: 600; }
+        .policy-card .pol-threshold { font-size: 24px; font-weight: 700; margin: 8px 0 4px; color: #0075de; }
+        .policy-card .pol-desc { font-size: 12px; color: #9ca3af; }
+        @media (max-width: 800px) {
+            .kpi-row { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid, .detector-grid { grid-template-columns: 1fr; }
+            .policy-row { flex-direction: column; }
+            .header h1 { font-size: 28px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>AI Safety Guardrails</h1>
+        <span class="tag">Port 8100</span>
+    </div>
+    <p class="desc">Content filtering and safety analysis middleware. Intercepts AI inputs/outputs for PII leakage, prompt injection, and harmful content. Configurable per-tenant policies with audit logging.</p>
+
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="label">Test Cases</div>
+            <div class="value">20</div>
+            <div class="sub">5 safe + 5 PII + 5 injection + 5 toxic</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Detectors</div>
+            <div class="value">3</div>
+            <div class="sub">PII / Injection / Toxicity</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">PII Patterns</div>
+            <div class="value">7</div>
+            <div class="sub">Email, phone, SSN, CC, IP, ID, address</div>
+        </div>
+        <div class="kpi-card">
+            <div class="label">Injection Patterns</div>
+            <div class="value">8</div>
+            <div class="sub">Ignore, override, jailbreak, DAN...</div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Detectors</h2>
+        <div class="detector-grid">
+            <div class="detector-card">
+                <div class="det-name">PII Detection</div>
+                <div class="det-desc">7 regex patterns: email, US/CN phone, SSN, credit card, IP address, CN ID, address</div>
+                <div class="det-count">Auto-mask: keep first/last chars</div>
+            </div>
+            <div class="detector-card">
+                <div class="det-name">Prompt Injection</div>
+                <div class="det-desc">8 patterns: instruction override, system prompt, role hijack, jailbreak, DAN, base64</div>
+                <div class="det-count">Confidence: 0.75 - 0.95</div>
+            </div>
+            <div class="detector-card">
+                <div class="det-name">Toxicity</div>
+                <div class="det-desc">Keyword matching (12 terms) + regex patterns for threats, self-harm, hate speech</div>
+                <div class="det-count">Threshold: score >= 0.3</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Content Rating Policies</h2>
+        <div class="policy-row">
+            <div class="policy-card">
+                <div class="pol-name">Strict</div>
+                <div class="pol-threshold">0.2</div>
+                <div class="pol-desc">Risk threshold for blocking</div>
+            </div>
+            <div class="policy-card">
+                <div class="pol-name">Moderate</div>
+                <div class="pol-threshold">0.5</div>
+                <div class="pol-desc">Risk threshold for blocking</div>
+            </div>
+            <div class="policy-card">
+                <div class="pol-name">Permissive</div>
+                <div class="pol-threshold">0.8</div>
+                <div class="pol-desc">Risk threshold for blocking</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="charts-grid">
+        <div class="chart-card">
+            <h3>Test Case Results by Category</h3>
+            <canvas id="categoryChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3>Expected Actions Distribution</h3>
+            <canvas id="actionChart"></canvas>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Test Cases</h2>
+        <table>
+            <thead><tr><th>ID</th><th>Category</th><th>Expected</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>safe-01</td><td>Safe</td><td><span class="badge badge-pass">pass</span></td><td>Simple factual question</td></tr>
+                <tr><td>safe-02</td><td>Safe</td><td><span class="badge badge-pass">pass</span></td><td>Educational science question</td></tr>
+                <tr><td>pii-01</td><td>PII</td><td><span class="badge badge-block">block</span></td><td>SSN in input</td></tr>
+                <tr><td>pii-02</td><td>PII</td><td><span class="badge badge-redact">redact</span></td><td>Email and phone number</td></tr>
+                <tr><td>pii-03</td><td>PII</td><td><span class="badge badge-block">block</span></td><td>Credit card number</td></tr>
+                <tr><td>injection-01</td><td>Injection</td><td><span class="badge badge-block">block</span></td><td>Direct instruction override</td></tr>
+                <tr><td>injection-02</td><td>Injection</td><td><span class="badge badge-block">block</span></td><td>Fake system prompt injection</td></tr>
+                <tr><td>injection-05</td><td>Injection</td><td><span class="badge badge-block">block</span></td><td>DAN jailbreak attempt</td></tr>
+                <tr><td>toxicity-01</td><td>Toxicity</td><td><span class="badge badge-flag">flag</span></td><td>Hostile generalization</td></tr>
+                <tr><td>toxicity-04</td><td>Toxicity</td><td><span class="badge badge-block">block</span></td><td>Political hate speech</td></tr>
+                <tr><td>toxicity-05</td><td>Toxicity</td><td><span class="badge badge-block">block</span></td><td>Disinformation generation</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+const catCtx = document.getElementById('categoryChart').getContext('2d');
+new Chart(catCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Safe','PII','Injection','Toxicity'],
+        datasets: [
+            { label: 'Pass', data: [5,0,0,0], backgroundColor: '#22c55e', borderRadius: 4, borderSkipped: false },
+            { label: 'Block', data: [0,3,5,3], backgroundColor: '#dc2626', borderRadius: 4, borderSkipped: false },
+            { label: 'Flag/Redact', data: [0,2,0,2], backgroundColor: '#f59e0b', borderRadius: 4, borderSkipped: false }
+        ]
+    },
+    options: { responsive: true, plugins: { legend: { labels: { color: '#374151', font: { size: 12 } } } },
+        scales: {
+            x: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { display: false } },
+            y: { ticks: { color: '#9ca3af', font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' }, beginAtZero: true }
+        }
+    }
+});
+
+const actCtx = document.getElementById('actionChart').getContext('2d');
+new Chart(actCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Block','Redact','Flag','Pass'],
+        datasets: [{ data: [13, 2, 2, 5], backgroundColor: ['#dc2626','#2563eb','#f59e0b','#22c55e'], borderWidth: 0 }]
+    },
+    options: { responsive: true, cutout: '60%',
+        plugins: { legend: { position: 'right', labels: { color: '#374151', font: { size: 12 }, padding: 12 } } } }
+});
+</script>
+</body>
+</html>
