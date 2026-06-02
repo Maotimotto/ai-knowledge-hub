@@ -1,0 +1,2898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>模型服务与部署 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link1">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>模型服务与部署</h1>
+<div class="toc"><div class="toc-title">目录</div><a href="#API-服务封装">API服务封装</a><a href="#负载均衡与扩展">负载均衡与扩展</a><a href="#模型灰度发布">模型灰度发布</a><a href="#成本管理与优化">成本管理与优化</a></div>
+<div class="cross-ref"><strong>关联项目:</strong> <a href="../projects/llm-api-gateway.html">llm-api-gateway</a> -- LLM API网关，集成负载均衡、灰度发布、成本管控</div><div class="svg-diagram"><h3>部署架构</h3><svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+<defs><marker id="ah3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#0075de"/></marker></defs>
+<rect x="300" y="10" width="200" height="50" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="400" y="40" text-anchor="middle" font-size="14" fill="#1a1a1a">客户端 / SDK</text>
+<line x1="400" y1="60" x2="400" y2="90" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="250" y="90" width="300" height="50" rx="8" fill="#fdecc8" stroke="#8a6a00"/>
+<text x="400" y="115" text-anchor="middle" font-size="13" fill="#1a1a1a">Nginx / HAProxy 负载均衡</text>
+<text x="400" y="130" text-anchor="middle" font-size="11" fill="#6b7280">SSL终止 + 限流 + 路由</text>
+<line x1="300" y1="140" x2="150" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="400" y1="140" x2="400" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="500" y1="140" x2="650" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="80" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="155" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">vLLM Instance 1</text>
+<text x="155" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A100</text>
+<rect x="325" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="400" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">vLLM Instance 2</text>
+<text x="400" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A100</text>
+<rect x="575" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="650" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">TGI Instance</text>
+<text x="650" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A10</text>
+<line x1="155" y1="230" x2="155" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="400" y1="230" x2="400" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="650" y1="230" x2="650" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="100" y="260" width="600" height="50" rx="8" fill="#fadec9" stroke="#935400"/>
+<text x="400" y="280" text-anchor="middle" font-size="13" fill="#1a1a1a">Prometheus + Grafana 监控</text>
+<text x="400" y="300" text-anchor="middle" font-size="11" fill="#6b7280">延迟 / 吞吐 / 错误率 / GPU使用率</text>
+<rect x="100" y="320" width="280" height="30" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)"/>
+<text x="240" y="340" text-anchor="middle" font-size="11" fill="#6b7280">HPA 自动扩缩容 (K8s)</text>
+<rect x="420" y="320" width="280" height="30" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)"/>
+<text x="560" y="340" text-anchor="middle" font-size="11" fill="#6b7280">金丝雀发布 / A/B测试</text>
+</svg></div><h1 id="API-服务封装">API 服务封装</h1>
+<h2 id="概述">概述</h2>
+<p>大模型部署的核心是将模型能力封装为标准化 API 服务，提供稳定的推理接口。</p>
+<p>本文涵盖 FastAPI/Flask 服务搭建、异步推理、请求校验与错误处理。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="1-FastAPI-模型服务框架">1. FastAPI 模型服务框架</h2>
+<h3 id="11-基础服务结构">1.1 基础服务结构</h3>
+<pre><code class="language-python">
+# server.py
+import asyncio
+import time
+import uuid
+from contextlib import asynccontextmanager
+from typing import Optional
+
+import torch
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+# ============ 全局模型管理 ============
+class ModelManager:
+    def __init__(self):
+        self.model = None
+        self.tokenizer = None
+        self.device = &quot;cuda&quot; if torch.cuda.is_available() else &quot;cpu&quot;
+        self.ready = False
+
+    async def load(self, model_path: str):
+        &quot;&quot;&quot;异步加载模型，避免阻塞启动&quot;&quot;&quot;
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, self._load_sync, model_path)
+        self.ready = True
+
+    def _load_sync(self, model_path: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+        self.model = AutoModelForCausalLM.from_pretrained(
+            model_path,
+            torch_dtype=torch.float16,
+            device_map=&quot;auto&quot;,
+            trust_remote_code=True
+        )
+        self.model.eval()
+
+    async def generate(self, prompt: str, **kwargs) -&gt; str:
+        if not self.ready:
+            raise RuntimeError(&quot;模型尚未加载完成&quot;)
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(
+            None, self._generate_sync, prompt, kwargs
+        )
+
+    def _generate_sync(self, prompt: str, params: dict) -&gt; str:
+        inputs = self.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(self.device)
+        with torch.no_grad():
+            outputs = self.model.generate(
+                **inputs,
+                max_new_tokens=params.get(&quot;max_tokens&quot;, 512),
+                temperature=params.get(&quot;temperature&quot;, 0.7),
+                top_p=params.get(&quot;top_p&quot;, 0.9),
+                do_sample=params.get(&quot;temperature&quot;, 0.7) &gt; 0,
+            )
+        return self.tokenizer.decode(outputs[0][inputs[&quot;input_ids&quot;].shape[1]:], skip_special_tokens=True)
+
+model_manager = ModelManager()
+
+# ============ 生命周期管理 ============
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    &quot;&quot;&quot;服务启动时加载模型，关闭时释放资源&quot;&quot;&quot;
+    await model_manager.load(&quot;/models/chat-7b&quot;)
+    yield
+    # 清理 GPU 显存
+    if model_manager.model:
+        del model_manager.model
+        torch.cuda.empty_cache()
+
+app = FastAPI(
+    title=&quot;LLM Serving API&quot;,
+    version=&quot;1.0.0&quot;,
+    lifespan=lifespan
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[&quot;*&quot;],
+    allow_methods=[&quot;*&quot;],
+    allow_headers=[&quot;*&quot;],
+)
+</code></pre>
+<h3 id="12-请求响应模型定义">1.2 请求/响应模型定义</h3>
+<pre><code class="language-python">
+# ============ Pydantic 数据模型 ============
+class ChatMessage(BaseModel):
+    role: str = Field(..., pattern=&quot;^(system|user|assistant)$&quot;)
+    content: str = Field(..., min_length=1, max_length=32000)
+
+class ChatRequest(BaseModel):
+    model: str = Field(default=&quot;chat-7b&quot;)
+    messages: list[ChatMessage] = Field(..., min_length=1)
+    max_tokens: int = Field(default=512, ge=1, le=4096)
+    temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    top_p: float = Field(default=0.9, ge=0.0, le=1.0)
+    stream: bool = Field(default=False)
+    request_id: Optional[str] = None
+
+    class Config:
+        json_schema_extra = {
+            &quot;example&quot;: {
+                &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;你好&quot;}],
+                &quot;max_tokens&quot;: 256,
+                &quot;temperature&quot;: 0.7
+            }
+        }
+
+class UsageInfo(BaseModel):
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+
+class ChatResponse(BaseModel):
+    id: str
+    object: str = &quot;chat.completion&quot;
+    created: int
+    model: str
+    choices: list[dict]
+    usage: UsageInfo
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-推理接口与流式输出">2. 推理接口与流式输出</h2>
+<h3 id="21-同步推理接口">2.1 同步推理接口</h3>
+<pre><code class="language-python">
+@app.post(&quot;/v1/chat/completions&quot;, response_model=ChatResponse)
+async def chat_completions(request: ChatRequest):
+    &quot;&quot;&quot;OpenAI 兼容的聊天补全接口&quot;&quot;&quot;
+    request_id = request.request_id or f&quot;chatcmpl-{uuid.uuid4().hex[:12]}&quot;
+    start_time = time.time()
+
+    # 构造 prompt
+    prompt = build_prompt(request.messages)
+
+    # 计算输入 token 数
+    prompt_tokens = len(model_manager.tokenizer.encode(prompt))
+
+    # 执行推理
+    result = await model_manager.generate(
+        prompt,
+        max_tokens=request.max_tokens,
+        temperature=request.temperature,
+        top_p=request.top_p
+    )
+
+    completion_tokens = len(model_manager.tokenizer.encode(result))
+    latency = time.time() - start_time
+
+    # 记录指标
+    record_metrics(request_id, prompt_tokens, completion_tokens, latency)
+
+    return ChatResponse(
+        id=request_id,
+        created=int(time.time()),
+        model=request.model,
+        choices=[{
+            &quot;index&quot;: 0,
+            &quot;message&quot;: {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: result},
+            &quot;finish_reason&quot;: &quot;stop&quot;
+        }],
+        usage=UsageInfo(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=prompt_tokens + completion_tokens
+        )
+    )
+</code></pre>
+<h3 id="22-SSE-流式输出">2.2 SSE 流式输出</h3>
+<pre><code class="language-python">
+from fastapi.responses import StreamingResponse
+import json
+
+async def stream_generator(request: ChatRequest):
+    &quot;&quot;&quot;SSE 流式生成器&quot;&quot;&quot;
+    request_id = f&quot;chatcmpl-{uuid.uuid4().hex[:12]}&quot;
+    prompt = build_prompt(request.messages)
+
+    inputs = model_manager.tokenizer(prompt, return_tensors=&quot;pt&quot;).to(model_manager.device)
+    input_len = inputs[&quot;input_ids&quot;].shape[1]
+
+    # 使用 TextIteratorStreamer 实现流式输出
+    from transformers import TextIteratorStreamer
+    streamer = TextIteratorStreamer(model_manager.tokenizer, skip_prompt=True)
+
+    generation_kwargs = {
+        **inputs,
+        &quot;max_new_tokens&quot;: request.max_tokens,
+        &quot;temperature&quot;: request.temperature,
+        &quot;top_p&quot;: request.top_p,
+        &quot;streamer&quot;: streamer,
+    }
+
+    # 在后台线程执行生成
+    import threading
+    thread = threading.Thread(
+        target=model_manager.model.generate,
+        kwargs=generation_kwargs
+    )
+    thread.start()
+
+    token_count = 0
+    for text_chunk in streamer:
+        token_count += 1
+        chunk = {
+            &quot;id&quot;: request_id,
+            &quot;object&quot;: &quot;chat.completion.chunk&quot;,
+            &quot;choices&quot;: [{
+                &quot;index&quot;: 0,
+                &quot;delta&quot;: {&quot;content&quot;: text_chunk},
+                &quot;finish_reason&quot;: None
+            }]
+        }
+        yield f&quot;data: {json.dumps(chunk, ensure_ascii=False)}\n\n&quot;
+
+    # 发送结束标记
+    final = {
+        &quot;id&quot;: request_id,
+        &quot;object&quot;: &quot;chat.completion.chunk&quot;,
+        &quot;choices&quot;: [{&quot;index&quot;: 0, &quot;delta&quot;: {}, &quot;finish_reason&quot;: &quot;stop&quot;}]
+    }
+    yield f&quot;data: {json.dumps(final)}\n\n&quot;
+    yield &quot;data: [DONE]\n\n&quot;
+
+@app.post(&quot;/v1/chat/completions/stream&quot;)
+async def chat_completions_stream(request: ChatRequest):
+    return StreamingResponse(
+        stream_generator(request),
+        media_type=&quot;text/event-stream&quot;
+    )
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-中间件与错误处理">3. 中间件与错误处理</h2>
+<h3 id="31-全局异常处理">3.1 全局异常处理</h3>
+<pre><code class="language-python">
+import logging
+from fastapi import HTTPException, Request
+from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(&quot;llm-server&quot;)
+
+class InferenceError(Exception):
+    def __init__(self, message: str, code: int = 500):
+        self.message = message
+        self.code = code
+
+class RateLimitError(InferenceError):
+    def __init__(self):
+        super().__init__(&quot;请求频率超限&quot;, code=429)
+
+class ModelOverloadError(InferenceError):
+    def __init__(self):
+        super().__init__(&quot;模型负载过高，请稍后重试&quot;, code=503)
+
+@app.exception_handler(InferenceError)
+async def inference_error_handler(request: Request, exc: InferenceError):
+    logger.error(f&quot;推理错误: {exc.message} | path={request.url.path}&quot;)
+    return JSONResponse(
+        status_code=exc.code,
+        content={
+            &quot;error&quot;: {
+                &quot;message&quot;: exc.message,
+                &quot;type&quot;: &quot;inference_error&quot;,
+                &quot;code&quot;: exc.code
+            }
+        }
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.exception(f&quot;未预期错误: {exc}&quot;)
+    return JSONResponse(
+        status_code=500,
+        content={
+            &quot;error&quot;: {
+                &quot;message&quot;: &quot;内部服务错误&quot;,
+                &quot;type&quot;: &quot;internal_error&quot;,
+            }
+        }
+    )
+</code></pre>
+<h3 id="32-请求计时与日志中间件">3.2 请求计时与日志中间件</h3>
+<pre><code class="language-python">
+import time
+from starlette.middleware.base import BaseHTTPMiddleware
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        request_id = str(uuid.uuid4())[:8]
+        start = time.time()
+
+        # 注入 request_id
+        request.state.request_id = request_id
+
+        logger.info(f&quot;[{request_id}] {request.method} {request.url.path}&quot;)
+
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            logger.exception(f&quot;[{request_id}] 请求处理异常&quot;)
+            raise
+
+        elapsed = time.time() - start
+        logger.info(f&quot;[{request_id}] 完成 | 状态={response.status_code} | 耗时={elapsed:.3f}s&quot;)
+        response.headers[&quot;X-Request-ID&quot;] = request_id
+        response.headers[&quot;X-Process-Time&quot;] = f&quot;{elapsed:.3f}&quot;
+        return response
+
+app.add_middleware(RequestLoggingMiddleware)
+</code></pre>
+<h3 id="33-请求限流">3.3 请求限流</h3>
+<pre><code class="language-python">
+import asyncio
+from collections import defaultdict
+
+class TokenBucketRateLimiter:
+    &quot;&quot;&quot;令牌桶限流器&quot;&quot;&quot;
+    def __init__(self, rate: float, capacity: int):
+        self.rate = rate          # 每秒填充速率
+        self.capacity = capacity  # 桶容量
+        self.buckets: dict[str, tuple[float, float]] = {}  # key -&gt; (tokens, last_time)
+        self._lock = asyncio.Lock()
+
+    async def allow(self, key: str) -&gt; bool:
+        async with self._lock:
+            now = time.time()
+            if key not in self.buckets:
+                self.buckets[key] = (self.capacity - 1, now)
+                return True
+
+            tokens, last_time = self.buckets[key]
+            elapsed = now - last_time
+            tokens = min(self.capacity, tokens + elapsed * self.rate)
+
+            if tokens &gt;= 1:
+                self.buckets[key] = (tokens - 1, now)
+                return True
+            return False
+
+rate_limiter = TokenBucketRateLimiter(rate=10, capacity=20)
+
+@app.middleware(&quot;http&quot;)
+async def rate_limit_middleware(request: Request, call_next):
+    client_ip = request.client.host
+    if not await rate_limiter.allow(client_ip):
+        return JSONResponse(
+            status_code=429,
+            content={&quot;error&quot;: {&quot;message&quot;: &quot;请求过于频繁&quot;, &quot;code&quot;: 429}}
+        )
+    return await call_next(request)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-健康检查与监控">4. 健康检查与监控</h2>
+<pre><code class="language-python">
+from prometheus_client import Counter, Histogram, Gauge, generate_latest
+from fastapi.responses import PlainTextResponse
+
+# Prometheus 指标
+REQUEST_COUNT = Counter(&quot;llm_requests_total&quot;, &quot;总请求数&quot;, [&quot;endpoint&quot;, &quot;status&quot;])
+REQUEST_LATENCY = Histogram(&quot;llm_request_latency_seconds&quot;, &quot;请求延迟&quot;, [&quot;endpoint&quot;])
+TOKEN_USAGE = Counter(&quot;llm_tokens_total&quot;, &quot;Token 使用量&quot;, [&quot;type&quot;])
+ACTIVE_REQUESTS = Gauge(&quot;llm_active_requests&quot;, &quot;当前活跃请求数&quot;)
+GPU_MEMORY = Gauge(&quot;llm_gpu_memory_used_bytes&quot;, &quot;GPU 显存使用&quot;)
+
+def record_metrics(request_id, prompt_tokens, completion_tokens, latency):
+    REQUEST_COUNT.labels(endpoint=&quot;/v1/chat/completions&quot;, status=&quot;200&quot;).inc()
+    REQUEST_LATENCY.labels(endpoint=&quot;/v1/chat/completions&quot;).observe(latency)
+    TOKEN_USAGE.labels(type=&quot;prompt&quot;).inc(prompt_tokens)
+    TOKEN_USAGE.labels(type=&quot;completion&quot;).inc(completion_tokens)
+
+@app.get(&quot;/health&quot;)
+async def health_check():
+    gpu_ok = torch.cuda.is_available() and torch.cuda.memory_allocated() &gt; 0
+    return {
+        &quot;status&quot;: &quot;healthy&quot; if model_manager.ready else &quot;loading&quot;,
+        &quot;model_loaded&quot;: model_manager.ready,
+        &quot;gpu_available&quot;: torch.cuda.is_available(),
+        &quot;gpu_memory_used_mb&quot;: round(torch.cuda.memory_allocated() / 1024**2, 1) if gpu_ok else 0,
+    }
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return PlainTextResponse(generate_latest(), media_type=&quot;text/plain&quot;)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Dockerfile-部署">5. Dockerfile 部署</h2>
+<pre><code class="language-dockerfile">
+# Dockerfile
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-runtime
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY server.py .
+
+ENV MODEL_PATH=/models/chat-7b
+ENV MAX_WORKERS=4
+ENV PORT=8000
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+CMD [&quot;uvicorn&quot;, &quot;server:app&quot;, &quot;--host&quot;, &quot;0.0.0.0&quot;, &quot;--port&quot;, &quot;8000&quot;, &quot;--workers&quot;, &quot;1&quot;]
+</code></pre>
+<pre><code class="language-yaml">
+# docker-compose.yml
+version: &quot;3.8&quot;
+services:
+  llm-server:
+    build: .
+    ports:
+      - &quot;8000:8000&quot;
+    volumes:
+      - ./models:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - MODEL_PATH=/models/chat-7b
+      - MAX_BATCH_SIZE=8
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-Flask-方案轻量场景">6. Flask 方案（轻量场景）</h2>
+<pre><code class="language-python">
+# flask_server.py
+from flask import Flask, request, jsonify, Response
+import json, time
+
+app = Flask(__name__)
+
+@app.route(&quot;/v1/chat/completions&quot;, methods=[&quot;POST&quot;])
+def chat():
+    data = request.get_json(force=True)
+
+    # 简单校验
+    if not data.get(&quot;messages&quot;):
+        return jsonify({&quot;error&quot;: &quot;messages 不能为空&quot;}), 400
+
+    prompt = &quot;\n&quot;.join(m[&quot;content&quot;] for m in data[&quot;messages&quot;])
+    result = generate_sync(prompt, **data)
+
+    return jsonify({
+        &quot;id&quot;: f&quot;chatcmpl-{int(time.time())}&quot;,
+        &quot;choices&quot;: [{&quot;message&quot;: {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: result}}],
+    })
+
+if __name__ == &quot;__main__&quot;:
+    app.run(host=&quot;0.0.0.0&quot;, port=8000, threaded=True)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="小结">小结</h2>
+<table>
+<thead><tr>
+<th>特性</th>
+<th>FastAPI</th>
+<th>Flask</th>
+</tr></thead><tbody>
+<tr>
+<td>异步支持</td>
+<td>✅ 原生 async/await</td>
+<td>❌ 需要额外库</td>
+</tr>
+<tr>
+<td>请求校验</td>
+<td>✅ Pydantic 自动校验</td>
+<td>❌ 手动校验</td>
+</tr>
+<tr>
+<td>流式输出</td>
+<td>✅ StreamingResponse</td>
+<td>⚠️ 需手动实现</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>高（基于 uvicorn）</td>
+<td>中（WSGI）</td>
+</tr>
+<tr>
+<td>生产推荐</td>
+<td>✅ <strong>首选</strong></td>
+<td>轻量场景可用</td>
+</tr>
+</tbody></table>
+<p>生产环境推荐 FastAPI + uvicorn + Docker，配合 Prometheus 监控和健康检查。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>API 服务封装是将模型能力转化为可消费接口的关键环节。FastAPI + OpenAI 兼容格式已成为 LLM API 的事实标准，是所有上层应用（RAG、Agent）的基础。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">推理引擎：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#TGI推理服务">TGI推理服务</a></li>
+<li style="margin-left:0px">部署方式：<a href="#Docker部署实践">Docker部署实践</a>、<a href="#Kubernetes推理集群">Kubernetes推理集群</a></li>
+<li style="margin-left:0px">负载管理：<a href="#负载均衡与扩展">负载均衡与扩展</a></li>
+<li style="margin-left:0px">监控接入：<a href="#LLM监控最佳实践">LLM监控最佳实践</a>、<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">安全防护：<a href="#Prompt注入与越狱防护">Prompt注入与越狱防护</a>、<a href="#API限流设计">API限流设计</a></li>
+<li style="margin-left:0px">灰度发布：<a href="#模型灰度发布">模型灰度发布</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from prometheus_client import Counter, Histogram, generate_latest
+import time
+
+app = FastAPI()
+REQUEST_COUNT = Counter(&quot;llm_requests_total&quot;, &quot;Total requests&quot;, [&quot;endpoint&quot;, &quot;status&quot;])
+LATENCY = Histogram(&quot;llm_latency_seconds&quot;, &quot;Request latency&quot;, [&quot;endpoint&quot;])
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def chat(request: ChatRequest):
+    start = time.time()
+    result = await process(request)
+    LATENCY.labels(endpoint=&quot;chat&quot;).observe(time.time() - start)
+    REQUEST_COUNT.labels(endpoint=&quot;chat&quot;, status=&quot;200&quot;).inc()
+    return result
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return PlainTextResponse(generate_latest())
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# 生产级 docker-compose.yml
+services:
+  llm-api:
+    build: .
+    deploy:
+      replicas: 3
+      resources:
+        limits: { memory: 16G }
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+  nginx:
+    image: nginx:alpine
+    ports: [&quot;443:443&quot;]
+    # 负载均衡 + SSL 终止
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>将模型服务作为 Hermes Agent 的后端：通过配置 Agent 的 <code>provider</code> 指向自建 API 服务，配合负载均衡和灰度发布策略，实现 Agent 推理服务的高可用和安全迭代。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="负载均衡与扩展">负载均衡与扩展</h1>
+<h2 id="概述">概述</h2>
+<p>单实例无法满足高并发推理需求，需要通过多实例部署、请求路由、限流和弹性扩展来保障服务稳定性。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="1-Nginx-负载均衡">1. Nginx 负载均衡</h2>
+<h3 id="11-多实例负载配置">1.1 多实例负载配置</h3>
+<pre><code class="language-nginx">
+# nginx.conf
+upstream llm_backend {
+    # 加权轮询策略
+    server 10.0.0.10:8000 weight=3;   # GPU A100 实例，权重高
+    server 10.0.0.11:8000 weight=2;   # GPU A10 实例
+    server 10.0.0.12:8000 weight=1;   # CPU 备用实例
+
+    # 最少连接策略（推荐用于推理服务）
+    # least_conn;
+
+    # IP Hash（会话保持）
+    # ip_hash;
+
+    keepalive 32;
+}
+
+server {
+    listen 443 ssl;
+    server_name llm-api.example.com;
+
+    ssl_certificate     /etc/ssl/certs/llm.pem;
+    ssl_certificate_key /etc/ssl/private/llm.key;
+
+    # 请求体大小限制（大 prompt 场景）
+    client_max_body_size 1m;
+
+    # 代理超时设置（推理可能耗时较长）
+    proxy_connect_timeout 10s;
+    proxy_read_timeout    120s;
+    proxy_send_timeout    30s;
+
+    location /v1/ {
+        proxy_pass http://llm_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Connection &quot;&quot;;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Request-ID $request_id;
+
+        # 流式输出支持
+        proxy_buffering off;
+        proxy_cache off;
+        chunked_transfer_encoding on;
+    }
+
+    location /health {
+        proxy_pass http://llm_backend/health;
+        access_log off;
+    }
+}
+</code></pre>
+<h3 id="12-限流配置">1.2 限流配置</h3>
+<pre><code class="language-nginx">
+# 基于 IP 的请求限流
+http {
+    # 定义限流区域：每秒 10 个请求，突发 20
+    limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
+    # 基于 API Key 限流
+    limit_req_zone $http_authorization zone=key_limit:10m rate=50r/s;
+
+    server {
+        location /v1/chat/completions {
+            limit_req zone=api_limit burst=20 nodelay;
+            limit_req zone=key_limit burst=100 nodelay;
+            limit_req_status 429;
+
+            proxy_pass http://llm_backend;
+        }
+    }
+}
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-HAProxy-高级路由">2. HAProxy 高级路由</h2>
+<pre><code class="language-haproxy">
+# haproxy.cfg
+global
+    maxconn 4096
+    log /dev/log local0
+
+defaults
+    mode http
+    timeout connect 10s
+    timeout client  120s
+    timeout server  120s
+    option httplog
+
+frontend llm_front
+    bind *:443 ssl crt /etc/ssl/llm.pem
+
+    # 基于路径的路由
+    acl is_chat path_beg /v1/chat
+    acl is_embed path_beg /v1/embeddings
+    acl is_stream hdr(Accept) -i text/event-stream
+
+    use_backend chat_backend if is_chat
+    use_backend embed_backend if is_embed
+    default_backend chat_backend
+
+# 聊天推理后端（GPU 集群）
+backend chat_backend
+    balance leastconn
+    option httpchk GET /health
+    http-check expect status 200
+
+    server gpu1 10.0.0.10:8000 check inter 5s fall 3 rise 2 weight 100
+    server gpu2 10.0.0.11:8000 check inter 5s fall 3 rise 2 weight 100
+    server gpu3 10.0.0.12:8000 check inter 5s fall 3 rise 2 weight 80
+
+# Embedding 后端（可使用较低配 GPU）
+backend embed_backend
+    balance roundrobin
+    server embed1 10.0.0.20:8000 check
+    server embed2 10.0.0.21:8000 check
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-Kubernetes-部署">3. Kubernetes 部署</h2>
+<h3 id="31-Deployment-配置">3.1 Deployment 配置</h3>
+<pre><code class="language-yaml">
+# k8s/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-server
+  labels:
+    app: llm-server
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: llm-server
+  template:
+    metadata:
+      labels:
+        app: llm-server
+      annotations:
+        prometheus.io/scrape: &quot;true&quot;
+        prometheus.io/port: &quot;8000&quot;
+        prometheus.io/path: &quot;/metrics&quot;
+    spec:
+      containers:
+        - name: llm
+          image: registry.example.com/llm-server:v1.2.0
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: MODEL_PATH
+              value: &quot;/models/chat-7b&quot;
+            - name: MAX_BATCH_SIZE
+              value: &quot;8&quot;
+            - name: CUDA_VISIBLE_DEVICES
+              value: &quot;0&quot;
+          resources:
+            requests:
+              cpu: &quot;4&quot;
+              memory: &quot;16Gi&quot;
+              nvidia.com/gpu: &quot;1&quot;
+            limits:
+              cpu: &quot;8&quot;
+              memory: &quot;32Gi&quot;
+              nvidia.com/gpu: &quot;1&quot;
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 60
+            periodSeconds: 10
+          volumeMounts:
+            - name: model-storage
+              mountPath: /models
+              readOnly: true
+      volumes:
+        - name: model-storage
+          persistentVolumeClaim:
+            claimName: model-pvc
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+      nodeSelector:
+        gpu: &quot;a100&quot;
+</code></pre>
+<h3 id="32-HPA-自动扩缩容">3.2 HPA 自动扩缩容</h3>
+<pre><code class="language-yaml">
+# k8s/hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llm-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llm-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # 基于 GPU 显存使用率
+    - type: Pods
+      pods:
+        metric:
+          name: llm_gpu_memory_used_bytes
+        target:
+          type: Utilization
+          averageUtilization: 80
+    # 基于请求队列长度
+    - type: Pods
+      pods:
+        metric:
+          name: llm_active_requests
+        target:
+          type: AverageValue
+          averageValue: &quot;5&quot;
+    # 基于 CPU 使用率
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 120
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 120
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 300
+</code></pre>
+<h3 id="33-Service-与-Ingress">3.3 Service 与 Ingress</h3>
+<pre><code class="language-yaml">
+# k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+  labels:
+    app: llm-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: llm-server
+---
+# k8s/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: llm-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: &quot;120&quot;
+    nginx.ingress.kubernetes.io/proxy-send-timeout: &quot;30&quot;
+    nginx.ingress.kubernetes.io/proxy-body-size: &quot;1m&quot;
+    nginx.ingress.kubernetes.io/limit-rps: &quot;10&quot;
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - llm-api.example.com
+      secretName: llm-tls
+  rules:
+    - host: llm-api.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: llm-service
+                port:
+                  number: 80
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-应用层负载均衡">4. 应用层负载均衡</h2>
+<h3 id="41-智能路由客户端">4.1 智能路由客户端</h3>
+<pre><code class="language-python">
+# balancer/smart_router.py
+import asyncio
+import time
+import random
+from dataclasses import dataclass, field
+
+@dataclass
+class InstanceHealth:
+    host: str
+    port: int
+    active_requests: int = 0
+    avg_latency: float = 0.0
+    error_count: int = 0
+    last_health_check: float = 0.0
+    is_healthy: bool = True
+    gpu_memory_used: float = 0.0  # 0~1
+    _latencies: list = field(default_factory=list)
+
+    def update_latency(self, latency: float):
+        self._latencies.append(latency)
+        if len(self._latencies) &gt; 100:
+            self._latencies = self._latencies[-100:]
+        self.avg_latency = sum(self._latencies) / len(self._latencies)
+
+class SmartRouter:
+    &quot;&quot;&quot;智能请求路由器：综合负载、延迟、GPU 使用率进行调度&quot;&quot;&quot;
+
+    def __init__(self, instances: list[tuple[str, int]]):
+        self.instances = {
+            f&quot;{h}:{p}&quot;: InstanceHealth(host=h, port=p)
+            for h, p in instances
+        }
+        self._lock = asyncio.Lock()
+
+    async def select_instance(self) -&gt; InstanceHealth:
+        &quot;&quot;&quot;选择最优实例&quot;&quot;&quot;
+        healthy = [
+            inst for inst in self.instances.values()
+            if inst.is_healthy
+        ]
+        if not healthy:
+            raise RuntimeError(&quot;没有可用的健康实例&quot;)
+
+        # 加权评分：负载低 + 延迟低 + GPU 空闲 = 高分
+        scores = []
+        for inst in healthy:
+            load_score = 1.0 / (1.0 + inst.active_requests)
+            latency_score = 1.0 / (1.0 + inst.avg_latency)
+            gpu_score = 1.0 - inst.gpu_memory_used
+            score = 0.4 * load_score + 0.3 * latency_score + 0.3 * gpu_score
+            scores.append((inst, score))
+
+        # 加权随机选择（避免所有请求集中到同一实例）
+        total = sum(s for _, s in scores)
+        r = random.uniform(0, total)
+        cumulative = 0
+        for inst, score in scores:
+            cumulative += score
+            if r &lt;= cumulative:
+                return inst
+        return scores[-1][0]
+
+    async def health_check_loop(self, interval: float = 10.0):
+        &quot;&quot;&quot;周期性健康检查&quot;&quot;&quot;
+        import aiohttp
+        while True:
+            async with aiohttp.ClientSession() as session:
+                tasks = []
+                for inst in self.instances.values():
+                    tasks.append(self._check_one(session, inst))
+                await asyncio.gather(*tasks, return_exceptions=True)
+            await asyncio.sleep(interval)
+
+    async def _check_one(self, session, inst: InstanceHealth):
+        url = f&quot;http://{inst.host}:{inst.port}/health&quot;
+        try:
+            async with session.get(url, timeout=aiohttp.ClientTimeout(total=5)) as resp:
+                if resp.status == 200:
+                    data = await resp.json()
+                    inst.is_healthy = True
+                    inst.gpu_memory_used = data.get(&quot;gpu_memory_used_mb&quot;, 0) / 80000  # 归一化
+                else:
+                    inst.is_healthy = False
+        except Exception:
+            inst.error_count += 1
+            if inst.error_count &gt; 3:
+                inst.is_healthy = False
+
+# 使用示例
+router = SmartRouter([
+    (&quot;10.0.0.10&quot;, 8000),
+    (&quot;10.0.0.11&quot;, 8000),
+    (&quot;10.0.0.12&quot;, 8000),
+])
+</code></pre>
+<h3 id="42-请求队列管理">4.2 请求队列管理</h3>
+<pre><code class="language-python">
+# balancer/queue_manager.py
+import asyncio
+from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class QueuedRequest:
+    prompt: str
+    params: dict
+    priority: int = 0       # 优先级，0=普通，1=高
+    future: asyncio.Future = None
+    created_at: float = 0.0
+
+class RequestQueue:
+    &quot;&quot;&quot;优先级请求队列 + 超时管理&quot;&quot;&quot;
+
+    def __init__(self, max_size: int = 100, default_timeout: float = 30.0):
+        self.queue = asyncio.PriorityQueue(maxsize=max_size)
+        self.default_timeout = default_timeout
+
+    async def submit(self, prompt: str, params: dict, priority: int = 0, timeout: float = None) -&gt; Any:
+        future = asyncio.get_event_loop().create_future()
+        req = QueuedRequest(
+            prompt=prompt,
+            params=params,
+            priority=-priority,  # 取反使高优先级排前面
+            future=future,
+            created_at=time.time()
+        )
+        try:
+            self.queue.put_nowait(req)
+        except asyncio.QueueFull:
+            raise HTTPException(429, &quot;请求队列已满&quot;)
+
+        try:
+            return await asyncio.wait_for(future, timeout=timeout or self.default_timeout)
+        except asyncio.TimeoutError:
+            raise HTTPException(504, &quot;推理超时&quot;)
+
+    async def process_loop(self, router: SmartRouter):
+        &quot;&quot;&quot;持续从队列取出请求并分发&quot;&quot;&quot;
+        while True:
+            req = await self.queue.get()
+            try:
+                instance = await router.select_instance()
+                async with instance:
+                    instance.active_requests += 1
+                    result = await self._call_instance(instance, req.prompt, req.params)
+                    req.future.set_result(result)
+            except Exception as e:
+                req.future.set_exception(e)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-多模型路由">5. 多模型路由</h2>
+<pre><code class="language-yaml">
+# 多模型服务配置
+# k8s/multi-model-deployment.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-chat-7b
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      model: chat-7b
+  template:
+    metadata:
+      labels:
+        model: chat-7b
+        tier: standard
+    spec:
+      containers:
+        - name: llm
+          image: registry.example.com/llm-chat-7b:v1.0
+          resources:
+            limits:
+              nvidia.com/gpu: &quot;1&quot;
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-chat-70b
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      model: chat-70b
+  template:
+    metadata:
+      labels:
+        model: chat-70b
+        tier: premium
+    spec:
+      containers:
+        - name: llm
+          image: registry.example.com/llm-chat-70b:v1.0
+          resources:
+            limits:
+              nvidia.com/gpu: &quot;4&quot;
+      nodeSelector:
+        gpu: &quot;a100-80g&quot;
+</code></pre>
+<pre><code class="language-python">
+# router/model_router.py
+MODEL_ROUTES = {
+    &quot;chat-7b&quot;:    {&quot;service&quot;: &quot;llm-chat-7b&quot;,    &quot;tier&quot;: &quot;standard&quot;},
+    &quot;chat-70b&quot;:   {&quot;service&quot;: &quot;llm-chat-70b&quot;,   &quot;tier&quot;: &quot;premium&quot;},
+    &quot;code-7b&quot;:    {&quot;service&quot;: &quot;llm-code-7b&quot;,    &quot;tier&quot;: &quot;standard&quot;},
+}
+
+async def route_request(model: str, request_data: dict):
+    route = MODEL_ROUTES.get(model)
+    if not route:
+        raise HTTPException(404, f&quot;模型 {model} 不存在&quot;)
+
+    service_url = f&quot;http://{route[&#x27;service&#x27;]}.default.svc.cluster.local&quot;
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f&quot;{service_url}/v1/chat/completions&quot;,
+                                json=request_data) as resp:
+            return await resp.json()
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-监控仪表盘配置">6. 监控仪表盘配置</h2>
+<pre><code class="language-yaml">
+# grafana/dashboard.json (核心指标)
+queries:
+  - title: &quot;请求 QPS&quot;
+    query: rate(llm_requests_total[5m])
+  - title: &quot;P99 延迟&quot;
+    query: histogram_quantile(0.99, rate(llm_request_latency_seconds_bucket[5m]))
+  - title: &quot;活跃连接数&quot;
+    query: llm_active_requests
+  - title: &quot;GPU 显存使用率&quot;
+    query: llm_gpu_memory_used_bytes / llm_gpu_memory_total_bytes * 100
+  - title: &quot;错误率&quot;
+    query: rate(llm_requests_total{status=~&quot;5..&quot;}[5m]) / rate(llm_requests_total[5m])
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="小结">小结</h2>
+<table>
+<thead><tr>
+<th>方案</th>
+<th>适用场景</th>
+<th>复杂度</th>
+</tr></thead><tbody>
+<tr>
+<td>Nginx 负载均衡</td>
+<td>中小规模、简单路由</td>
+<td>⭐</td>
+</tr>
+<tr>
+<td>HAProxy</td>
+<td>高级路由、健康检查</td>
+<td>⭐⭐</td>
+</tr>
+<tr>
+<td>K8s Deployment + HPA</td>
+<td>云原生、自动扩缩容</td>
+<td>⭐⭐⭐</td>
+</tr>
+<tr>
+<td>智能路由客户端</td>
+<td>自定义调度策略</td>
+<td>⭐⭐⭐</td>
+</tr>
+</tbody></table>
+<p>生产推荐 <strong>Kubernetes + HPA + Nginx Ingress</strong> 组合，辅以 Prometheus + Grafana 监控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>负载均衡与扩展能力决定了 LLM 服务能否应对流量高峰和业务增长。是模型服务从单节点走向生产级部署的核心运维能力。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">服务基础：<a href="#API服务封装">API服务封装</a></li>
+<li style="margin-left:0px">推理引擎：<a href="#vLLM部署与配置">vLLM部署与配置</a>（多实例部署）</li>
+<li style="margin-left:0px">部署平台：<a href="#Kubernetes推理集群">Kubernetes推理集群</a>、<a href="#Docker Swarm">Docker Swarm</a></li>
+<li style="margin-left:0px">成本考量：<a href="#成本管理与优化">成本管理与优化</a></li>
+<li style="margin-left:0px">发布策略：<a href="#模型灰度发布">模型灰度发布</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from prometheus_client import Counter, Histogram, generate_latest
+import time
+
+app = FastAPI()
+REQUEST_COUNT = Counter(&quot;llm_requests_total&quot;, &quot;Total requests&quot;, [&quot;endpoint&quot;, &quot;status&quot;])
+LATENCY = Histogram(&quot;llm_latency_seconds&quot;, &quot;Request latency&quot;, [&quot;endpoint&quot;])
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def chat(request: ChatRequest):
+    start = time.time()
+    result = await process(request)
+    LATENCY.labels(endpoint=&quot;chat&quot;).observe(time.time() - start)
+    REQUEST_COUNT.labels(endpoint=&quot;chat&quot;, status=&quot;200&quot;).inc()
+    return result
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return PlainTextResponse(generate_latest())
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# 生产级 docker-compose.yml
+services:
+  llm-api:
+    build: .
+    deploy:
+      replicas: 3
+      resources:
+        limits: { memory: 16G }
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+  nginx:
+    image: nginx:alpine
+    ports: [&quot;443:443&quot;]
+    # 负载均衡 + SSL 终止
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>将模型服务作为 Hermes Agent 的后端：通过配置 Agent 的 <code>provider</code> 指向自建 API 服务，配合负载均衡和灰度发布策略，实现 Agent 推理服务的高可用和安全迭代。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="模型灰度发布">模型灰度发布</h1>
+<h2 id="概述">概述</h2>
+<p>灰度发布是将新版本模型逐步推向生产环境的关键策略，包括 A/B 测试、金丝雀发布、</p>
+<p>影子模式和流量分割，确保模型升级安全可控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="1-流量分割基础架构">1. 流量分割基础架构</h2>
+<h3 id="11-流量路由器">1.1 流量路由器</h3>
+<pre><code class="language-python">
+# canary/traffic_router.py
+import hashlib
+import time
+import random
+from dataclasses import dataclass
+from enum import Enum
+
+class RoutingStrategy(Enum):
+    PERCENTAGE = &quot;percentage&quot;    # 按百分比分流
+    USER_COHORT = &quot;user_cohort&quot;  # 按用户群组分流
+    HEADER_BASED = &quot;header&quot;      # 按请求头分流
+    STICKY = &quot;sticky&quot;            # 粘性路由（同一用户始终命中同版本）
+
+@dataclass
+class ModelVersion:
+    name: str
+    endpoint: str
+    weight: float          # 流量权重 0~100
+    version: str
+    is_canary: bool = False
+
+class TrafficRouter:
+    def __init__(self):
+        self.versions: list[ModelVersion] = []
+        self.strategy = RoutingStrategy.PERCENTAGE
+        self._user_assignments: dict[str, str] = {}  # sticky 路由缓存
+
+    def add_version(self, version: ModelVersion):
+        self.versions.append(version)
+
+    def route(self, request_context: dict) -&gt; ModelVersion:
+        &quot;&quot;&quot;根据策略路由到对应版本&quot;&quot;&quot;
+        if self.strategy == RoutingStrategy.PERCENTAGE:
+            return self._route_by_percentage()
+        elif self.strategy == RoutingStrategy.USER_COHORT:
+            return self._route_by_cohort(request_context)
+        elif self.strategy == RoutingStrategy.HEADER_BASED:
+            return self._route_by_header(request_context)
+        elif self.strategy == RoutingStrategy.STICKY:
+            return self._route_sticky(request_context)
+
+    def _route_by_percentage(self) -&gt; ModelVersion:
+        r = random.uniform(0, 100)
+        cumulative = 0
+        for v in self.versions:
+            cumulative += v.weight
+            if r &lt;= cumulative:
+                return v
+        return self.versions[-1]
+
+    def _route_by_cohort(self, ctx: dict) -&gt; ModelVersion:
+        &quot;&quot;&quot;按用户 ID 哈希分流，保证同一用户始终进入同组&quot;&quot;&quot;
+        user_id = ctx.get(&quot;user_id&quot;, &quot;&quot;)
+        h = int(hashlib.md5(user_id.encode()).hexdigest()[:8], 16)
+        bucket = h % 100
+        cumulative = 0
+        for v in self.versions:
+            cumulative += v.weight
+            if bucket &lt; cumulative:
+                return v
+        return self.versions[-1]
+
+    def _route_by_header(self, ctx: dict) -&gt; ModelVersion:
+        &quot;&quot;&quot;通过 X-Model-Version 头指定版本&quot;&quot;&quot;
+        target = ctx.get(&quot;headers&quot;, {}).get(&quot;X-Model-Version&quot;)
+        if target:
+            for v in self.versions:
+                if v.version == target:
+                    return v
+        return self._route_by_percentage()
+
+    def _route_sticky(self, ctx: dict) -&gt; ModelVersion:
+        user_id = ctx.get(&quot;user_id&quot;, &quot;&quot;)
+        if user_id in self._user_assignments:
+            version_name = self._user_assignments[user_id]
+            for v in self.versions:
+                if v.name == version_name:
+                    return v
+        # 首次分配
+        chosen = self._route_by_percentage()
+        self._user_assignments[user_id] = chosen.name
+        return chosen
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-金丝雀发布">2. 金丝雀发布</h2>
+<h3 id="21-金丝雀部署控制器">2.1 金丝雀部署控制器</h3>
+<pre><code class="language-python">
+# canary/canary_controller.py
+import asyncio
+import logging
+from datetime import datetime, timedelta
+from dataclasses import dataclass, field
+
+logger = logging.getLogger(&quot;canary-controller&quot;)
+
+@dataclass
+class CanaryConfig:
+    &quot;&quot;&quot;金丝雀发布配置&quot;&quot;&quot;
+    new_version: str
+    initial_weight: float = 5.0       # 初始流量比例
+    increment: float = 10.0           # 每次增加的流量比例
+    max_weight: float = 100.0         # 最大流量比例
+    evaluation_interval: int = 300    # 评估间隔(秒)
+    rollback_threshold: float = 0.05  # 错误率超过此值自动回滚
+    latency_threshold: float = 2.0    # P95 延迟阈值(秒)
+    min_requests: int = 100           # 最少请求数才开始评估
+
+@dataclass
+class CanaryMetrics:
+    &quot;&quot;&quot;金丝雀版本指标&quot;&quot;&quot;
+    total_requests: int = 0
+    error_count: int = 0
+    latencies: list = field(default_factory=list)
+    token_counts: list = field(default_factory=list)
+
+    @property
+    def error_rate(self) -&gt; float:
+        return self.error_count / max(self.total_requests, 1)
+
+    @property
+    def p95_latency(self) -&gt; float:
+        if not self.latencies:
+            return 0
+        sorted_lats = sorted(self.latencies)
+        idx = int(len(sorted_lats) * 0.95)
+        return sorted_lats[min(idx, len(sorted_lats) - 1)]
+
+class CanaryController:
+    def __init__(self, router: TrafficRouter, config: CanaryConfig):
+        self.router = router
+        self.config = config
+        self.canary_metrics = CanaryMetrics()
+        self.baseline_metrics = CanaryMetrics()
+        self.state = &quot;pending&quot;  # pending, promoting, promoted, rollback
+        self.started_at = None
+
+    async def start(self):
+        &quot;&quot;&quot;启动金丝雀发布&quot;&quot;&quot;
+        self.state = &quot;promoting&quot;
+        self.started_at = datetime.now()
+
+        # 添加新版本，初始低权重
+        self.router.add_version(ModelVersion(
+            name=f&quot;canary-{self.config.new_version}&quot;,
+            endpoint=f&quot;http://llm-{self.config.new_version}:8000&quot;,
+            weight=self.config.initial_weight,
+            version=self.config.new_version,
+            is_canary=True
+        ))
+        # 调整旧版本权重
+        self._rebalance_weights()
+
+        logger.info(f&quot;金丝雀发布启动: {self.config.new_version}, 初始流量={self.config.initial_weight}%&quot;)
+
+        # 启动评估循环
+        await self._evaluation_loop()
+
+    async def _evaluation_loop(self):
+        &quot;&quot;&quot;周期性评估金丝雀版本健康度&quot;&quot;&quot;
+        while self.state == &quot;promoting&quot;:
+            await asyncio.sleep(self.config.evaluation_interval)
+
+            if self.canary_metrics.total_requests &lt; self.config.min_requests:
+                logger.info(f&quot;请求数不足({self.canary_metrics.total_requests}), 继续等待&quot;)
+                continue
+
+            # 评估指标
+            should_rollback, reason = self._evaluate()
+            if should_rollback:
+                await self._rollback(reason)
+                return
+
+            # 判断是否可以升级流量
+            canary_weight = self._get_canary_weight()
+            if canary_weight &gt;= self.config.max_weight:
+                await self._promote()
+                return
+
+            # 增加金丝雀流量
+            new_weight = min(canary_weight + self.config.increment, self.config.max_weight)
+            self._update_canary_weight(new_weight)
+            self._rebalance_weights()
+            self._reset_metrics()
+
+            logger.info(f&quot;金丝雀流量提升至 {new_weight}%&quot;)
+
+    def _evaluate(self) -&gt; tuple[bool, str]:
+        &quot;&quot;&quot;评估金丝雀版本是否健康&quot;&quot;&quot;
+        # 检查错误率
+        if self.canary_metrics.error_rate &gt; self.config.rollback_threshold:
+            return True, f&quot;错误率 {self.canary_metrics.error_rate:.2%} 超过阈值 {self.config.rollback_threshold:.2%}&quot;
+
+        # 检查延迟
+        p95 = self.canary_metrics.p95_latency
+        if p95 &gt; self.config.latency_threshold:
+            return True, f&quot;P95延迟 {p95:.2f}s 超过阈值 {self.config.latency_threshold}s&quot;
+
+        # 对比基线（金丝雀不应比基线差太多）
+        if self.baseline_metrics.latencies and self.canary_metrics.latencies:
+            baseline_p50 = sorted(self.baseline_metrics.latencies)[len(self.baseline_metrics.latencies)//2]
+            canary_p50 = sorted(self.canary_metrics.latencies)[len(self.canary_metrics.latencies)//2]
+            if canary_p50 &gt; baseline_p50 * 1.5:
+                return True, f&quot;金丝雀 P50延迟({canary_p50:.2f}s)比基线({baseline_p50:.2f}s)慢50%以上&quot;
+
+        return False, &quot;&quot;
+
+    async def _rollback(self, reason: str):
+        &quot;&quot;&quot;回滚金丝雀版本&quot;&quot;&quot;
+        self.state = &quot;rollback&quot;
+        self.router.versions = [v for v in self.router.versions if not v.is_canary]
+        self._rebalance_weights()
+        logger.warning(f&quot;金丝雀回滚: {reason}&quot;)
+        # 发送告警
+        await self._send_alert(&quot;rollback&quot;, reason)
+
+    async def _promote(self):
+        &quot;&quot;&quot;金丝雀升级为正式版本&quot;&quot;&quot;
+        self.state = &quot;promoted&quot;
+        # 移除旧版本，金丝雀变为正式
+        for v in self.router.versions:
+            if v.is_canary:
+                v.is_canary = False
+                v.weight = 100.0
+                v.name = v.version
+        self.router.versions = [v for v in self.router.versions if not v.is_canary]
+        logger.info(f&quot;金丝雀发布成功: {self.config.new_version} 已全量&quot;)
+
+    def _get_canary_weight(self) -&gt; float:
+        for v in self.router.versions:
+            if v.is_canary:
+                return v.weight
+        return 0
+
+    def _update_canary_weight(self, weight: float):
+        for v in self.router.versions:
+            if v.is_canary:
+                v.weight = weight
+
+    def _rebalance_weights(self):
+        non_canary = [v for v in self.router.versions if not v.is_canary]
+        canary = [v for v in self.router.versions if v.is_canary]
+        if canary and non_canary:
+            remaining = 100 - canary[0].weight
+            for v in non_canary:
+                v.weight = remaining / len(non_canary)
+
+    def _reset_metrics(self):
+        self.canary_metrics = CanaryMetrics()
+        self.baseline_metrics = CanaryMetrics()
+
+    async def _send_alert(self, event: str, detail: str):
+        logger.warning(f&quot;[ALERT] {event}: {detail}&quot;)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-AB-测试框架">3. A/B 测试框架</h2>
+<h3 id="31-实验管理器">3.1 实验管理器</h3>
+<pre><code class="language-python">
+# ab_testing/experiment.py
+import hashlib
+import json
+import time
+from dataclasses import dataclass, field
+from collections import defaultdict
+
+@dataclass
+class Experiment:
+    name: str
+    variants: list[dict]    # [{&quot;name&quot;: &quot;control&quot;, &quot;model&quot;: &quot;v1&quot;, &quot;weight&quot;: 50}, ...]
+    metrics: list[str]      # 要收集的指标 [&quot;latency&quot;, &quot;quality_score&quot;, &quot;user_rating&quot;]
+    start_time: float = 0.0
+    end_time: float = 0.0
+    active: bool = True
+
+class ABTestManager:
+    def __init__(self):
+        self.experiments: dict[str, Experiment] = {}
+        self.results: dict[str, dict] = defaultdict(lambda: defaultdict(list))
+
+    def create_experiment(self, exp: Experiment):
+        self.experiments[exp.name] = exp
+        exp.start_time = time.time()
+        logger.info(f&quot;实验创建: {exp.name}, 变体: {[v[&#x27;name&#x27;] for v in exp.variants]}&quot;)
+
+    def assign_variant(self, experiment_name: str, user_id: str) -&gt; dict:
+        &quot;&quot;&quot;将用户分配到实验变体&quot;&quot;&quot;
+        exp = self.experiments.get(experiment_name)
+        if not exp or not exp.active:
+            return exp.variants[0] if exp else {}
+
+        # 基于用户ID + 实验名的哈希，保证同一用户在同一实验中始终同一变体
+        key = f&quot;{experiment_name}:{user_id}&quot;
+        h = int(hashlib.sha256(key.encode()).hexdigest()[:8], 16)
+        bucket = h % 100
+
+        cumulative = 0
+        for variant in exp.variants:
+            cumulative += variant.get(&quot;weight&quot;, 50)
+            if bucket &lt; cumulative:
+                return variant
+        return exp.variants[-1]
+
+    def record_result(self, experiment_name: str, variant_name: str,
+                      metric_name: str, value: float):
+        &quot;&quot;&quot;记录实验结果&quot;&quot;&quot;
+        self.results[experiment_name][f&quot;{variant_name}:{metric_name}&quot;].append(value)
+
+    def get_results_summary(self, experiment_name: str) -&gt; dict:
+        &quot;&quot;&quot;获取实验结果摘要&quot;&quot;&quot;
+        exp = self.experiments.get(experiment_name)
+        if not exp:
+            return {}
+
+        summary = {}
+        for variant in exp.variants:
+            vname = variant[&quot;name&quot;]
+            summary[vname] = {}
+            for metric in exp.metrics:
+                key = f&quot;{vname}:{metric}&quot;
+                values = self.results[experiment_name].get(key, [])
+                if values:
+                    summary[vname][metric] = {
+                        &quot;count&quot;: len(values),
+                        &quot;mean&quot;: sum(values) / len(values),
+                        &quot;min&quot;: min(values),
+                        &quot;max&quot;: max(values),
+                        &quot;p50&quot;: sorted(values)[len(values) // 2],
+                    }
+        return summary
+</code></pre>
+<h3 id="32-集成路由">3.2 集成路由</h3>
+<pre><code class="language-python">
+# ab_testing/router_integration.py
+
+async def handle_with_ab_test(request, user_id: str):
+    # 查找活跃实验
+    active_experiments = [e for e in ab_manager.experiments.values() if e.active]
+
+    for exp in active_experiments:
+        variant = ab_manager.assign_variant(exp.name, user_id)
+        model_name = variant.get(&quot;model&quot;, &quot;chat-7b&quot;)
+        break
+    else:
+        model_name = &quot;chat-7b&quot;  # 默认模型
+
+    start = time.time()
+    result = await inference(model_name, request)
+    latency = time.time() - start
+
+    # 记录指标
+    ab_manager.record_result(exp.name, variant[&quot;name&quot;], &quot;latency&quot;, latency)
+    ab_manager.record_result(exp.name, variant[&quot;name&quot;], &quot;tokens&quot;, result[&quot;usage&quot;][&quot;total_tokens&quot;])
+
+    return result
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-影子模式Shadow-Mode">4. 影子模式（Shadow Mode）</h2>
+<h3 id="41-影子流量控制器">4.1 影子流量控制器</h3>
+<pre><code class="language-python">
+# shadow/shadow_controller.py
+import asyncio
+import logging
+from typing import Optional
+
+logger = logging.getLogger(&quot;shadow&quot;)
+
+class ShadowController:
+    &quot;&quot;&quot;
+    影子模式：新版本接收真实流量但不返回给用户，用于：
+    1. 验证新版本稳定性
+    2. 对比新旧版本输出质量
+    3. 测量新版本性能指标
+    &quot;&quot;&quot;
+
+    def __init__(self):
+        self.shadow_enabled = False
+        self.shadow_endpoint: Optional[str] = None
+        self.comparison_results: list[dict] = []
+
+    async def process_request(self, request_data: dict,
+                               primary_handler, shadow_handler=None):
+        &quot;&quot;&quot;
+        主流程处理 + 影子流量
+        用户始终收到主版本的响应
+        &quot;&quot;&quot;
+        # 正常处理主版本
+        primary_result = await primary_handler(request_data)
+
+        # 异步发送到影子版本（不阻塞主流程）
+        if self.shadow_enabled and self.shadow_endpoint:
+            asyncio.create_task(
+                self._shadow_process(request_data, primary_result, shadow_handler)
+            )
+
+        return primary_result
+
+    async def _shadow_process(self, request_data: dict,
+                               primary_result: dict, shadow_handler):
+        &quot;&quot;&quot;异步处理影子流量&quot;&quot;&quot;
+        try:
+            shadow_start = time.time()
+            shadow_result = await shadow_handler(self.shadow_endpoint, request_data)
+            shadow_latency = time.time() - shadow_start
+
+            # 对比分析
+            comparison = {
+                &quot;timestamp&quot;: time.time(),
+                &quot;primary_tokens&quot;: primary_result.get(&quot;usage&quot;, {}).get(&quot;total_tokens&quot;, 0),
+                &quot;shadow_tokens&quot;: shadow_result.get(&quot;usage&quot;, {}).get(&quot;total_tokens&quot;, 0),
+                &quot;primary_latency&quot;: primary_result.get(&quot;_latency&quot;, 0),
+                &quot;shadow_latency&quot;: shadow_latency,
+                &quot;primary_output&quot;: primary_result[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;][:200],
+                &quot;shadow_output&quot;: shadow_result[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;][:200],
+                &quot;output_match&quot;: self._compare_outputs(
+                    primary_result[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;],
+                    shadow_result[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;]
+                )
+            }
+            self.comparison_results.append(comparison)
+
+            # 定期输出对比报告
+            if len(self.comparison_results) % 100 == 0:
+                self._log_report()
+
+        except Exception as e:
+            logger.error(f&quot;影子处理失败: {e}&quot;)
+
+    def _compare_outputs(self, primary: str, shadow: str) -&gt; dict:
+        &quot;&quot;&quot;对比两个版本的输出&quot;&quot;&quot;
+        return {
+            &quot;length_diff&quot;: len(shadow) - len(primary),
+            &quot;exact_match&quot;: primary.strip() == shadow.strip(),
+        }
+
+    def _log_report(self):
+        &quot;&quot;&quot;输出影子模式对比报告&quot;&quot;&quot;
+        if not self.comparison_results:
+            return
+        recent = self.comparison_results[-100:]
+        avg_primary_latency = sum(r[&quot;primary_latency&quot;] for r in recent) / len(recent)
+        avg_shadow_latency = sum(r[&quot;shadow_latency&quot;] for r in recent) / len(recent)
+        error_rate = sum(1 for r in recent if &quot;error&quot; in r) / len(recent)
+
+        logger.info(
+            f&quot;影子模式报告 | 样本={len(recent)} | &quot;
+            f&quot;主版本延迟={avg_primary_latency:.3f}s | &quot;
+            f&quot;影子延迟={avg_shadow_latency:.3f}s | &quot;
+            f&quot;影子错误率={error_rate:.2%}&quot;
+        )
+
+    def enable_shadow(self, endpoint: str):
+        self.shadow_enabled = True
+        self.shadow_endpoint = endpoint
+        logger.info(f&quot;影子模式已启用: {endpoint}&quot;)
+
+    def disable_shadow(self):
+        self.shadow_enabled = False
+        self.shadow_endpoint = None
+        logger.info(&quot;影子模式已关闭&quot;)
+
+    def get_comparison_report(self) -&gt; dict:
+        &quot;&quot;&quot;获取完整对比报告&quot;&quot;&quot;
+        if not self.comparison_results:
+            return {&quot;message&quot;: &quot;暂无对比数据&quot;}
+
+        primary_lats = [r[&quot;primary_latency&quot;] for r in self.comparison_results]
+        shadow_lats = [r[&quot;shadow_latency&quot;] for r in self.comparison_results]
+
+        return {
+            &quot;total_comparisons&quot;: len(self.comparison_results),
+            &quot;primary&quot;: {
+                &quot;avg_latency&quot;: sum(primary_lats) / len(primary_lats),
+                &quot;p95_latency&quot;: sorted(primary_lats)[int(len(primary_lats) * 0.95)],
+            },
+            &quot;shadow&quot;: {
+                &quot;avg_latency&quot;: sum(shadow_lats) / len(shadow_lats),
+                &quot;p95_latency&quot;: sorted(shadow_lats)[int(len(shadow_lats) * 0.95)],
+            },
+            &quot;latency_change&quot;: f&quot;{(sum(shadow_lats)/len(shadow_lats) - sum(primary_lats)/len(primary_lats)) / (sum(primary_lats)/len(primary_lats)) * 100:.1f}%&quot;
+        }
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Kubernetes-金丝雀配置">5. Kubernetes 金丝雀配置</h2>
+<pre><code class="language-yaml">
+# k8s/canary-deployment.yaml
+# 主版本 Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-server-stable
+  labels:
+    app: llm-server
+    track: stable
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: llm-server
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: llm-server
+        track: stable
+    spec:
+      containers:
+        - name: llm
+          image: registry.example.com/llm-server:v1.0.0
+---
+# 金丝雀版本 Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-server-canary
+  labels:
+    app: llm-server
+    track: canary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-server
+      track: canary
+  template:
+    metadata:
+      labels:
+        app: llm-server
+        track: canary
+    spec:
+      containers:
+        - name: llm
+          image: registry.example.com/llm-server:v1.1.0
+---
+# Service 同时选择 stable 和 canary
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-service
+spec:
+  selector:
+    app: llm-server  # 不指定 track，两个版本都被选中
+  ports:
+    - port: 80
+      targetPort: 8000
+</code></pre>
+<pre><code class="language-yaml">
+# Istio VirtualService 流量分割
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: llm-canary
+spec:
+  hosts:
+    - llm-api.example.com
+  http:
+    - match:
+        - headers:
+            x-model-version:
+              exact: &quot;v1.1.0&quot;
+      route:
+        - destination:
+            host: llm-service
+            subset: canary
+    - route:
+        - destination:
+            host: llm-service
+            subset: stable
+          weight: 95
+        - destination:
+            host: llm-service
+            subset: canary
+          weight: 5
+
+---
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: llm-canary
+spec:
+  host: llm-service
+  subsets:
+    - name: stable
+      labels:
+        track: stable
+    - name: canary
+      labels:
+        track: canary
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-发布流程自动化">6. 发布流程自动化</h2>
+<pre><code class="language-python">
+# canary/release_pipeline.py
+import asyncio
+import logging
+
+logger = logging.getLogger(&quot;release-pipeline&quot;)
+
+class ReleasePipeline:
+    &quot;&quot;&quot;自动化发布流水线&quot;&quot;&quot;
+
+    STAGES = [
+        {&quot;name&quot;: &quot;shadow&quot;,       &quot;duration&quot;: 1800, &quot;canary_weight&quot;: 0},
+        {&quot;name&quot;: &quot;canary_5&quot;,     &quot;duration&quot;: 1800, &quot;canary_weight&quot;: 5},
+        {&quot;name&quot;: &quot;canary_20&quot;,    &quot;duration&quot;: 3600, &quot;canary_weight&quot;: 20},
+        {&quot;name&quot;: &quot;canary_50&quot;,    &quot;duration&quot;: 3600, &quot;canary_weight&quot;: 50},
+        {&quot;name&quot;: &quot;canary_100&quot;,   &quot;duration&quot;: 1800, &quot;canary_weight&quot;: 100},
+    ]
+
+    def __init__(self, controller: CanaryController, shadow: ShadowController):
+        self.controller = controller
+        self.shadow = shadow
+        self.current_stage = 0
+        self.state = &quot;idle&quot;
+
+    async def run(self, new_version: str):
+        self.state = &quot;running&quot;
+        logger.info(f&quot;开始发布流水线: {new_version}&quot;)
+
+        for i, stage in enumerate(self.STAGES):
+            self.current_stage = i
+            logger.info(f&quot;阶段 {i+1}/{len(self.STAGES)}: {stage[&#x27;name&#x27;]} | 流量={stage[&#x27;canary_weight&#x27;]}%&quot;)
+
+            if stage[&quot;name&quot;] == &quot;shadow&quot;:
+                self.shadow.enable_shadow(f&quot;http://llm-{new_version}:8000&quot;)
+                await asyncio.sleep(stage[&quot;duration&quot;])
+                report = self.shadow.get_comparison_report()
+                if report.get(&quot;shadow&quot;, {}).get(&quot;p95_latency&quot;, 0) &gt; 3.0:
+                    logger.error(&quot;影子模式延迟过高，中止发布&quot;)
+                    self.state = &quot;failed&quot;
+                    return
+                self.shadow.disable_shadow()
+            else:
+                self.controller._update_canary_weight(stage[&quot;canary_weight&quot;])
+                await asyncio.sleep(stage[&quot;duration&quot;])
+
+                # 检查指标
+                if self.controller.canary_metrics.error_rate &gt; 0.05:
+                    logger.error(f&quot;阶段 {stage[&#x27;name&#x27;]} 错误率过高，回滚&quot;)
+                    await self.controller._rollback(&quot;错误率超标&quot;)
+                    self.state = &quot;failed&quot;
+                    return
+
+        self.state = &quot;completed&quot;
+        logger.info(f&quot;发布完成: {new_version}&quot;)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="小结">小结</h2>
+<table>
+<thead><tr>
+<th>策略</th>
+<th>用途</th>
+<th>风险控制</th>
+</tr></thead><tbody>
+<tr>
+<td>金丝雀发布</td>
+<td>逐步增加新版本流量</td>
+<td>自动回滚 + 指标监控</td>
+</tr>
+<tr>
+<td>A/B 测试</td>
+<td>对比不同模型效果</td>
+<td>用户分桶 + 统计显著性</td>
+</tr>
+<tr>
+<td>影子模式</td>
+<td>验证新版本稳定性</td>
+<td>用户无感知 + 异步对比</td>
+</tr>
+<tr>
+<td>流量分割</td>
+<td>精细控制流量分配</td>
+<td>K8s/Istio 原生支持</td>
+</tr>
+</tbody></table>
+<p>推荐流程：<strong>影子模式 → 金丝雀 5% → 20% → 50% → 全量</strong>，每阶段设置自动回滚条件。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>模型灰度发布是安全迭代模型版本的关键实践，通过流量切分、A/B 测试逐步验证新模型效果，降低上线风险。</p>
+<p><strong>难度等级</strong>：🔴 ⭐⭐⭐⭐ 高级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">基础设施：<a href="#负载均衡与扩展">负载均衡与扩展</a>、<a href="#API服务封装">API服务封装</a></li>
+<li style="margin-left:0px">监控验证：<a href="#LLM监控最佳实践">LLM监控最佳实践</a>、<a href="#推理性能基准测试">推理性能基准测试</a></li>
+<li style="margin-left:0px">回滚机制：<a href="#模型版本管理">模型版本管理</a></li>
+<li style="margin-left:0px">评估验证：<a href="#LLM评估方法论">LLM评估方法论</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from prometheus_client import Counter, Histogram, generate_latest
+import time
+
+app = FastAPI()
+REQUEST_COUNT = Counter(&quot;llm_requests_total&quot;, &quot;Total requests&quot;, [&quot;endpoint&quot;, &quot;status&quot;])
+LATENCY = Histogram(&quot;llm_latency_seconds&quot;, &quot;Request latency&quot;, [&quot;endpoint&quot;])
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def chat(request: ChatRequest):
+    start = time.time()
+    result = await process(request)
+    LATENCY.labels(endpoint=&quot;chat&quot;).observe(time.time() - start)
+    REQUEST_COUNT.labels(endpoint=&quot;chat&quot;, status=&quot;200&quot;).inc()
+    return result
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return PlainTextResponse(generate_latest())
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# 生产级 docker-compose.yml
+services:
+  llm-api:
+    build: .
+    deploy:
+      replicas: 3
+      resources:
+        limits: { memory: 16G }
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+  nginx:
+    image: nginx:alpine
+    ports: [&quot;443:443&quot;]
+    # 负载均衡 + SSL 终止
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>将模型服务作为 Hermes Agent 的后端：通过配置 Agent 的 <code>provider</code> 指向自建 API 服务，配合负载均衡和灰度发布策略，实现 Agent 推理服务的高可用和安全迭代。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="成本管理与优化">成本管理与优化</h1>
+<h2 id="概述">概述</h2>
+<p>大模型服务的核心挑战之一是成本控制。GPU 资源昂贵，推理请求量大，需要从 Token 计费、</p>
+<p>缓存策略、模型选择、GPU 利用率等维度全面优化成本。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="1-Token-计费系统">1. Token 计费系统</h2>
+<h3 id="11-计费模型">1.1 计费模型</h3>
+<pre><code class="language-python">
+# billing/token_counter.py
+import time
+from dataclasses import dataclass, field
+from collections import defaultdict
+
+# 定价表（每 1000 tokens 价格，单位：元）
+PRICING = {
+    &quot;chat-7b&quot;:    {&quot;input&quot;: 0.002, &quot;output&quot;: 0.004},
+    &quot;chat-13b&quot;:   {&quot;input&quot;: 0.005, &quot;output&quot;: 0.010},
+    &quot;chat-70b&quot;:   {&quot;input&quot;: 0.020, &quot;output&quot;: 0.040},
+    &quot;code-7b&quot;:    {&quot;input&quot;: 0.003, &quot;output&quot;: 0.006},
+    &quot;embed-v2&quot;:   {&quot;input&quot;: 0.001, &quot;output&quot;: 0.000},
+}
+
+@dataclass
+class UsageRecord:
+    user_id: str
+    api_key: str
+    model: str
+    prompt_tokens: int
+    completion_tokens: int
+    cost: float
+    timestamp: float
+    request_id: str
+
+class BillingManager:
+    def __init__(self):
+        self.records: list[UsageRecord] = []
+        self.user_balance: dict[str, float] = {}  # 用户余额
+        self.user_usage: dict[str, float] = defaultdict(float)  # 用户累计消费
+
+    def calculate_cost(self, model: str, prompt_tokens: int, completion_tokens: int) -&gt; float:
+        &quot;&quot;&quot;计算单次请求费用&quot;&quot;&quot;
+        pricing = PRICING.get(model, PRICING[&quot;chat-7b&quot;])
+        cost = (prompt_tokens * pricing[&quot;input&quot;] + completion_tokens * pricing[&quot;output&quot;]) / 1000
+        return round(cost, 6)
+
+    def check_balance(self, user_id: str, estimated_cost: float) -&gt; bool:
+        &quot;&quot;&quot;检查用户余额是否充足&quot;&quot;&quot;
+        balance = self.user_balance.get(user_id, float(&quot;inf&quot;))
+        return balance &gt;= estimated_cost
+
+    def record_usage(self, user_id: str, api_key: str, model: str,
+                     prompt_tokens: int, completion_tokens: int, request_id: str):
+        &quot;&quot;&quot;记录使用量并扣费&quot;&quot;&quot;
+        cost = self.calculate_cost(model, prompt_tokens, completion_tokens)
+
+        record = UsageRecord(
+            user_id=user_id,
+            api_key=api_key,
+            model=model,
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            cost=cost,
+            timestamp=time.time(),
+            request_id=request_id,
+        )
+        self.records.append(record)
+        self.user_usage[user_id] += cost
+
+        # 扣除余额
+        if user_id in self.user_balance:
+            self.user_balance[user_id] -= cost
+
+        return record
+
+    def get_user_report(self, user_id: str, start_time: float = 0, end_time: float = None) -&gt; dict:
+        &quot;&quot;&quot;用户使用报告&quot;&quot;&quot;
+        end_time = end_time or time.time()
+        user_records = [
+            r for r in self.records
+            if r.user_id == user_id and start_time &lt;= r.timestamp &lt;= end_time
+        ]
+
+        if not user_records:
+            return {&quot;user_id&quot;: user_id, &quot;total_cost&quot;: 0, &quot;requests&quot;: 0}
+
+        by_model = defaultdict(lambda: {&quot;requests&quot;: 0, &quot;cost&quot;: 0, &quot;tokens&quot;: 0})
+        for r in user_records:
+            by_model[r.model][&quot;requests&quot;] += 1
+            by_model[r.model][&quot;cost&quot;] += r.cost
+            by_model[r.model][&quot;tokens&quot;] += r.prompt_tokens + r.completion_tokens
+
+        return {
+            &quot;user_id&quot;: user_id,
+            &quot;period&quot;: f&quot;{time.ctime(start_time)} ~ {time.ctime(end_time)}&quot;,
+            &quot;total_cost&quot;: round(sum(r.cost for r in user_records), 4),
+            &quot;total_requests&quot;: len(user_records),
+            &quot;total_tokens&quot;: sum(r.prompt_tokens + r.completion_tokens for r in user_records),
+            &quot;by_model&quot;: dict(by_model),
+            &quot;balance&quot;: self.user_balance.get(user_id, &quot;unlimited&quot;),
+        }
+
+billing = BillingManager()
+</code></pre>
+<h3 id="12-计费中间件">1.2 计费中间件</h3>
+<pre><code class="language-python">
+# billing/middleware.py
+from fastapi import Request, HTTPException
+
+class BillingMiddleware:
+    def __init__(self, billing_manager: BillingManager):
+        self.billing = billing_manager
+
+    async def __call__(self, request: Request, call_next):
+        # 从 API Key 获取用户信息
+        api_key = request.headers.get(&quot;Authorization&quot;, &quot;&quot;).replace(&quot;Bearer &quot;, &quot;&quot;)
+        user_info = await self._get_user_from_key(api_key)
+        if not user_info:
+            return JSONResponse(status_code=401, content={&quot;error&quot;: &quot;无效的 API Key&quot;})
+
+        # 估算费用（用最大 token 数估算）
+        body = await request.json()
+        model = body.get(&quot;model&quot;, &quot;chat-7b&quot;)
+        max_tokens = body.get(&quot;max_tokens&quot;, 512)
+        estimated = billing.calculate_cost(model, 1000, max_tokens)
+
+        # 检查余额
+        if not billing.check_balance(user_info[&quot;user_id&quot;], estimated):
+            return JSONResponse(status_code=402, content={&quot;error&quot;: &quot;余额不足&quot;})
+
+        # 注入用户信息供后续使用
+        request.state.user_id = user_info[&quot;user_id&quot;]
+        request.state.api_key = api_key
+
+        response = await call_next(request)
+
+        # 从响应中提取实际 token 使用量并计费
+        if hasattr(request.state, &quot;usage&quot;):
+            billing.record_usage(
+                user_id=user_info[&quot;user_id&quot;],
+                api_key=api_key,
+                model=model,
+                prompt_tokens=request.state.usage[&quot;prompt_tokens&quot;],
+                completion_tokens=request.state.usage[&quot;completion_tokens&quot;],
+                request_id=request.state.request_id,
+            )
+
+        return response
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-缓存策略">2. 缓存策略</h2>
+<h3 id="21-语义缓存">2.1 语义缓存</h3>
+<pre><code class="language-python">
+# cache/semantic_cache.py
+import hashlib
+import json
+import time
+import numpy as np
+from typing import Optional
+
+class SemanticCache:
+    &quot;&quot;&quot;
+    语义缓存：对语义相似的请求返回缓存结果，减少推理调用。
+    使用 embedding 向量相似度匹配。
+    &quot;&quot;&quot;
+
+    def __init__(self, similarity_threshold: float = 0.92, ttl: int = 3600):
+        self.threshold = similarity_threshold
+        self.ttl = ttl
+        self.cache: list[dict] = []  # [{embedding, prompt, response, timestamp, hit_count}]
+
+    def _compute_key(self, prompt: str, model: str, params: dict) -&gt; str:
+        &quot;&quot;&quot;精确匹配的缓存键&quot;&quot;&quot;
+        normalized = {
+            &quot;prompt&quot;: prompt.strip().lower(),
+            &quot;model&quot;: model,
+            &quot;temperature&quot;: params.get(&quot;temperature&quot;, 0.7),
+            &quot;max_tokens&quot;: params.get(&quot;max_tokens&quot;, 512),
+        }
+        return hashlib.sha256(json.dumps(normalized, sort_keys=True).encode()).hexdigest()
+
+    async def get(self, prompt: str, model: str, params: dict,
+                  embedding_model=None) -&gt; Optional[dict]:
+        &quot;&quot;&quot;查询缓存，先精确匹配，再语义匹配&quot;&quot;&quot;
+        key = self._compute_key(prompt, model, params)
+
+        # 1. 精确匹配
+        for entry in self.cache:
+            if entry[&quot;key&quot;] == key and time.time() - entry[&quot;timestamp&quot;] &lt; self.ttl:
+                entry[&quot;hit_count&quot;] += 1
+                return entry[&quot;response&quot;]
+
+        # 2. 语义匹配
+        if embedding_model:
+            query_embedding = await embedding_model.encode(prompt)
+            for entry in self.cache:
+                if time.time() - entry[&quot;timestamp&quot;] &gt; self.ttl:
+                    continue
+                similarity = self._cosine_similarity(query_embedding, entry[&quot;embedding&quot;])
+                if similarity &gt;= self.threshold:
+                    entry[&quot;hit_count&quot;] += 1
+                    return entry[&quot;response&quot;]
+
+        return None
+
+    async def put(self, prompt: str, model: str, params: dict,
+                  response: dict, embedding_model=None):
+        &quot;&quot;&quot;写入缓存&quot;&quot;&quot;
+        key = self._compute_key(prompt, model, params)
+        embedding = None
+        if embedding_model:
+            embedding = await embedding_model.encode(prompt)
+
+        self.cache.append({
+            &quot;key&quot;: key,
+            &quot;embedding&quot;: embedding,
+            &quot;prompt&quot;: prompt,
+            &quot;response&quot;: response,
+            &quot;timestamp&quot;: time.time(),
+            &quot;hit_count&quot;: 0,
+        })
+
+        # 过期清理
+        self._evict_expired()
+
+    def _cosine_similarity(self, a, b) -&gt; float:
+        a, b = np.array(a), np.array(b)
+        return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+    def _evict_expired(self):
+        now = time.time()
+        self.cache = [e for e in self.cache if now - e[&quot;timestamp&quot;] &lt; self.ttl]
+
+    def get_stats(self) -&gt; dict:
+        total_hits = sum(e[&quot;hit_count&quot;] for e in self.cache)
+        return {
+            &quot;entries&quot;: len(self.cache),
+            &quot;total_hits&quot;: total_hits,
+            &quot;avg_hits_per_entry&quot;: total_hits / max(len(self.cache), 1),
+        }
+</code></pre>
+<h3 id="22-Redis-分布式缓存">2.2 Redis 分布式缓存</h3>
+<pre><code class="language-python">
+# cache/redis_cache.py
+import redis.asyncio as redis
+import hashlib
+import json
+
+class RedisModelCache:
+    &quot;&quot;&quot;基于 Redis 的分布式推理缓存&quot;&quot;&quot;
+
+    def __init__(self, redis_url: str = &quot;redis://localhost:6379&quot;,
+                 prefix: str = &quot;llm_cache:&quot;, ttl: int = 7200):
+        self.redis = redis.from_url(redis_url)
+        self.prefix = prefix
+        self.ttl = ttl
+
+    async def get(self, prompt: str, model: str, **params) -&gt; dict | None:
+        key = self._make_key(prompt, model, params)
+        data = await self.redis.get(key)
+        if data:
+            await self.redis.incr(f&quot;{self.prefix}hits&quot;)
+            return json.loads(data)
+        await self.redis.incr(f&quot;{self.prefix}misses&quot;)
+        return None
+
+    async def set(self, prompt: str, model: str, response: dict, **params):
+        key = self._make_key(prompt, model, params)
+        await self.redis.setex(key, self.ttl, json.dumps(response, ensure_ascii=False))
+
+    def _make_key(self, prompt: str, model: str, params: dict) -&gt; str:
+        content = json.dumps({&quot;p&quot;: prompt, &quot;m&quot;: model, **params}, sort_keys=True)
+        return f&quot;{self.prefix}{hashlib.sha256(content.encode()).hexdigest()}&quot;
+
+    async def get_hit_rate(self) -&gt; float:
+        hits = int(await self.redis.get(f&quot;{self.prefix}hits&quot;) or 0)
+        misses = int(await self.redis.get(f&quot;{self.prefix}misses&quot;) or 0)
+        total = hits + misses
+        return hits / total if total &gt; 0 else 0
+
+    async def get_stats(self) -&gt; dict:
+        keys = await self.redis.keys(f&quot;{self.prefix}*&quot;)
+        hits = int(await self.redis.get(f&quot;{self.prefix}hits&quot;) or 0)
+        misses = int(await self.redis.get(f&quot;{self.prefix}misses&quot;) or 0)
+        return {
+            &quot;cached_entries&quot;: len(keys),
+            &quot;cache_hits&quot;: hits,
+            &quot;cache_misses&quot;: misses,
+            &quot;hit_rate&quot;: f&quot;{hits / max(hits + misses, 1) * 100:.1f}%&quot;,
+        }
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-模型选择优化">3. 模型选择优化</h2>
+<h3 id="31-智能模型路由">3.1 智能模型路由</h3>
+<pre><code class="language-python">
+# optimization/model_selector.py
+&quot;&quot;&quot;
+根据请求复杂度自动选择合适的模型：
+- 简单问答 → 小模型（7B），低成本
+- 复杂推理 → 大模型（70B），高准确率
+&quot;&quot;&quot;
+
+import re
+from typing import Literal
+
+COMPLEXITY_PATTERNS = {
+    &quot;simple&quot;: [
+        r&quot;^(你好|hi|hello|谢谢|ok)&quot;,
+        r&quot;^(什么是|解释一下).{0,20}$&quot;,
+        r&quot;翻译.*为&quot;,
+    ],
+    &quot;medium&quot;: [
+        r&quot;(分析|比较|总结|评价)&quot;,
+        r&quot;(写一篇|帮我写|生成)&quot;,
+        r&quot;代码.*实现&quot;,
+    ],
+    &quot;complex&quot;: [
+        r&quot;(推理|证明|推导|数学)&quot;,
+        r&quot;(架构设计|系统设计)&quot;,
+        r&quot;(多步|链式|chain.?of.?thought)&quot;,
+        r&quot;代码.{20,}(优化|重构|debug)&quot;,
+    ],
+}
+
+MODEL_TIERS = {
+    &quot;simple&quot;:  {&quot;model&quot;: &quot;chat-7b&quot;,  &quot;cost_factor&quot;: 1.0},
+    &quot;medium&quot;:  {&quot;model&quot;: &quot;chat-13b&quot;, &quot;cost_factor&quot;: 2.5},
+    &quot;complex&quot;: {&quot;model&quot;: &quot;chat-70b&quot;, &quot;cost_factor&quot;: 10.0},
+}
+
+def estimate_complexity(prompt: str) -&gt; Literal[&quot;simple&quot;, &quot;medium&quot;, &quot;complex&quot;]:
+    &quot;&quot;&quot;估算 prompt 复杂度&quot;&quot;&quot;
+    for level in [&quot;complex&quot;, &quot;medium&quot;, &quot;simple&quot;]:
+        for pattern in COMPLEXITY_PATTERNS[level]:
+            if re.search(pattern, prompt, re.IGNORECASE):
+                return level
+    # 按长度兜底
+    if len(prompt) &lt; 50:
+        return &quot;simple&quot;
+    elif len(prompt) &lt; 500:
+        return &quot;medium&quot;
+    return &quot;complex&quot;
+
+def select_model(prompt: str, user_tier: str = &quot;standard&quot;,
+                 force_model: str = None) -&gt; dict:
+    &quot;&quot;&quot;选择最优模型&quot;&quot;&quot;
+    if force_model:
+        return {&quot;model&quot;: force_model, &quot;complexity&quot;: &quot;forced&quot;}
+
+    complexity = estimate_complexity(prompt)
+
+    # VIP 用户始终使用大模型
+    if user_tier == &quot;vip&quot;:
+        complexity = &quot;complex&quot;
+
+    tier_info = MODEL_TIERS[complexity]
+    return {
+        &quot;model&quot;: tier_info[&quot;model&quot;],
+        &quot;complexity&quot;: complexity,
+        &quot;cost_factor&quot;: tier_info[&quot;cost_factor&quot;],
+    }
+</code></pre>
+<h3 id="32-Prompt-压缩优化">3.2 Prompt 压缩优化</h3>
+<pre><code class="language-python">
+# optimization/prompt_compression.py
+&quot;&quot;&quot;
+减少 prompt token 数量来降低成本：
+1. 去除冗余空格和换行
+2. 压缩系统提示词
+3. 历史消息摘要
+&quot;&quot;&quot;
+
+def compress_prompt(messages: list[dict], max_history: int = 10) -&gt; list[dict]:
+    &quot;&quot;&quot;压缩消息列表，减少 token 消耗&quot;&quot;&quot;
+    compressed = []
+
+    for msg in messages:
+        if msg[&quot;role&quot;] == &quot;system&quot;:
+            # 压缩系统提示：去除多余空行和空格
+            content = &quot; &quot;.join(msg[&quot;content&quot;].split())
+            compressed.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: content})
+        else:
+            compressed.append(msg)
+
+    # 如果历史消息过多，做摘要
+    if len(compressed) &gt; max_history + 1:  # +1 for system message
+        system = compressed[0] if compressed[0][&quot;role&quot;] == &quot;system&quot; else None
+        history = compressed[1:] if system else compressed
+
+        # 保留最近 N 条
+        recent = history[-max_history:]
+
+        # 对更早的消息做摘要
+        older = history[:-max_history]
+        summary = summarize_messages(older)
+
+        result = []
+        if system:
+            result.append(system)
+        result.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: f&quot;先前对话摘要: {summary}&quot;})
+        result.extend(recent)
+        return result
+
+    return compressed
+
+def summarize_messages(messages: list[dict]) -&gt; str:
+    &quot;&quot;&quot;简单摘要（生产中可用小模型生成）&quot;
+    topics = []
+    for msg in messages:
+        if msg[&quot;role&quot;] == &quot;user&quot;:
+            topics.append(msg[&quot;content&quot;][:50])
+    return &quot; | &quot;.join(topics[:5]) + &quot; ...&quot;
+
+def trim_context(prompt_tokens: list[int], max_tokens: int,
+                 tokenizer) -&gt; list[int]:
+    &quot;&quot;&quot;截断到最大 token 数，保留头尾&quot;&quot;&quot;
+    if len(prompt_tokens) &lt;= max_tokens:
+        return prompt_tokens
+    head = prompt_tokens[:max_tokens // 4]
+    tail = prompt_tokens[-(max_tokens * 3 // 4):]
+    return head + tail
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-GPU-利用率优化">4. GPU 利用率优化</h2>
+<h3 id="41-批处理推理">4.1 批处理推理</h3>
+<pre><code class="language-python">
+# optimization/batch_inference.py
+import asyncio
+import time
+from collections import deque
+
+class BatchProcessor:
+    &quot;&quot;&quot;
+    动态批处理：将多个请求合并为一个 batch 推理，提高 GPU 利用率。
+    支持两种触发条件：batch_size 达到上限 或 超时。
+    &quot;&quot;&quot;
+
+    def __init__(self, max_batch_size: int = 8, max_wait_ms: int = 50,
+                 model_manager=None):
+        self.max_batch_size = max_batch_size
+        self.max_wait_ms = max_wait_ms
+        self.model_manager = model_manager
+        self.pending_queue = deque()
+        self._processing = False
+
+    async def submit(self, prompt: str, params: dict) -&gt; str:
+        &quot;&quot;&quot;提交推理请求，返回结果&quot;&quot;&quot;
+        future = asyncio.get_event_loop().create_future()
+        self.pending_queue.append({
+            &quot;prompt&quot;: prompt,
+            &quot;params&quot;: params,
+            &quot;future&quot;: future,
+            &quot;submitted_at&quot;: time.time(),
+        })
+
+        # 触发批处理
+        if not self._processing:
+            asyncio.create_task(self._process_batch())
+
+        return await future
+
+    async def _process_batch(self):
+        &quot;&quot;&quot;收集请求并批量处理&quot;&quot;&quot;
+        self._processing = True
+
+        # 等待收集足够的请求或超时
+        start = time.time()
+        while len(self.pending_queue) &lt; self.max_batch_size:
+            elapsed_ms = (time.time() - start) * 1000
+            if elapsed_ms &gt;= self.max_wait_ms:
+                break
+            await asyncio.sleep(0.005)
+
+        # 取出当前批次
+        batch = []
+        while self.pending_queue and len(batch) &lt; self.max_batch_size:
+            batch.append(self.pending_queue.popleft())
+
+        if not batch:
+            self._processing = False
+            return
+
+        # 批量推理
+        try:
+            prompts = [item[&quot;prompt&quot;] for item in batch]
+            results = await self._batch_generate(prompts, batch[0][&quot;params&quot;])
+
+            for item, result in zip(batch, results):
+                item[&quot;future&quot;].set_result(result)
+        except Exception as e:
+            for item in batch:
+                if not item[&quot;future&quot;].done():
+                    item[&quot;future&quot;].set_exception(e)
+        finally:
+            self._processing = False
+
+            # 如果等待队列中还有请求，继续处理
+            if self.pending_queue:
+                asyncio.create_task(self._process_batch())
+
+    async def _batch_generate(self, prompts: list[str], params: dict) -&gt; list[str]:
+        &quot;&quot;&quot;执行批量推理&quot;&quot;&quot;
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, self._batch_generate_sync, prompts, params)
+
+    def _batch_generate_sync(self, prompts: list[str], params: dict) -&gt; list[str]:
+        tokenizer = self.model_manager.tokenizer
+        model = self.model_manager.model
+        device = self.model_manager.device
+
+        # 批量编码
+        inputs = tokenizer(prompts, return_tensors=&quot;pt&quot;, padding=True,
+                          truncation=True, max_length=4096).to(device)
+
+        with torch.no_grad():
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=params.get(&quot;max_tokens&quot;, 512),
+                temperature=params.get(&quot;temperature&quot;, 0.7),
+                do_sample=params.get(&quot;temperature&quot;, 0.7) &gt; 0,
+            )
+
+        # 解码结果
+        results = []
+        for i, output in enumerate(outputs):
+            input_len = inputs[&quot;input_ids&quot;][i].shape[0]
+            text = tokenizer.decode(output[input_len:], skip_special_tokens=True)
+            results.append(text)
+
+        return results
+</code></pre>
+<h3 id="42-显存优化">4.2 显存优化</h3>
+<pre><code class="language-python">
+# optimization/gpu_optimizer.py
+import torch
+import gc
+
+class GPUOptimizer:
+    &quot;&quot;&quot;GPU 显存优化工具&quot;&quot;&quot;
+
+    @staticmethod
+    def enable_memory_efficient_attention():
+        &quot;&quot;&quot;启用 Flash Attention（需要硬件支持）&quot;&quot;&quot;
+        if hasattr(torch.nn.functional, &quot;scaled_dot_product_attention&quot;):
+            torch.backends.cuda.enable_flash_sdp(True)
+            torch.backends.cuda.enable_mem_efficient_sdp(True)
+            print(&quot;✅ Flash Attention 已启用&quot;)
+
+    @staticmethod
+    def optimize_model_memory(model):
+        &quot;&quot;&quot;优化模型显存占用&quot;&quot;&quot;
+        # 1. 梯度检查点（推理时不需要，但模型加载时可设置）
+        if hasattr(model, &quot;gradient_checkpointing_enable&quot;):
+            model.gradient_checkpointing_enable()
+
+        # 2. KV Cache 量化
+        if hasattr(model.config, &quot;use_cache&quot;):
+            model.config.use_cache = True
+
+        return model
+
+    @staticmethod
+    def get_gpu_stats() -&gt; dict:
+        &quot;&quot;&quot;获取 GPU 使用统计&quot;&quot;&quot;
+        if not torch.cuda.is_available():
+            return {&quot;available&quot;: False}
+
+        stats = {}
+        for i in range(torch.cuda.device_count()):
+            stats[f&quot;gpu_{i}&quot;] = {
+                &quot;name&quot;: torch.cuda.get_device_name(i),
+                &quot;memory_allocated_mb&quot;: round(torch.cuda.memory_allocated(i) / 1024**2, 1),
+                &quot;memory_reserved_mb&quot;: round(torch.cuda.memory_reserved(i) / 1024**2, 1),
+                &quot;memory_total_mb&quot;: round(torch.cuda.get_device_properties(i).total_mem / 1024**2, 1),
+                &quot;utilization_pct&quot;: round(
+                    torch.cuda.memory_allocated(i) / torch.cuda.get_device_properties(i).total_mem * 100, 1
+                ),
+            }
+        return stats
+
+    @staticmethod
+    def cleanup():
+        &quot;&quot;&quot;手动清理 GPU 缓存&quot;&quot;&quot;
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+
+    @staticmethod
+    def estimate_max_batch_size(model, tokenizer, prompt: str = &quot;Hello&quot;,
+                                 max_tokens: int = 512) -&gt; int:
+        &quot;&quot;&quot;估算最大 batch size&quot;&quot;&quot;
+        device = next(model.parameters()).device
+        total_memory = torch.cuda.get_device_properties(device).total_mem
+        allocated = torch.cuda.memory_allocated(device)
+        available = total_memory * 0.85 - allocated  # 留 15% 余量
+
+        # 单次推理显存估算
+        inputs = tokenizer(prompt, return_tensors=&quot;pt&quot;).to(device)
+        single_input_mem = inputs[&quot;input_ids&quot;].element_size() * inputs[&quot;input_ids&quot;].nelement()
+        # 粗略估算：每个序列约占 single_input_mem * (max_tokens + input_len) * 2
+        per_request = single_input_mem * (max_tokens + inputs[&quot;input_ids&quot;].shape[1]) * 2
+
+        max_batch = max(1, int(available / per_request))
+        return min(max_batch, 32)  # 上限 32
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-成本监控仪表盘">5. 成本监控仪表盘</h2>
+<h3 id="51-成本指标采集">5.1 成本指标采集</h3>
+<pre><code class="language-python">
+# monitoring/cost_metrics.py
+from prometheus_client import Counter, Histogram, Gauge
+
+# 成本相关指标
+BILLING_AMOUNT = Counter(&quot;llm_billing_yuan_total&quot;, &quot;累计费用(元)&quot;, [&quot;user_id&quot;, &quot;model&quot;])
+TOKEN_COST = Histogram(&quot;llm_token_cost_yuan&quot;, &quot;单次请求费用分布&quot;, [&quot;model&quot;])
+CACHE_SAVINGS = Counter(&quot;llm_cache_savings_yuan_total&quot;, &quot;缓存节省费用(元)&quot;)
+GPU_COST_PER_HOUR = Gauge(&quot;llm_gpu_cost_per_hour_yuan&quot;, &quot;GPU 每小时成本&quot;, [&quot;gpu_type&quot;])
+
+GPU_HOURLY_COSTS = {
+    &quot;A100-80G&quot;: 25.0,   # 元/小时
+    &quot;A10-24G&quot;: 8.0,
+    &quot;T4-16G&quot;: 4.0,
+}
+
+def record_billing(user_id: str, model: str, cost: float):
+    BILLING_AMOUNT.labels(user_id=user_id, model=model).inc(cost)
+    TOKEN_COST.labels(model=model).observe(cost)
+
+def record_cache_savings(original_cost: float):
+    CACHE_SAVINGS.inc(original_cost)
+
+def calculate_gpu_cost(gpu_type: str, hours: float) -&gt; float:
+    &quot;&quot;&quot;计算 GPU 使用成本&quot;&quot;&quot;
+    return GPU_HOURLY_COSTS.get(gpu_type, 10.0) * hours
+</code></pre>
+<h3 id="52-成本分析报告">5.2 成本分析报告</h3>
+<pre><code class="language-python">
+# monitoring/cost_report.py
+import time
+from collections import defaultdict
+
+class CostReportGenerator:
+    def __init__(self, billing_manager, cache):
+        self.billing = billing_manager
+        self.cache = cache
+
+    async def generate_daily_report(self) -&gt; dict:
+        &quot;&quot;&quot;生成每日成本报告&quot;&quot;&quot;
+        now = time.time()
+        day_ago = now - 86400
+
+        daily_records = [
+            r for r in self.billing.records
+            if r.timestamp &gt;= day_ago
+        ]
+
+        # 按用户聚合
+        by_user = defaultdict(lambda: {&quot;cost&quot;: 0, &quot;requests&quot;: 0, &quot;tokens&quot;: 0})
+        by_model = defaultdict(lambda: {&quot;cost&quot;: 0, &quot;requests&quot;: 0, &quot;tokens&quot;: 0})
+
+        for r in daily_records:
+            by_user[r.user_id][&quot;cost&quot;] += r.cost
+            by_user[r.user_id][&quot;requests&quot;] += 1
+            by_user[r.user_id][&quot;tokens&quot;] += r.prompt_tokens + r.completion_tokens
+
+            by_model[r.model][&quot;cost&quot;] += r.cost
+            by_model[r.model][&quot;requests&quot;] += 1
+            by_model[r.model][&quot;tokens&quot;] += r.prompt_tokens + r.completion_tokens
+
+        # 缓存节省
+        cache_stats = await self.cache.get_stats() if self.cache else {}
+        cache_hit_rate = float(cache_stats.get(&quot;hit_rate&quot;, &quot;0%&quot;).replace(&quot;%&quot;, &quot;&quot;)) / 100
+        total_cost = sum(v[&quot;cost&quot;] for v in by_user.values())
+        estimated_savings = total_cost * cache_hit_rate / (1 - cache_hit_rate) if cache_hit_rate &lt; 1 else 0
+
+        return {
+            &quot;date&quot;: time.strftime(&quot;%Y-%m-%d&quot;),
+            &quot;summary&quot;: {
+                &quot;total_cost_yuan&quot;: round(total_cost, 2),
+                &quot;total_requests&quot;: len(daily_records),
+                &quot;total_tokens&quot;: sum(r.prompt_tokens + r.completion_tokens for r in daily_records),
+                &quot;avg_cost_per_request&quot;: round(total_cost / max(len(daily_records), 1), 4),
+                &quot;cache_savings_yuan&quot;: round(estimated_savings, 2),
+                &quot;cache_hit_rate&quot;: cache_stats.get(&quot;hit_rate&quot;, &quot;N/A&quot;),
+            },
+            &quot;by_user&quot;: {k: {**v, &quot;cost&quot;: round(v[&quot;cost&quot;], 4)} for k, v in
+                        sorted(by_user.items(), key=lambda x: -x[1][&quot;cost&quot;])[:20]},
+            &quot;by_model&quot;: {k: {**v, &quot;cost&quot;: round(v[&quot;cost&quot;], 4)} for k, v in by_model.items()},
+            &quot;optimization_suggestions&quot;: self._generate_suggestions(by_model, cache_hit_rate),
+        }
+
+    def _generate_suggestions(self, by_model: dict, cache_hit_rate: float) -&gt; list[str]:
+        &quot;&quot;&quot;生成优化建议&quot;&quot;&quot;
+        suggestions = []
+
+        total_cost = sum(v[&quot;cost&quot;] for v in by_model.values())
+        for model, data in by_model.items():
+            if data[&quot;cost&quot;] &gt; total_cost * 0.5:
+                suggestions.append(
+                    f&quot;模型 {model} 占总成本 {data[&#x27;cost&#x27;]/total_cost*100:.0f}%，&quot;
+                    f&quot;考虑对简单请求使用更小模型&quot;
+                )
+
+        if cache_hit_rate &lt; 0.2:
+            suggestions.append(
+                f&quot;缓存命中率仅 {cache_hit_rate*100:.0f}%，&quot;
+                f&quot;建议调整缓存 TTL 或降低相似度阈值&quot;
+            )
+
+        if not suggestions:
+            suggestions.append(&quot;当前成本控制良好，无需调整&quot;)
+
+        return suggestions
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-自动扩缩容成本控制">6. 自动扩缩容成本控制</h2>
+<pre><code class="language-yaml">
+# k8s/cost-aware-hpa.yaml
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llm-cost-aware-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llm-server
+  minReplicas: 1          # 非高峰最少 1 个实例
+  maxReplicas: 8
+  metrics:
+    - type: Pods
+      pods:
+        metric:
+          name: llm_active_requests
+        target:
+          type: AverageValue
+          averageValue: &quot;6&quot;
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 600    # 缩容更保守，避免频繁启停
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 300
+---
+# 定时缩容（夜间低峰期）
+apiVersion: autoscaling/v1
+kind: CronJob  # 通过 CronJob 调整 minReplicas
+metadata:
+  name: llm-nightly-scale-down
+spec:
+  schedule: &quot;0 2 * * *&quot;   # 每天凌晨 2 点
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: kubectl
+              image: bitnami/kubectl
+              command:
+                - kubectl
+                - patch
+                - hpa
+                - llm-cost-aware-hpa
+                - -p
+                - &#x27;{&quot;spec&quot;:{&quot;minReplicas&quot;:1}}&#x27;
+          restartPolicy: OnFailure
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="小结">小结</h2>
+<table>
+<thead><tr>
+<th>优化维度</th>
+<th>策略</th>
+<th>预期节省</th>
+</tr></thead><tbody>
+<tr>
+<td>Token 计费</td>
+<td>按模型分级定价 + 用量监控</td>
+<td>精确成本核算</td>
+</tr>
+<tr>
+<td>缓存</td>
+<td>语义缓存 + Redis 分布式缓存</td>
+<td>30~60% 推理调用</td>
+</tr>
+<tr>
+<td>模型选择</td>
+<td>按复杂度路由到合适模型</td>
+<td>40~70% 计算成本</td>
+</tr>
+<tr>
+<td>GPU 利用</td>
+<td>批处理 + Flash Attention + 显存优化</td>
+<td>2~4x 吞吐提升</td>
+</tr>
+<tr>
+<td>扩缩容</td>
+<td>HPA + 定时缩容</td>
+<td>30~50% 基础设施成本</td>
+</tr>
+</tbody></table>
+<p>综合运用以上策略，可将大模型服务成本降低 <strong>50% 以上</strong>。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>LLM 服务的成本管理直接影响项目的商业可行性。从 GPU 资源优化、量化部署到调用缓存，每个环节都有显著的优化空间。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">推理优化：<a href="#vLLM部署与配置">vLLM部署与配置</a>（量化部署）、<a href="#批处理与调度策略">批处理与调度策略</a></li>
+<li style="margin-left:0px">架构优化：<a href="#负载均衡与扩展">负载均衡与扩展</a>、<a href="#模型路由策略">模型路由策略</a></li>
+<li style="margin-left:0px">监控数据：<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<li style="margin-left:0px">量化方案：<a href="#AWQ量化实战">AWQ量化实战</a>、<a href="#GGUF与llama.cpp">GGUF与llama.cpp</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from prometheus_client import Counter, Histogram, generate_latest
+import time
+
+app = FastAPI()
+REQUEST_COUNT = Counter(&quot;llm_requests_total&quot;, &quot;Total requests&quot;, [&quot;endpoint&quot;, &quot;status&quot;])
+LATENCY = Histogram(&quot;llm_latency_seconds&quot;, &quot;Request latency&quot;, [&quot;endpoint&quot;])
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def chat(request: ChatRequest):
+    start = time.time()
+    result = await process(request)
+    LATENCY.labels(endpoint=&quot;chat&quot;).observe(time.time() - start)
+    REQUEST_COUNT.labels(endpoint=&quot;chat&quot;, status=&quot;200&quot;).inc()
+    return result
+
+@app.get(&quot;/metrics&quot;)
+async def metrics():
+    return PlainTextResponse(generate_latest())
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# 生产级 docker-compose.yml
+services:
+  llm-api:
+    build: .
+    deploy:
+      replicas: 3
+      resources:
+        limits: { memory: 16G }
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:8000/health&quot;]
+      interval: 30s
+  nginx:
+    image: nginx:alpine
+    ports: [&quot;443:443&quot;]
+    # 负载均衡 + SSL 终止
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>将模型服务作为 Hermes Agent 的后端：通过配置 Agent 的 <code>provider</code> 指向自建 API 服务，配合负载均衡和灰度发布策略，实现 Agent 推理服务的高可用和安全迭代。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote>
+</main>
+</body>
+</html>

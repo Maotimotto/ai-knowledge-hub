@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Advanced 总览 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link1">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>AI Advanced 总览</h1>
+
+
+<p style="font-size:18px;color:#6b7280;margin-bottom:32px">AI 大模型进阶知识体系 -- 从推理部署到安全护栏的完整技术栈</p>
+
+<div class="card"><a href="cv.html"><div class="card-title">08 计算机视觉基础</div></a><div class="card-desc">经典CNN网络 (LeNet/AlexNet/GoogLeNet)、卷积与池化、目标检测技术、ROI Pooling/Align</div></div>
+
+<div class="card"><a href="interview.html"><div class="card-title">09 面试宝典</div></a><div class="card-desc">深度学习面试题、计算机视觉面试题、数据处理、机器学习、NLP、大语言模型、数据结构与算法</div></div>
+
+<div class="card"><a href="projects.html"><div class="card-title">10 项目实战</div></a><div class="card-desc">RAG与Agent智能体、DeepSeek-RAG、智图寻宝、AI医疗、AI智教、智能商品发布、智选新闻等11个实战项目</div></div>
+
+<div class="card"><a href="multimodal.html"><div class="card-title">11 多模态开发</div></a><div class="card-desc">腾讯云AI绘画API、文生图/图生图、SaaS平台、小程序端集成</div></div>
+
+<div class="card"><a href="inference.html"><div class="card-title">12 LLM推理部署</div></a><div class="card-desc">vLLM PagedAttention、llama.cpp GGUF量化、TGI推理服务、推测解码、批处理调度、性能基准测试</div></div>
+
+<div class="card"><a href="vectordb.html"><div class="card-title">13 向量数据库</div></a><div class="card-desc">Milvus分布式向量DB、Pinecone云原生、Qdrant与pgvector、Weaviate多模态搜索、选型对比矩阵</div></div>
+
+<div class="card"><a href="observability.html"><div class="card-title">14 LLM可观测性</div></a><div class="card-desc">LangSmith追踪评估、Langfuse开源可观测性、OpenTelemetry for LLM、监控最佳实践</div></div>
+
+<div class="card"><a href="safety.html"><div class="card-title">15 AI安全与护栏</div></a><div class="card-desc">Prompt注入与越狱防护、输出内容安全、Guardrails框架、红队测试方法论</div></div>
+
+<div class="card"><a href="serving.html"><div class="card-title">16 模型服务与部署</div></a><div class="card-desc">API服务封装、负载均衡与扩展、模型灰度发布、成本管理与优化</div></div>
+
+<div class="cross-ref"><strong>关联项目:</strong> <a href="inference.html">llm-api-gateway</a> (推理网关) | <a href="safety.html">ai-safety-guardrails</a> (安全护栏) | <a href="observability.html">observability-dashboard</a> (可观测性面板)</div>
+
+<div class="svg-diagram"><h3>部署架构总览</h3><svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+<defs><marker id="ah3" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#0075de"/></marker></defs>
+<rect x="300" y="10" width="200" height="50" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="400" y="40" text-anchor="middle" font-size="14" fill="#1a1a1a">客户端 / SDK</text>
+<line x1="400" y1="60" x2="400" y2="90" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="250" y="90" width="300" height="50" rx="8" fill="#fdecc8" stroke="#8a6a00"/>
+<text x="400" y="115" text-anchor="middle" font-size="13" fill="#1a1a1a">Nginx / HAProxy 负载均衡</text>
+<text x="400" y="130" text-anchor="middle" font-size="11" fill="#6b7280">SSL终止 + 限流 + 路由</text>
+<line x1="300" y1="140" x2="150" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="400" y1="140" x2="400" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="500" y1="140" x2="650" y2="180" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="80" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="155" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">vLLM Instance 1</text>
+<text x="155" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A100</text>
+<rect x="325" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="400" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">vLLM Instance 2</text>
+<text x="400" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A100</text>
+<rect x="575" y="180" width="150" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="650" y="200" text-anchor="middle" font-size="12" fill="#1a1a1a">TGI Instance</text>
+<text x="650" y="220" text-anchor="middle" font-size="11" fill="#6b7280">GPU: A10</text>
+<line x1="155" y1="230" x2="155" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="400" y1="230" x2="400" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<line x1="650" y1="230" x2="650" y2="260" stroke="#0075de" marker-end="url(#ah3)"/>
+<rect x="100" y="260" width="600" height="50" rx="8" fill="#fadec9" stroke="#935400"/>
+<text x="400" y="280" text-anchor="middle" font-size="13" fill="#1a1a1a">Prometheus + Grafana 监控</text>
+<text x="400" y="300" text-anchor="middle" font-size="11" fill="#6b7280">延迟 / 吞吐 / 错误率 / GPU使用率</text>
+<rect x="100" y="320" width="280" height="30" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)"/>
+<text x="240" y="340" text-anchor="middle" font-size="11" fill="#6b7280">HPA 自动扩缩容 (K8s)</text>
+<rect x="420" y="320" width="280" height="30" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)"/>
+<text x="560" y="340" text-anchor="middle" font-size="11" fill="#6b7280">金丝雀发布 / A/B测试</text>
+</svg></div>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,3496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 高级模式 - AI 知识库</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+  font-size: 16px; line-height: 1.7; color: #37352f; background: #ffffff;
+  display: flex; min-height: 100vh;
+}
+/* Sidebar */
+.sidebar {
+  position: sticky; top: 0; left: 0; width: 280px; height: 100vh;
+  overflow-y: auto; background: #f6f5f4; border-right: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0; padding: 0; z-index: 10;
+}
+.sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.sidebar-header h3 { font-size: 16px; font-weight: 600; color: #37352f; }
+.sidebar-content { padding: 12px 0; }
+.sidebar-section { margin-bottom: 8px; }
+.sidebar-dir { padding: 6px 20px; font-size: 13px; font-weight: 600; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-section ul { list-style: none; }
+.sidebar-section li a {
+  display: flex; align-items: center; gap: 8px; padding: 6px 20px 6px 28px;
+  font-size: 14px; color: #37352f; text-decoration: none; transition: background 0.15s;
+}
+.sidebar-section li a:hover { background: rgba(0,117,222,0.08); }
+/* Main content */
+.main-content { flex: 1; max-width: 900px; margin: 0 auto; padding: 40px 60px 80px; }
+/* Headings */
+h1 { font-size: 44px; font-weight: 700; margin: 0 0 16px; color: #37352f; letter-spacing: -0.5px; }
+h2 { font-size: 28px; font-weight: 600; margin: 48px 0 16px; color: #37352f; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+h3 { font-size: 22px; font-weight: 600; margin: 32px 0 12px; color: #37352f; }
+h4 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; color: #37352f; }
+h5 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: #37352f; }
+/* Paragraphs & text */
+p { margin: 0 0 16px; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+a { color: #0075de; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wikilink { color: #0075de; border-bottom: 1px dotted #0075de; }
+/* Lists */
+ul, ol { margin: 0 0 16px; padding-left: 24px; }
+li { margin-bottom: 4px; }
+/* Blockquotes */
+blockquote {
+  margin: 16px 0; padding: 12px 16px; border-left: 3px solid #0075de;
+  background: #f6f5f4; border-radius: 0 4px 4px 0; font-size: 14px; color: #4a4a4a;
+}
+blockquote p { margin: 0 0 4px; }
+/* Code */
+.inline-code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+  background: #f6f5f4; padding: 2px 6px; border-radius: 3px; color: #e74c3c;
+}
+.code-block { margin: 16px 0; border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
+.code-header { background: #f6f5f4; padding: 6px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.code-lang { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6b6b6b; }
+.code-block pre { margin: 0; padding: 16px; overflow-x: auto; background: #ffffff; }
+.code-block code {
+  font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; color: #37352f;
+}
+/* Tables */
+.table-wrapper { margin: 16px 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: #f6f5f4; font-weight: 600; text-align: left; padding: 10px 12px; border: 1px solid rgba(0,0,0,0.1); }
+td { padding: 8px 12px; border: 1px solid rgba(0,0,0,0.1); }
+tr.alt-row { background: #f6f5f4; }
+/* Badges */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; line-height: 1.4; flex-shrink: 0;
+}
+.badge-beginner { background: #e6f7e6; color: #1a7a1a; }
+.badge-intermediate { background: #fff7e6; color: #b37700; }
+.badge-advanced { background: #ffe6e6; color: #b30000; }
+/* Math */
+.math-formula { font-family: 'Times New Roman', serif; font-style: italic; color: #37352f; }
+.math-block { margin: 16px 0; padding: 12px 16px; background: #f6f5f4; border-radius: 4px; text-align: center; font-family: 'Times New Roman', serif; font-size: 16px; }
+/* Diagrams */
+.diagram-svg { width: 100%; max-width: 800px; margin: 24px auto; display: block; }
+.diagram-container { margin: 24px 0; padding: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; }
+.diagram-title { font-size: 16px; font-weight: 600; color: #37352f; margin-bottom: 12px; text-align: center; }
+/* HR */
+hr { margin: 32px 0; border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+/* Section cards */
+.section-card {
+  margin: 24px 0; padding: 24px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px; transition: box-shadow 0.2s;
+}
+.section-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.section-card h2 { margin-top: 0; border: none; padding: 0; }
+/* Page header */
+.page-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.page-subtitle { font-size: 18px; color: #6b6b6b; margin-top: 8px; }
+/* TOC */
+.toc { margin: 24px 0; padding: 20px 24px; background: #f6f5f4; border-radius: 8px; }
+.toc h3 { font-size: 16px; margin: 0 0 12px; }
+.toc ul { list-style: none; padding: 0; margin: 0; }
+.toc li { margin: 4px 0; }
+.toc a { font-size: 14px; color: #37352f; }
+.toc a:hover { color: #0075de; }
+.toc .toc-h3 { padding-left: 16px; }
+.toc .toc-h4 { padding-left: 32px; }
+/* Landing page */
+.landing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 32px 0; }
+.landing-card {
+  padding: 24px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px; transition: box-shadow 0.2s, transform 0.2s; text-decoration: none; color: #37352f;
+}
+.landing-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); text-decoration: none; }
+.landing-card h3 { margin: 0 0 8px; font-size: 20px; }
+.landing-card p { margin: 0; font-size: 14px; color: #6b6b6b; }
+/* Footer */
+.page-footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 13px; color: #999; text-align: center; }
+/* Responsive */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .main-content { padding: 20px; }
+  h1 { font-size: 32px; }
+}
+/* Syntax highlighting (basic) */
+.code-block code .kw { color: #d73a49; }
+.code-block code .str { color: #032f62; }
+.code-block code .cm { color: #6a737d; }
+.code-block code .fn { color: #6f42c1; }
+.code-block code .num { color: #005cc5; }
+</style>
+</head>
+<body>
+<nav class="sidebar"><div class="sidebar-header"><h3>目录导航</h3></div><div class="sidebar-content"><div class="sidebar-section"><div class="sidebar-dir">RAG 高级模式</div><ul><li><a href="#01-self-rag自适应检索"><span class="badge badge-advanced">高级</span>01-Self-RAG自适应检索</a></li><li><a href="#02-corrective-rag纠错检索"><span class="badge badge-intermediate">基础</span>02-Corrective-RAG纠错检索</a></li><li><a href="#03-生产级rag架构"><span class="badge badge-advanced">高级</span>03-生产级RAG架构</a></li><li><a href="#04-rag监控与质量漂移"><span class="badge badge-intermediate">基础</span>04-RAG监控与质量漂移</a></li><li><a href="#05-rag成本优化策略"><span class="badge badge-intermediate">基础</span>05-RAG成本优化策略</a></li><li><a href="#moc-rag高级模式"><span class="badge badge-intermediate">基础</span>MOC-RAG高级模式</a></li></ul></div></div></nav>
+<main class="main-content">
+<div class="page-header">
+<h1>RAG 高级模式</h1>
+</div>
+<div class="toc"><h3>目录</h3><ul><li style="font-weight:600;margin-top:8px;">RAG 高级模式</li><li class="toc-h3"><a href="#01-self-rag自适应检索">01-Self-RAG自适应检索</a></li><li class="toc-h3"><a href="#02-corrective-rag纠错检索">02-Corrective-RAG纠错检索</a></li><li class="toc-h3"><a href="#03-生产级rag架构">03-生产级RAG架构</a></li><li class="toc-h3"><a href="#04-rag监控与质量漂移">04-RAG监控与质量漂移</a></li><li class="toc-h3"><a href="#05-rag成本优化策略">05-RAG成本优化策略</a></li><li class="toc-h3"><a href="#moc-rag高级模式">MOC-RAG高级模式</a></li></ul></div>
+<div class="section-card" id="01-self-rag自适应检索"><h2><span class="badge badge-advanced">高级</span> 01-Self-RAG自适应检索</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#概述">概述</a></li><li><a href="#核心机制反思-tokenreflection-tokens">核心机制：反思 Token（Reflection Tokens）</a></li><li class="toc-h3"><a href="#四类反思-token">四类反思 Token</a></li><li class="toc-h3"><a href="#生成流程">生成流程</a></li><li><a href="#检索决策策略">检索决策策略</a></li><li class="toc-h3"><a href="#何时应该检索">何时应该检索？</a></li><li class="toc-h3"><a href="#何时跳过检索">何时跳过检索？</a></li><li class="toc-h3"><a href="#训练数据构造">训练数据构造</a></li><li><a href="#训练方法">训练方法</a></li><li class="toc-h3"><a href="#阶段一训练-critic-模型">阶段一：训练 Critic 模型</a></li><li class="toc-h3"><a href="#阶段二端到端训练">阶段二：端到端训练</a></li><li><a href="#推理时的解码策略">推理时的解码策略</a></li><li><a href="#实际效果与优势">实际效果与优势</a></li><li class="toc-h3"><a href="#性能对比">性能对比</a></li><li class="toc-h3"><a href="#核心优势">核心优势</a></li><li><a href="#简化实现基于提示的-self-rag">简化实现：基于提示的 Self-RAG</a></li><li><a href="#与其他高级-rag-方法的关系">与其他高级 RAG 方法的关系</a></li><li><a href="#延伸阅读">延伸阅读</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li></ul></div><h1 id="self-rag-自适应检索增强生成">Self-RAG 自适应检索增强生成</h1>
+
+<h2 id="概述">概述</h2>
+
+<p>Self-RAG 是由 Akari Asai 等人于 2023 年提出的框架（论文：<em>Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection</em>）。</p>
+<p>核心思想：让 LLM <strong>自主决定</strong>是否需要检索、何时检索、以及检索结果是否相关，而不是无条件地检索所有查询。</p>
+
+<p>与传统 RAG 的关键区别：</p>
+<ul><li>传统 RAG：始终检索 → 可能引入噪声</li>
+<li>Self-RAG：按需检索 → 通过反思 token 自我评估</li></ul>
+
+<hr>
+
+<h2 id="核心机制反思-tokenreflection-tokens">核心机制：反思 Token（Reflection Tokens）</h2>
+
+<p>Self-RAG 训练 LLM 在生成过程中输出特殊的反思 token，用于自我评估。</p>
+
+<h3 id="四类反思-token">四类反思 Token</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>Token 类型</th>
+<th>触发时机</th>
+<th>可能取值</th>
+<th>作用</th>
+</tr></thead><tbody>
+<tr>
+<td><code class="inline-code">[Retrieve]</code></td>
+<td>每个段落开始前</td>
+<td><code class="inline-code">{0, 1}</code></td>
+<td>决定是否需要检索</td>
+</tr>
+<tr class="alt-row">
+<td><code class="inline-code">[IsRel]</code></td>
+<td>检索完成后</td>
+<td><code class="inline-code">{0, 1}</code></td>
+<td>判断检索文档是否与查询相关</td>
+</tr>
+<tr>
+<td><code class="inline-code">[IsSup]</code></td>
+<td>生成每个段落后</td>
+<td><code class="inline-code">{0, 1, 2}</code></td>
+<td>判断生成内容是否被检索文档支持</td>
+</tr>
+<tr class="alt-row">
+<td><code class="inline-code">[IsUse]</code></td>
+<td>生成每个段落后</td>
+<td><code class="inline-code">{0, 1, 2}</code></td>
+<td>判断生成内容的整体有用性</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="生成流程">生成流程</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>用户查询
+   │
+   ▼
+┌──────────────┐
+│ 是否需要检索？ │──[Retrieve]=0──→ 直接生成（无需检索）
+│  [Retrieve]   │
+└──────┬───────┘
+       │ [Retrieve]=1
+       ▼
+  ┌──────────┐
+  │ 执行检索   │
+  └────┬─────┘
+       ▼
+  ┌──────────┐     ┌──────────────┐
+  │ 文档相关？ │─0──→│ 丢弃，重新检索  │
+  │ [IsRel]   │     └──────────────┘
+  └────┬─────┘
+       │ 1
+       ▼
+  ┌──────────────┐
+  │ 基于文档生成    │
+  └────┬─────────┘
+       ▼
+  ┌──────────────┐     ┌─────────────┐
+  │ 生成被支持？   │─0──→│ 标记需验证    │
+  │ [IsSup]       │     └─────────────┘
+  └────┬─────────┘
+       │ 1或2
+       ▼
+  ┌──────────────┐
+  │ 内容有用性评估  │
+  │ [IsUse]       │
+  └──────┬───────┘
+         ▼
+     最终输出</code></pre></div>
+
+<hr>
+
+<h2 id="检索决策策略">检索决策策略</h2>
+
+<h3 id="何时应该检索">何时应该检索？</h3>
+
+<p>Self-RAG 学会了在以下情况触发检索：</p>
+<ol><li><strong>事实性问题</strong>：需要精确数据、日期、数字</li>
+<li><strong>专业知识查询</strong>：超出模型参数知识范围</li>
+<li><strong>多跳推理</strong>：需要多个信息源组合</li></ol>
+
+<h3 id="何时跳过检索">何时跳过检索？</h3>
+
+<ol><li><strong>创意写作</strong>：不需要外部知识</li>
+<li><strong>通用常识</strong>：模型已有足够知识</li>
+<li><strong>格式化任务</strong>：翻译、摘要等</li></ol>
+
+<h3 id="训练数据构造">训练数据构造</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 检索决策训练样本构造示例
+training_examples = [
+    {
+        &quot;query&quot;: &quot;量子计算的基本原理是什么？&quot;,
+        &quot;retrieve&quot;: 1,  # 需要检索 - 专业主题
+        &quot;reasoning&quot;: &quot;涉及具体科学概念，需要准确描述&quot;
+    },
+    {
+        &quot;query&quot;: &quot;写一首关于春天的诗&quot;,
+        &quot;retrieve&quot;: 0,  # 无需检索 - 创意任务
+        &quot;reasoning&quot;: &quot;创意生成任务，不需要外部知识&quot;
+    },
+    {
+        &quot;query&quot;: &quot;2024年诺贝尔物理学奖得主是谁？&quot;,
+        &quot;retrieve&quot;: 1,  # 需要检索 - 时效性信息
+        &quot;reasoning&quot;: &quot;模型训练截止后的新信息&quot;
+    }
+]</code></pre></div>
+
+<hr>
+
+<h2 id="训练方法">训练方法</h2>
+
+<h3 id="阶段一训练-critic-模型">阶段一：训练 Critic 模型</h3>
+
+<p>收集反思 token 标注数据，训练独立的 critic 模型：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># Critic 模型训练
+class SelfRAGCritic:
+    def __init__(self, base_model):
+        self.model = base_model
+        self.relevance_head = nn.Linear(hidden_dim, 2)   # IsRel
+        self.support_head = nn.Linear(hidden_dim, 3)     # IsSup
+        self.usefulness_head = nn.Linear(hidden_dim, 3)  # IsUse
+
+    def assess_relevance(self, query, passage):
+        &quot;&quot;&quot;判断检索文档是否相关&quot;&quot;&quot;
+        logits = self.relevance_head(
+            self.model.encode(query, passage)
+        )
+        return torch.argmax(logits, dim=-1)  # 0 或 1
+
+    def assess_support(self, claim, evidence):
+        &quot;&quot;&quot;判断生成内容是否被证据支持&quot;&quot;&quot;
+        logits = self.support_head(
+            self.model.encode(claim, evidence)
+        )
+        return torch.argmax(logits, dim=-1)  # 0, 1, 2
+
+    def assess_usefulness(self, query, response):
+        &quot;&quot;&quot;判断回答的整体有用性&quot;&quot;&quot;
+        logits = self.usefulness_head(
+            self.model.encode(query, response)
+        )
+        return torch.argmax(logits, dim=-1)  # 0, 1, 2</code></pre></div>
+
+<h3 id="阶段二端到端训练">阶段二：端到端训练</h3>
+
+<p>将反思 token 融入标准 LM 训练：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 训练数据格式
+def format_training_sample(query, passages, response, critiques):
+    &quot;&quot;&quot;
+    critiques 包含每个段落的反思 token 标注
+    &quot;&quot;&quot;
+    text = f&quot;### Query: {query}\n&quot;
+
+    for i, (passage, critique) in enumerate(zip(passages, critiques)):
+        text += f&quot;[Retrieve]{critique[&#x27;retrieve&#x27;]}\n&quot;
+        if critique[&#x27;retrieve&#x27;] == 1:
+            text += f&quot;### Passage: {passage}\n&quot;
+            text += f&quot;[IsRel]{critique[&#x27;relevance&#x27;]}\n&quot;
+
+        text += f&quot;### Response Segment {i}: {response[i]}\n&quot;
+        text += f&quot;[IsSup]{critique[&#x27;support&#x27;]}\n&quot;
+        text += f&quot;[IsUse]{critique[&#x27;usefulness&#x27;]}\n&quot;
+
+    return text</code></pre></div>
+
+<hr>
+
+<h2 id="推理时的解码策略">推理时的解码策略</h2>
+
+<p>Self-RAG 在推理时使用 <strong>段落级束搜索（Segment-level Beam Search）</strong>：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class SelfRAGDecoder:
+    def __init__(self, generator, critic, retriever, beam_width=3):
+        self.generator = generator
+        self.critic = critic
+        self.retriever = retriever
+        self.beam_width = beam_width
+
+    def generate(self, query, max_segments=5):
+        beams = [{&quot;text&quot;: &quot;&quot;, &quot;score&quot;: 0.0}]
+
+        for step in range(max_segments):
+            candidates = []
+
+            for beam in beams:
+                # 决定是否检索
+                retrieve_decision = self.critic.should_retrieve(
+                    query, beam[&quot;text&quot;]
+                )
+
+                if retrieve_decision == 1:
+                    # 检索并评估相关性
+                    passages = self.retriever.retrieve(query, top_k=5)
+                    relevant = [
+                        p for p in passages
+                        if self.critic.assess_relevance(query, p) == 1
+                    ]
+                else:
+                    relevant = []
+
+                # 生成候选段落
+                segments = self.generator.generate_segment(
+                    query, beam[&quot;text&quot;], relevant,
+                    num_candidates=self.beam_width
+                )
+
+                # 用 critic 评分
+                for seg in segments:
+                    support_score = self.critic.assess_support(
+                        seg, relevant
+                    ) if relevant else 1
+                    usefulness_score = self.critic.assess_usefulness(
+                        query, beam[&quot;text&quot;] + seg
+                    )
+
+                    # 综合评分
+                    total_score = (
+                        beam[&quot;score&quot;]
+                        + self.score_to_weight(support_score)
+                        + self.score_to_weight(usefulness_score)
+                    )
+
+                    candidates.append({
+                        &quot;text&quot;: beam[&quot;text&quot;] + seg,
+                        &quot;score&quot;: total_score
+                    })
+
+            # 保留 top-k beams
+            beams = sorted(
+                candidates, key=lambda x: x[&quot;score&quot;],
+                reverse=True
+            )[:self.beam_width]
+
+        return beams[0][&quot;text&quot;]
+
+    def score_to_weight(self, score):
+        &quot;&quot;&quot;将反思 token 分数转换为权重&quot;&quot;&quot;
+        mapping = {0: -0.5, 1: 0.3, 2: 0.5}
+        return mapping.get(score, 0.0)</code></pre></div>
+
+<hr>
+
+<h2 id="实际效果与优势">实际效果与优势</h2>
+
+<h3 id="性能对比">性能对比</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>指标</th>
+<th>标准 RAG</th>
+<th>Self-RAG</th>
+<th>提升</th>
+</tr></thead><tbody>
+<tr>
+<td>Open-domain QA (EM)</td>
+<td>38.2</td>
+<td>43.8</td>
+<td>+14.7%</td>
+</tr>
+<tr class="alt-row">
+<td>事实一致性</td>
+<td>72.1%</td>
+<td>81.5%</td>
+<td>+13.0%</td>
+</tr>
+<tr>
+<td>幻觉率</td>
+<td>18.3%</td>
+<td>8.7%</td>
+<td>-52.5%</td>
+</tr>
+<tr class="alt-row">
+<td>检索效率</td>
+<td>100%查询检索</td>
+<td>~65%查询检索</td>
+<td>-35% 开销</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="核心优势">核心优势</h3>
+
+<ol><li><strong>减少幻觉</strong>：通过 <code class="inline-code">[IsSup]</code> 令牌主动检测不一致</li>
+<li><strong>按需检索</strong>：避免不必要的延迟和成本</li>
+<li><strong>可解释性</strong>：反思 token 提供了决策过程的透明度</li>
+<li><strong>适应性</strong>：对不同类型查询自动调整策略</li></ol>
+
+<hr>
+
+<h2 id="简化实现基于提示的-self-rag">简化实现：基于提示的 Self-RAG</h2>
+
+<p>如果不想训练专用模型，可以用提示工程模拟：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">SELF_RAG_PROMPT = &quot;&quot;&quot;你是一个自我反思的AI助手。在回答问题时，请遵循以下步骤：
+
+1. **检索决策**：首先判断是否需要检索外部信息。
+   - 如果需要，说明你需要什么信息
+   - 如果不需要，直接回答
+
+2. **相关性评估**：（如果检索了）这些文档是否与问题相关？
+
+3. **支持度检查**：你的回答是否被提供的证据支持？
+
+4. **有用性评估**：你的回答是否真正解答了用户的问题？
+
+请按以下格式回答：
+
+[检索决策] 需要/不需要检索
+[理由] 为什么需要/不需要
+[检索查询] （如需要）具体的检索查询
+[回答] 你的最终回答
+[自评] 回答是否被证据支持，整体有用性如何
+&quot;&quot;&quot;
+
+class SimpleSelfRAG:
+    def __init__(self, llm, retriever):
+        self.llm = llm
+        self.retriever = retriever
+
+    def answer(self, query):
+        # Step 1: 检索决策
+        decision_prompt = f&quot;&quot;&quot;判断以下问题是否需要检索外部信息：
+问题：{query}
+
+仅回答：NEED_RETRIEVE 或 NO_RETRIEVE&quot;&quot;&quot;
+
+        decision = self.llm.generate(decision_prompt).strip()
+
+        if &quot;NEED_RETRIEVE&quot; in decision:
+            # Step 2: 检索
+            passages = self.retriever.retrieve(query, top_k=3)
+
+            # Step 3: 相关性过滤
+            relevant = []
+            for p in passages:
+                rel_prompt = f&quot;判断文档是否与问题相关（YES/NO）：\n问题：{query}\n文档：{p}&quot;
+                if &quot;YES&quot; in self.llm.generate(rel_prompt):
+                    relevant.append(p)
+
+            # Step 4: 基于相关文档生成
+            context = &quot;\n\n&quot;.join(relevant) if relevant else &quot;无相关文档&quot;
+            answer_prompt = f&quot;&quot;&quot;基于以下信息回答问题。如果信息不足以回答，请说明。
+
+信息：{context}
+问题：{query}&quot;&quot;&quot;
+        else:
+            answer_prompt = f&quot;直接回答问题：{query}&quot;
+
+        answer = self.llm.generate(answer_prompt)
+
+        # Step 5: 自评
+        eval_prompt = f&quot;&quot;&quot;评估以下回答：
+问题：{query}
+回答：{answer}
+
+回答是否准确且有用？简要说明。&quot;&quot;&quot;
+        evaluation = self.llm.generate(eval_prompt)
+
+        return {
+            &quot;answer&quot;: answer,
+            &quot;retrieved&quot;: &quot;NEED_RETRIEVE&quot; in decision,
+            &quot;num_relevant&quot;: len(relevant) if &quot;NEED_RETRIEVE&quot; in decision else 0,
+            &quot;self_evaluation&quot;: evaluation
+        }</code></pre></div>
+
+<hr>
+
+<h2 id="与其他高级-rag-方法的关系">与其他高级 RAG 方法的关系</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>方法</th>
+<th>核心思想</th>
+<th>Self-RAG 关系</th>
+</tr></thead><tbody>
+<tr>
+<td>CRAG</td>
+<td>检索后纠错</td>
+<td>互补：Self-RAG 决定是否检索，CRAG 纠正检索质量</td>
+</tr>
+<tr class="alt-row">
+<td>Adaptive RAG</td>
+<td>动态路由</td>
+<td>相似：都关注检索决策，Self-RAG 有更细粒度的反思</td>
+</tr>
+<tr>
+<td>RAG-Fusion</td>
+<td>查询扩展</td>
+<td>正交：可组合使用</td>
+</tr>
+<tr class="alt-row">
+<td>HyDE</td>
+<td>假设文档嵌入</td>
+<td>正交：可用于改进检索质量</td>
+</tr>
+</tbody></table></div>
+
+<hr>
+
+<h2 id="延伸阅读">延伸阅读</h2>
+
+<ul><li>原始论文：<em>Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection</em> (Asai et al., 2023)</li>
+<li>实现参考：https://github.com/AkariAsai/self-rag</li>
+<li>相关工作：<em>Reflection-Tuning</em> (Shinn et al., 2023)、<em>Chain-of-Verification</em> (Dhuliawala et al., 2023)</li></ul>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐⭐ 高级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>Self-RAG 是 RAG 从"无条件检索"到"按需智能检索"的范式跃迁。在 AI 应用栈中，它位于 RAG 流水线的决策层，通过反思 Token（[Retrieve]/[IsRel]/[IsSup]/[IsUse]）让 LLM 自主判断何时检索、检索质量如何、生成是否忠实。这是 Agentic RAG 的重要思想基础，将评估能力内化到生成过程中。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>RAG 评估与优化</td>
+<td>Self-RAG 的反思令牌是对评估指标的内化</td>
+<td><a href="#rag评估与优化" class="wikilink">AI大模型/04-RAG技术/05-生成阶段/RAG评估与优化</a></td>
+</tr>
+<tr class="alt-row">
+<td>Corrective-RAG</td>
+<td>CRAG 用外部评估器，Self-RAG 用内部反思，互补方案</td>
+<td><a href="#02-corrective-rag纠错检索" class="wikilink">02-Corrective-RAG纠错检索</a></td>
+</tr>
+<tr>
+<td>RAG 技术文档</td>
+<td>朴素 RAG 的问题催生了 Self-RAG</td>
+<td><a href="#rag技术文档-10" class="wikilink">AI大模型/04-RAG技术/RAG技术文档-1.0</a></td>
+</tr>
+<tr class="alt-row">
+<td>Agent 规划能力</td>
+<td>检索决策本质是 Agent 的工具调用规划</td>
+<td><a href="#" class="wikilink">AI大模型/05-Agent开发/</a></td>
+</tr>
+<tr>
+<td>LLM 微调</td>
+<td>真正的 Self-RAG 需要微调注入反思 Token</td>
+<td><a href="#" class="wikilink">AI大模型/06-微调训练/</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 用简化版 Self-RAG（Prompt 模拟）实现按需检索，简单常识问题跳过检索减少延迟</li>
+<li><strong>评论分析 RAG</strong>: 用 [IsRel] 过滤机制排除不相关评论，用 [IsSup] 检查分析结论是否忠实于原始评论</li>
+<li><strong>内容推荐</strong>: 用检索决策判断用户查询是否需要个性化推荐，通用问题直接用 LLM 回答</li></ul>
+</div><div class="section-card" id="02-corrective-rag纠错检索"><h2><span class="badge badge-intermediate">基础</span> 02-Corrective-RAG纠错检索</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#概述">概述</a></li><li><a href="#核心架构">核心架构</a></li><li class="toc-h3"><a href="#三种响应策略">三种响应策略</a></li><li><a href="#检索评估器设计">检索评估器设计</a></li><li class="toc-h3"><a href="#评估器模型">评估器模型</a></li><li class="toc-h3"><a href="#评估器训练数据">评估器训练数据</a></li><li><a href="#知识精炼算法">知识精炼算法</a></li><li><a href="#web-搜索回退">Web 搜索回退</a></li><li><a href="#完整-crag-pipeline">完整 CRAG Pipeline</a></li><li><a href="#crag-的-langchain-实现">CRAG 的 LangChain 实现</a></li><li><a href="#crag-vs-self-rag-对比">CRAG vs Self-RAG 对比</a></li><li><a href="#最佳实践">最佳实践</a></li><li><a href="#延伸阅读">延伸阅读</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li></ul></div><h1 id="corrective-rag-crag-纠错检索增强生成">Corrective-RAG (CRAG) 纠错检索增强生成</h1>
+
+<h2 id="概述">概述</h2>
+
+<p>Corrective-RAG (CRAG) 由 Shi-Qi Yan 等人于 2024 年提出（论文：<em>Corrective Retrieval Augmented Generation</em>）。</p>
+<p>核心思想：在 RAG 流程中加入一个<strong>轻量级检索评估器</strong>，对检索结果进行质量判断，并根据评估结果采取不同的纠正策略。</p>
+
+<p>与 Self-RAG 的区别：</p>
+<ul><li>Self-RAG：LLM 自身反思，需要专用训练</li>
+<li>CRAG：外部评估器打分，即插即用</li></ul>
+
+<hr>
+
+<h2 id="核心架构">核心架构</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>用户查询
+   │
+   ▼
+┌──────────────┐
+│  标准检索器    │ (如 BM25 + 向量检索)
+└──────┬───────┘
+       │ 检索文档
+       ▼
+┌──────────────┐
+│  CRAG 评估器   │ ← 轻量级模型，对每个文档打分
+└──────┬───────┘
+       │
+       ├──── Correct (置信度高) ────→ 知识精炼 → 生成
+       │
+       ├──── Incorrect (置信度低) ──→ Web 搜索补充 → 生成
+       │
+       └──── Ambiguous (模糊) ────→ 知识精炼 + Web 搜索 → 生成</code></pre></div>
+
+<h3 id="三种响应策略">三种响应策略</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>评估结果</th>
+<th>置信度阈值</th>
+<th>策略</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td>Correct</td>
+<td>> 0.8</td>
+<td>知识精炼</td>
+<td>检索质量好，提炼关键信息后生成</td>
+</tr>
+<tr class="alt-row">
+<td>Incorrect</td>
+<td>< 0.3</td>
+<td>Web 搜索</td>
+<td>检索质量差，转向网络搜索补充</td>
+</tr>
+<tr>
+<td>Ambiguous</td>
+<td>0.3 ~ 0.8</td>
+<td>两者结合</td>
+<td>保留精炼结果 + Web 搜索补充</td>
+</tr>
+</tbody></table></div>
+
+<hr>
+
+<h2 id="检索评估器设计">检索评估器设计</h2>
+
+<h3 id="评估器模型">评估器模型</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import torch
+import torch.nn as nn
+from transformers import AutoModel, AutoTokenizer
+
+class RetrievalEvaluator(nn.Module):
+    &quot;&quot;&quot;
+    轻量级检索质量评估器
+    基于小型语言模型（如 DeBERTa-v3-small）微调
+    &quot;&quot;&quot;
+
+    def __init__(self, model_name=&quot;microsoft/deberta-v3-small&quot;):
+        super().__init__()
+        self.encoder = AutoModel.from_pretrained(model_name)
+        self.classifier = nn.Linear(self.encoder.config.hidden_size, 1)
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    def forward(self, query, document):
+        &quot;&quot;&quot;
+        评估文档与查询的相关性
+        返回 0~1 之间的置信度分数
+        &quot;&quot;&quot;
+        inputs = self.tokenizer(
+            query, document,
+            return_tensors=&quot;pt&quot;,
+            truncation=True,
+            max_length=512,
+            padding=True
+        )
+
+        outputs = self.encoder(**inputs)
+        # 使用 [CLS] token 的表示
+        cls_output = outputs.last_hidden_state[:, 0, :]
+        score = torch.sigmoid(self.classifier(cls_output))
+        return score
+
+    def assess_documents(self, query, documents):
+        &quot;&quot;&quot;批量评估多个文档&quot;&quot;&quot;
+        scores = []
+        for doc in documents:
+            score = self.forward(query, doc)
+            scores.append(score.item())
+        return scores</code></pre></div>
+
+<h3 id="评估器训练数据">评估器训练数据</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 训练数据构造
+# 正样本：查询-相关文档对
+# 负样本：查询-不相关文档对（随机采样或硬负例）
+
+training_data = {
+    &quot;positive&quot;: [
+        {
+            &quot;query&quot;: &quot;Python 列表推导式的语法&quot;,
+            &quot;document&quot;: &quot;列表推导式格式：[expr for item in iterable if condition]&quot;,
+            &quot;label&quot;: 1.0
+        }
+    ],
+    &quot;negative&quot;: [
+        {
+            &quot;query&quot;: &quot;Python 列表推导式的语法&quot;,
+            &quot;document&quot;: &quot;Java 的 Stream API 可以对集合进行函数式操作...&quot;,
+            &quot;label&quot;: 0.0
+        }
+    ],
+    &quot;hard_negative&quot;: [
+        {
+            &quot;query&quot;: &quot;Python 列表推导式的语法&quot;,
+            &quot;document&quot;: &quot;Python 的生成器表达式使用圆括号而非方括号...&quot;,
+            &quot;label&quot;: 0.3  # 部分相关
+        }
+    ]
+}</code></pre></div>
+
+<hr>
+
+<h2 id="知识精炼算法">知识精炼算法</h2>
+
+<p>CRAG 的知识精炼是将检索文档分解为细粒度知识条目，过滤噪声：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class KnowledgeRefinement:
+    &quot;&quot;&quot;
+    将检索文档分解为知识条目，过滤不相关部分
+    &quot;&quot;&quot;
+
+    def __init__(self, llm, evaluator):
+        self.llm = llm
+        self.evaluator = evaluator
+
+    def refine(self, query, documents, scores):
+        &quot;&quot;&quot;
+        知识精炼流程：
+        1. 文档分解为知识片段
+        2. 过滤低相关性片段
+        3. 重组为精炼知识
+        &quot;&quot;&quot;
+        all_knowledge = []
+
+        for doc, score in zip(documents, scores):
+            # 步骤1：分解文档为知识片段
+            segments = self.decompose_document(doc)
+
+            # 步骤2：评估每个片段的相关性
+            for seg in segments:
+                seg_score = self.evaluator.assess_documents(
+                    query, [seg]
+                )[0]
+
+                if seg_score &gt; 0.5:  # 相关性阈值
+                    all_knowledge.append({
+                        &quot;content&quot;: seg,
+                        &quot;relevance&quot;: seg_score,
+                        &quot;source&quot;: doc[:50]  # 来源标记
+                    })
+
+        # 步骤3：按相关性排序
+        all_knowledge.sort(key=lambda x: x[&quot;relevance&quot;], reverse=True)
+
+        # 步骤4：重组为精炼知识文本
+        refined = &quot;\n\n&quot;.join(
+            k[&quot;content&quot;] for k in all_knowledge[:5]  # 保留 top-5
+        )
+
+        return refined
+
+    def decompose_document(self, document):
+        &quot;&quot;&quot;
+        将长文档分解为独立的知识片段
+        &quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;请将以下文档分解为独立的知识片段。
+每个片段应包含一个完整的信息点。
+
+文档：
+{document}
+
+请以编号列表形式输出知识片段：&quot;&quot;&quot;
+
+        response = self.llm.generate(prompt)
+        # 解析编号列表
+        segments = [
+            line.strip()
+            for line in response.split(&quot;\n&quot;)
+            if line.strip() and line.strip()[0].isdigit()
+        ]
+        return segments</code></pre></div>
+
+<hr>
+
+<h2 id="web-搜索回退">Web 搜索回退</h2>
+
+<p>当本地检索质量不足时，CRAG 转向 Web 搜索：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class WebSearchFallback:
+    &quot;&quot;&quot;
+    Web 搜索回退模块
+    当检索评估结果为 Incorrect 或 Ambiguous 时触发
+    &quot;&quot;&quot;
+
+    def __init__(self, search_api_key, llm):
+        self.search_api = SearchAPI(search_api_key)
+        self.llm = llm
+
+    def search_and_refine(self, query, original_docs=None):
+        &quot;&quot;&quot;
+        Web 搜索并精炼结果
+        &quot;&quot;&quot;
+        # 步骤1：构造优化的搜索查询
+        optimized_queries = self.optimize_queries(query)
+
+        # 步骤2：执行搜索
+        web_results = []
+        for q in optimized_queries[:3]:  # 最多3个查询
+            results = self.search_api.search(q, num_results=5)
+            web_results.extend(results)
+
+        # 步骤3：去重和过滤
+        unique_results = self.deduplicate(web_results)
+
+        # 步骤4：提取关键信息
+        knowledge = self.extract_knowledge(query, unique_results)
+
+        # 如果有原始文档且是 Ambiguous 模式，合并结果
+        if original_docs:
+            knowledge = self.merge_knowledge(original_docs, knowledge)
+
+        return knowledge
+
+    def optimize_queries(self, original_query):
+        &quot;&quot;&quot;
+        将用户查询优化为更适合搜索引擎的查询
+        &quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;将以下用户问题分解为2-3个适合搜索引擎的查询：
+用户问题：{original_query}
+
+要求：
+1. 查询应简洁且包含关键词
+2. 覆盖问题的不同方面
+3. 每行一个查询&quot;&quot;&quot;
+
+        response = self.llm.generate(prompt)
+        return [q.strip() for q in response.split(&quot;\n&quot;) if q.strip()]
+
+    def extract_knowledge(self, query, web_results):
+        &quot;&quot;&quot;
+        从 Web 搜索结果中提取与查询相关的知识
+        &quot;&quot;&quot;
+        context = &quot;\n\n&quot;.join([
+            f&quot;[来源{i+1}] {r[&#x27;title&#x27;]}\n{r[&#x27;snippet&#x27;]}&quot;
+            for i, r in enumerate(web_results[:10])
+        ])
+
+        prompt = f&quot;&quot;&quot;从以下搜索结果中提取与问题相关的关键信息。
+只提取直接回答问题的内容，忽略无关信息。
+
+问题：{query}
+搜索结果：
+{context}
+
+关键信息（按相关性排序）：&quot;&quot;&quot;
+
+        return self.llm.generate(prompt)</code></pre></div>
+
+<hr>
+
+<h2 id="完整-crag-pipeline">完整 CRAG Pipeline</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class CRAGPipeline:
+    &quot;&quot;&quot;
+    完整的 Corrective RAG 流程
+    &quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.retriever = HybridRetriever(
+            vector_store=config[&quot;vector_store&quot;],
+            bm25_index=config[&quot;bm25_index&quot;]
+        )
+        self.evaluator = RetrievalEvaluator(
+            model_name=config[&quot;evaluator_model&quot;]
+        )
+        self.refiner = KnowledgeRefinement(
+            llm=config[&quot;llm&quot;],
+            evaluator=self.evaluator
+        )
+        self.web_fallback = WebSearchFallback(
+            search_api_key=config[&quot;search_api_key&quot;],
+            llm=config[&quot;llm&quot;]
+        )
+        self.generator = config[&quot;llm&quot;]
+
+        # 阈值配置
+        self.correct_threshold = config.get(&quot;correct_threshold&quot;, 0.8)
+        self.incorrect_threshold = config.get(&quot;incorrect_threshold&quot;, 0.3)
+
+    def answer(self, query):
+        &quot;&quot;&quot;
+        完整的 CRAG 问答流程
+        &quot;&quot;&quot;
+        # 步骤 1：标准检索
+        documents = self.retriever.retrieve(query, top_k=5)
+
+        # 步骤 2：评估检索质量
+        scores = self.evaluator.assess_documents(query, documents)
+        max_score = max(scores) if scores else 0
+        avg_score = sum(scores) / len(scores) if scores else 0
+
+        # 步骤 3：根据评估结果选择策略
+        if max_score &gt; self.correct_threshold:
+            # Correct：知识精炼后生成
+            strategy = &quot;correct&quot;
+            refined_knowledge = self.refiner.refine(
+                query, documents, scores
+            )
+            context = refined_knowledge
+
+        elif max_score &lt; self.incorrect_threshold:
+            # Incorrect：转向 Web 搜索
+            strategy = &quot;incorrect&quot;
+            context = self.web_fallback.search_and_refine(query)
+
+        else:
+            # Ambiguous：精炼 + Web 搜索
+            strategy = &quot;ambiguous&quot;
+            refined = self.refiner.refine(query, documents, scores)
+            web_knowledge = self.web_fallback.search_and_refine(
+                query, original_docs=refined
+            )
+            context = f&quot;【检索知识】\n{refined}\n\n【网络补充】\n{web_knowledge}&quot;
+
+        # 步骤 4：生成最终回答
+        prompt = f&quot;&quot;&quot;基于以下信息回答用户问题。
+如果信息不足，请明确说明你不确定的部分。
+
+信息：
+{context}
+
+问题：{query}
+
+回答：&quot;&quot;&quot;
+
+        answer = self.generator.generate(prompt)
+
+        return {
+            &quot;answer&quot;: answer,
+            &quot;strategy&quot;: strategy,
+            &quot;retrieval_scores&quot;: scores,
+            &quot;max_confidence&quot;: max_score,
+            &quot;avg_confidence&quot;: avg_score,
+            &quot;num_documents&quot;: len(documents)
+        }</code></pre></div>
+
+<hr>
+
+<h2 id="crag-的-langchain-实现">CRAG 的 LangChain 实现</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from langchain.schema import Document
+from langchain.retrievers import EnsembleRetriever
+
+class CRAGLangChain:
+    &quot;&quot;&quot;基于 LangChain 的 CRAG 实现&quot;&quot;&quot;
+
+    def __init__(self, llm, retriever, web_search_tool):
+        self.llm = llm
+        self.retriever = retriever
+        self.web_search = web_search_tool
+
+    def grade_documents(self, state):
+        &quot;&quot;&quot;
+        文档评分节点
+        使用 LLM 对每个文档进行相关性判断
+        &quot;&quot;&quot;
+        question = state[&quot;question&quot;]
+        documents = state[&quot;documents&quot;]
+
+        prompt = f&quot;&quot;&quot;你是一个文档相关性评估器。
+判断以下文档是否与问题相关。
+
+问题：{question}
+
+文档：
+{[doc.page_content[:200] for doc in documents]}
+
+对每个文档回答 RELEVANT 或 IRRELEVANT，以逗号分隔：&quot;&quot;&quot;
+
+        response = self.llm.invoke(prompt)
+        grades = [g.strip() for g in response.content.split(&quot;,&quot;)]
+
+        relevant_docs = [
+            doc for doc, grade in zip(documents, grades)
+            if &quot;RELEVANT&quot; in grade.upper()
+        ]
+
+        return {
+            &quot;documents&quot;: relevant_docs,
+            &quot;grade&quot;: &quot;correct&quot; if relevant_docs else &quot;incorrect&quot;
+        }
+
+    def decide_route(self, state):
+        &quot;&quot;&quot;根据评分决定路由&quot;&quot;&quot;
+        if state[&quot;grade&quot;] == &quot;correct&quot; and len(state[&quot;documents&quot;]) &gt; 0:
+            return &quot;generate&quot;
+        else:
+            return &quot;web_search&quot;
+
+    def web_search_node(self, state):
+        &quot;&quot;&quot;Web 搜索节点&quot;&quot;&quot;
+        question = state[&quot;question&quot;]
+        results = self.web_search.invoke(question)
+        return {
+            &quot;documents&quot;: [
+                Document(page_content=r) for r in results
+            ]
+        }
+
+    def generate_node(self, state):
+        &quot;&quot;&quot;生成节点&quot;&quot;&quot;
+        question = state[&quot;question&quot;]
+        context = &quot;\n\n&quot;.join(
+            doc.page_content for doc in state[&quot;documents&quot;]
+        )
+
+        prompt = f&quot;&quot;&quot;基于以下上下文回答问题：
+{context}
+
+问题：{question}
+回答：&quot;&quot;&quot;
+
+        response = self.llm.invoke(prompt)
+        return {&quot;generation&quot;: response.content}</code></pre></div>
+
+<hr>
+
+<h2 id="crag-vs-self-rag-对比">CRAG vs Self-RAG 对比</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>维度</th>
+<th>CRAG</th>
+<th>Self-RAG</th>
+</tr></thead><tbody>
+<tr>
+<td>评估方式</td>
+<td>外部评估器</td>
+<td>LLM 自身反思 token</td>
+</tr>
+<tr class="alt-row">
+<td>训练成本</td>
+<td>低（评估器较小）</td>
+<td>高（需要训练生成模型）</td>
+</tr>
+<tr>
+<td>部署复杂度</td>
+<td>中等</td>
+<td>较高</td>
+</tr>
+<tr class="alt-row">
+<td>Web 搜索回退</td>
+<td>✅ 原生支持</td>
+<td>❌ 不包含</td>
+</tr>
+<tr>
+<td>知识精炼</td>
+<td>✅ 细粒度分解</td>
+<td>❌ 使用原始文档</td>
+</tr>
+<tr class="alt-row">
+<td>即插即用</td>
+<td>✅ 是</td>
+<td>❌ 需要专用模型</td>
+</tr>
+<tr>
+<td>精确度</td>
+<td>中等</td>
+<td>较高</td>
+</tr>
+</tbody></table></div>
+
+<hr>
+
+<h2 id="最佳实践">最佳实践</h2>
+
+<ol><li><strong>评估器选择</strong>：DeBERTa-v3-small 是性价比最高的选择（~44M 参数，推理速度快）</li>
+<li><strong>阈值调优</strong>：根据具体场景调整 correct/incorrect 阈值，建议通过验证集网格搜索</li>
+<li><strong>Web 搜索频率控制</strong>：设置每日 Web 搜索配额，控制成本</li>
+<li><strong>缓存 Web 结果</strong>：对常见查询缓存 Web 搜索结果，减少延迟</li>
+<li><strong>渐进部署</strong>：先以日志模式运行，观察评估器的准确性，再切换到自动路由</li></ol>
+
+<hr>
+
+<h2 id="延伸阅读">延伸阅读</h2>
+
+<ul><li>原始论文：<em>Corrective Retrieval Augmented Generation</em> (Yan et al., 2024)</li>
+<li>LangGraph 实现：https://github.com/langchain-ai/langgraph/tree/main/examples</li>
+<li>相关工作：<em>Self-RAG</em>、<em>Adaptive-RAG</em>、<em>RAG-Fusion</em></li></ul>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐⭐ 高级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>Corrective-RAG（CRAG）是 RAG 质量保障的"安全网"，通过外部评估器对检索结果进行实时质量判断并采取纠正措施。在 AI 应用栈中，它处于「检索→生成」之间的质量关口，当本地检索质量不足时自动回退到 Web 搜索。CRAG 的即插即用特性（无需微调）使其成为生产环境中最容易落地的高级 RAG 模式。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>Self-RAG</td>
+<td>内部反思 vs 外部评估器，互补方案</td>
+<td><a href="#01-self-rag自适应检索" class="wikilink">01-Self-RAG自适应检索</a></td>
+</tr>
+<tr class="alt-row">
+<td>RAG 评估与优化</td>
+<td>CRAG 评估器是评估指标的实时化应用</td>
+<td><a href="#rag评估与优化" class="wikilink">AI大模型/04-RAG技术/05-生成阶段/RAG评估与优化</a></td>
+</tr>
+<tr>
+<td>重排序与融合</td>
+<td>CRAG 知识精炼是 Rerank 的进阶形式</td>
+<td><a href="#重排序与融合" class="wikilink">AI大模型/04-RAG技术/04-检索后处理/重排序与融合</a></td>
+</tr>
+<tr class="alt-row">
+<td>生产级 RAG 架构</td>
+<td>CRAG 的 Web 回退需要架构支持</td>
+<td><a href="#03-生产级rag架构" class="wikilink">03-生产级RAG架构</a></td>
+</tr>
+<tr>
+<td>查询重写与扩展</td>
+<td>CRAG 的 Web 查询优化依赖查询改写</td>
+<td><a href="#查询重写与扩展" class="wikilink">AI大模型/04-RAG技术/02-查询处理/查询重写与扩展</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 在 RAG pipeline 中插入 CRAG 评估器，检索置信度 < 0.3 时自动触发 Web 搜索补充</li>
+<li><strong>评论分析 RAG</strong>: 用 CRAG 评估器判断评论检索的相关性，低相关时回退到关键词搜索或扩大检索范围</li>
+<li><strong>内容推荐</strong>: 用知识精炼算法过滤推荐内容中的噪声信息，只保留与用户意图最相关的片段</li></ul>
+</div><div class="section-card" id="03-生产级rag架构"><h2><span class="badge badge-advanced">高级</span> 03-生产级RAG架构</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#概述">概述</a></li><li><a href="#整体架构">整体架构</a></li><li><a href="#多租户-rag-设计">多租户 RAG 设计</a></li><li class="toc-h3"><a href="#租户隔离策略">租户隔离策略</a></li><li class="toc-h3"><a href="#推荐方案独立-collection--共享基础设施">推荐方案：独立 Collection + 共享基础设施</a></li><li class="toc-h3"><a href="#共享-collection-方案中小租户优化">共享 Collection 方案（中小租户优化）</a></li><li><a href="#水平扩展设计">水平扩展设计</a></li><li class="toc-h3"><a href="#无状态服务层">无状态服务层</a></li><li class="toc-h3"><a href="#向量数据库扩展">向量数据库扩展</a></li><li><a href="#缓存策略">缓存策略</a></li><li class="toc-h3"><a href="#多级缓存架构">多级缓存架构</a></li><li><a href="#混合搜索工程">混合搜索工程</a></li><li class="toc-h3"><a href="#bm25--向量搜索融合">BM25 + 向量搜索融合</a></li><li class="toc-h3"><a href="#查询路由">查询路由</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li><li><a href="#文档处理-pipeline">文档处理 Pipeline</a></li><li><a href="#监控与告警">监控与告警</a></li><li><a href="#部署架构推荐">部署架构推荐</a></li><li class="toc-h3"><a href="#小规模-10万文档">小规模（< 10万文档）</a></li><li class="toc-h3"><a href="#中规模10万---100万文档">中规模（10万 - 100万文档）</a></li><li class="toc-h3"><a href="#大规模-100万文档">大规模（> 100万文档）</a></li><li><a href="#延伸阅读">延伸阅读</a></li></ul></div><h1 id="生产级-rag-架构设计">生产级 RAG 架构设计</h1>
+
+<h2 id="概述">概述</h2>
+
+<p>从原型到生产级 RAG 系统，需要解决多租户隔离、水平扩展、缓存策略、混合搜索工程等核心问题。</p>
+<p>本文档提供一套经过生产验证的架构设计模式。</p>
+
+<hr>
+
+<h2 id="整体架构">整体架构</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>                    ┌──────────────────────┐
+                    │    API Gateway        │
+                    │  (认证/限流/路由)      │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────▼───────────┐
+                    │    Query Service      │
+                    │  (查询理解/改写)       │
+                    └──────────┬───────────┘
+                               │
+              ┌────────────────┼────────────────┐
+              │                │                │
+    ┌─────────▼────────┐ ┌────▼─────────┐ ┌───▼──────────┐
+    │  Vector Search   │ │  BM25 Search │ │  Web Search  │
+    │  (Milvus/Qdrant) │ │ (Elastic)    │ │  (Fallback)  │
+    └─────────┬────────┘ └────┬─────────┘ └───┬──────────┘
+              │                │               │
+              └────────────────┼───────────────┘
+                               │
+                    ┌──────────▼───────────┐
+                    │   Reranker Service    │
+                    │  (Cross-Encoder)      │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────▼───────────┐
+                    │   Generator Service   │
+                    │  (LLM Inference)      │
+                    └──────────┬───────────┘
+                               │
+                    ┌──────────▼───────────┐
+                    │   Response Cache      │
+                    │  (Redis Cluster)      │
+                    └──────────────────────┘</code></pre></div>
+
+<hr>
+
+<h2 id="多租户-rag-设计">多租户 RAG 设计</h2>
+
+<h3 id="租户隔离策略">租户隔离策略</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>策略</th>
+<th>隔离级别</th>
+<th>性能</th>
+<th>成本</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>独立集群</td>
+<td>物理隔离</td>
+<td>最高</td>
+<td>最高</td>
+<td>金融/医疗等合规要求</td>
+</tr>
+<tr class="alt-row">
+<td>独立 Collection</td>
+<td>逻辑隔离</td>
+<td>高</td>
+<td>中</td>
+<td>大型租户</td>
+</tr>
+<tr>
+<td>共享 Collection + 过滤</td>
+<td>行级隔离</td>
+<td>中</td>
+<td>低</td>
+<td>中小型租户</td>
+</tr>
+<tr class="alt-row">
+<td>共享索引 + 加密</td>
+<td>加密隔离</td>
+<td>低</td>
+<td>最低</td>
+<td>极小租户</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="推荐方案独立-collection--共享基础设施">推荐方案：独立 Collection + 共享基础设施</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class MultiTenantRAG:
+    &quot;&quot;&quot;
+    多租户 RAG 管理器
+    每个租户独立 Collection，共享底层基础设施
+    &quot;&quot;&quot;
+
+    def __init__(self, vector_store, config):
+        self.vector_store = vector_store
+        self.config = config
+        self.tenant_registry = TenantRegistry()
+
+    async def ensure_tenant_collection(self, tenant_id):
+        &quot;&quot;&quot;确保租户的 Collection 存在&quot;&quot;&quot;
+        collection_name = f&quot;tenant_{tenant_id}_docs&quot;
+
+        if not await self.vector_store.has_collection(collection_name):
+            await self.vector_store.create_collection(
+                name=collection_name,
+                dimension=self.config[&quot;embedding_dim&quot;],
+                metric=&quot;cosine&quot;,
+                # 租户特定配置
+                index_type=&quot;HNSW&quot;,
+                index_params={
+                    &quot;M&quot;: 16,
+                    &quot;efConstruction&quot;: 200
+                }
+            )
+
+        return collection_name
+
+    async def ingest(self, tenant_id, documents):
+        &quot;&quot;&quot;租户文档入库&quot;&quot;&quot;
+        collection = await self.ensure_tenant_collection(tenant_id)
+
+        # 嵌入计算（共享嵌入服务）
+        embeddings = await self.embedding_service.encode(
+            [doc.content for doc in documents]
+        )
+
+        # 写入租户专属 Collection
+        await self.vector_store.insert(
+            collection=collection,
+            vectors=embeddings,
+            metadata=[{
+                &quot;tenant_id&quot;: tenant_id,
+                &quot;doc_id&quot;: doc.id,
+                &quot;created_at&quot;: doc.created_at,
+                &quot;source&quot;: doc.source
+            } for doc in documents]
+        )
+
+    async def search(self, tenant_id, query, top_k=10):
+        &quot;&quot;&quot;租户隔离搜索&quot;&quot;&quot;
+        collection = await self.ensure_tenant_collection(tenant_id)
+
+        query_embedding = await self.embedding_service.encode([query])
+
+        results = await self.vector_store.search(
+            collection=collection,
+            vector=query_embedding[0],
+            top_k=top_k
+        )
+
+        return results</code></pre></div>
+
+<h3 id="共享-collection-方案中小租户优化">共享 Collection 方案（中小租户优化）</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class SharedCollectionMultiTenant:
+    &quot;&quot;&quot;
+    共享 Collection 方案，通过 metadata 过滤实现租户隔离
+    适合中小租户数量多、文档量少的场景
+    &quot;&quot;&quot;
+
+    def __init__(self, vector_store):
+        self.vector_store = vector_store
+        self.collection = &quot;shared_documents&quot;
+
+    async def search(self, tenant_id, query, top_k=10):
+        &quot;&quot;&quot;带租户过滤的搜索&quot;&quot;&quot;
+        query_embedding = await self.embedding_service.encode([query])
+
+        results = await self.vector_store.search(
+            collection=self.collection,
+            vector=query_embedding[0],
+            top_k=top_k,
+            filter_expr=f&quot;tenant_id == &#x27;{tenant_id}&#x27;&quot;  # 租户隔离过滤
+        )
+
+        return results</code></pre></div>
+
+<hr>
+
+<h2 id="水平扩展设计">水平扩展设计</h2>
+
+<h3 id="无状态服务层">无状态服务层</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">yaml</span></div><pre><code class="language-yaml"># kubernetes 部署示例
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-query-service
+spec:
+  replicas: 3  # 可水平扩展
+  selector:
+    matchLabels:
+      app: rag-query
+  template:
+    spec:
+      containers:
+      - name: query-service
+        image: rag-query-service:v1.2.0
+        resources:
+          requests:
+            cpu: &quot;500m&quot;
+            memory: &quot;512Mi&quot;
+          limits:
+            cpu: &quot;2000m&quot;
+            memory: &quot;2Gi&quot;
+        env:
+        - name: VECTOR_STORE_URL
+          value: &quot;http://milvus-cluster:19530&quot;
+        - name: REDIS_URL
+          value: &quot;redis://redis-cluster:6379&quot;
+        - name: EMBEDDING_SERVICE_URL
+          value: &quot;http://embedding-service:8080&quot;
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rag-query-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rag-query-service
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70</code></pre></div>
+
+<h3 id="向量数据库扩展">向量数据库扩展</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class ScalableVectorStore:
+    &quot;&quot;&quot;
+    可扩展的向量存储抽象层
+    支持多种后端：Milvus, Qdrant, Weaviate, Pinecone
+    &quot;&quot;&quot;
+
+    def __init__(self, backend_type, config):
+        self.backend = self._create_backend(backend_type, config)
+
+    def _create_backend(self, backend_type, config):
+        backends = {
+            &quot;milvus&quot;: MilvusBackend,      # 适合大规模自部署
+            &quot;qdrant&quot;: QdrantBackend,       # 轻量级，Rust 实现
+            &quot;weaviate&quot;: WeaviateBackend,   # GraphQL 接口
+            &quot;pinecone&quot;: PineconeBackend,   # 全托管 SaaS
+        }
+        return backends[backend_type](**config)
+
+    async def search_with_fallback(self, query_vector, top_k=10):
+        &quot;&quot;&quot;带降级的搜索&quot;&quot;&quot;
+        try:
+            return await self.backend.search(query_vector, top_k)
+        except ConnectionError:
+            # 主节点不可用，尝试副本
+            return await self.backend.search_replica(query_vector, top_k)
+        except Exception as e:
+            # 降级到 BM25
+            logger.warning(f&quot;Vector search failed, falling back: {e}&quot;)
+            return await self.bm25_fallback.search(query_text, top_k)</code></pre></div>
+
+<hr>
+
+<h2 id="缓存策略">缓存策略</h2>
+
+<h3 id="多级缓存架构">多级缓存架构</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>┌─────────────┐    ┌──────────────┐    ┌───────────────┐
+│ L1: 进程缓存  │ →  │ L2: Redis    │ →  │ L3: 语义缓存   │
+│ (LRU, ~1K)  │    │ (精确匹配)    │    │ (相似查询)     │
+│ 命中率: ~15% │    │ 命中率: ~25%  │    │ 命中率: ~20%   │
+│ 延迟: &lt;1ms  │    │ 延迟: ~2ms   │    │ 延迟: ~10ms   │
+└─────────────┘    └──────────────┘    └───────────────┘</code></pre></div>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import hashlib
+import numpy as np
+from functools import lru_cache
+
+class MultiLevelCache:
+    &quot;&quot;&quot;多级缓存系统&quot;&quot;&quot;
+
+    def __init__(self, redis_client, embedding_service, config):
+        self.redis = redis_client
+        self.embedding_service = embedding_service
+
+        # L1: 进程内 LRU 缓存
+        self.l1_cache = {}
+        self.l1_max_size = config.get(&quot;l1_size&quot;, 1000)
+
+        # L3: 语义缓存相似度阈值
+        self.semantic_threshold = config.get(&quot;semantic_threshold&quot;, 0.92)
+
+        # 缓存 TTL
+        self.ttl = config.get(&quot;cache_ttl&quot;, 3600)
+
+    async def get(self, query):
+        &quot;&quot;&quot;多级缓存查询&quot;&quot;&quot;
+        cache_key = self._generate_key(query)
+
+        # L1: 进程缓存
+        if cache_key in self.l1_cache:
+            return self.l1_cache[cache_key]
+
+        # L2: Redis 精确匹配
+        cached = await self.redis.get(cache_key)
+        if cached:
+            self._update_l1(cache_key, cached)
+            return cached
+
+        # L3: 语义缓存（相似查询匹配）
+        semantic_result = await self._semantic_lookup(query)
+        if semantic_result:
+            self._update_l1(cache_key, semantic_result)
+            await self.redis.setex(cache_key, self.ttl, semantic_result)
+            return semantic_result
+
+        return None
+
+    async def set(self, query, response):
+        &quot;&quot;&quot;写入缓存&quot;&quot;&quot;
+        cache_key = self._generate_key(query)
+
+        # 写入 L1
+        self._update_l1(cache_key, response)
+
+        # 写入 L2
+        await self.redis.setex(cache_key, self.ttl, response)
+
+        # 写入 L3 语义缓存
+        await self._semantic_store(query, response)
+
+    async def _semantic_lookup(self, query):
+        &quot;&quot;&quot;语义缓存查找&quot;&quot;&quot;
+        query_embedding = await self.embedding_service.encode([query])
+
+        # 在语义缓存中查找相似查询
+        results = await self.semantic_index.search(
+            vector=query_embedding[0],
+            top_k=1,
+            threshold=self.semantic_threshold
+        )
+
+        if results:
+            return results[0][&quot;response&quot;]
+        return None
+
+    async def _semantic_store(self, query, response):
+        &quot;&quot;&quot;存储到语义缓存&quot;&quot;&quot;
+        embedding = await self.embedding_service.encode([query])
+        await self.semantic_index.insert(
+            vector=embedding[0],
+            metadata={&quot;query&quot;: query, &quot;response&quot;: response}
+        )
+
+    def _generate_key(self, query):
+        &quot;&quot;&quot;生成缓存键&quot;&quot;&quot;
+        normalized = query.strip().lower()
+        return f&quot;rag:cache:{hashlib.sha256(normalized.encode()).hexdigest()}&quot;
+
+    def _update_l1(self, key, value):
+        &quot;&quot;&quot;更新 L1 缓存&quot;&quot;&quot;
+        if len(self.l1_cache) &gt;= self.l1_max_size:
+            # 移除最早插入的条目
+            oldest = next(iter(self.l1_cache))
+            del self.l1_cache[oldest]
+        self.l1_cache[key] = value</code></pre></div>
+
+<hr>
+
+<h2 id="混合搜索工程">混合搜索工程</h2>
+
+<h3 id="bm25--向量搜索融合">BM25 + 向量搜索融合</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class HybridSearchEngine:
+    &quot;&quot;&quot;
+    混合搜索引擎
+    融合 BM25（精确匹配）和向量搜索（语义匹配）
+    &quot;&quot;&quot;
+
+    def __init__(self, vector_store, bm25_index, config):
+        self.vector_store = vector_store
+        self.bm25_index = bm25_index
+        self.alpha = config.get(&quot;alpha&quot;, 0.5)  # 融合权重
+
+    async def search(self, query, top_k=20):
+        &quot;&quot;&quot;混合搜索&quot;&quot;&quot;
+        # 并行执行两种搜索
+        vector_results, bm25_results = await asyncio.gather(
+            self._vector_search(query, top_k=top_k * 2),
+            self._bm25_search(query, top_k=top_k * 2)
+        )
+
+        # 分数归一化
+        vector_normalized = self._normalize_scores(vector_results)
+        bm25_normalized = self._normalize_scores(bm25_results)
+
+        # RRF (Reciprocal Rank Fusion) 融合
+        fused = self._rrf_fusion(
+            vector_normalized,
+            bm25_normalized,
+            k=60  # RRF 常数
+        )
+
+        return fused[:top_k]
+
+    def _rrf_fusion(self, results_a, results_b, k=60):
+        &quot;&quot;&quot;
+        Reciprocal Rank Fusion
+        score(d) = Σ 1/(k + rank_i(d))
+        &quot;&quot;&quot;
+        scores = {}
+
+        for rank, result in enumerate(results_a):
+            doc_id = result[&quot;id&quot;]
+            scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank + 1)
+            scores[doc_id + &quot;_doc&quot;] = result
+
+        for rank, result in enumerate(results_b):
+            doc_id = result[&quot;id&quot;]
+            scores[doc_id] = scores.get(doc_id, 0) + 1 / (k + rank + 1)
+            scores[doc_id + &quot;_doc&quot;] = result
+
+        # 按融合分数排序
+        sorted_docs = sorted(
+            [(doc_id, score) for doc_id, score in scores.items()
+             if not doc_id.endswith(&quot;_doc&quot;)],
+            key=lambda x: x[1],
+            reverse=True
+        )
+
+        return [
+            {**scores[doc_id + &quot;_doc&quot;], &quot;fused_score&quot;: score}
+            for doc_id, score in sorted_docs
+        ]
+
+    def _normalize_scores(self, results):
+        &quot;&quot;&quot;Min-Max 分数归一化&quot;&quot;&quot;
+        if not results:
+            return results
+
+        scores = [r[&quot;score&quot;] for r in results]
+        min_s, max_s = min(scores), max(scores)
+        range_s = max_s - min_s if max_s != min_s else 1
+
+        for r in results:
+            r[&quot;normalized_score&quot;] = (r[&quot;score&quot;] - min_s) / range_s
+
+        return results</code></pre></div>
+
+<h3 id="查询路由">查询路由</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class QueryRouter:
+    &quot;&quot;&quot;
+    查询路由器：根据查询特征选择最优检索策略
+    &quot;&quot;&quot;
+
+    def __init__(self, llm):
+        self.llm = llm
+
+    def route(self, query):
+        &quot;&quot;&quot;
+        根据查询特征路由到不同的检索策略
+        &quot;&quot;&quot;
+        features = self._analyze_query(query)
+
+        if features[&quot;is_factual&quot;]:
+            # 事实性查询 → 精确匹配优先
+            return {
+                &quot;strategy&quot;: &quot;hybrid&quot;,
+                &quot;alpha&quot;: 0.3,  # 偏向 BM25
+                &quot;top_k&quot;: 10
+            }
+        elif features[&quot;is_semantic&quot;]:
+            # 语义查询 → 向量搜索优先
+            return {
+                &quot;strategy&quot;: &quot;hybrid&quot;,
+                &quot;alpha&quot;: 0.8,  # 偏向向量搜索
+                &quot;top_k&quot;: 15
+            }
+        elif features[&quot;is_multi_hop&quot;]:
+            # 多跳查询 → 多轮检索
+            return {
+                &quot;strategy&quot;: &quot;iterative&quot;,
+                &quot;rounds&quot;: 3,
+                &quot;top_k&quot;: 5
+            }
+        else:
+            return {
+                &quot;strategy&quot;: &quot;hybrid&quot;,
+                &quot;alpha&quot;: 0.5,
+                &quot;top_k&quot;: 10
+            }
+
+    def _analyze_query(self, query):
+        &quot;&quot;&quot;分析查询特征&quot;&quot;&quot;
+        &quot;&quot;&quot;分析查询特征&quot;&quot;&quot;
+        # 简单的规则判断（生产中可使用分类器）
+        factual_keywords = [&quot;是多少&quot;, &quot;什么时候&quot;, &quot;谁是&quot;, &quot;定义&quot;, &quot;多少&quot;]
+        semantic_keywords = [&quot;如何&quot;, &quot;为什么&quot;, &quot;区别&quot;, &quot;比较&quot;, &quot;解释&quot;]
+        return {
+            &quot;is_factual&quot;: any(k in query for k in factual_keywords),
+            &quot;is_semantic&quot;: any(k in query for k in semantic_keywords),
+            &quot;is_multi_hop&quot;: &quot;?&quot; in query and len(query) &gt; 50,
+            &quot;query_length&quot;: len(query)
+        }</code></pre></div>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐⭐ 高级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>生产级 RAG 架构是将 RAG 从单机原型升级为可扩展、可监控、多租户企业系统的关键。在 AI 应用栈中，它处于基础设施层，解决多租户隔离、水平扩展、多级缓存、混合搜索融合等工程问题。这是 RAG 系统能否承载真实业务流量的决定性因素。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>向量检索与 Embedding</td>
+<td>向量数据库选型与扩展策略</td>
+<td><a href="#向量检索与embedding" class="wikilink">AI大模型/04-RAG技术/03-检索策略/向量检索与Embedding</a></td>
+</tr>
+<tr class="alt-row">
+<td>重排序与融合</td>
+<td>混合搜索工程中的 RRF 融合实现</td>
+<td><a href="#重排序与融合" class="wikilink">AI大模型/04-RAG技术/04-检索后处理/重排序与融合</a></td>
+</tr>
+<tr>
+<td>RAG 监控与质量漂移</td>
+<td>生产架构的可观测性层</td>
+<td><a href="#04-rag监控与质量漂移" class="wikilink">04-RAG监控与质量漂移</a></td>
+</tr>
+<tr class="alt-row">
+<td>RAG 成本优化</td>
+<td>缓存策略与分层检索的工程实现</td>
+<td><a href="#05-rag成本优化策略" class="wikilink">05-RAG成本优化策略</a></td>
+</tr>
+<tr>
+<td>高性能 RAG 实战</td>
+<td>本架构在具体项目中的落地</td>
+<td><a href="#高性能rag系统实战" class="wikilink">AI大模型/04-RAG技术/06-项目实战/高性能RAG系统实战</a></td>
+</tr>
+<tr class="alt-row">
+<td>K8s 部署</td>
+<td>无状态服务的容器化编排</td>
+<td><a href="#" class="wikilink">运维/</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 用独立 Collection 实现多租户隔离，Redis 三级缓存降低延迟，HPA 自动扩缩容</li>
+<li><strong>评论分析 RAG</strong>: 用查询路由区分事实性查询（BM25 优先）和语义查询（向量优先），动态调整融合权重</li>
+<li><strong>内容推荐</strong>: 用语义缓存（相似度 > 0.92 直接返回缓存）减少重复推荐计算，降低 80% 推理成本</li></ul>
+
+<hr>
+
+<h2 id="文档处理-pipeline">文档处理 Pipeline</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class DocumentIngestionPipeline:
+    &quot;&quot;&quot;
+    生产级文档入库流水线
+    &quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.parser = DocumentParser()
+        self.chunker = AdaptiveChunker(config)
+        self.embedder = EmbeddingService(config)
+        self.vector_store = ScalableVectorStore(config)
+        self.metadata_store = MetadataStore(config)
+
+    async def ingest(self, document):
+        &quot;&quot;&quot;
+        完整入库流程
+        &quot;&quot;&quot;
+        # 1. 文档解析
+        parsed = await self.parser.parse(document)
+
+        # 2. 自适应分块
+        chunks = self.chunker.chunk(parsed)
+
+        # 3. 元数据提取
+        metadata = self._extract_metadata(parsed, chunks)
+
+        # 4. 嵌入计算（批量，支持重试）
+        embeddings = await self.embedder.encode_batch(
+            [c.content for c in chunks],
+            batch_size=64,
+            max_retries=3
+        )
+
+        # 5. 写入向量库（事务性）
+        await self.vector_store.insert_transactional(
+            vectors=embeddings,
+            metadata=metadata
+        )
+
+        # 6. 更新倒排索引
+        await self.bm25_index.update(chunks)
+
+        # 7. 记录入库日志
+        await self._log_ingestion(document, len(chunks))
+
+        return {&quot;document_id&quot;: document.id, &quot;chunks&quot;: len(chunks)}
+
+    def _extract_metadata(self, parsed, chunks):
+        &quot;&quot;&quot;提取文档元数据&quot;&quot;&quot;
+        return [{
+            &quot;chunk_id&quot;: chunk.id,
+            &quot;document_id&quot;: parsed.id,
+            &quot;chunk_index&quot;: i,
+            &quot;source&quot;: parsed.source,
+            &quot;title&quot;: parsed.title,
+            &quot;created_at&quot;: parsed.created_at,
+            &quot;chunk_size&quot;: len(chunk.content),
+            &quot;heading&quot;: chunk.heading  # 所属章节标题
+        } for i, chunk in enumerate(chunks)]</code></pre></div>
+
+<hr>
+
+<h2 id="监控与告警">监控与告警</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># Prometheus 指标定义
+METRICS = {
+    &quot;rag_request_duration&quot;: &quot;histogram&quot;,     # 请求延迟
+    &quot;rag_retrieval_hits&quot;: &quot;counter&quot;,         # 检索命中数
+    &quot;rag_cache_hit_rate&quot;: &quot;gauge&quot;,           # 缓存命中率
+    &quot;rag_vector_search_latency&quot;: &quot;histogram&quot;, # 向量搜索延迟
+    &quot;rag_rerank_latency&quot;: &quot;histogram&quot;,       # 重排序延迟
+    &quot;rag_llm_generation_latency&quot;: &quot;histogram&quot;, # LLM 生成延迟
+    &quot;rag_error_rate&quot;: &quot;gauge&quot;,               # 错误率
+}
+
+# 告警规则
+ALERTS = &quot;&quot;&quot;
+- alert: HighRAGLatency
+  expr: histogram_quantile(0.95, rag_request_duration) &gt; 5
+  for: 5m
+  labels:
+    severity: warning
+  annotations:
+    summary: &quot;RAG P95 latency exceeds 5s&quot;
+
+- alert: LowCacheHitRate
+  expr: rag_cache_hit_rate &lt; 0.2
+  for: 15m
+  labels:
+    severity: info
+  annotations:
+    summary: &quot;Cache hit rate below 20%, consider adjusting TTL&quot;
+&quot;&quot;&quot;</code></pre></div>
+
+<hr>
+
+<h2 id="部署架构推荐">部署架构推荐</h2>
+
+<h3 id="小规模-10万文档">小规模（< 10万文档）</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>单节点 Docker Compose：
+- API Service (FastAPI)
+- Qdrant (单节点)
+- Redis (单节点)
+- embedding (本地模型)</code></pre></div>
+
+<h3 id="中规模10万---100万文档">中规模（10万 - 100万文档）</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>Kubernetes 集群：
+- API Service x3
+- Milvus Cluster (3 节点)
+- Elasticsearch x3
+- Redis Cluster (3 主 3 从)
+- Embedding Service x2</code></pre></div>
+
+<h3 id="大规模-100万文档">大规模（> 100万文档）</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>混合部署：
+- API Service (K8s, auto-scale)
+- Milvus (独立集群, 分布式)
+- Elasticsearch (专用集群)
+- Redis Cluster
+- GPU Embedding Server
+- CDN (静态资源)
+- 对象存储 (文档原文)</code></pre></div>
+
+<hr>
+
+<h2 id="延伸阅读">延伸阅读</h2>
+
+<ul><li>Milvus 生产部署指南：https://milvus.io/docs/install_standalone-docker.md</li>
+<li>Qdrant 多租户文档：https://qdrant.tech/documentation/guides/multiple-partitions/</li>
+<li>LangChain 生产化最佳实践：https://python.langchain.com/docs/guides/productionization/</li></ul>
+</div><div class="section-card" id="04-rag监控与质量漂移"><h2><span class="badge badge-intermediate">基础</span> 04-RAG监控与质量漂移</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#概述">概述</a></li><li><a href="#检索质量指标体系">检索质量指标体系</a></li><li class="toc-h3"><a href="#核心指标">核心指标</a></li><li class="toc-h3"><a href="#业务指标">业务指标</a></li><li><a href="#质量漂移检测">质量漂移检测</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li><li class="toc-h3"><a href="#漂移类型">漂移类型</a></li><li class="toc-h3"><a href="#psi-population-stability-index-检测">PSI (Population Stability Index) 检测</a></li><li class="toc-h3"><a href="#滑动窗口监控">滑动窗口监控</a></li><li><a href="#知识新鲜度管理">知识新鲜度管理</a></li><li class="toc-h3"><a href="#文档时效性标记">文档时效性标记</a></li><li class="toc-h3"><a href="#知识更新策略">知识更新策略</a></li><li><a href="#告警与自动修复">告警与自动修复</a></li><li><a href="#监控仪表盘设计">监控仪表盘设计</a></li><li class="toc-h3"><a href="#grafana-面板推荐">Grafana 面板推荐</a></li><li><a href="#延伸阅读">延伸阅读</a></li></ul></div><h1 id="rag-监控与质量漂移检测">RAG 监控与质量漂移检测</h1>
+
+<h2 id="概述">概述</h2>
+
+<p>RAG 系统上线后，检索质量会随时间退化（数据漂移、知识过期、用户查询模式变化）。</p>
+<p>本文档介绍检索质量指标体系、漂移检测方法和知识新鲜度管理。</p>
+
+<hr>
+
+<h2 id="检索质量指标体系">检索质量指标体系</h2>
+
+<h3 id="核心指标">核心指标</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>指标</th>
+<th>计算方式</th>
+<th>目标值</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td>Recall@K</td>
+<td>前K个结果中相关文档占比</td>
+<td>> 0.8</td>
+<td>检索召回率</td>
+</tr>
+<tr class="alt-row">
+<td>MRR (Mean Reciprocal Rank)</td>
+<td>1/首个相关文档排名</td>
+<td>> 0.6</td>
+<td>排名质量</td>
+</tr>
+<tr>
+<td>NDCG@10</td>
+<td>归一化折损累积增益</td>
+<td>> 0.7</td>
+<td>排序质量</td>
+</tr>
+<tr class="alt-row">
+<td>Hit Rate</td>
+<td>查询命中率</td>
+<td>> 0.9</td>
+<td>可用性</td>
+</tr>
+<tr>
+<td>Faithfulness</td>
+<td>回答与检索内容一致性</td>
+<td>> 0.85</td>
+<td>幻觉率</td>
+</tr>
+<tr class="alt-row">
+<td>Answer Relevance</td>
+<td>回答与问题相关性</td>
+<td>> 0.8</td>
+<td>回答质量</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="业务指标">业务指标</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class RAGMetrics:
+    &quot;&quot;&quot;RAG 系统指标收集器&quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.config = config
+        self.metrics_store = MetricsStore()
+
+    # ===== 检索质量指标 =====
+
+    async def compute_retrieval_metrics(self, query_log):
+        &quot;&quot;&quot;
+        计算检索质量指标
+        需要标注数据或用户反馈
+        &quot;&quot;&quot;
+        metrics = {
+            &quot;recall_at_5&quot;: [],
+            &quot;recall_at_10&quot;: [],
+            &quot;mrr&quot;: [],
+            &quot;ndcg_at_10&quot;: [],
+            &quot;hit_rate&quot;: []
+        }
+
+        for entry in query_log:
+            query = entry[&quot;query&quot;]
+            retrieved = entry[&quot;retrieved_docs&quot;]
+            relevant = entry.get(&quot;relevant_docs&quot;, [])  # 标注数据
+
+            if not relevant:
+                continue
+
+            # Recall@K
+            for k in [5, 10]:
+                retrieved_at_k = retrieved[:k]
+                hits = len(set(retrieved_at_k) &amp; set(relevant))
+                metrics[f&quot;recall_at_{k}&quot;].append(
+                    hits / len(relevant)
+                )
+
+            # MRR
+            for rank, doc_id in enumerate(retrieved):
+                if doc_id in relevant:
+                    metrics[&quot;mrr&quot;].append(1 / (rank + 1))
+                    break
+            else:
+                metrics[&quot;mrr&quot;].append(0)
+
+        # 汇总
+        return {
+            k: sum(v) / len(v) if v else 0
+            for k, v in metrics.items()
+        }
+
+    # ===== 生成质量指标 =====
+
+    async def compute_generation_metrics(self, samples):
+        &quot;&quot;&quot;
+        计算生成质量指标
+        使用 LLM-as-judge 方法
+        &quot;&quot;&quot;
+        results = {
+            &quot;faithfulness&quot;: [],
+            &quot;answer_relevance&quot;: [],
+            &quot;context_relevance&quot;: []
+        }
+
+        for sample in samples:
+            # 使用 LLM 评估
+            faithfulness = await self.evaluate_faithfulness(
+                query=sample[&quot;query&quot;],
+                context=sample[&quot;context&quot;],
+                answer=sample[&quot;answer&quot;]
+            )
+            results[&quot;faithfulness&quot;].append(faithfulness)
+
+            relevance = await self.evaluate_relevance(
+                query=sample[&quot;query&quot;],
+                answer=sample[&quot;answer&quot;]
+            )
+            results[&quot;answer_relevance&quot;].append(relevance)
+
+        return {
+            k: sum(v) / len(v) if v else 0
+            for k, v in results.items()
+        }
+
+    async def evaluate_faithfulness(self, query, context, answer):
+        &quot;&quot;&quot;
+        LLM-as-Judge：评估回答忠实度
+        &quot;&quot;&quot;
+        prompt = &quot;&quot;&quot;评估以下回答是否忠实于提供的上下文。
+
+上下文：
+{context}
+
+问题：{query}
+回答：{answer}
+
+评分标准：
+- 1.0: 回答完全由上下文支持
+- 0.5: 回答部分由上下文支持
+- 0.0: 回答与上下文矛盾或无法验证
+
+只输出一个 0 到 1 之间的数字：&quot;&quot;&quot;.format(
+            context=context, query=query, answer=answer
+        )
+
+        response = await self.llm.generate(prompt)
+        try:
+            return float(response.strip())
+        except ValueError:
+            return 0.5
+
+    # ===== 用户反馈指标 =====
+
+    async def compute_feedback_metrics(self, feedback_log):
+        &quot;&quot;&quot;
+        基于用户反馈的指标
+        &quot;&quot;&quot;
+        total = len(feedback_log)
+        if total == 0:
+            return {&quot;thumbs_up_rate&quot;: 0, &quot;avg_rating&quot;: 0}
+
+        thumbs_up = sum(1 for f in feedback_log if f.get(&quot;helpful&quot;, False))
+        ratings = [f[&quot;rating&quot;] for f in feedback_log if &quot;rating&quot; in f]
+
+        return {
+            &quot;thumbs_up_rate&quot;: thumbs_up / total,
+            &quot;avg_rating&quot;: sum(ratings) / len(ratings) if ratings else 0,
+            &quot;feedback_volume&quot;: total
+        }</code></pre></div>
+
+<hr>
+
+<h2 id="质量漂移检测">质量漂移检测</h2>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐⭐ 高级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>RAG 监控与质量漂移检测是系统上线后的"健康体检"机制，确保 RAG 质量不会随时间退化。在 AI 应用栈中，它处于运维监控层，覆盖检索质量指标（Recall/MRR/NDCG）、生成质量指标（Faithfulness/Relevance）、用户反馈指标三大维度。PSI 漂移检测和滑动窗口异常发现是主动发现问题的核心手段。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>RAG 评估与优化</td>
+<td>监控指标体系基于评估指标构建</td>
+<td><a href="#rag评估与优化" class="wikilink">AI大模型/04-RAG技术/05-生成阶段/RAG评估与优化</a></td>
+</tr>
+<tr class="alt-row">
+<td>生产级 RAG 架构</td>
+<td>监控是生产架构的必备组件</td>
+<td><a href="#03-生产级rag架构" class="wikilink">03-生产级RAG架构</a></td>
+</tr>
+<tr>
+<td>RAG 成本优化</td>
+<td>监控数据指导成本优化决策</td>
+<td><a href="#05-rag成本优化策略" class="wikilink">05-RAG成本优化策略</a></td>
+</tr>
+<tr class="alt-row">
+<td>向量检索与 Embedding</td>
+<td>嵌入漂移需要重新向量化</td>
+<td><a href="#向量检索与embedding" class="wikilink">AI大模型/04-RAG技术/03-检索策略/向量检索与Embedding</a></td>
+</tr>
+<tr>
+<td>切片策略总览</td>
+<td>知识漂移可能需要重新分块入库</td>
+<td><a href="#切片策略总览" class="wikilink">AI大模型/04-RAG技术/01-知识库构建/切片策略总览</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 部署 Recall@5 和 MRR 监控看板，设置 PSI > 0.2 自动告警，定期审计过期文档</li>
+<li><strong>评论分析 RAG</strong>: 监控评论检索的 Faithfulness 漂移，当新评论涌入时检测查询分布变化</li>
+<li><strong>内容推荐</strong>: 用新鲜度加权公式（final = original × (0.7 + 0.3 × freshness)）保证推荐内容时效性</li></ul>
+
+<h3 id="漂移类型">漂移类型</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>漂移类型</th>
+<th>表现</th>
+<th>检测方法</th>
+</tr></thead><tbody>
+<tr>
+<td>数据漂移</td>
+<td>查询分布变化</td>
+<td>PSI / KL 散度</td>
+</tr>
+<tr class="alt-row">
+<td>概念漂移</td>
+<td>查询-文档相关性定义变化</td>
+<td>监控指标滑动窗口</td>
+</tr>
+<tr>
+<td>知识漂移</td>
+<td>文档内容过期</td>
+<td>时间衰减 + 定期审计</td>
+</tr>
+<tr class="alt-row">
+<td>嵌入漂移</td>
+<td>嵌入模型更新导致向量空间变化</td>
+<td>距离分布对比</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="psi-population-stability-index-检测">PSI (Population Stability Index) 检测</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import numpy as np
+from scipy import stats
+
+class DriftDetector:
+    &quot;&quot;&quot;漂移检测器&quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.window_size = config.get(&quot;window_size&quot;, 1000)
+        self.threshold = config.get(&quot;drift_threshold&quot;, 0.2)
+        self.baseline = None
+
+    def compute_psi(self, baseline, current, bins=10):
+        &quot;&quot;&quot;
+        计算 Population Stability Index
+        PSI &lt; 0.1: 无显著变化
+        PSI 0.1~0.2: 中等变化，需关注
+        PSI &gt; 0.2: 显著变化，需调查
+        &quot;&quot;&quot;
+        # 分桶
+        breakpoints = np.linspace(
+            min(min(baseline), min(current)),
+            max(max(baseline), max(current)),
+            bins + 1
+        )
+
+        baseline_hist, _ = np.histogram(baseline, bins=breakpoints)
+        current_hist, _ = np.histogram(current, bins=breakpoints)
+
+        # 避免除零
+        baseline_pct = (baseline_hist + 1) / (sum(baseline_hist) + bins)
+        current_pct = (current_hist + 1) / (sum(current_hist) + bins)
+
+        # PSI 公式
+        psi = sum(
+            (current_pct - baseline_pct) * np.log(current_pct / baseline_pct)
+        )
+
+        return psi
+
+    def detect_score_drift(self, recent_scores):
+        &quot;&quot;&quot;
+        检测检索分数漂移
+        &quot;&quot;&quot;
+        if self.baseline is None:
+            self.baseline = recent_scores
+            return {&quot;drift&quot;: False, &quot;psi&quot;: 0}
+
+        psi = self.compute_psi(self.baseline, recent_scores)
+
+        return {
+            &quot;drift&quot;: psi &gt; self.threshold,
+            &quot;psi&quot;: psi,
+            &quot;severity&quot;: &quot;high&quot; if psi &gt; 0.25 else &quot;medium&quot; if psi &gt; 0.15 else &quot;low&quot;
+        }
+
+    def detect_query_distribution_drift(self, baseline_queries, current_queries):
+        &quot;&quot;&quot;
+        检测查询分布漂移
+        使用嵌入向量的距离分布
+        &quot;&quot;&quot;
+        # 计算查询嵌入的统计特征
+        baseline_centroid = np.mean(baseline_queries, axis=0)
+        current_centroid = np.mean(current_queries, axis=0)
+
+        # 余弦相似度
+        cosine_sim = np.dot(baseline_centroid, current_centroid) / (
+            np.linalg.norm(baseline_centroid) * np.linalg.norm(current_centroid)
+        )
+
+        # 中心偏移距离
+        centroid_drift = np.linalg.norm(baseline_centroid - current_centroid)
+
+        return {
+            &quot;cosine_similarity&quot;: float(cosine_sim),
+            &quot;centroid_drift&quot;: float(centroid_drift),
+            &quot;drift&quot;: cosine_sim &lt; 0.85  # 阈值
+        }</code></pre></div>
+
+<h3 id="滑动窗口监控">滑动窗口监控</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class SlidingWindowMonitor:
+    &quot;&quot;&quot;
+    滑动窗口监控
+    持续监控指标，检测异常
+    &quot;&quot;&quot;
+
+    def __init__(self, window_size=100, alert_threshold=2.0):
+        self.window_size = window_size
+        self.alert_threshold = alert_threshold  # 标准差倍数
+        self.windows = {}
+
+    def add_metric(self, metric_name, value):
+        &quot;&quot;&quot;添加新指标值&quot;&quot;&quot;
+        if metric_name not in self.windows:
+            self.windows[metric_name] = []
+
+        self.windows[metric_name].append(value)
+
+        # 保持窗口大小
+        if len(self.windows[metric_name]) &gt; self.window_size * 2:
+            self.windows[metric_name] = self.windows[metric_name][-self.window_size * 2:]
+
+    def check_anomaly(self, metric_name):
+        &quot;&quot;&quot;检查当前窗口是否存在异常&quot;&quot;&quot;
+        values = self.windows.get(metric_name, [])
+        if len(values) &lt; self.window_size:
+            return {&quot;anomaly&quot;: False, &quot;reason&quot;: &quot;insufficient_data&quot;}
+
+        # 基线窗口 vs 当前窗口
+        baseline = values[:self.window_size]
+        current = values[self.window_size:]
+
+        baseline_mean = np.mean(baseline)
+        baseline_std = np.std(baseline)
+        current_mean = np.mean(current)
+
+        # Z-score 异常检测
+        z_score = (current_mean - baseline_mean) / (baseline_std + 1e-8)
+
+        return {
+            &quot;anomaly&quot;: abs(z_score) &gt; self.alert_threshold,
+            &quot;z_score&quot;: float(z_score),
+            &quot;baseline_mean&quot;: float(baseline_mean),
+            &quot;current_mean&quot;: float(current_mean),
+            &quot;direction&quot;: &quot;decrease&quot; if z_score &lt; 0 else &quot;increase&quot;
+        }
+
+    def get_trend(self, metric_name, recent_n=50):
+        &quot;&quot;&quot;获取指标趋势&quot;&quot;&quot;
+        values = self.windows.get(metric_name, [])
+        if len(values) &lt; recent_n:
+            return {&quot;trend&quot;: &quot;insufficient_data&quot;}
+
+        recent = values[-recent_n:]
+        x = np.arange(len(recent))
+        slope, _, r_value, _, _ = stats.linregress(x, recent)
+
+        return {
+            &quot;slope&quot;: float(slope),
+            &quot;r_squared&quot;: float(r_value ** 2),
+            &quot;trend&quot;: &quot;improving&quot; if slope &gt; 0.001 else &quot;degrading&quot; if slope &lt; -0.001 else &quot;stable&quot;
+        }</code></pre></div>
+
+<hr>
+
+<h2 id="知识新鲜度管理">知识新鲜度管理</h2>
+
+<h3 id="文档时效性标记">文档时效性标记</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class KnowledgeFreshnessManager:
+    &quot;&quot;&quot;
+    知识新鲜度管理
+    确保检索内容不会过期
+    &quot;&quot;&quot;
+
+    # 文档类型及其预期保鲜期
+    FRESHNESS_POLICIES = {
+        &quot;news&quot;: {&quot;ttl_days&quot;: 1, &quot;priority&quot;: &quot;high&quot;},
+        &quot;product_info&quot;: {&quot;ttl_days&quot;: 30, &quot;priority&quot;: &quot;high&quot;},
+        &quot;technical_doc&quot;: {&quot;ttl_days&quot;: 180, &quot;priority&quot;: &quot;medium&quot;},
+        &quot;api_reference&quot;: {&quot;ttl_days&quot;: 90, &quot;priority&quot;: &quot;high&quot;},
+        &quot;tutorial&quot;: {&quot;ttl_days&quot;: 365, &quot;priority&quot;: &quot;low&quot;},
+        &quot;faq&quot;: {&quot;ttl_days&quot;: 90, &quot;priority&quot;: &quot;medium&quot;},
+        &quot;general&quot;: {&quot;ttl_days&quot;: 365, &quot;priority&quot;: &quot;low&quot;}
+    }
+
+    def __init__(self, vector_store, config):
+        self.vector_store = vector_store
+        self.config = config
+
+    async def check_freshness(self, documents):
+        &quot;&quot;&quot;
+        检查文档新鲜度
+        返回每个文档的新鲜度状态
+        &quot;&quot;&quot;
+        results = []
+        now = datetime.utcnow()
+
+        for doc in documents:
+            doc_type = doc.metadata.get(&quot;doc_type&quot;, &quot;general&quot;)
+            policy = self.FRESHNESS_POLICIES.get(
+                doc_type,
+                self.FRESHNESS_POLICIES[&quot;general&quot;]
+            )
+
+            created_at = doc.metadata.get(&quot;created_at&quot;)
+            if created_at:
+                age_days = (now - created_at).days
+                freshness_ratio = max(0, 1 - age_days / policy[&quot;ttl_days&quot;])
+            else:
+                freshness_ratio = 0.5  # 未知日期，给予中等分数
+
+            results.append({
+                &quot;document&quot;: doc,
+                &quot;freshness_ratio&quot;: freshness_ratio,
+                &quot;age_days&quot;: age_days if created_at else None,
+                &quot;is_fresh&quot;: freshness_ratio &gt; 0.5,
+                &quot;doc_type&quot;: doc_type,
+                &quot;ttl_days&quot;: policy[&quot;ttl_days&quot;]
+            })
+
+        return results
+
+    async def apply_freshness_boost(self, query_results):
+        &quot;&quot;&quot;
+        对检索结果应用新鲜度加权
+        新鲜文档获得排名提升
+        &quot;&quot;&quot;
+        freshness_checked = await self.check_freshness(query_results)
+
+        for item in freshness_checked:
+            original_score = item[&quot;document&quot;].score
+            freshness = item[&quot;freshness_ratio&quot;]
+
+            # 新鲜度加权公式：final = original * (0.7 + 0.3 * freshness)
+            item[&quot;document&quot;].score = original_score * (0.7 + 0.3 * freshness)
+            item[&quot;adjusted_score&quot;] = item[&quot;document&quot;].score
+
+        # 重新排序
+        freshness_checked.sort(
+            key=lambda x: x[&quot;adjusted_score&quot;],
+            reverse=True
+        )
+
+        return freshness_checked
+
+    async def identify_stale_documents(self):
+        &quot;&quot;&quot;
+        识别过期文档，供定期清理使用
+        &quot;&quot;&quot;
+        all_docs = await self.vector_store.get_all_documents()
+        freshness = await self.check_freshness(all_docs)
+
+        stale = [f for f in freshness if not f[&quot;is_fresh&quot;]]
+
+        # 按过期程度排序
+        stale.sort(key=lambda x: x[&quot;freshness_ratio&quot;])
+
+        return {
+            &quot;total_documents&quot;: len(all_docs),
+            &quot;stale_documents&quot;: len(stale),
+            &quot;stale_rate&quot;: len(stale) / len(all_docs) if all_docs else 0,
+            &quot;details&quot;: stale[:100]  # 前100个最过期的
+        }</code></pre></div>
+
+<h3 id="知识更新策略">知识更新策略</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class KnowledgeUpdateStrategy:
+    &quot;&quot;&quot;
+    知识更新策略
+    &quot;&quot;&quot;
+
+    def __init__(self, freshness_manager, ingestion_pipeline):
+        self.freshness = freshness_manager
+        self.pipeline = ingestion_pipeline
+
+    async def scheduled_refresh(self):
+        &quot;&quot;&quot;
+        定期知识刷新任务
+        建议每天执行一次
+        &quot;&quot;&quot;
+        # 1. 识别过期文档
+        stale_report = await self.freshness.identify_stale_documents()
+        logger.info(f&quot;发现 {stale_report[&#x27;stale_documents&#x27;]} 个过期文档&quot;)
+
+        # 2. 按优先级分类
+        high_priority = [
+            d for d in stale_report[&quot;details&quot;]
+            if d[&quot;doc_type&quot;] in [&quot;news&quot;, &quot;product_info&quot;, &quot;api_reference&quot;]
+        ]
+
+        # 3. 高优先级：自动更新
+        for doc in high_priority:
+            try:
+                await self._refresh_document(doc)
+            except Exception as e:
+                logger.error(f&quot;刷新文档失败: {doc[&#x27;document&#x27;].id}, {e}&quot;)
+
+        # 4. 低优先级：生成报告
+        low_priority = [
+            d for d in stale_report[&quot;details&quot;]
+            if d not in high_priority
+        ]
+
+        return {
+            &quot;refreshed&quot;: len(high_priority),
+            &quot;pending_review&quot;: len(low_priority),
+            &quot;report&quot;: stale_report
+        }
+
+    async def _refresh_document(self, doc_info):
+        &quot;&quot;&quot;刷新单个文档&quot;&quot;&quot;
+        document = doc_info[&quot;document&quot;]
+
+        # 检查源是否仍然可用
+        source = document.metadata.get(&quot;source_url&quot;)
+        if source:
+            new_content = await self._fetch_latest(source)
+            if new_content and new_content != document.content:
+                # 重新入库
+                await self.pipeline.ingest_updated(
+                    document_id=document.id,
+                    new_content=new_content
+                )</code></pre></div>
+
+<hr>
+
+<h2 id="告警与自动修复">告警与自动修复</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class RAGAlertManager:
+    &quot;&quot;&quot;RAG 系统告警管理&quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.alert_channels = config[&quot;alert_channels&quot;]
+        self.rules = self._load_rules()
+
+    def _load_rules(self):
+        return [
+            {
+                &quot;name&quot;: &quot;检索召回率下降&quot;,
+                &quot;metric&quot;: &quot;recall_at_5&quot;,
+                &quot;condition&quot;: &quot;below&quot;,
+                &quot;threshold&quot;: 0.7,
+                &quot;duration&quot;: &quot;15m&quot;,
+                &quot;severity&quot;: &quot;high&quot;,
+                &quot;action&quot;: &quot;page_oncall&quot;
+            },
+            {
+                &quot;name&quot;: &quot;缓存命中率下降&quot;,
+                &quot;metric&quot;: &quot;cache_hit_rate&quot;,
+                &quot;condition&quot;: &quot;below&quot;,
+                &quot;threshold&quot;: 0.15,
+                &quot;duration&quot;: &quot;30m&quot;,
+                &quot;severity&quot;: &quot;medium&quot;,
+                &quot;action&quot;: &quot;slack_alert&quot;
+            },
+            {
+                &quot;name&quot;: &quot;幻觉率上升&quot;,
+                &quot;metric&quot;: &quot;faithfulness&quot;,
+                &quot;condition&quot;: &quot;below&quot;,
+                &quot;threshold&quot;: 0.8,
+                &quot;duration&quot;: &quot;10m&quot;,
+                &quot;severity&quot;: &quot;high&quot;,
+                &quot;action&quot;: &quot;page_oncall&quot;
+            },
+            {
+                &quot;name&quot;: &quot;查询延迟升高&quot;,
+                &quot;metric&quot;: &quot;p95_latency&quot;,
+                &quot;condition&quot;: &quot;above&quot;,
+                &quot;threshold&quot;: 5.0,
+                &quot;duration&quot;: &quot;5m&quot;,
+                &quot;severity&quot;: &quot;medium&quot;,
+                &quot;action&quot;: &quot;slack_alert&quot;
+            },
+            {
+                &quot;name&quot;: &quot;过期文档比例过高&quot;,
+                &quot;metric&quot;: &quot;stale_doc_rate&quot;,
+                &quot;condition&quot;: &quot;above&quot;,
+                &quot;threshold&quot;: 0.3,
+                &quot;duration&quot;: &quot;1d&quot;,
+                &quot;severity&quot;: &quot;low&quot;,
+                &quot;action&quot;: &quot;email_report&quot;
+            }
+        ]
+
+    async def evaluate_rules(self, metrics):
+        &quot;&quot;&quot;评估告警规则&quot;&quot;&quot;
+        triggered = []
+
+        for rule in self.rules:
+            metric_value = metrics.get(rule[&quot;metric&quot;])
+            if metric_value is None:
+                continue
+
+            is_triggered = (
+                (rule[&quot;condition&quot;] == &quot;below&quot; and metric_value &lt; rule[&quot;threshold&quot;])
+                or
+                (rule[&quot;condition&quot;] == &quot;above&quot; and metric_value &gt; rule[&quot;threshold&quot;])
+            )
+
+            if is_triggered:
+                triggered.append({
+                    &quot;rule&quot;: rule[&quot;name&quot;],
+                    &quot;severity&quot;: rule[&quot;severity&quot;],
+                    &quot;metric&quot;: rule[&quot;metric&quot;],
+                    &quot;value&quot;: metric_value,
+                    &quot;threshold&quot;: rule[&quot;threshold&quot;]
+                })
+
+                await self._execute_action(rule[&quot;action&quot;], rule, metric_value)
+
+        return triggered
+
+    async def _execute_action(self, action, rule, value):
+        &quot;&quot;&quot;执行告警动作&quot;&quot;&quot;
+        if action == &quot;page_oncall&quot;:
+            await self.alert_channels[&quot;pagerduty&quot;].send(
+                title=f&quot;[RAG] {rule[&#x27;name&#x27;]}&quot;,
+                severity=rule[&quot;severity&quot;],
+                details=f&quot;{rule[&#x27;metric&#x27;]}: {value} (阈值: {rule[&#x27;threshold&#x27;]})&quot;
+            )
+        elif action == &quot;slack_alert&quot;:
+            await self.alert_channels[&quot;slack&quot;].send(
+                channel=&quot;#rag-alerts&quot;,
+                message=f&quot;⚠️ {rule[&#x27;name&#x27;]}\n{rule[&#x27;metric&#x27;]}: {value}&quot;
+            )
+        elif action == &quot;email_report&quot;:
+            await self.alert_channels[&quot;email&quot;].send(
+                subject=f&quot;[RAG 周报] {rule[&#x27;name&#x27;]}&quot;,
+                body=f&quot;{rule[&#x27;metric&#x27;]} 当前值: {value}&quot;
+            )</code></pre></div>
+
+<hr>
+
+<h2 id="监控仪表盘设计">监控仪表盘设计</h2>
+
+<h3 id="grafana-面板推荐">Grafana 面板推荐</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>Row 1: 请求概览
+├── 总 QPS (queries per second)
+├── P50 / P95 / P99 延迟
+├── 错误率
+└── 活跃租户数
+
+Row 2: 检索质量
+├── Recall@5 趋势
+├── MRR 趋势
+├── 命中率
+└── 缓存命中率
+
+Row 3: 生成质量
+├── Faithfulness 分数
+├── Answer Relevance 分数
+├── 用户好评率
+└── 幻觉率
+
+Row 4: 系统健康
+├── 向量数据库 QPS / 延迟
+├── 嵌入服务延迟
+├── LLM 推理延迟
+└── 知识库文档数 / 过期比例
+
+Row 5: 漂移检测
+├── 查询分布 PSI
+├── 检索分数分布
+├── 指标 Z-score
+└── 告警事件时间线</code></pre></div>
+
+<hr>
+
+<h2 id="延伸阅读">延伸阅读</h2>
+
+<ul><li>RAGAS 框架：https://docs.ragas.io/ — RAG 评估标准化工具</li>
+<li>LangSmith：https://smith.langchain.com/ — LangChain 监控平台</li>
+<li>Arize Phoenix：https://phoenix.arize.com/ — LLM 可观测性</li>
+<li>论文：<em>Evaluating RAG: A Survey</em> (Yu et al., 2024)</li></ul>
+</div><div class="section-card" id="05-rag成本优化策略"><h2><span class="badge badge-intermediate">基础</span> 05-RAG成本优化策略</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#概述">概述</a></li><li><a href="#rag-成本构成分析">RAG 成本构成分析</a></li><li class="toc-h3"><a href="#典型成本分布">典型成本分布</a></li><li class="toc-h3"><a href="#成本基准以-gpt-4-为例">成本基准（以 GPT-4 为例）</a></li><li><a href="#策略一嵌入缓存">策略一：嵌入缓存</a></li><li class="toc-h3"><a href="#查询嵌入缓存">查询嵌入缓存</a></li><li class="toc-h3"><a href="#文档嵌入去重">文档嵌入去重</a></li><li><a href="#策略二分层检索tiered-retrieval">策略二：分层检索（Tiered Retrieval）</a></li><li class="toc-h3"><a href="#核心思想">核心思想</a></li><li class="toc-h3"><a href="#动态分层策略">动态分层策略</a></li><li><a href="#策略三小模型重排序">策略三：小模型重排序</a></li><li class="toc-h3"><a href="#成本对比">成本对比</a></li><li class="toc-h3"><a href="#小模型重排序实现">小模型重排序实现</a></li><li class="toc-h3"><a href="#重排序器蒸馏">重排序器蒸馏</a></li><li><a href="#策略四llm-推理优化">策略四：LLM 推理优化</a></li><li class="toc-h3"><a href="#模型选择策略">模型选择策略</a></li><li class="toc-h3"><a href="#提示词压缩">提示词压缩</a></li><li><a href="#成本对比总表">成本对比总表</a></li><li class="toc-h3"><a href="#优化前-vs-优化后">优化前 vs 优化后</a></li><li class="toc-h3"><a href="#各策略-roi-分析">各策略 ROI 分析</a></li><li><a href="#实施优先级建议">实施优先级建议</a></li><li><a href="#成本监控仪表盘">成本监控仪表盘</a></li><li><a href="#延伸阅读">延伸阅读</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li></ul></div><h1 id="rag-成本优化策略">RAG 成本优化策略</h1>
+
+<h2 id="概述">概述</h2>
+
+<p>RAG 系统的成本主要来自三个环节：<strong>嵌入计算</strong>、<strong>向量存储</strong>、<strong>LLM 推理</strong>。</p>
+<p>本文档提供系统化的成本优化方法，包括嵌入缓存、分层检索、小模型重排序等策略。</p>
+
+<hr>
+
+<h2 id="rag-成本构成分析">RAG 成本构成分析</h2>
+
+<h3 id="典型成本分布">典型成本分布</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>┌─────────────────────────────────────────────┐
+│              RAG 请求成本构成                  │
+├─────────────────┬─────────────┬─────────────┤
+│   嵌入计算       │  向量检索    │  LLM 推理    │
+│   (~15%)        │   (~5%)     │  (~80%)     │
+│                 │             │             │
+│  查询嵌入        │  ANN 搜索   │  重排序      │
+│  文档嵌入        │  过滤       │  生成回答     │
+│                 │  排序       │  验证        │
+└─────────────────┴─────────────┴─────────────┘</code></pre></div>
+
+<h3 id="成本基准以-gpt-4-为例">成本基准（以 GPT-4 为例）</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>环节</th>
+<th>单次成本</th>
+<th>月 100 万次请求</th>
+<th>占比</th>
+</tr></thead><tbody>
+<tr>
+<td>查询嵌入 (text-embedding-3-small)</td>
+<td>$0.00001</td>
+<td>$10</td>
+<td>~1%</td>
+</tr>
+<tr class="alt-row">
+<td>文档嵌入 (入库，摊销)</td>
+<td>-</td>
+<td>$50</td>
+<td>~4%</td>
+</tr>
+<tr>
+<td>向量数据库 (Milvus Cloud)</td>
+<td>-</td>
+<td>$200</td>
+<td>~15%</td>
+</tr>
+<tr class="alt-row">
+<td>重排序 (Cohere Rerank)</td>
+<td>$0.001</td>
+<td>$1,000</td>
+<td>~75%</td>
+</tr>
+<tr>
+<td>LLM 生成 (GPT-4o-mini)</td>
+<td>$0.0003</td>
+<td>$300</td>
+<td>~23%</td>
+</tr>
+<tr class="alt-row">
+<td><strong>合计</strong></td>
+<td></td>
+<td><strong>~$1,560</strong></td>
+<td></td>
+</tr>
+</tbody></table></div>
+
+<hr>
+
+<h2 id="策略一嵌入缓存">策略一：嵌入缓存</h2>
+
+<h3 id="查询嵌入缓存">查询嵌入缓存</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import hashlib
+import numpy as np
+
+class EmbeddingCache:
+    &quot;&quot;&quot;
+    查询嵌入缓存
+    避免重复计算相同查询的嵌入向量
+    &quot;&quot;&quot;
+
+    def __init__(self, redis_client, embedding_service, config):
+        self.redis = redis_client
+        self.embedding_service = embedding_service
+        self.ttl = config.get(&quot;ttl&quot;, 86400)  # 24小时
+        self.prefix = &quot;emb:cache:&quot;
+
+    async def encode(self, texts):
+        &quot;&quot;&quot;
+        带缓存的嵌入计算
+        命中率通常在 30-50%（相同查询反复出现）
+        &quot;&quot;&quot;
+        results = {}
+        uncached = {}
+        cache_hits = 0
+
+        # 1. 检查缓存
+        for i, text in enumerate(texts):
+            cache_key = self._get_key(text)
+            cached = await self.redis.get(cache_key)
+
+            if cached:
+                results[i] = np.frombuffer(cached, dtype=np.float32)
+                cache_hits += 1
+            else:
+                uncached[i] = text
+
+        # 2. 计算未缓存的嵌入
+        if uncached:
+            indices = list(uncached.keys())
+            new_texts = list(uncached.values())
+            new_embeddings = await self.embedding_service.encode(new_texts)
+
+            # 3. 写入缓存
+            for idx, embedding in zip(indices, new_embeddings):
+                results[idx] = embedding
+                cache_key = self._get_key(texts[idx])
+                await self.redis.setex(
+                    cache_key,
+                    self.ttl,
+                    embedding.astype(np.float32).tobytes()
+                )
+
+        # 按原始顺序返回
+        ordered = [results[i] for i in range(len(texts))]
+
+        return ordered, {
+            &quot;total&quot;: len(texts),
+            &quot;cache_hits&quot;: cache_hits,
+            &quot;hit_rate&quot;: cache_hits / len(texts) if texts else 0
+        }
+
+    def _get_key(self, text):
+        normalized = text.strip().lower()
+        hash_val = hashlib.sha256(normalized.encode()).hexdigest()[:16]
+        return f&quot;{self.prefix}{hash_val}&quot;</code></pre></div>
+
+<h3 id="文档嵌入去重">文档嵌入去重</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class DocumentEmbeddingDedup:
+    &quot;&quot;&quot;
+    文档嵌入去重
+    避免重复文档入库时重复计算嵌入
+    &quot;&quot;&quot;
+
+    def __init__(self, content_hash_store):
+        self.hash_store = content_hash_store
+
+    async def compute_if_needed(self, documents):
+        &quot;&quot;&quot;
+        只对新文档或变更文档计算嵌入
+        &quot;&quot;&quot;
+        to_embed = []
+        skipped = 0
+
+        for doc in documents:
+            content_hash = hashlib.sha256(
+                doc.content.encode()
+            ).hexdigest()
+
+            existing = await self.hash_store.get(content_hash)
+
+            if existing:
+                # 内容未变，复用已有嵌入
+                doc.embedding = existing[&quot;embedding&quot;]
+                skipped += 1
+            else:
+                to_embed.append(doc)
+
+        if to_embed:
+            embeddings = await self.embedding_service.encode(
+                [d.content for d in to_embed]
+            )
+
+            for doc, emb in zip(to_embed, embeddings):
+                doc.embedding = emb
+                await self.hash_store.set(
+                    hashlib.sha256(doc.content.encode()).hexdigest(),
+                    {&quot;embedding&quot;: emb, &quot;doc_id&quot;: doc.id}
+                )
+
+        return {
+            &quot;total&quot;: len(documents),
+            &quot;computed&quot;: len(to_embed),
+            &quot;skipped&quot;: skipped,
+            &quot;cost_saved&quot;: skipped / len(documents) if documents else 0
+        }</code></pre></div>
+
+<hr>
+
+<h2 id="策略二分层检索tiered-retrieval">策略二：分层检索（Tiered Retrieval）</h2>
+
+<h3 id="核心思想">核心思想</h3>
+
+<p>用低成本方法做初筛，高成本方法做精排，减少昂贵调用次数。</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>全部文档 (100万)
+      │
+      ▼ [Tier 1: BM25 / 倒排索引] ← 低成本，$0.00001/次
+      │ 候选集 (500)
+      ▼ [Tier 2: 向量搜索] ← 中等成本，$0.0001/次
+      │ 候选集 (50)
+      ▼ [Tier 3: 交叉编码器重排] ← 高成本，$0.001/次
+      │ 最终结果 (5)
+      ▼ [Tier 4: LLM 生成] ← 最高成本，$0.0003/次
+      │
+    最终回答</code></pre></div>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class TieredRetriever:
+    &quot;&quot;&quot;
+    分层检索器
+    逐层缩小候选集，控制成本
+    &quot;&quot;&quot;
+
+    def __init__(self, config):
+        # Tier 1: 倒排索引（最快最便宜）
+        self.bm25 = BM25Index(config[&quot;bm25_path&quot;])
+
+        # Tier 2: 向量检索
+        self.vector_store = VectorStore(config[&quot;vector_config&quot;])
+
+        # Tier 3: 交叉编码器重排
+        self.reranker = CrossEncoderReranker(config[&quot;reranker_model&quot;])
+
+        # 配置各层候选数
+        self.tier1_k = config.get(&quot;tier1_k&quot;, 500)
+        self.tier2_k = config.get(&quot;tier2_k&quot;, 50)
+        self.tier3_k = config.get(&quot;tier3_k&quot;, 5)
+
+    async def retrieve(self, query):
+        &quot;&quot;&quot;
+        分层检索
+        &quot;&quot;&quot;
+        # Tier 1: BM25 初筛
+        tier1_results = await self.bm25.search(
+            query, top_k=self.tier1_k
+        )
+        tier1_ids = [r[&quot;id&quot;] for r in tier1_results]
+
+        # Tier 2: 向量搜索（限定在 Tier 1 候选范围内）
+        tier2_results = await self.vector_store.search(
+            query,
+            top_k=self.tier2_k,
+            filter_ids=tier1_ids  # 只在 BM25 结果中搜索
+        )
+
+        # Tier 3: 交叉编码器重排（只处理 top 候选）
+        tier3_results = await self.reranker.rerank(
+            query,
+            [r[&quot;content&quot;] for r in tier2_results],
+            top_k=self.tier3_k
+        )
+
+        return tier3_results</code></pre></div>
+
+<h3 id="动态分层策略">动态分层策略</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class AdaptiveTieredRetriever:
+    &quot;&quot;&quot;
+    自适应分层检索
+    根据查询复杂度动态调整各层参数
+    &quot;&quot;&quot;
+
+    def __init__(self, config):
+        self.tiered_retriever = TieredRetriever(config)
+        self.complexity_estimator = QueryComplexityEstimator()
+
+    async def retrieve(self, query):
+        # 估算查询复杂度
+        complexity = self.complexity_estimator.estimate(query)
+
+        if complexity == &quot;simple&quot;:
+            # 简单查询：减少候选数量，降低成本
+            config = {&quot;tier1_k&quot;: 100, &quot;tier2_k&quot;: 20, &quot;tier3_k&quot;: 3}
+        elif complexity == &quot;medium&quot;:
+            config = {&quot;tier1_k&quot;: 300, &quot;tier2_k&quot;: 30, &quot;tier3_k&quot;: 5}
+        else:
+            # 复杂查询：增加候选数量，保证质量
+            config = {&quot;tier1_k&quot;: 500, &quot;tier2_k&quot;: 50, &quot;tier3_k&quot;: 10}
+
+        self.tiered_retriever.update_config(config)
+        return await self.tiered_retriever.retrieve(query)
+
+
+class QueryComplexityEstimator:
+    &quot;&quot;&quot;查询复杂度估算器&quot;&quot;&quot;
+
+    def estimate(self, query):
+        features = {
+            &quot;length&quot;: len(query),
+            &quot;has_multi_hop&quot;: &quot;?&quot; in query and &quot;和&quot; in query,
+            &quot;has_specific_entity&quot;: self._has_entity(query),
+            &quot;is_comparison&quot;: any(w in query for w in [&quot;比较&quot;, &quot;区别&quot;, &quot;vs&quot;])
+        }
+
+        if features[&quot;has_multi_hop&quot;] or features[&quot;is_comparison&quot;]:
+            return &quot;hard&quot;
+        elif features[&quot;length&quot;] &gt; 30 or features[&quot;has_specific_entity&quot;]:
+            return &quot;medium&quot;
+        else:
+            return &quot;simple&quot;
+
+    def _has_entity(self, query):
+        &quot;&quot;&quot;简单的实体检测&quot;&quot;&quot;
+        # 生产中使用 NER 模型
+        import re
+        return bool(re.search(r&#x27;[A-Z][a-z]+|[一-龥]{2,4}(?:公司|大学|产品)&#x27;, query))</code></pre></div>
+
+<hr>
+
+<h2 id="策略三小模型重排序">策略三：小模型重排序</h2>
+
+<h3 id="成本对比">成本对比</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>重排序方案</th>
+<th>单次成本</th>
+<th>延迟</th>
+<th>质量</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>Cohere Rerank API</td>
+<td>$0.001</td>
+<td>~200ms</td>
+<td>高</td>
+<td>低流量高质量</td>
+</tr>
+<tr class="alt-row">
+<td>BGE-Reranker-v2</td>
+<td>$0.0001</td>
+<td>~50ms</td>
+<td>中高</td>
+<td>中等流量</td>
+</tr>
+<tr>
+<td>MiniLM-L6 本地</td>
+<td>~$0</td>
+<td>~10ms</td>
+<td>中</td>
+<td>高流量低延迟</td>
+</tr>
+<tr class="alt-row">
+<td>无重排序</td>
+<td>$0</td>
+<td>0ms</td>
+<td>低</td>
+<td>极高流量</td>
+</tr>
+</tbody></table></div>
+
+<h3 id="小模型重排序实现">小模型重排序实现</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from sentence_transformers import CrossEncoder
+
+class TieredReranker:
+    &quot;&quot;&quot;
+    分级重排序器
+    先用小模型粗排，必要时用大模型精排
+    &quot;&quot;&quot;
+
+    def __init__(self, config):
+        # 轻量级重排器（本地部署，近零成本）
+        self.light_reranker = CrossEncoder(
+            config.get(&quot;light_model&quot;, &quot;cross-encoder/ms-marco-MiniLM-L-6-v2&quot;)
+        )
+
+        # 高精度重排器（API 调用，有成本）
+        self.heavy_reranker = config.get(&quot;heavy_reranker&quot;)  # Cohere 或其他
+
+        # 质量阈值：低于此值才触发大模型
+        self.quality_threshold = config.get(&quot;quality_threshold&quot;, 0.6)
+
+    async def rerank(self, query, candidates, top_k=5):
+        &quot;&quot;&quot;
+        分级重排序
+        &quot;&quot;&quot;
+        # Step 1: 小模型重排（几乎所有情况都够用）
+        light_scores = self.light_reranker.predict(
+            [(query, c[&quot;content&quot;]) for c in candidates]
+        )
+
+        for candidate, score in zip(candidates, light_scores):
+            candidate[&quot;rerank_score&quot;] = float(score)
+
+        # 按分数排序
+        candidates.sort(key=lambda x: x[&quot;rerank_score&quot;], reverse=True)
+        light_top = candidates[:top_k]
+
+        # Step 2: 检查是否需要大模型精排
+        top_score = light_top[0][&quot;rerank_score&quot;] if light_top else 0
+
+        if top_score &lt; self.quality_threshold and self.heavy_reranker:
+            # 分数不够高，用大模型确认
+            heavy_results = await self.heavy_reranker.rerank(
+                query,
+                [c[&quot;content&quot;] for c in light_top],
+                top_k=top_k
+            )
+            return heavy_results
+
+        return light_top</code></pre></div>
+
+<h3 id="重排序器蒸馏">重排序器蒸馏</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class RerankerDistillation:
+    &quot;&quot;&quot;
+    用大模型重排序结果训练小模型
+    降低长期推理成本
+    &quot;&quot;&quot;
+
+    def __init__(self, teacher_model, student_model):
+        self.teacher = teacher_model  # Cohere / GPT-4
+        self.student = student_model  # MiniLM
+
+    async def generate_training_data(self, queries, candidate_sets):
+        &quot;&quot;&quot;
+        用教师模型生成训练数据
+        &quot;&quot;&quot;
+        training_data = []
+
+        for query, candidates in zip(queries, candidate_sets):
+            # 教师模型打分
+            teacher_scores = await self.teacher.rerank(
+                query,
+                [c[&quot;content&quot;] for c in candidates]
+            )
+
+            for candidate, score in zip(candidates, teacher_scores):
+                training_data.append({
+                    &quot;query&quot;: query,
+                    &quot;document&quot;: candidate[&quot;content&quot;],
+                    &quot;teacher_score&quot;: score
+                })
+
+        return training_data
+
+    def train_student(self, training_data, epochs=3):
+        &quot;&quot;&quot;
+        训练学生模型
+        使用 KL 散度损失
+        &quot;&quot;&quot;
+        from torch.utils.data import DataLoader
+
+        dataloader = DataLoader(training_data, batch_size=32, shuffle=True)
+        optimizer = torch.optim.AdamW(self.student.parameters(), lr=2e-5)
+
+        for epoch in range(epochs):
+            total_loss = 0
+            for batch in dataloader:
+                # 学生模型预测
+                student_scores = self.student.predict(
+                    list(zip(batch[&quot;query&quot;], batch[&quot;document&quot;]))
+                )
+
+                # 教师模型分数作为标签
+                teacher_scores = batch[&quot;teacher_score&quot;]
+
+                # KL 散度损失
+                loss = torch.nn.KLDivLoss()(
+                    torch.log_softmax(student_scores, dim=-1),
+                    torch.softmax(teacher_scores, dim=-1)
+                )
+
+                loss.backward()
+                optimizer.step()
+                optimizer.zero_grad()
+                total_loss += loss.item()
+
+            print(f&quot;Epoch {epoch+1}, Loss: {total_loss/len(dataloader):.4f}&quot;)</code></pre></div>
+
+<hr>
+
+<h2 id="策略四llm-推理优化">策略四：LLM 推理优化</h2>
+
+<h3 id="模型选择策略">模型选择策略</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class AdaptiveLLMRouter:
+    &quot;&quot;&quot;
+    根据查询复杂度选择不同模型
+    简单查询用小模型，复杂查询用大模型
+    &quot;&quot;&quot;
+
+    MODEL_CONFIGS = {
+        &quot;simple&quot;: {
+            &quot;model&quot;: &quot;gpt-4o-mini&quot;,
+            &quot;cost_per_1k&quot;: 0.00015,
+            &quot;max_tokens&quot;: 256
+        },
+        &quot;medium&quot;: {
+            &quot;model&quot;: &quot;gpt-4o-mini&quot;,
+            &quot;cost_per_1k&quot;: 0.00015,
+            &quot;max_tokens&quot;: 512
+        },
+        &quot;complex&quot;: {
+            &quot;model&quot;: &quot;gpt-4o&quot;,
+            &quot;cost_per_1k&quot;: 0.005,
+            &quot;max_tokens&quot;: 1024
+        }
+    }
+
+    def select_model(self, query, context_length):
+        &quot;&quot;&quot;
+        选择最优模型
+        &quot;&quot;&quot;
+        # 简单分类逻辑（生产中用分类器）
+        if context_length &lt; 500 and len(query) &lt; 50:
+            return self.MODEL_CONFIGS[&quot;simple&quot;]
+        elif context_length &lt; 2000:
+            return self.MODEL_CONFIGS[&quot;medium&quot;]
+        else:
+            return self.MODEL_CONFIGS[&quot;complex&quot;]</code></pre></div>
+
+<h3 id="提示词压缩">提示词压缩</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class PromptCompressor:
+    &quot;&quot;&quot;
+    提示词压缩
+    减少 token 数量，降低 LLM 成本
+    &quot;&quot;&quot;
+
+    def __init__(self, llm):
+        self.llm = llm
+
+    async def compress_context(self, query, documents, target_ratio=0.5):
+        &quot;&quot;&quot;
+        压缩检索上下文
+        目标：保留关键信息，减少 token 数
+        &quot;&quot;&quot;
+        original_tokens = sum(
+            self._count_tokens(doc) for doc in documents
+        )
+        target_tokens = int(original_tokens * target_ratio)
+
+        # 方法1：提取关键句子
+        compressed = []
+        for doc in documents:
+            key_sentences = await self._extract_key_sentences(
+                query, doc, max_sentences=3
+            )
+            compressed.extend(key_sentences)
+
+        # 检查是否达标
+        compressed_tokens = sum(self._count_tokens(s) for s in compressed)
+
+        if compressed_tokens &gt; target_tokens:
+            # 进一步压缩：LLM 摘要
+            compressed_text = &quot;\n&quot;.join(compressed)
+            summary = await self.llm.generate(
+                f&quot;将以下内容压缩到{target_tokens}个token以内，&quot;
+                f&quot;保留与问题相关的关键信息：\n\n&quot;
+                f&quot;问题：{query}\n内容：{compressed_text}&quot;
+            )
+            return summary
+
+        return &quot;\n&quot;.join(compressed)
+
+    async def _extract_key_sentences(self, query, document, max_sentences=3):
+        &quot;&quot;&quot;提取与查询最相关的句子&quot;&quot;&quot;
+        sentences = document.split(&quot;。&quot;)
+        # 简单实现：按关键词重叠排序
+        query_words = set(query)
+        scored = []
+        for sent in sentences:
+            overlap = len(set(sent) &amp; query_words)
+            scored.append((sent, overlap))
+
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [s[0] for s in scored[:max_sentences]]
+
+    def _count_tokens(self, text):
+        &quot;&quot;&quot;估算 token 数&quot;&quot;&quot;
+        return len(text) // 2  # 中文约2字符/token</code></pre></div>
+
+<hr>
+
+<h2 id="成本对比总表">成本对比总表</h2>
+
+<h3 id="优化前-vs-优化后">优化前 vs 优化后</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>环节</th>
+<th>优化前 (月100万请求)</th>
+<th>优化后</th>
+<th>节省</th>
+</tr></thead><tbody>
+<tr>
+<td>查询嵌入</td>
+<td>$10</td>
+<td>$5 (缓存50%)</td>
+<td>50%</td>
+</tr>
+<tr class="alt-row">
+<td>文档嵌入</td>
+<td>$50</td>
+<td>$20 (去重)</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>向量数据库</td>
+<td>$200</td>
+<td>$150 (分层减少查询)</td>
+<td>25%</td>
+</tr>
+<tr class="alt-row">
+<td>重排序</td>
+<td>$1,000</td>
+<td>$100 (小模型本地)</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>LLM 生成</td>
+<td>$300</td>
+<td>$150 (模型路由+压缩)</td>
+<td>50%</td>
+</tr>
+<tr class="alt-row">
+<td><strong>合计</strong></td>
+<td><strong>$1,560</strong></td>
+<td><strong>$425</strong></td>
+<td><strong>73%</strong></td>
+</tr>
+</tbody></table></div>
+
+<h3 id="各策略-roi-分析">各策略 ROI 分析</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>策略</th>
+<th>实施成本</th>
+<th>月度节省</th>
+<th>ROI</th>
+</tr></thead><tbody>
+<tr>
+<td>嵌入缓存</td>
+<td>低 (1天)</td>
+<td>$5</td>
+<td>高</td>
+</tr>
+<tr class="alt-row">
+<td>分层检索</td>
+<td>中 (3天)</td>
+<td>$350</td>
+<td>最高</td>
+</tr>
+<tr>
+<td>小模型重排序</td>
+<td>中 (2天)</td>
+<td>$900</td>
+<td>最高</td>
+</tr>
+<tr class="alt-row">
+<td>模型路由</td>
+<td>中 (3天)</td>
+<td>$150</td>
+<td>高</td>
+</tr>
+<tr>
+<td>提示词压缩</td>
+<td>低 (1天)</td>
+<td>$50</td>
+<td>中</td>
+</tr>
+<tr class="alt-row">
+<td>文档去重</td>
+<td>低 (1天)</td>
+<td>$30</td>
+<td>中</td>
+</tr>
+</tbody></table></div>
+
+<hr>
+
+<h2 id="实施优先级建议">实施优先级建议</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">code</span></div><pre><code>第一周（快速见效）：
+├── ✅ 嵌入缓存 → 立即减少 50% 嵌入成本
+├── ✅ 文档去重 → 避免重复计算
+└── ✅ 响应缓存 → 减少重复请求
+
+第二周（核心优化）：
+├── ✅ 小模型重排序 → 替代 API 调用，节省 90% 重排序成本
+└── ✅ 分层检索 → 减少不必要的向量搜索
+
+第三周（精细优化）：
+├── ✅ 模型路由 → 简单查询用小模型
+├── ✅ 提示词压缩 → 减少 token 消耗
+└── ✅ 批量嵌入 → 减少 API 调用次数</code></pre></div>
+
+<hr>
+
+<h2 id="成本监控仪表盘">成本监控仪表盘</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">class CostTracker:
+    &quot;&quot;&quot;成本跟踪器&quot;&quot;&quot;
+
+    def __init__(self, redis_client):
+        self.redis = redis_client
+
+    async def track_request(self, request_id, costs):
+        &quot;&quot;&quot;
+        跟踪单次请求成本
+        &quot;&quot;&quot;
+        total = sum(costs.values())
+        await self.redis.hset(
+            f&quot;cost:{request_id}&quot;,
+            mapping={k: str(v) for k, v in costs.items()}
+        )
+        await self.redis.hset(
+            f&quot;cost:{request_id}&quot;,
+            &quot;total&quot;, str(total)
+        )
+
+        # 按小时聚合
+        hour_key = datetime.utcnow().strftime(&quot;%Y%m%d%H&quot;)
+        await self.redis.hincrbyfloat(
+            f&quot;cost:hourly:{hour_key}&quot;,
+            &quot;total&quot;, total
+        )
+        for k, v in costs.items():
+            await self.redis.hincrbyfloat(
+                f&quot;cost:hourly:{hour_key}&quot;,
+                k, v
+            )
+
+    async def get_daily_summary(self):
+        &quot;&quot;&quot;日成本汇总&quot;&quot;&quot;
+        today = datetime.utcnow().strftime(&quot;%Y%m%d&quot;)
+        summary = {}
+
+        for hour in range(24):
+            key = f&quot;cost:hourly:{today}{hour:02d}&quot;
+            data = await self.redis.hgetall(key)
+            if data:
+                for k, v in data.items():
+                    summary[k] = summary.get(k, 0) + float(v)
+
+        return summary</code></pre></div>
+
+<hr>
+
+<h2 id="延伸阅读">延伸阅读</h2>
+
+<ul><li>OpenAI 定价计算器：https://openai.com/pricing</li>
+<li>Cohere Rerank 文档：https://docs.cohere.com/docs/reranking</li>
+<li>Sentence Transformers 蒸馏指南：https://www.sbert.net/docs/training/distillation.html</li>
+<li>论文：<em>Lost in the Middle: How Language Models Use Long Contexts</em> (Liu et al., 2023)</li></ul>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐⭐ 高级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>RAG 成本优化是将 RAG 系统从"能用"变为"用得起"的关键环节。在 AI 应用栈中，它贯穿嵌入计算、向量存储、LLM 推理三个核心环节，通过语义缓存、分层检索、小模型蒸馏等策略将成本降低 60%-90%。这是 RAG 系统能否在生产环境中长期运行的决定性因素。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>向量检索与 Embedding</td>
+<td>Embedding 缓存与模型蒸馏降低成本</td>
+<td><a href="#向量检索与embedding" class="wikilink">AI大模型/04-RAG技术/03-检索策略/向量检索与Embedding</a></td>
+</tr>
+<tr class="alt-row">
+<td>重排序与融合</td>
+<td>小模型 Rerank 替代大模型精排</td>
+<td><a href="#重排序与融合" class="wikilink">AI大模型/04-RAG技术/04-检索后处理/重排序与融合</a></td>
+</tr>
+<tr>
+<td>生产级 RAG 架构</td>
+<td>缓存策略与分层检索的工程实现</td>
+<td><a href="#03-生产级rag架构" class="wikilink">03-生产级RAG架构</a></td>
+</tr>
+<tr class="alt-row">
+<td>RAG 完整架构图</td>
+<td>成本优化在各阶段的切入点</td>
+<td><a href="#rag完整架构图" class="wikilink">AI大模型/04-RAG技术/05-生成阶段/RAG完整架构图</a></td>
+</tr>
+<tr>
+<td>Self-RAG</td>
+<td>按需检索减少不必要的 LLM 调用</td>
+<td><a href="#01-self-rag自适应检索" class="wikilink">01-Self-RAG自适应检索</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 语义缓存（相似度 > 0.92 直接返回）+ Embedding 缓存 + 小模型 Rerank，综合降低 70% 推理成本</li>
+<li><strong>评论分析 RAG</strong>: 评论数据量大，用批量 Embedding + Milvus 分区存储，冷热数据分层降低存储成本</li>
+<li><strong>内容推荐</strong>: 用摘要索引做粗筛减少向量检索量，小模型蒸馏 Embedding 替代大模型降低在线推理成本</li></ul>
+</div><div class="section-card" id="moc-rag高级模式"><h2><span class="badge badge-intermediate">基础</span> MOC-RAG高级模式</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#文档索引">文档索引</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#落地实践">落地实践</a></li></ul></div><h1 id="rag-高级模式">RAG 高级模式</h1>
+
+<blockquote>从基础 RAG 到生产级高级检索增强生成技术。</blockquote>
+
+<hr>
+
+<h2 id="文档索引">文档索引</h2>
+
+<ul><li><a href="#01-self-rag自适应检索" class="wikilink">RAG高级模式/01-Self-RAG自适应检索</a> — Self-RAG 自适应检索机制</li>
+<li><a href="#02-corrective-rag纠错检索" class="wikilink">RAG高级模式/02-Corrective-RAG纠错检索</a> — Corrective-RAG 纠错检索</li>
+<li><a href="#03-生产级rag架构" class="wikilink">RAG高级模式/03-生产级RAG架构</a> — 生产级 RAG 架构设计</li>
+<li><a href="#04-rag监控与质量漂移" class="wikilink">RAG高级模式/04-RAG监控与质量漂移</a> — RAG 监控与质量漂移检测</li>
+<li><a href="#05-rag成本优化策略" class="wikilink">RAG高级模式/05-RAG成本优化策略</a> — RAG 成本优化策略</li></ul>
+
+<hr>
+
+<p><em>最后更新：2026-05-31</em></p>
+
+<hr>
+
+<blockquote><strong>难度</strong>: ⭐⭐ 中级</blockquote>
+
+<h2 id="全局定位">全局定位</h2>
+
+<p>本 MOC（Map of Content）是 RAG 高级模式的导航索引，连接从基础 RAG 到生产级高级检索增强生成技术的知识图谱。在 AI 应用栈中，高级 RAG 位于基础 RAG 之上，解决生产环境中的自适应检索、质量纠错、可扩展性、监控和成本控制等工程挑战。这些技术是 RAG 系统从 Demo 走向企业级产品的必经之路。</p>
+
+<h2 id="知识串联">知识串联</h2>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>相关主题</th>
+<th>关联说明</th>
+<th>链接</th>
+</tr></thead><tbody>
+<tr>
+<td>RAG 基础技术</td>
+<td>高级模式的基础前置知识</td>
+<td><a href="#readme-rag技术" class="wikilink">AI大模型/04-RAG技术/README-RAG技术</a></td>
+</tr>
+<tr class="alt-row">
+<td>RAG 技术文档</td>
+<td>RAG 理论基础与架构演进</td>
+<td><a href="#rag技术文档-10" class="wikilink">AI大模型/04-RAG技术/RAG技术文档-1.0</a></td>
+</tr>
+<tr>
+<td>RAG 评估与优化</td>
+<td>高级模式的评估指标基础</td>
+<td><a href="#rag评估与优化" class="wikilink">AI大模型/04-RAG技术/05-生成阶段/RAG评估与优化</a></td>
+</tr>
+<tr class="alt-row">
+<td>Agent 开发</td>
+<td>Agentic RAG 与 Agent 记忆的融合</td>
+<td><a href="#" class="wikilink">AI大模型/05-Agent开发/</a></td>
+</tr>
+<tr>
+<td>向量数据库</td>
+<td>生产级向量存储与扩展</td>
+<td><a href="#向量检索与embedding" class="wikilink">AI大模型/04-RAG技术/03-检索策略/向量检索与Embedding</a></td>
+</tr>
+</tbody></table></div>
+
+<h2 id="落地实践">落地实践</h2>
+
+<ul><li><strong>知识库搜索系统</strong>: 综合运用 Self-RAG（按需检索）+ CRAG（质量纠错）+ 生产架构（多租户+缓存）</li>
+<li><strong>评论分析 RAG</strong>: 用 CRAG 评估器判断评论检索质量，低质量时自动回退到关键词搜索</li>
+<li><strong>内容推荐</strong>: 用监控系统跟踪推荐质量漂移，用成本优化控制大规模推荐的运营开支</li></ul>
+</div>
+<div class="page-footer">AI 知识库 - Foundation</div>
+</main>
+</body>
+</html>

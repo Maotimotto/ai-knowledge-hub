@@ -1,0 +1,2986 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>向量数据库 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link1">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>向量数据库</h1>
+<div class="toc"><div class="toc-title">目录</div><a href="#Milvus-分布式向量数据库">Milvus分布式向量DB</a><a href="#Pinecone-云原生向量数据库">Pinecone云原生向量DB</a><a href="#Qdrant-与-pgvector">Qdrant与pgvector</a><a href="#Weaviate-多模态向量搜索">Weaviate多模态搜索</a><a href="#向量数据库选型对比矩阵">向量DB选型对比矩阵</a></div>
+<div class="svg-diagram"><h3>向量数据库索引流程</h3><svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+<defs><marker id="ah" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#0075de"/></marker></defs>
+<rect x="10" y="110" width="140" height="60" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="80" y="145" text-anchor="middle" font-size="14" fill="#1a1a1a">原始文档</text>
+<line x1="150" y1="140" x2="190" y2="140" stroke="#0075de" marker-end="url(#ah)"/>
+<rect x="190" y="110" width="140" height="60" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="260" y="135" text-anchor="middle" font-size="13" fill="#1a1a1a">Embedding</text>
+<text x="260" y="155" text-anchor="middle" font-size="12" fill="#6b7280">向量化模型</text>
+<line x1="330" y1="140" x2="370" y2="140" stroke="#0075de" marker-end="url(#ah)"/>
+<rect x="370" y="110" width="140" height="60" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="440" y="135" text-anchor="middle" font-size="13" fill="#1a1a1a">索引构建</text>
+<text x="440" y="155" text-anchor="middle" font-size="12" fill="#6b7280">HNSW/IVF/PQ</text>
+<line x1="510" y1="140" x2="550" y2="140" stroke="#0075de" marker-end="url(#ah)"/>
+<rect x="550" y="110" width="140" height="60" rx="8" fill="#fdecc8" stroke="#8a6a00"/>
+<text x="620" y="135" text-anchor="middle" font-size="13" fill="#1a1a1a">向量数据库</text>
+<text x="620" y="155" text-anchor="middle" font-size="12" fill="#6b7280">Milvus/Qdrant/...</text>
+<rect x="10" y="220" width="140" height="60" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="80" y="245" text-anchor="middle" font-size="14" fill="#1a1a1a">查询文本</text>
+<text x="80" y="265" text-anchor="middle" font-size="12" fill="#6b7280">用户输入</text>
+<line x1="150" y1="250" x2="190" y2="250" stroke="#0075de" marker-end="url(#ah)"/>
+<line x1="260" y1="170" x2="260" y2="220" stroke="#0075de" stroke-dasharray="4" marker-end="url(#ah)"/>
+<rect x="190" y="220" width="140" height="60" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="260" y="245" text-anchor="middle" font-size="13" fill="#1a1a1a">Query Embedding</text>
+<text x="260" y="265" text-anchor="middle" font-size="12" fill="#6b7280">同一模型</text>
+<line x1="330" y1="250" x2="550" y2="175" stroke="#0075de" marker-end="url(#ah)"/>
+<text x="440" y="200" text-anchor="middle" font-size="12" fill="#0075de">相似度搜索</text>
+<rect x="550" y="220" width="140" height="60" rx="8" fill="#fadec9" stroke="#935400"/>
+<text x="620" y="245" text-anchor="middle" font-size="13" fill="#1a1a1a">Top-K 结果</text>
+<text x="620" y="265" text-anchor="middle" font-size="12" fill="#6b7280">相关文档</text>
+</svg></div><h1 id="Milvus-分布式向量数据库">Milvus 分布式向量数据库</h1>
+<h2 id="1-概述">1. 概述</h2>
+<p>Milvus 是由 Zilliz 开发的开源分布式向量数据库，专为大规模向量相似性搜索设计。</p>
+<p>支持万亿级向量的实时检索，是目前生产环境中应用最广泛的向量数据库之一。</p>
+<p><strong>核心特性：</strong></p>
+<li style="margin-left:0px">分布式架构，支持水平扩展</li>
+<li style="margin-left:0px">多种索引类型（IVF/HNSW/DiskANN 等）</li>
+<li style="margin-left:0px">混合查询：向量搜索 + 标量过滤</li>
+<li style="margin-left:0px">支持多种距离度量：L2、IP（内积）、Cosine</li>
+<li style="margin-left:0px">云原生部署，兼容 Kubernetes</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-系统架构">2. 系统架构</h2>
+<p>Milvus 2.x 采用存算分离的微服务架构，由以下核心组件组成：</p>
+<h3 id="21-接入层Proxy">2.1 接入层（Proxy）</h3>
+<pre><code>
+Client Request
+      │
+      ▼
+┌──────────────┐
+│    Proxy      │  ← 负载均衡、请求路由、结果聚合
+│  (无状态)     │
+└──────┬───────┘
+       │ gRPC
+       ▼
+┌──────────────┐
+│ Coordinator  │
+│   Services   │
+└──────────────┘
+</code></pre>
+<p><strong>Proxy 职责：</strong></p>
+<li style="margin-left:0px">接收客户端请求（SDK / RESTful API）</li>
+<li style="margin-left:0px">请求验证与参数校验</li>
+<li style="margin-left:0px">将请求路由到对应 Coordinator</li>
+<li style="margin-left:0px">聚合 Worker 返回的中间结果</li>
+<li style="margin-left:0px">提供负载均衡能力，可水平扩展</li>
+<h3 id="22-协调层Coordinator-Services">2.2 协调层（Coordinator Services）</h3>
+<p>协调层是 Milvus 的"大脑"，包含四类 Coordinator：</p>
+<table>
+<thead><tr>
+<th>Coordinator</th>
+<th>职责</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Root Coordinator</strong></td>
+<td>DDL 操作（创建/删除 Collection）、Timestamp 分配</td>
+</tr>
+<tr>
+<td><strong>Query Coordinator</strong></td>
+<td>查询节点管理、Segment 调度、负载均衡</td>
+</tr>
+<tr>
+<td><strong>Data Coordinator</strong></td>
+<td>数据写入管理、Segment 分配、Flush 控制</td>
+</tr>
+<tr>
+<td><strong>Index Coordinator</strong></td>
+<td>索引构建调度、索引元数据管理</td>
+</tr>
+</tbody></table>
+<h3 id="23-工作层Worker-Nodes">2.3 工作层（Worker Nodes）</h3>
+<table>
+<thead><tr>
+<th>Worker</th>
+<th>职责</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Query Node</strong></td>
+<td>执行向量搜索，加载 Segment 到内存</td>
+</tr>
+<tr>
+<td><strong>Data Node</strong></td>
+<td>接收写入数据，写入日志（WAL）</td>
+</tr>
+<tr>
+<td><strong>Index Node</strong></td>
+<td>执行索引构建任务</td>
+</tr>
+</tbody></table>
+<h3 id="24-存储层">2.4 存储层</h3>
+<pre><code>
+┌─────────────────────────────────────────┐
+│              存储层                       │
+├──────────┬──────────┬───────────────────┤
+│  etcd    │  MinIO   │  Pulsar/Kafka     │
+│ (元数据) │ (对象存储)│  (消息队列/WAL)    │
+└──────────┴──────────┴───────────────────┘
+</code></pre>
+<li style="margin-left:0px"><strong>etcd</strong>：存储元数据、服务发现、分布式锁</li>
+<li style="margin-left:0px"><strong>MinIO/S3</strong>：存储 Binlog（段数据）、索引文件</li>
+<li style="margin-left:0px"><strong>Pulsar/Kafka</strong>：消息队列，实现写入日志和数据同步</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-核心索引类型">3. 核心索引类型</h2>
+<h3 id="31-IVF-系列索引">3.1 IVF 系列索引</h3>
+<p><strong>IVF_FLAT（倒排文件 + 暴力搜索）：</strong></p>
+<li style="margin-left:0px">原理：先用 K-Means 聚类将向量分成 nlist 个桶，查询时只搜索最近的 nprobe 个桶</li>
+<li style="margin-left:0px">优点：精度可控（nprobe 越大越精确）</li>
+<li style="margin-left:0px">缺点：全量数据需加载到内存</li>
+<li style="margin-left:0px">适用：百万级数据，需要 100% 可调精度</li>
+<p><strong>IVF_PQ（倒排文件 + 乘积量化）：</strong></p>
+<li style="margin-left:0px">原理：IVF 聚类 + PQ 压缩每个向量</li>
+<li style="margin-left:0px">优点：大幅降低内存占用（4-16倍压缩）</li>
+<li style="margin-left:0px">缺点：精度损失，需训练</li>
+<li style="margin-left:0px">适用：千万到亿级数据，内存受限</li>
+<p><strong>IVF_SQ8（倒排文件 + 标量量化）：</strong></p>
+<li style="margin-left:0px">原理：IVF + 将 float32 量化为 int8</li>
+<li style="margin-left:0px">优点：内存减少约 75%，精度损失小</li>
+<li style="margin-left:0px">适用：中大规模数据集</li>
+<h3 id="32-HNSW-索引">3.2 HNSW 索引</h3>
+<p><strong>原理：</strong> 构建多层跳表图结构，每层是一个近邻图（NSW）。</p>
+<li style="margin-left:0px">搜索从最高层开始，逐层下降</li>
+<li style="margin-left:0px">每层贪心搜索找到最近邻</li>
+<li style="margin-left:0px">时间复杂度：O(log N)</li>
+<p><strong>参数调优：</strong></p>
+<pre><code class="language-python">
+index_params = {
+    &quot;index_type&quot;: &quot;HNSW&quot;,
+    &quot;metric_type&quot;: &quot;L2&quot;,
+    &quot;params&quot;: {
+        &quot;M&quot;: 16,           # 每个节点的连接数（越大越精确，内存越大）
+        &quot;efConstruction&quot;: 256  # 构建时的搜索宽度（越大构建越慢，质量越高）
+    }
+}
+</code></pre>
+<p><strong>搜索参数：</strong></p>
+<pre><code class="language-python">
+search_params = {
+    &quot;metric_type&quot;: &quot;L2&quot;,
+    &quot;params&quot;: {
+        &quot;ef&quot;: 128  # 搜索时的搜索宽度（越大越精确，越慢）
+    }
+}
+</code></pre>
+<p><strong>性能特征：</strong></p>
+<li style="margin-left:0px">M=16, ef=128 时：recall@10 > 99%，延迟亚毫秒</li>
+<li style="margin-left:0px">内存占用：约 200 bytes/vector（M=16）</li>
+<li style="margin-left:0px">适用：百万到千万级，对延迟要求极高的场景</li>
+<h3 id="33-DiskANN-索引">3.3 DiskANN 索引</h3>
+<p><strong>原理：</strong> 基于微软的 DiskANN 算法，将图索引存储在 SSD 上。</p>
+<p><strong>特点：</strong></p>
+<li style="margin-left:0px">使用 Vamana 图 + PQ 量化</li>
+<li style="margin-left:0px">内存中只保留 PQ 量化向量和部分图结构</li>
+<li style="margin-left:0px">磁盘上存储完整图和原始向量</li>
+<li style="margin-left:0px">适合十亿级数据集，内存有限的场景</li>
+<p><strong>参数配置：</strong></p>
+<pre><code class="language-python">
+index_params = {
+    &quot;index_type&quot;: &quot;DISKANN&quot;,
+    &quot;metric_type&quot;: &quot;L2&quot;,
+    &quot;params&quot;: {
+        &quot;build_list&quot;: 128,    # 构建时邻居数
+        &quot;search_list&quot;: 60,    # 搜索时候选列表大小
+        &quot;pq_code_budget_gb&quot;: 0.125  # PQ 编码内存预算
+    }
+}
+</code></pre>
+<h3 id="34-索引选型决策树">3.4 索引选型决策树</h3>
+<pre><code>
+数据量 &lt; 100万？
+  ├── 是 → HNSW（延迟优先）或 IVF_FLAT（精度优先）
+  └── 否 →
+      数据量 &lt; 1亿？
+        ├── 是 → 内存充足？HNSW : IVF_PQ
+        └── 否 → DiskANN 或 IVF_PQ（分片）
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-性能调优">4. 性能调优</h2>
+<h3 id="41-写入性能优化">4.1 写入性能优化</h3>
+<pre><code class="language-python">
+# 批量插入
+collection.insert([ids, vectors, metadata])  # 单批建议 1000-10000 条
+
+# 调整 Flush 策略
+# 减少 Flush 频率，提升写入吞吐
+# 代价：数据可见性延迟增大
+</code></pre>
+<p><strong>关键参数：</strong></p>
+<li style="margin-left:0px"><code>proxy.maxNameLength</code>：批量大小上限</li>
+<li style="margin-left:0px"><code>dataNode.flush.insertBufSize</code>：写入缓冲区大小（默认 16MB）</li>
+<li style="margin-left:0px">写入后需 <code>flush()</code> 才能确保数据持久化</li>
+<h3 id="42-查询性能优化">4.2 查询性能优化</h3>
+<pre><code class="language-python">
+# 1. 调整搜索参数
+search_params = {
+    &quot;metric_type&quot;: &quot;L2&quot;,
+    &quot;params&quot;: {
+        &quot;nprobe&quot;: 32,  # IVF: 搜索桶数（越大越精确，越慢）
+        &quot;ef&quot;: 128      # HNSW: 搜索宽度
+    }
+}
+
+# 2. 使用分区过滤（比标量过滤快）
+collection.load(partition_names=[&quot;hot_data&quot;])
+results = collection.search(
+    vectors,
+    &quot;vector&quot;,
+    search_params,
+    limit=10,
+    partition_names=[&quot;hot_data&quot;]
+)
+
+# 3. 使用表达式过滤（post-filter）
+results = collection.search(
+    vectors, &quot;vector&quot;, search_params, limit=10,
+    expr=&quot;category == &#x27;electronics&#x27; and price &gt; 100&quot;
+)
+</code></pre>
+<h3 id="43-内存优化">4.3 内存优化</h3>
+<table>
+<thead><tr>
+<th>策略</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td>使用 PQ/SQ8 索引</td>
+<td>减少向量内存占用</td>
+</tr>
+<tr>
+<td>分区加载</td>
+<td>只加载热数据分区到内存</td>
+</tr>
+<tr>
+<td>mmap 模式</td>
+<td>将索引映射到磁盘，减少内存占用</td>
+</tr>
+<tr>
+<td>资源组隔离</td>
+<td>不同业务使用独立资源组</td>
+</tr>
+</tbody></table>
+<pre><code class="language-python">
+# mmap 模式（Milvus 2.4+）
+collection.set_properties({
+    &quot;mmap.enabled&quot;: &quot;true&quot;
+})
+</code></pre>
+<h3 id="44-集群规模调优">4.4 集群规模调优</h3>
+<pre><code>
+推荐配置（百万级数据）：
+  - Proxy: 2+ 实例（无状态，按 QPS 扩展）
+  - Query Node: 2+ 实例（按数据量扩展）
+  - Data Node: 1-2 实例
+  - Index Node: 1-2 实例（按索引构建需求扩展）
+  - etcd: 3 节点（高可用）
+  - MinIO: 分布式部署
+  - Pulsar/Kafka: 3+ Broker
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Docker-部署">5. Docker 部署</h2>
+<h3 id="51-单机部署Docker-Compose">5.1 单机部署（Docker Compose）</h3>
+<p>最简部署方式，适合开发和测试：</p>
+<pre><code class="language-bash">
+# 下载 docker-compose 文件
+wget https://github.com/milvus-io/milvus/releases/download/v2.4.0/milvus-standalone-docker-compose.yml -O docker-compose.yml
+
+# 启动
+docker compose up -d
+
+# 验证
+docker compose ps
+</code></pre>
+<p><strong>docker-compose.yml（精简版）：</strong></p>
+<pre><code class="language-yaml">
+version: &#x27;3.5&#x27;
+
+services:
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+    volumes:
+      - etcd_data:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379
+
+  minio:
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    volumes:
+      - minio_data:/minio_data
+    command: minio server /minio_data
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:9000/minio/health/live&quot;]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  milvus-standalone:
+    image: milvusdb/milvus:v2.4.0
+    command: [&quot;milvus&quot;, &quot;run&quot;, &quot;standalone&quot;]
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    ports:
+      - &quot;19530:19530&quot;
+      - &quot;9091:9091&quot;
+    depends_on:
+      - etcd
+      - minio
+
+volumes:
+  etcd_data:
+  minio_data:
+</code></pre>
+<h3 id="52-Kubernetes-部署Helm">5.2 Kubernetes 部署（Helm）</h3>
+<pre><code class="language-bash">
+# 添加 Helm 仓库
+helm repo add milvus https://milvus-io/milvus-helm
+helm repo update
+
+# 安装（集群模式）
+helm install milvus milvus/milvus \
+  --set cluster.enabled=true \
+  --set etcd.replicaCount=3 \
+  --set minio.mode=distributed \
+  --set pulsar.enabled=true \
+  -n milvus --create-namespace
+
+# 查看状态
+kubectl get pods -n milvus
+</code></pre>
+<h3 id="53-连接与基本使用">5.3 连接与基本使用</h3>
+<pre><code class="language-python">
+from pymilvus import connections, Collection, FieldSchema, CollectionSchema, DataType
+
+# 连接
+connections.connect(&quot;default&quot;, host=&quot;localhost&quot;, port=&quot;19530&quot;)
+
+# 定义 Schema
+fields = [
+    FieldSchema(name=&quot;id&quot;, dtype=DataType.INT64, is_primary=True, auto_id=True),
+    FieldSchema(name=&quot;title&quot;, dtype=DataType.VARCHAR, max_length=512),
+    FieldSchema(name=&quot;embedding&quot;, dtype=DataType.FLOAT_VECTOR, dim=768),
+    FieldSchema(name=&quot;category&quot;, dtype=DataType.VARCHAR, max_length=64),
+]
+schema = CollectionSchema(fields, description=&quot;文档集合&quot;)
+collection = Collection(&quot;documents&quot;, schema)
+
+# 创建索引
+collection.create_index(&quot;embedding&quot;, {
+    &quot;index_type&quot;: &quot;HNSW&quot;,
+    &quot;metric_type&quot;: &quot;L2&quot;,
+    &quot;params&quot;: {&quot;M&quot;: 16, &quot;efConstruction&quot;: 256}
+})
+
+# 加载到内存
+collection.load()
+
+# 搜索
+results = collection.search(
+    data=[query_vector],
+    anns_field=&quot;embedding&quot;,
+    param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+    limit=10,
+    expr=&#x27;category == &quot;AI&quot;&#x27;,
+    output_fields=[&quot;title&quot;, &quot;category&quot;]
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-监控与运维">6. 监控与运维</h2>
+<h3 id="61-Prometheus-指标">6.1 Prometheus 指标</h3>
+<p>Milvus 暴露 Prometheus 指标端口（默认 9091）：</p>
+<pre><code class="language-yaml">
+# Prometheus 配置
+scrape_configs:
+  - job_name: &#x27;milvus&#x27;
+    static_configs:
+      - targets: [&#x27;milvus-standalone:9091&#x27;]
+</code></pre>
+<p><strong>关键指标：</strong></p>
+<li style="margin-left:0px"><code>milvus_proxy_search_latency</code>：搜索延迟</li>
+<li style="margin-left:0px"><code>milvus_proxy_search_vectors_count</code>：搜索向量数</li>
+<li style="margin-left:0px"><code>milvus_datacoord_num_entities</code>：实体总数</li>
+<li style="margin-left:0px"><code>milvus_querynode_collection_num</code>：已加载集合数</li>
+<h3 id="62-常见运维操作">6.2 常见运维操作</h3>
+<pre><code class="language-bash">
+# 备份元数据
+ETCDCTL_API=3 etcdctl snapshot save backup.db
+
+# 扩容 Query Node
+kubectl scale deployment milvus-querynode --replicas=4 -n milvus
+
+# 查看日志
+kubectl logs -f deployment/milvus-proxy -n milvus
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-最佳实践">7. 最佳实践</h2>
+<li style="margin-left:0px"><strong>选择合适的索引</strong>：小数据用 HNSW，大数据用 IVF_PQ 或 DiskANN</li>
+<li style="margin-left:0px"><strong>分区策略</strong>：按时间/业务维度分区，减少搜索范围</li>
+<li style="margin-left:0px"><strong>批量操作</strong>：避免逐条插入，批量大小 1000-10000</li>
+<li style="margin-left:0px"><strong>监控告警</strong>：关注延迟、QPS、内存使用率</li>
+<li style="margin-left:0px"><strong>定期 Compact</strong>：减少 Segment 碎片，提升查询效率</li>
+<li style="margin-left:0px"><strong>资源隔离</strong>：使用多 Collection 或多 Milvus 实例隔离业务</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>Milvus 是生产环境中应用最广泛的分布式向量数据库，支持万亿级向量检索。掌握 Milvus 是构建企业级 RAG 和语义搜索系统的基础设施能力，在<a href="#向量数据库选型">向量数据库选型</a>中处于推荐首选位置。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">竞品对比：<a href="#向量DB选型对比矩阵">向量DB选型对比矩阵</a>、<a href="#Qdrant与pgvector">Qdrant与pgvector</a>、<a href="#Pinecone云原生向量DB">Pinecone云原生向量DB</a></li>
+<li style="margin-left:0px">上游依赖：<a href="#Embedding模型选型">Embedding模型选型</a>、<a href="#文本向量化技术">文本向量化技术</a></li>
+<li style="margin-left:0px">应用场景：<a href="#RAG系统架构">RAG系统架构</a>、<a href="#语义搜索引擎">语义搜索引擎</a></li>
+<li style="margin-left:0px">部署运维：<a href="#Docker部署实践">Docker部署实践</a>、<a href="#Kubernetes集群管理">Kubernetes集群管理</a></li>
+<li style="margin-left:0px">监控集成：<a href="#Prometheus监控体系">Prometheus监控体系</a>、<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from pymilvus import connections, Collection
+
+app = FastAPI()
+connections.connect(&quot;default&quot;, host=&quot;milvus&quot;, port=&quot;19530&quot;)
+collection = Collection(&quot;documents&quot;)
+
+@app.post(&quot;/search&quot;)
+async def semantic_search(query: str, top_k: int = 5):
+    embedding = get_embedding(query)  # 调用 Embedding 模型
+    results = collection.search(
+        data=[embedding], anns_field=&quot;vector&quot;,
+        param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+        limit=top_k, output_fields=[&quot;title&quot;, &quot;content&quot;]
+    )
+    return {&quot;results&quot;: [hit.to_dict() for hit in results[0]]}
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Milvus + Embedding 服务
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.0
+    ports: [&quot;19530:19530&quot;]
+    # ... (etcd, minio 依赖省略)
+  embedding-api:
+    build: ./embedding
+    ports: [&quot;8081:8081&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>为 Hermes Agent 添加知识库检索能力：开发一个检索插件，查询 Milvus/Qdrant 中的文档向量，返回相关上下文供 Agent 的 LLM 推理使用。实现 RAG（检索增强生成）模式。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="Pinecone-云原生向量数据库">Pinecone 云原生向量数据库</h1>
+<h2 id="1-概述">1. 概述</h2>
+<p>Pinecone 是全球首个全托管的云原生向量数据库，由 Edo Liberty（前 AWS/AI 负责人）创立。</p>
+<p>专注于提供零运维、低延迟、高可用的向量搜索服务。</p>
+<p><strong>核心定位：</strong></p>
+<li style="margin-left:0px">完全托管（SaaS），无需运维基础设施</li>
+<li style="margin-left:0px">Serverless 架构，按使用量付费</li>
+<li style="margin-left:0px">毫秒级查询延迟</li>
+<li style="margin-left:0px">适合快速上线、不想自建向量数据库的团队</li>
+<p><strong>与其他向量 DB 的区别：</strong></p>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Pinecone</th>
+<th>Milvus/Qdrant</th>
+</tr></thead><tbody>
+<tr>
+<td>部署模式</td>
+<td>SaaS 托管</td>
+<td>自建/托管</td>
+</tr>
+<tr>
+<td>运维成本</td>
+<td>零</td>
+<td>中-高</td>
+</tr>
+<tr>
+<td>扩展性</td>
+<td>自动</td>
+<td>手动配置</td>
+</tr>
+<tr>
+<td>定价</td>
+<td>按用量</td>
+<td>按资源</td>
+</tr>
+<tr>
+<td>数据控制</td>
+<td>云端</td>
+<td>完全自主</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-Serverless-架构模型">2. Serverless 架构模型</h2>
+<h3 id="21-架构演进">2.1 架构演进</h3>
+<p>Pinecone 经历了三个架构阶段：</p>
+<pre><code>
+Pod-based → Node-based → Serverless
+(2021)       (2023)        (2024)
+</code></pre>
+<p><strong>Serverless 模型（2024 年推出）：</strong></p>
+<pre><code>
+┌─────────────────────────────────────────┐
+│            Pinecone Serverless           │
+├──────────────┬──────────────────────────┤
+│   Compute    │        Storage           │
+│  (按查询自动  │  (S3-based, 自动扩展,     │
+│   扩缩容)    │   按存储量计费)            │
+├──────────────┴──────────────────────────┤
+│         冷热数据自动分层管理               │
+│   热数据 → 内存缓存（低延迟）              │
+│   冷数据 → 对象存储（低成本）              │
+└─────────────────────────────────────────┘
+</code></pre>
+<p><strong>Serverless 优势：</strong></p>
+<li style="margin-left:0px"><strong>零容量规划</strong>：自动扩缩容，无需预估 QPS 和数据量</li>
+<li style="margin-left:0px"><strong>按量付费</strong>：</li>
+<li style="margin-left:2px">读取：按查询次数（Read Units）</li>
+<li style="margin-left:2px">写入：按写入次数（Write Units）</li>
+<li style="margin-left:2px">存储：按向量数据量（GB）</li>
+<li style="margin-left:0px"><strong>冷启动优化</strong>：Pinecone 对冷查询做了优化，首次查询延迟较低</li>
+<li style="margin-left:0px"><strong>多租户隔离</strong>：每个 Index 物理隔离</li>
+<h3 id="22-Pod-based-模型传统">2.2 Pod-based 模型（传统）</h3>
+<p>适合有稳定、可预测工作负载的场景：</p>
+<table>
+<thead><tr>
+<th>Pod 类型</th>
+<th>内存</th>
+<th>向量容量</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>s1</td>
+<td>7 GB</td>
+<td>~100 万</td>
+<td>开发测试</td>
+</tr>
+<tr>
+<td>p1</td>
+<td>28 GB</td>
+<td>~500 万</td>
+<td>生产环境</td>
+</tr>
+<tr>
+<td>p2</td>
+<td>56 GB</td>
+<td>~1000 万</td>
+<td>大规模生产</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-Namespaces命名空间">3. Namespaces（命名空间）</h2>
+<p>Namespaces 是 Pinecone 中的逻辑分区机制，用于数据隔离和多租户。</p>
+<h3 id="31-核心概念">3.1 核心概念</h3>
+<pre><code class="language-python">
+# 同一个 Index 内，不同 Namespace 的数据完全隔离
+index = pinecone.Index(&quot;my-index&quot;)
+
+# 写入不同 Namespace
+index.upsert(vectors=[
+    {&quot;id&quot;: &quot;vec1&quot;, &quot;values&quot;: [0.1, 0.2, ...], &quot;metadata&quot;: {&quot;source&quot;: &quot;doc1&quot;}}
+], namespace=&quot;tenant-a&quot;)
+
+index.upsert(vectors=[
+    {&quot;id&quot;: &quot;vec1&quot;, &quot;values&quot;: [0.3, 0.4, ...], &quot;metadata&quot;: {&quot;source&quot;: &quot;doc2&quot;}}
+], namespace=&quot;tenant-b&quot;)
+
+# 搜索指定 Namespace（只返回该 namespace 的结果）
+results = index.query(
+    vector=[0.1, 0.2, ...],
+    top_k=10,
+    namespace=&quot;tenant-a&quot;
+)
+</code></pre>
+<h3 id="32-使用场景">3.2 使用场景</h3>
+<table>
+<thead><tr>
+<th>场景</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>多租户</strong></td>
+<td>每个租户一个 namespace，天然数据隔离</td>
+</tr>
+<tr>
+<td><strong>环境隔离</strong></td>
+<td>dev/staging/prod 共享一个 Index</td>
+</tr>
+<tr>
+<td><strong>数据版本</strong></td>
+<td>不同版本的数据放在不同 namespace</td>
+</tr>
+<tr>
+<td><strong>业务隔离</strong></td>
+<td>不同业务线使用独立 namespace</td>
+</tr>
+</tbody></table>
+<h3 id="33-性能考量">3.3 性能考量</h3>
+<li style="margin-left:0px">Namespace 越多，查询性能越好（缩小搜索范围）</li>
+<li style="margin-left:0px">建议单个 Namespace 不超过 1000 万向量</li>
+<li style="margin-left:0px">不同 Namespace 共享相同的 Index 配置（维度、度量等）</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-Metadata-Filtering元数据过滤">4. Metadata Filtering（元数据过滤）</h2>
+<h3 id="41-Metadata-结构">4.1 Metadata 结构</h3>
+<pre><code class="language-python">
+index.upsert(vectors=[
+    {
+        &quot;id&quot;: &quot;doc-001&quot;,
+        &quot;values&quot;: embedding,
+        &quot;metadata&quot;: {
+            &quot;category&quot;: &quot;technology&quot;,
+            &quot;price&quot;: 29.99,
+            &quot;rating&quot;: 4.5,
+            &quot;tags&quot;: [&quot;AI&quot;, &quot;ML&quot;, &quot;NLP&quot;],
+            &quot;created_at&quot;: &quot;2024-01-15&quot;,
+            &quot;in_stock&quot;: True,
+            &quot;author&quot;: {&quot;name&quot;: &quot;John&quot;, &quot;org&quot;: &quot;OpenAI&quot;}
+        }
+    }
+])
+</code></pre>
+<p><strong>支持的 Metadata 类型：</strong></p>
+<li style="margin-left:0px">字符串（string）</li>
+<li style="margin-left:0px">数值（float/int）</li>
+<li style="margin-left:0px">布尔（boolean）</li>
+<li style="margin-left:0px">字符串列表（list of strings）</li>
+<li style="margin-left:0px">嵌套对象（nested object，2024+）</li>
+<h3 id="42-过滤语法">4.2 过滤语法</h3>
+<p>Pinecone 使用 JSON 格式的过滤表达式：</p>
+<pre><code class="language-python">
+# 等值过滤
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    filter={&quot;category&quot;: {&quot;$eq&quot;: &quot;technology&quot;}}
+)
+
+# 数值范围
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    filter={
+        &quot;price&quot;: {&quot;$gte&quot;: 10, &quot;$lte&quot;: 100},
+        &quot;rating&quot;: {&quot;$gte&quot;: 4.0}
+    }
+)
+
+# 逻辑组合
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    filter={
+        &quot;$and&quot;: [
+            {&quot;category&quot;: {&quot;$in&quot;: [&quot;technology&quot;, &quot;science&quot;]}},
+            {&quot;price&quot;: {&quot;$lt&quot;: 50}},
+            {&quot;tags&quot;: {&quot;$in&quot;: [&quot;AI&quot;, &quot;ML&quot;]}}
+        ]
+    }
+)
+
+# NOT 过滤
+results = index.query(
+    vector=query_vector,
+    top_k=10,
+    filter={&quot;category&quot;: {&quot;$ne&quot;: &quot;sports&quot;}}
+)
+</code></pre>
+<p><strong>支持的操作符：</strong></p>
+<table>
+<thead><tr>
+<th>操作符</th>
+<th>说明</th>
+<th>示例</th>
+</tr></thead><tbody>
+<tr>
+<td><code>$eq</code></td>
+<td>等于</td>
+<td><code>{"status": {"$eq": "active"}}</code></td>
+</tr>
+<tr>
+<td><code>$ne</code></td>
+<td>不等于</td>
+<td><code>{"status": {"$ne": "deleted"}}</code></td>
+</tr>
+<tr>
+<td><code>$gt/$gte</code></td>
+<td>大于/大于等于</td>
+<td><code>{"price": {"$gte": 100}}</code></td>
+</tr>
+<tr>
+<td><code>$lt/$lte</code></td>
+<td>小于/小于等于</td>
+<td><code>{"price": {"$lte": 500}}</code></td>
+</tr>
+<tr>
+<td><code>$in</code></td>
+<td>在列表中</td>
+<td><code>{"category": {"$in": ["A","B"]}}</code></td>
+</tr>
+<tr>
+<td><code>$nin</code></td>
+<td>不在列表中</td>
+<td><code>{"status": {"$nin": ["banned"]}}</code></td>
+</tr>
+<tr>
+<td><code>$and</code></td>
+<td>逻辑与</td>
+<td><code>{"$and": [cond1, cond2]}</code></td>
+</tr>
+<tr>
+<td><code>$or</code></td>
+<td>逻辑或</td>
+<td><code>{"$or": [cond1, cond2]}</code></td>
+</tr>
+</tbody></table>
+<h3 id="43-过滤性能优化">4.3 过滤性能优化</h3>
+<li style="margin-left:0px"><strong>Pre-filter vs Post-filter</strong>：Pinecone 采用自适应策略</li>
+<li style="margin-left:2px">过滤条件选择性高（过滤掉大部分数据）→ pre-filter（先过滤再搜索）</li>
+<li style="margin-left:2px">过滤条件选择性低（保留大部分数据）→ post-filter（先搜索再过滤）</li>
+<li style="margin-left:0px"><strong>建议</strong>：在 metadata 字段上建索引（创建 Index 时指定 <code>metadata_config</code>）</li>
+<li style="margin-left:0px"><strong>限制</strong>：metadata 总大小不超过 40KB/向量</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Hybrid-Search混合搜索">5. Hybrid Search（混合搜索）</h2>
+<h3 id="51-语义--关键词搜索">5.1 语义 + 关键词搜索</h3>
+<p>Pinecone 支持稀疏-稠密混合搜索（Sparse-Dense Hybrid Search）：</p>
+<pre><code>
+┌─────────────────────────────────────────────┐
+│             Hybrid Search                    │
+│                                              │
+│  Dense Vector (语义)  +  Sparse Vector (关键词)│
+│       ↓                      ↓               │
+│  语义相似度            BM25/TF-IDF 权重        │
+│       └──────────┬──────────┘                │
+│                  ↓                            │
+│          加权融合排序                           │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3 id="52-使用示例">5.2 使用示例</h3>
+<pre><code class="language-python">
+from pinecone import Pinecone
+
+pc = Pinecone(api_key=&quot;YOUR_API_KEY&quot;)
+index = pc.Index(&quot;hybrid-index&quot;)
+
+# 使用 SPLADE 等模型生成稀疏向量
+from pinecone_text.sparse import BM25Encoder
+
+bm25 = BM25Encoder()
+bm25.fit(corpus)  # 训练 BM25 编码器
+sparse_vector = bm25.encode_queries(&quot;what is vector database&quot;)
+
+# 混合查询
+results = index.query(
+    top_k=10,
+    vector=dense_vector,        # 稠密向量（语义）
+    sparse_vector=sparse_vector, # 稀疏向量（关键词）
+    alpha=0.7,                   # 稠密权重（0=纯关键词，1=纯语义）
+    include_metadata=True
+)
+</code></pre>
+<h3 id="53-Alpha-参数调优">5.3 Alpha 参数调优</h3>
+<table>
+<thead><tr>
+<th>Alpha 值</th>
+<th>语义权重</th>
+<th>关键词权重</th>
+<th>适用场景</th>
+</tr></thead><tbody>
+<tr>
+<td>1.0</td>
+<td>100%</td>
+<td>0%</td>
+<td>纯语义搜索（同义词、改写）</td>
+</tr>
+<tr>
+<td>0.7</td>
+<td>70%</td>
+<td>30%</td>
+<td>语义优先（推荐默认值）</td>
+</tr>
+<tr>
+<td>0.5</td>
+<td>50%</td>
+<td>50%</td>
+<td>均衡混合</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td>30%</td>
+<td>70%</td>
+<td>关键词优先（精确匹配多）</td>
+</tr>
+<tr>
+<td>0.0</td>
+<td>0%</td>
+<td>100%</td>
+<td>纯关键词搜索</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-实际使用指南">6. 实际使用指南</h2>
+<h3 id="61-创建-Index">6.1 创建 Index</h3>
+<pre><code class="language-python">
+from pinecone import Pinecone, ServerlessSpec
+
+pc = Pinecone(api_key=&quot;YOUR_API_KEY&quot;)
+
+# 创建 Serverless Index
+pc.create_index(
+    name=&quot;my-index&quot;,
+    dimension=1536,  # OpenAI embedding 维度
+    metric=&quot;cosine&quot;,
+    spec=ServerlessSpec(
+        cloud=&quot;aws&quot;,
+        region=&quot;us-east-1&quot;
+    )
+)
+
+# 创建 Pod-based Index
+from pinecone import PodSpec
+pc.create_index(
+    name=&quot;my-index&quot;,
+    dimension=1536,
+    metric=&quot;cosine&quot;,
+    spec=PodSpec(
+        environment=&quot;us-east1-gcp&quot;,
+        pod_type=&quot;p1.x1&quot;,
+        pods=2
+    )
+)
+</code></pre>
+<h3 id="62-完整-RAG-流程示例">6.2 完整 RAG 流程示例</h3>
+<pre><code class="language-python">
+import openai
+from pinecone import Pinecone
+
+pc = Pinecone(api_key=&quot;YOUR_API_KEY&quot;)
+index = pc.Index(&quot;knowledge-base&quot;)
+
+# 1. 文档索引
+def index_document(doc_id, text, metadata):
+    embedding = openai.embeddings.create(
+        input=text, model=&quot;text-embedding-3-small&quot;
+    ).data[0].embedding
+    index.upsert(vectors=[{
+        &quot;id&quot;: doc_id,
+        &quot;values&quot;: embedding,
+        &quot;metadata&quot;: {**metadata, &quot;text&quot;: text[:1000]}
+    }])
+
+# 2. 检索
+def search(query, top_k=5, filters=None):
+    q_embedding = openai.embeddings.create(
+        input=query, model=&quot;text-embedding-3-small&quot;
+    ).data[0].embedding
+    return index.query(
+        vector=q_embedding,
+        top_k=top_k,
+        filter=filters,
+        include_metadata=True
+    )
+
+# 3. RAG 生成
+def rag_answer(query):
+    context = search(query, top_k=3)
+    context_text = &quot;\n\n&quot;.join([
+        m[&quot;metadata&quot;][&quot;text&quot;] for m in context[&quot;matches&quot;]
+    ])
+    response = openai.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: f&quot;基于以下上下文回答：\n{context_text}&quot;},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: query}
+        ]
+    )
+    return response.choices[0].message.content
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-限制与注意事项">7. 限制与注意事项</h2>
+<table>
+<thead><tr>
+<th>限制项</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td>向量维度</td>
+<td>1-20000</td>
+</tr>
+<tr>
+<td>metadata 大小</td>
+<td>≤ 40KB/向量</td>
+</tr>
+<tr>
+<td>单次 upsert</td>
+<td>≤ 1000 条</td>
+</tr>
+<tr>
+<td>单次查询</td>
+<td>≤ 10000 条（fetch）</td>
+</tr>
+<tr>
+<td>Namespace 数量</td>
+<td>无硬限制（建议 < 1000）</td>
+</tr>
+<tr>
+<td>数据一致性</td>
+<td>最终一致（写入后几秒可查询）</td>
+</tr>
+<tr>
+<td>数据导出</td>
+<td>支持批量导出 API</td>
+</tr>
+<tr>
+<td>区域可用性</td>
+<td>AWS/GCP 主要区域</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-定价参考2024">8. 定价参考（2024）</h2>
+<table>
+<thead><tr>
+<th>模式</th>
+<th>计费项</th>
+<th>价格参考</th>
+</tr></thead><tbody>
+<tr>
+<td>Serverless</td>
+<td>写入</td>
+<td>~$0.15 / 百万次</td>
+</tr>
+<tr>
+<td>Serverless</td>
+<td>读取</td>
+<td>~$0.25 / 百万次</td>
+</tr>
+<tr>
+<td>Serverless</td>
+<td>存储</td>
+<td>~$0.33 / GB / 月</td>
+</tr>
+<tr>
+<td>Pod (s1)</td>
+<td>实例</td>
+<td>~$70 / 月 / pod</td>
+</tr>
+<tr>
+<td>Pod (p1)</td>
+<td>实例</td>
+<td>~$250 / 月 / pod</td>
+</tr>
+</tbody></table>
+<p><strong>免费额度：</strong> 新用户赠送 $100 额度，足够测试和小规模应用。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>Pinecone 是全托管云原生向量数据库，零运维、开箱即用。适合快速原型验证和不想自建基础设施的团队。在<a href="#向量DB选型对比矩阵">向量DB选型对比矩阵</a>中代表「易用优先」路线。</p>
+<p><strong>难度等级</strong>：🟡 ⭐⭐ 初中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">自建对比：<a href="#Milvus分布式向量DB">Milvus分布式向量DB</a>、<a href="#Qdrant与pgvector">Qdrant与pgvector</a></li>
+<li style="margin-left:0px">选型指南：<a href="#向量DB选型对比矩阵">向量DB选型对比矩阵</a></li>
+<li style="margin-left:0px">应用集成：<a href="#RAG系统架构">RAG系统架构</a>、<a href="#LangChain向量存储">LangChain向量存储</a></li>
+<li style="margin-left:0px">成本评估：<a href="#云服务成本管理">云服务成本管理</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from pymilvus import connections, Collection
+
+app = FastAPI()
+connections.connect(&quot;default&quot;, host=&quot;milvus&quot;, port=&quot;19530&quot;)
+collection = Collection(&quot;documents&quot;)
+
+@app.post(&quot;/search&quot;)
+async def semantic_search(query: str, top_k: int = 5):
+    embedding = get_embedding(query)  # 调用 Embedding 模型
+    results = collection.search(
+        data=[embedding], anns_field=&quot;vector&quot;,
+        param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+        limit=top_k, output_fields=[&quot;title&quot;, &quot;content&quot;]
+    )
+    return {&quot;results&quot;: [hit.to_dict() for hit in results[0]]}
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Milvus + Embedding 服务
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.0
+    ports: [&quot;19530:19530&quot;]
+    # ... (etcd, minio 依赖省略)
+  embedding-api:
+    build: ./embedding
+    ports: [&quot;8081:8081&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>为 Hermes Agent 添加知识库检索能力：开发一个检索插件，查询 Milvus/Qdrant 中的文档向量，返回相关上下文供 Agent 的 LLM 推理使用。实现 RAG（检索增强生成）模式。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="Qdrant-与-pgvector">Qdrant 与 pgvector</h1>
+<h2 id="第一部分Qdrant-向量数据库">第一部分：Qdrant 向量数据库</h2>
+<h3 id="1-概述">1. 概述</h3>
+<p>Qdrant（读作 "quadrant"）是用 Rust 编写的高性能向量数据库，以低延迟和高效过滤著称。</p>
+<p><strong>核心特性：</strong></p>
+<li style="margin-left:0px"><strong>Rust 实现</strong>：内存安全、零开销抽象、高性能并发</li>
+<li style="margin-left:0px"><strong>丰富过滤</strong>：向量搜索与标量过滤深度集成</li>
+<li style="margin-left:0px"><strong>多向量支持</strong>：单个 Point 可携带多个命名向量</li>
+<li style="margin-left:0px"><strong>分布式部署</strong>：Raft 共识协议，水平扩展</li>
+<li style="margin-left:0px"><strong>Payload 索引</strong>：对过滤字段建立索引，加速过滤</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="2-核心架构">2. 核心架构</h3>
+<pre><code>
+┌──────────────────────────────────────────┐
+│              Qdrant Cluster               │
+├──────────────────────────────────────────┤
+│  ┌──────────┐  ┌──────────┐  ┌────────┐ │
+│  │  Node 1  │  │  Node 2  │  │ Node 3 │ │
+│  │ (Leader)  │  │(Follower)│ │(Follow)│ │
+│  ├──────────┤  ├──────────┤  ├────────┤ │
+│  │ Collection│  │ Shard 2  │  │Shard 3 │ │
+│  │ Shard 1   │  │          │  │        │ │
+│  └──────────┘  └──────────┘  └────────┘ │
+│         Raft Consensus Protocol           │
+└──────────────────────────────────────────┘
+</code></pre>
+<p><strong>存储引擎：</strong></p>
+<li style="margin-left:0px">使用自研的 Segment-based 存储</li>
+<li style="margin-left:0px">每个 Collection 由多个 Shard 组成</li>
+<li style="margin-left:0px">每个 Shard 包含多个 Segment（可变段 + 不可变段）</li>
+<li style="margin-left:0px">写入先到可变段（mutable segment），flush 后转为不可变段</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="3-Rust-优势体现">3. Rust 优势体现</h3>
+<table>
+<thead><tr>
+<th>特性</th>
+<th>影响</th>
+</tr></thead><tbody>
+<tr>
+<td>零开销抽象</td>
+<td>向量运算接近 C++ 性能</td>
+</tr>
+<tr>
+<td>无 GC</td>
+<td>查询延迟稳定，无 GC 停顿</td>
+</tr>
+<tr>
+<td>内存安全</td>
+<td>无数据竞争，并发安全</td>
+</tr>
+<tr>
+<td>SIMD 支持</td>
+<td>利用 AVX2/AVX-512 加速距离计算</td>
+</tr>
+<tr>
+<td>单二进制部署</td>
+<td>无依赖，Docker 镜像小</td>
+</tr>
+</tbody></table>
+<p><strong>性能基准（100万 768 维向量）：</strong></p>
+<li style="margin-left:0px">HNSW 索引：P99 延迟 < 5ms</li>
+<li style="margin-left:0px">带过滤搜索：P99 延迟 < 10ms</li>
+<li style="margin-left:0px">写入吞吐：10000+ vectors/sec</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="4-Payload-过滤">4. Payload 过滤</h3>
+<p>Qdrant 的 Payload 类似于 MongoDB 的文档，支持丰富的过滤：</p>
+<pre><code class="language-python">
+from qdrant_client import QdrantClient
+from qdrant_client.models import (
+    Distance, VectorParams, PointStruct,
+    Filter, FieldCondition, MatchValue, Range,
+    HasIdCondition
+)
+
+client = QdrantClient(host=&quot;localhost&quot;, port=6333)
+
+# 创建 Collection
+client.create_collection(
+    collection_name=&quot;products&quot;,
+    vectors_config=VectorParams(size=768, distance=Distance.COSINE),
+    # Payload 字段索引
+    optimizers_config=None,
+)
+
+# 设置 Payload 索引
+client.create_payload_index(
+    collection_name=&quot;products&quot;,
+    field_name=&quot;category&quot;,
+    field_schema=&quot;keyword&quot;
+)
+client.create_payload_index(
+    collection_name=&quot;products&quot;,
+    field_name=&quot;price&quot;,
+    field_schema=&quot;float&quot;
+)
+
+# 插入数据（带 Payload）
+client.upsert(
+    collection_name=&quot;products&quot;,
+    points=[
+        PointStruct(
+            id=1,
+            vector=embedding,
+            payload={
+                &quot;category&quot;: &quot;electronics&quot;,
+                &quot;price&quot;: 299.99,
+                &quot;in_stock&quot;: True,
+                &quot;tags&quot;: [&quot;smartphone&quot;, &quot;5G&quot;],
+                &quot;rating&quot;: 4.5,
+                &quot;brand&quot;: &quot;Samsung&quot;
+            }
+        )
+    ]
+)
+
+# 带过滤的搜索
+results = client.search(
+    collection_name=&quot;products&quot;,
+    query_vector=query_embedding,
+    query_filter=Filter(
+        must=[
+            FieldCondition(key=&quot;category&quot;, match=MatchValue(value=&quot;electronics&quot;)),
+            FieldCondition(key=&quot;price&quot;, range=Range(gte=100, lte=500)),
+            FieldCondition(key=&quot;in_stock&quot;, match=MatchValue(value=True)),
+        ]
+    ),
+    limit=10
+)
+</code></pre>
+<p><strong>过滤操作符：</strong></p>
+<table>
+<thead><tr>
+<th>操作符</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><code>must</code></td>
+<td>所有条件必须满足（AND）</td>
+</tr>
+<tr>
+<td><code>should</code></td>
+<td>至少一个条件满足（OR）</td>
+</tr>
+<tr>
+<td><code>must_not</code></td>
+<td>所有条件都不满足（NOT）</td>
+</tr>
+<tr>
+<td><code>MatchValue</code></td>
+<td>精确匹配</td>
+</tr>
+<tr>
+<td><code>MatchAny</code></td>
+<td>匹配列表中任一值</td>
+</tr>
+<tr>
+<td><code>Range</code></td>
+<td>数值范围</td>
+</tr>
+<tr>
+<td><code>GeoBoundingBox</code></td>
+<td>地理位置过滤</td>
+</tr>
+<tr>
+<td><code>ValuesCount</code></td>
+<td>数组长度过滤</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="5-多向量Multi-Vector支持">5. 多向量（Multi-Vector）支持</h3>
+<p>Qdrant 允许单个 Point 携带多个命名向量，适用于多模态或多表示场景：</p>
+<pre><code class="language-python">
+# 创建带多向量的 Collection
+from qdrant_client.models import VectorsConfig, VectorParams
+
+client.create_collection(
+    collection_name=&quot;multimodal&quot;,
+    vectors_config={
+        &quot;image&quot;: VectorParams(size=512, distance=Distance.COSINE),
+        &quot;text&quot;: VectorParams(size=768, distance=Distance.COSINE),
+        &quot;title&quot;: VectorParams(size=384, distance=Distance.COSINE),
+    }
+)
+
+# 插入多向量数据
+client.upsert(
+    collection_name=&quot;multimodal&quot;,
+    points=[
+        PointStruct(
+            id=1,
+            vector={
+                &quot;image&quot;: image_embedding,
+                &quot;text&quot;: text_embedding,
+                &quot;title&quot;: title_embedding,
+            },
+            payload={&quot;title&quot;: &quot;AI研究论文&quot;}
+        )
+    ]
+)
+
+# 指定向量搜索
+results = client.search(
+    collection_name=&quot;multimodal&quot;,
+    query_vector=(&quot;text&quot;, query_text_embedding),  # 指定用 text 向量搜索
+    limit=10
+)
+
+# Named Vectors 融合（可用 Reciprocal Rank Fusion）
+results_text = client.search(
+    collection_name=&quot;multimodal&quot;,
+    query_vector=(&quot;text&quot;, text_query),
+    limit=20
+)
+results_image = client.search(
+    collection_name=&quot;multimodal&quot;,
+    query_vector=(&quot;image&quot;, image_query),
+    limit=20
+)
+# 手动 RRF 融合排序
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="6-Qdrant-部署">6. Qdrant 部署</h3>
+<pre><code class="language-bash">
+# Docker 单机
+docker run -p 6333:6333 -v $(pwd)/qdrant_storage:/qdrant/storage qdrant/qdrant
+
+# Docker Compose 集群
+docker-compose up -d  # 参考官方 3 节点集群配置
+</code></pre>
+<p><strong>Qdrant Cloud（托管）：</strong></p>
+<li style="margin-left:0px">免费层：1GB 存储，100 万向量</li>
+<li style="margin-left:0px">按集群大小计费，从 $25/月起</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="第二部分pgvectorPostgreSQL-向量扩展">第二部分：pgvector（PostgreSQL 向量扩展）</h2>
+<h3 id="7-概述">7. 概述</h3>
+<p>pgvector 是 PostgreSQL 的向量搜索扩展，让传统关系型数据库具备向量检索能力。</p>
+<p><strong>核心优势：</strong></p>
+<li style="margin-left:0px"><strong>无需新基础设施</strong>：直接在现有 PostgreSQL 上使用</li>
+<li style="margin-left:0px"><strong>SQL + 向量</strong>：向量搜索与 SQL 查询无缝结合</li>
+<li style="margin-left:0px"><strong>事务支持</strong>：ACID 事务保证</li>
+<li style="margin-left:0px"><strong>生态丰富</strong>：复用 PostgreSQL 的备份、复制、监控体系</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="8-安装与配置">8. 安装与配置</h3>
+<pre><code class="language-sql">
+-- 安装扩展
+CREATE EXTENSION vector;
+
+-- 创建带向量列的表
+CREATE TABLE documents (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT,
+    category VARCHAR(50),
+    embedding VECTOR(768),  -- 768 维向量
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 创建 HNSW 索引（pgvector 0.5+）
+CREATE INDEX ON documents USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 256);
+
+-- 或创建 IVFFlat 索引
+CREATE INDEX ON documents USING ivfflat (embedding vector_l2_ops)
+    WITH (lists = 100);
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="9-混合-SQL--向量查询">9. 混合 SQL + 向量查询</h3>
+<p>这是 pgvector 最大的差异化优势——将向量搜索融入 SQL 查询：</p>
+<pre><code class="language-sql">
+-- 基本向量搜索
+SELECT id, title, category,
+       embedding &lt;=&gt; &#x27;[0.1, 0.2, ...]&#x27;::vector AS distance
+FROM documents
+ORDER BY embedding &lt;=&gt; &#x27;[0.1, 0.2, ...]&#x27;::vector
+LIMIT 10;
+
+-- 混合查询：向量搜索 + SQL 过滤
+SELECT id, title, category,
+       embedding &lt;=&gt; query_vec AS distance
+FROM documents
+WHERE category = &#x27;technology&#x27;
+  AND created_at &gt; &#x27;2024-01-01&#x27;
+ORDER BY embedding &lt;=&gt; query_vec
+LIMIT 10;
+
+-- 带 CTE 的复杂查询
+WITH query_vec AS (
+    SELECT &#x27;[0.1, 0.2, ...]&#x27;::vector AS vec
+)
+SELECT d.id, d.title,
+       d.embedding &lt;=&gt; q.vec AS distance,
+       t.avg_rating
+FROM documents d
+JOIN query_vec q ON true
+LEFT JOIN (
+    SELECT doc_id, AVG(rating) as avg_rating
+    FROM reviews GROUP BY doc_id
+) t ON t.doc_id = d.id
+WHERE d.category IN (&#x27;AI&#x27;, &#x27;ML&#x27;)
+  AND d.embedding &lt;=&gt; q.vec &lt; 0.5
+ORDER BY d.embedding &lt;=&gt; q.vec
+LIMIT 20;
+
+-- 聚合 + 向量
+SELECT category,
+       COUNT(*) as doc_count,
+       AVG(embedding &lt;=&gt; &#x27;[0.1, ...]&#x27;::vector) as avg_distance
+FROM documents
+GROUP BY category
+ORDER BY avg_distance;
+
+-- 全文搜索 + 向量搜索混合
+SELECT id, title,
+       ts_rank(to_tsvector(&#x27;english&#x27;, content), query) AS text_score,
+       embedding &lt;=&gt; &#x27;[0.1, ...]&#x27;::vector AS vec_distance
+FROM documents, plainto_tsquery(&#x27;english&#x27;, &#x27;vector database&#x27;) query
+WHERE to_tsvector(&#x27;english&#x27;, content) @@ query
+ORDER BY
+    0.3 * ts_rank(to_tsvector(&#x27;english&#x27;, content), query) +
+    0.7 * (embedding &lt;=&gt; &#x27;[0.1, ...]&#x27;::vector)
+LIMIT 10;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="10-pgvector-索引类型">10. pgvector 索引类型</h3>
+<table>
+<thead><tr>
+<th>索引类型</th>
+<th>算法</th>
+<th>适用场景</th>
+<th>特点</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>IVFFlat</strong></td>
+<td>倒排文件 + 暴力搜索</td>
+<td>中小规模（< 100万）</td>
+<td>简单，精度高</td>
+</tr>
+<tr>
+<td><strong>HNSW</strong></td>
+<td>分层可导航小世界图</td>
+<td>通用（推荐）</td>
+<td>查询快，构建慢</td>
+</tr>
+<tr>
+<td><strong>DiskANN</strong></td>
+<td>磁盘 ANN</td>
+<td>大规模</td>
+<td>pgvector 0.7+ 实验性</td>
+</tr>
+</tbody></table>
+<p><strong>IVFFlat 调优：</strong></p>
+<pre><code class="language-sql">
+-- lists 参数：聚类数，建议 rows/1000
+-- probes 参数：查询时搜索的聚类数
+SET ivfflat.probes = 10;  -- 越大越精确，越慢
+</code></pre>
+<p><strong>HNSW 调优：</strong></p>
+<pre><code class="language-sql">
+-- 创建索引时设置
+CREATE INDEX ON docs USING hnsw (vec vector_cosine_ops)
+    WITH (m = 16, ef_construction = 200);
+
+-- 查询时设置 ef_search
+SET hnsw.ef_search = 40;  -- 越大越精确，越慢
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="11-距离度量">11. 距离度量</h3>
+<table>
+<thead><tr>
+<th>运算符</th>
+<th>度量</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><code><-></code></td>
+<td>L2 (欧氏距离)</td>
+<td>默认，适合通用场景</td>
+</tr>
+<tr>
+<td><code><#></code></td>
+<td>负内积</td>
+<td>适合归一化向量</td>
+</tr>
+<tr>
+<td><code><=></code></td>
+<td>余弦距离</td>
+<td>最常用，1 - cosine_similarity</td>
+</tr>
+</tbody></table>
+<pre><code class="language-python">
+import psycopg2
+import numpy as np
+
+conn = psycopg2.connect(&quot;postgresql://user:pass@localhost/mydb&quot;)
+cur = conn.cursor()
+
+# Python 中使用 pgvector
+embedding = np.random.rand(768).tolist()
+
+cur.execute(&quot;&quot;&quot;
+    SELECT id, title, embedding &lt;=&gt; %s::vector AS distance
+    FROM documents
+    ORDER BY embedding &lt;=&gt; %s::vector
+    LIMIT 10
+&quot;&quot;&quot;, (str(embedding), str(embedding)))
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="12-Qdrant-vs-pgvector-选型对比">12. Qdrant vs pgvector 选型对比</h3>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Qdrant</th>
+<th>pgvector</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>性能（100万 768 维）</strong></td>
+<td>QPS: 500-2000</td>
+<td>QPS: 100-500</td>
+</tr>
+<tr>
+<td><strong>延迟 P99</strong></td>
+<td>2-10ms</td>
+<td>10-50ms</td>
+</tr>
+<tr>
+<td><strong>最大数据量</strong></td>
+<td>10亿+</td>
+<td>1000万（实用上限）</td>
+</tr>
+<tr>
+<td><strong>过滤能力</strong></td>
+<td>Payload 过滤</td>
+<td>完整 SQL</td>
+</tr>
+<tr>
+<td><strong>事务支持</strong></td>
+<td>无</td>
+<td>ACID 完整</td>
+</tr>
+<tr>
+<td><strong>运维复杂度</strong></td>
+<td>中</td>
+<td>低（复用 PG）</td>
+</tr>
+<tr>
+<td><strong>混合查询</strong></td>
+<td>有限</td>
+<td>SQL 任意组合</td>
+</tr>
+<tr>
+<td><strong>多模态</strong></td>
+<td>多向量原生支持</td>
+<td>需多列</td>
+</tr>
+<tr>
+<td><strong>扩展性</strong></td>
+<td>分布式</td>
+<td>PG 主从复制</td>
+</tr>
+<tr>
+<td><strong>适用团队</strong></td>
+<td>有专门 AI/搜索团队</td>
+<td>已有 PG 的团队</td>
+</tr>
+</tbody></table>
+<p><strong>选型建议：</strong></p>
+<li style="margin-left:0px">已有 PostgreSQL + 数据量 < 500万 → <strong>pgvector</strong></li>
+<li style="margin-left:0px">需要高性能向量搜索 + 丰富过滤 → <strong>Qdrant</strong></li>
+<li style="margin-left:0px">需要多模态/多向量 → <strong>Qdrant</strong></li>
+<li style="margin-left:0px">需要事务一致性 → <strong>pgvector</strong></li>
+<li style="margin-left:0px">快速原型验证 → <strong>pgvector</strong>（零基础设施成本）</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>Qdrant 是 Rust 编写的高性能向量数据库，pgvector 则是 PostgreSQL 的向量扩展。两者代表了「专用轻量级」和「现有 PG 生态集成」两条路线，适合中小规模场景。</p>
+<p><strong>难度等级</strong>：🟡 ⭐⭐ 初中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">大规模方案：<a href="#Milvus分布式向量DB">Milvus分布式向量DB</a></li>
+<li style="margin-left:0px">全托管方案：<a href="#Pinecone云原生向量DB">Pinecone云原生向量DB</a></li>
+<li style="margin-left:0px">选型指南：<a href="#向量DB选型对比矩阵">向量DB选型对比矩阵</a></li>
+<li style="margin-left:0px">应用场景：<a href="#RAG系统架构">RAG系统架构</a>、<a href="#语义搜索">语义搜索</a></li>
+<li style="margin-left:0px">pgvector 特别适合已有 PostgreSQL 的团队，<a href="#FastAPI数据库集成">FastAPI数据库集成</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from pymilvus import connections, Collection
+
+app = FastAPI()
+connections.connect(&quot;default&quot;, host=&quot;milvus&quot;, port=&quot;19530&quot;)
+collection = Collection(&quot;documents&quot;)
+
+@app.post(&quot;/search&quot;)
+async def semantic_search(query: str, top_k: int = 5):
+    embedding = get_embedding(query)  # 调用 Embedding 模型
+    results = collection.search(
+        data=[embedding], anns_field=&quot;vector&quot;,
+        param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+        limit=top_k, output_fields=[&quot;title&quot;, &quot;content&quot;]
+    )
+    return {&quot;results&quot;: [hit.to_dict() for hit in results[0]]}
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Milvus + Embedding 服务
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.0
+    ports: [&quot;19530:19530&quot;]
+    # ... (etcd, minio 依赖省略)
+  embedding-api:
+    build: ./embedding
+    ports: [&quot;8081:8081&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>为 Hermes Agent 添加知识库检索能力：开发一个检索插件，查询 Milvus/Qdrant 中的文档向量，返回相关上下文供 Agent 的 LLM 推理使用。实现 RAG（检索增强生成）模式。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="Weaviate-多模态向量搜索">Weaviate 多模态向量搜索</h1>
+<h2 id="1-概述">1. 概述</h2>
+<p>Weaviate（发音 "weave-ee-ate"）是一个开源的向量数据库，以 GraphQL API 和内置向量化模块著称。</p>
+<p>其最大特色是将向量化过程内置于数据库中，支持文本、图像、多模态数据的统一搜索。</p>
+<p><strong>核心特性：</strong></p>
+<li style="margin-left:0px">原生 GraphQL API</li>
+<li style="margin-left:0px">内置 Vectorizer（自动向量化）</li>
+<li style="margin-left:0px">多模态搜索（文本、图像、音频统一检索）</li>
+<li style="margin-left:0px">灵活的 Schema 设计</li>
+<li style="margin-left:0px">模块化架构（可插拔的向量化/生成模块）</li>
+<li style="margin-left:0px">分布式部署，Kubernetes 原生</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-GraphQL-API">2. GraphQL API</h2>
+<p>Weaviate 使用 GraphQL 作为主要查询语言，提供声明式的向量搜索接口。</p>
+<h3 id="21-Schema-定义">2.1 Schema 定义</h3>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;Article&quot;,
+  &quot;description&quot;: &quot;A news article&quot;,
+  &quot;vectorizer&quot;: &quot;text2vec-openai&quot;,
+  &quot;moduleConfig&quot;: {
+    &quot;text2vec-openai&quot;: {
+      &quot;model&quot;: &quot;ada-002&quot;,
+      &quot;modelVersion&quot;: &quot;002&quot;,
+      &quot;type&quot;: &quot;text&quot;
+    }
+  },
+  &quot;properties&quot;: [
+    {
+      &quot;name&quot;: &quot;title&quot;,
+      &quot;dataType&quot;: [&quot;text&quot;],
+      &quot;description&quot;: &quot;The title of the article&quot;
+    },
+    {
+      &quot;name&quot;: &quot;content&quot;,
+      &quot;dataType&quot;: [&quot;text&quot;],
+      &quot;description&quot;: &quot;The main content&quot;
+    },
+    {
+      &quot;name&quot;: &quot;category&quot;,
+      &quot;dataType&quot;: [&quot;text&quot;],
+      &quot;description&quot;: &quot;Article category&quot;
+    },
+    {
+      &quot;name&quot;: &quot;publishedAt&quot;,
+      &quot;dataType&quot;: [&quot;date&quot;]
+    },
+    {
+      &quot;name&quot;: &quot;wordCount&quot;,
+      &quot;dataType&quot;: [&quot;int&quot;]
+    },
+    {
+      &quot;name&quot;: &quot;hasAuthor&quot;,
+      &quot;dataType&quot;: [&quot;Author&quot;],
+      &quot;description&quot;: &quot;Reference to author object&quot;
+    }
+  ]
+}
+</code></pre>
+<h3 id="22-GraphQL-查询语法">2.2 GraphQL 查询语法</h3>
+<p><strong>基本近似搜索（Near Text）：</strong></p>
+<pre><code class="language-graphql">
+{
+  Get {
+    Article(
+      nearText: {
+        concepts: [&quot;artificial intelligence&quot;]
+        certainty: 0.8
+      }
+      limit: 10
+    ) {
+      title
+      content
+      category
+      _additional {
+        certainty
+        distance
+        id
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>带过滤的搜索：</strong></p>
+<pre><code class="language-graphql">
+{
+  Get {
+    Article(
+      nearText: {
+        concepts: [&quot;machine learning&quot;]
+      }
+      where: {
+        operator: And
+        operands: [
+          {
+            path: [&quot;category&quot;]
+            operator: Equal
+            valueText: &quot;technology&quot;
+          },
+          {
+            path: [&quot;wordCount&quot;]
+            operator: GreaterThan
+            valueInt: 1000
+          }
+        ]
+      }
+      limit: 10
+      sort: [{ path: [&quot;publishedAt&quot;], order: desc }]
+    ) {
+      title
+      publishedAt
+      _additional {
+        certainty
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>聚合查询：</strong></p>
+<pre><code class="language-graphql">
+{
+  Aggregate {
+    Article(
+      where: {
+        path: [&quot;category&quot;]
+        operator: Equal
+        valueText: &quot;AI&quot;
+      }
+    ) {
+      meta {
+        count
+      }
+      category {
+        count
+        topOccurrences {
+          value
+          occurs
+        }
+      }
+      wordCount {
+        mean
+        maximum
+        minimum
+      }
+    }
+  }
+}
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-Vectorizers向量化模块">3. Vectorizers（向量化模块）</h2>
+<p>Weaviate 最大的特色是内置 Vectorizer，数据写入时自动向量化。</p>
+<h3 id="31-支持的-Vectorizer-模块">3.1 支持的 Vectorizer 模块</h3>
+<table>
+<thead><tr>
+<th>模块</th>
+<th>类型</th>
+<th>说明</th>
+</tr></thead><tbody>
+<tr>
+<td><code>text2vec-openai</code></td>
+<td>文本</td>
+<td>OpenAI Embeddings API</td>
+</tr>
+<tr>
+<td><code>text2vec-cohere</code></td>
+<td>文本</td>
+<td>Cohere Embeddings</td>
+</tr>
+<tr>
+<td><code>text2vec-huggingface</code></td>
+<td>文本</td>
+<td>HuggingFace 模型</td>
+</tr>
+<tr>
+<td><code>text2vec-transformers</code></td>
+<td>文本</td>
+<td>本地 Transformers</td>
+</tr>
+<tr>
+<td><code>text2vec-contextionary</code></td>
+<td>文本</td>
+<td>Weaviate 内置词向量</td>
+</tr>
+<tr>
+<td><code>multi2vec-clip</code></td>
+<td>多模态</td>
+<td>CLIP 模型（文本+图像）</td>
+</tr>
+<tr>
+<td><code>multi2vec-bind</code></td>
+<td>多模态</td>
+<td>ImageBind（6种模态）</td>
+</tr>
+<tr>
+<td><code>img2vec-neural</code></td>
+<td>图像</td>
+<td>图像向量化</td>
+</tr>
+<tr>
+<td><code>ref2vec-centroid</code></td>
+<td>引用</td>
+<td>基于引用对象的向量聚合</td>
+</tr>
+</tbody></table>
+<h3 id="32-配置-Vectorizer">3.2 配置 Vectorizer</h3>
+<p><strong>文本向量化（OpenAI）：</strong></p>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;Document&quot;,
+  &quot;vectorizer&quot;: &quot;text2vec-openai&quot;,
+  &quot;moduleConfig&quot;: {
+    &quot;text2vec-openai&quot;: {
+      &quot;model&quot;: &quot;ada-002&quot;,
+      &quot;vectorizeClassName&quot;: false,
+      &quot;vectorizePropertyName&quot;: false
+    }
+  },
+  &quot;properties&quot;: [
+    {
+      &quot;name&quot;: &quot;title&quot;,
+      &quot;dataType&quot;: [&quot;text&quot;],
+      &quot;moduleConfig&quot;: {
+        &quot;text2vec-openai&quot;: {
+          &quot;skip&quot;: false,
+          &quot;vectorizePropertyName&quot;: false
+        }
+      }
+    },
+    {
+      &quot;name&quot;: &quot;internal_id&quot;,
+      &quot;dataType&quot;: [&quot;text&quot;],
+      &quot;moduleConfig&quot;: {
+        &quot;text2vec-openai&quot;: {
+          &quot;skip&quot;: true  // 不向量化此字段
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<p><strong>本地 Transformer 部署：</strong></p>
+<pre><code class="language-yaml">
+# docker-compose.yml
+services:
+  weaviate:
+    image: semitechnologies/weaviate:latest
+    environment:
+      ENABLE_MODULES: text2vec-transformers
+      TRANSFORMERS_INFERENCE_API: http://t2v-transformers:8080
+    ports:
+      - &quot;8080:8080&quot;
+
+  t2v-transformers:
+    image: semitechnologies/transformers-inference:sentence-transformers-all-MiniLM-L6-v2
+</code></pre>
+<h3 id="33-自定义向量">3.3 自定义向量</h3>
+<p>也可跳过内置 Vectorizer，手动提供向量：</p>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;Document&quot;,
+  &quot;vectorizer&quot;: &quot;none&quot;,
+  &quot;properties&quot;: [
+    { &quot;name&quot;: &quot;title&quot;, &quot;dataType&quot;: [&quot;text&quot;] }
+  ]
+}
+</code></pre>
+<pre><code class="language-python">
+import weaviate
+
+client = weaviate.Client(&quot;http://localhost:8080&quot;)
+
+client.data_object.create(
+    data_object={&quot;title&quot;: &quot;AI Tutorial&quot;},
+    class_name=&quot;Document&quot;,
+    vector=[0.1, 0.2, 0.3, ...]  # 手动提供向量
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-多模态搜索">4. 多模态搜索</h2>
+<h3 id="41-CLIP-多模态搜索">4.1 CLIP 多模态搜索</h3>
+<p>使用 <code>multi2vec-clip</code> 模块，可以用文本搜索图像，也可以用图像搜索图像：</p>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;Image&quot;,
+  &quot;vectorizer&quot;: &quot;multi2vec-clip&quot;,
+  &quot;moduleConfig&quot;: {
+    &quot;multi2vec-clip&quot;: {
+      &quot;imageFields&quot;: [&quot;image&quot;],
+      &quot;textFields&quot;: [&quot;description&quot;]
+    }
+  },
+  &quot;properties&quot;: [
+    { &quot;name&quot;: &quot;image&quot;, &quot;dataType&quot;: [&quot;blob&quot;] },
+    { &quot;name&quot;: &quot;description&quot;, &quot;dataType&quot;: [&quot;text&quot;] },
+    { &quot;name&quot;: &quot;category&quot;, &quot;dataType&quot;: [&quot;text&quot;] }
+  ]
+}
+</code></pre>
+<p><strong>用文本搜索图像：</strong></p>
+<pre><code class="language-graphql">
+{
+  Get {
+    Image(
+      nearText: {
+        concepts: [&quot;sunset over the ocean&quot;]
+      }
+      limit: 5
+    ) {
+      description
+      category
+      _additional {
+        certainty
+        image  # 返回 base64 编码的图像
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>用图像搜索图像：</strong></p>
+<pre><code class="language-python">
+import base64
+
+with open(&quot;query_image.jpg&quot;, &quot;rb&quot;) as f:
+    image_b64 = base64.b64encode(f.read()).decode()
+
+result = client.query.get(&quot;Image&quot;, [&quot;description&quot;, &quot;category&quot;]).with_near_image({
+    &quot;image&quot;: image_b64
+}).with_limit(5).do()
+</code></pre>
+<h3 id="42-ImageBind-六模态搜索">4.2 ImageBind 六模态搜索</h3>
+<p><code>multi2vec-bind</code> 模块支持 6 种模态：文本、图像、音频、深度、热力图、IMU</p>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;MultimodalContent&quot;,
+  &quot;vectorizer&quot;: &quot;multi2vec-bind&quot;,
+  &quot;moduleConfig&quot;: {
+    &quot;multi2vec-bind&quot;: {
+      &quot;audioFields&quot;: [&quot;audio&quot;],
+      &quot;imageFields&quot;: [&quot;image&quot;],
+      &quot;textFields&quot;: [&quot;text&quot;]
+    }
+  },
+  &quot;properties&quot;: [
+    { &quot;name&quot;: &quot;audio&quot;, &quot;dataType&quot;: [&quot;blob&quot;] },
+    { &quot;name&quot;: &quot;image&quot;, &quot;dataType&quot;: [&quot;blob&quot;] },
+    { &quot;name&quot;: &quot;text&quot;, &quot;dataType&quot;: [&quot;text&quot;] },
+    { &quot;name&quot;: &quot;type&quot;, &quot;dataType&quot;: [&quot;text&quot;] }
+  ]
+}
+</code></pre>
+<h3 id="43-RAG-生成模块Generative-Search">4.3 RAG 生成模块（Generative Search）</h3>
+<p>Weaviate 内置 RAG 模块，可在搜索结果上直接生成回答：</p>
+<pre><code class="language-graphql">
+{
+  Get {
+    Article(
+      nearText: { concepts: [&quot;vector databases&quot;] }
+      limit: 3
+    ) {
+      title
+      content
+      _additional {
+        generate(
+          singleResult: {
+            prompt: &quot;Based on these articles, explain: {title}. Content: {content}&quot;
+          }
+        ) {
+          singleResult
+          error
+        }
+      }
+    }
+  }
+}
+</code></pre>
+<p><strong>支持的生成模块：</strong></p>
+<li style="margin-left:0px"><code>generative-openai</code>（GPT-3.5/4）</li>
+<li style="margin-left:0px"><code>generative-cohere</code></li>
+<li style="margin-left:0px"><code>generative-anyscale</code></li>
+<li style="margin-left:0px"><code>generative-aws</code>（Bedrock）</li>
+<li style="margin-left:0px"><code>generative-palm</code>（Google PaLM）</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Schema-设计最佳实践">5. Schema 设计最佳实践</h2>
+<h3 id="51-类与属性设计">5.1 类与属性设计</h3>
+<pre><code>
+┌─────────────┐    hasAuthor    ┌────────────┐
+│   Article   │ ──────────────→ │   Author   │
+│             │                 │            │
+│ - title     │    hasCategory  │ - name     │
+│ - content   │ ──────────────→ │ - bio      │
+│ - published │                 └────────────┘
+│ - embedding │
+└─────────────┘
+</code></pre>
+<p><strong>设计原则：</strong></p>
+<li style="margin-left:0px"><strong>Class 即实体类型</strong>：每个 Class 对应一种数据类型</li>
+<li style="margin-left:0px"><strong>属性类型选择</strong>：</li>
+<li style="margin-left:3px"><code>text</code> → 可搜索、可向量化的文本</li>
+<li style="margin-left:3px"><code>string</code> → 精确匹配的字符串（如 ID、枚举）</li>
+<li style="margin-left:3px"><code>int/number</code> → 数值，可用于范围过滤</li>
+<li style="margin-left:3px"><code>boolean</code> → 布尔值</li>
+<li style="margin-left:3px"><code>date</code> → 日期时间</li>
+<li style="margin-left:3px"><code>blob</code> → 二进制数据（如图像 base64）</li>
+<li style="margin-left:3px"><code>geoCoordinates</code> → 地理坐标</li>
+<li style="margin-left:0px"><strong>交叉引用</strong>：使用 <code>dataType: ["OtherClass"]</code> 建立关系</li>
+<h3 id="52-分片与副本">5.2 分片与副本</h3>
+<pre><code class="language-json">
+{
+  &quot;class&quot;: &quot;Article&quot;,
+  &quot;vectorizer&quot;: &quot;text2vec-openai&quot;,
+  &quot;shardingConfig&quot;: {
+    &quot;virtualPerPhysical&quot;: 128,
+    &quot;desiredCount&quot;: 3,
+    &quot;actualCount&quot;: 3,
+    &quot;desiredVirtualCount&quot;: 384,
+    &quot;key&quot;: &quot;_id&quot;,
+    &quot;strategy&quot;: &quot;hash&quot;,
+    &quot;function&quot;: &quot;murmur3&quot;
+  },
+  &quot;replicationConfig&quot;: {
+    &quot;factor&quot;: 2
+  }
+}
+</code></pre>
+<h3 id="53-性能优化">5.3 性能优化</h3>
+<table>
+<thead><tr>
+<th>优化项</th>
+<th>方法</th>
+</tr></thead><tbody>
+<tr>
+<td>批量导入</td>
+<td>使用 Batch API，每批 100-1000 条</td>
+</tr>
+<tr>
+<td>向量缓存</td>
+<td>启用 PQ 量化减少内存占用</td>
+</tr>
+<tr>
+<td>过滤索引</td>
+<td>对高频过滤字段创建 inverted index</td>
+</tr>
+<tr>
+<td>分片策略</td>
+<td>按数据量设置合适的 shard 数</td>
+</tr>
+<tr>
+<td>避免大 blob</td>
+<td>图像/文件存外部，只存引用</td>
+</tr>
+</tbody></table>
+<pre><code class="language-python">
+# 批量导入
+with client.batch as batch:
+    batch.batch_size = 100
+    for doc in documents:
+        batch.add_data_object(
+            data_object=doc,
+            class_name=&quot;Article&quot;
+        )
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-部署架构">6. 部署架构</h2>
+<h3 id="61-Docker-单机">6.1 Docker 单机</h3>
+<pre><code class="language-yaml">
+version: &#x27;3.4&#x27;
+services:
+  weaviate:
+    image: semitechnologies/weaviate:1.24.0
+    ports:
+      - &quot;8080:8080&quot;
+      - &quot;50051:50051&quot;
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: &#x27;true&#x27;
+      PERSISTENCE_DATA_PATH: &#x27;/var/lib/weaviate&#x27;
+      ENABLE_MODULES: &#x27;text2vec-openai,generative-openai&#x27;
+      CLUSTER_HOSTNAME: &#x27;node1&#x27;
+      OPENAI_APIKEY: &#x27;${OPENAI_API_KEY}&#x27;
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+</code></pre>
+<h3 id="62-Kubernetes-部署">6.2 Kubernetes 部署</h3>
+<pre><code class="language-bash">
+helm repo add weaviate https://weaviate.github.io/weaviate-helm
+helm install weaviate weaviate/weaviate \
+  --set replicas=3 \
+  --set modules.text2vec-openai.enabled=true \
+  -n weaviate --create-namespace
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-Python-SDK-完整示例">7. Python SDK 完整示例</h2>
+<pre><code class="language-python">
+import weaviate
+import os
+
+# 连接
+client = weaviate.Client(
+    url=&quot;http://localhost:8080&quot;,
+    additional_headers={
+        &quot;X-OpenAI-Api-Key&quot;: os.getenv(&quot;OPENAI_API_KEY&quot;)
+    }
+)
+
+# 1. 创建 Class
+class_obj = {
+    &quot;class&quot;: &quot;Research&quot;,
+    &quot;vectorizer&quot;: &quot;text2vec-openai&quot;,
+    &quot;moduleConfig&quot;: {
+        &quot;text2vec-openai&quot;: {&quot;model&quot;: &quot;ada-002&quot;}
+    },
+    &quot;properties&quot;: [
+        {&quot;name&quot;: &quot;title&quot;, &quot;dataType&quot;: [&quot;text&quot;]},
+        {&quot;name&quot;: &quot;abstract&quot;, &quot;dataType&quot;: [&quot;text&quot;]},
+        {&quot;name&quot;: &quot;year&quot;, &quot;dataType&quot;: [&quot;int&quot;]},
+        {&quot;name&quot;: &quot;field&quot;, &quot;dataType&quot;: [&quot;text&quot;]},
+    ]
+}
+client.schema.create_class(class_obj)
+
+# 2. 批量导入
+client.batch.configure(batch_size=50)
+with client.batch as batch:
+    for paper in papers:
+        batch.add_data_object(
+            data_object={
+                &quot;title&quot;: paper[&quot;title&quot;],
+                &quot;abstract&quot;: paper[&quot;abstract&quot;],
+                &quot;year&quot;: paper[&quot;year&quot;],
+                &quot;field&quot;: paper[&quot;field&quot;]
+            },
+            class_name=&quot;Research&quot;
+        )
+
+# 3. 语义搜索
+result = (
+    client.query
+    .get(&quot;Research&quot;, [&quot;title&quot;, &quot;abstract&quot;, &quot;year&quot;, &quot;field&quot;])
+    .with_near_text({&quot;concepts&quot;: [&quot;transformer attention mechanism&quot;]})
+    .with_where({
+        &quot;path&quot;: [&quot;year&quot;],
+        &quot;operator&quot;: &quot;GreaterThan&quot;,
+        &quot;valueInt&quot;: 2020
+    })
+    .with_limit(5)
+    .with_additional([&quot;certainty&quot;, &quot;distance&quot;])
+    .do()
+)
+
+# 4. RAG 生成
+result = (
+    client.query
+    .get(&quot;Research&quot;, [&quot;title&quot;, &quot;abstract&quot;])
+    .with_near_text({&quot;concepts&quot;: [&quot;attention mechanism&quot;]})
+    .with_generate(single_prompt=&quot;Summarize: {abstract}&quot;)
+    .with_limit(3)
+    .do()
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-Weaviate-vs-其他向量-DB">8. Weaviate vs 其他向量 DB</h2>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Weaviate</th>
+<th>Milvus</th>
+<th>Qdrant</th>
+<th>Pinecone</th>
+</tr></thead><tbody>
+<tr>
+<td>API</td>
+<td>GraphQL + REST</td>
+<td>SDK</td>
+<td>REST + gRPC</td>
+<td>REST + SDK</td>
+</tr>
+<tr>
+<td>内置向量化</td>
+<td>✅ 多种模块</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>多模态</td>
+<td>✅ 原生</td>
+<td>需外部</td>
+<td>多向量</td>
+<td>需外部</td>
+</tr>
+<tr>
+<td>RAG 生成</td>
+<td>✅ 内置</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>学习曲线</td>
+<td>中（GraphQL）</td>
+<td>低</td>
+<td>低</td>
+<td>低</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>中</td>
+<td>高</td>
+<td>高</td>
+<td>高</td>
+</tr>
+<tr>
+<td>社区活跃度</td>
+<td>高</td>
+<td>很高</td>
+<td>高</td>
+<td>高</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>Weaviate 是支持多模态（文本、图片、音频）向量搜索的数据库，内置向量化模块。在需要跨模态检索的场景下有独特优势。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">单模态方案：<a href="#Milvus分布式向量DB">Milvus分布式向量DB</a>、<a href="#Qdrant与pgvector">Qdrant与pgvector</a></li>
+<li style="margin-left:0px">选型指南：<a href="#向量DB选型对比矩阵">向量DB选型对比矩阵</a></li>
+<li style="margin-left:0px">多模态应用：<a href="#多模态RAG系统">多模态RAG系统</a>、<a href="#图文搜索架构">图文搜索架构</a></li>
+<li style="margin-left:0px">前置知识：<a href="#多模态Embedding模型">多模态Embedding模型</a>、<a href="#CLIP模型应用">CLIP模型应用</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from pymilvus import connections, Collection
+
+app = FastAPI()
+connections.connect(&quot;default&quot;, host=&quot;milvus&quot;, port=&quot;19530&quot;)
+collection = Collection(&quot;documents&quot;)
+
+@app.post(&quot;/search&quot;)
+async def semantic_search(query: str, top_k: int = 5):
+    embedding = get_embedding(query)  # 调用 Embedding 模型
+    results = collection.search(
+        data=[embedding], anns_field=&quot;vector&quot;,
+        param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+        limit=top_k, output_fields=[&quot;title&quot;, &quot;content&quot;]
+    )
+    return {&quot;results&quot;: [hit.to_dict() for hit in results[0]]}
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Milvus + Embedding 服务
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.0
+    ports: [&quot;19530:19530&quot;]
+    # ... (etcd, minio 依赖省略)
+  embedding-api:
+    build: ./embedding
+    ports: [&quot;8081:8081&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>为 Hermes Agent 添加知识库检索能力：开发一个检索插件，查询 Milvus/Qdrant 中的文档向量，返回相关上下文供 Agent 的 LLM 推理使用。实现 RAG（检索增强生成）模式。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="向量数据库选型对比矩阵">向量数据库选型对比矩阵</h1>
+<h2 id="1-综合对比矩阵">1. 综合对比矩阵</h2>
+<h3 id="11-核心维度对比">1.1 核心维度对比</h3>
+<table>
+<thead><tr>
+<th>维度</th>
+<th>Milvus</th>
+<th>Pinecone</th>
+<th>Qdrant</th>
+<th>pgvector</th>
+<th>Weaviate</th>
+<th>ChromaDB</th>
+<th>FAISS</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>类型</strong></td>
+<td>数据库</td>
+<td>SaaS服务</td>
+<td>数据库</td>
+<td>PG扩展</td>
+<td>数据库</td>
+<td>嵌入式库</td>
+<td>算法库</td>
+</tr>
+<tr>
+<td><strong>语言</strong></td>
+<td>Go/C++</td>
+<td>闭源</td>
+<td>Rust</td>
+<td>C</td>
+<td>Go</td>
+<td>Python</td>
+<td>C++</td>
+</tr>
+<tr>
+<td><strong>开源</strong></td>
+<td>✅ Apache 2</td>
+<td>❌</td>
+<td>✅ Apache 2</td>
+<td>✅ PostgreSQL</td>
+<td>✅ BSD-3</td>
+<td>✅ Apache 2</td>
+<td>✅ MIT</td>
+</tr>
+<tr>
+<td><strong>分布式</strong></td>
+<td>✅ 原生</td>
+<td>✅ 自动</td>
+<td>✅ 原生</td>
+<td>❌（PG主从）</td>
+<td>✅ 原生</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>多租户</strong></td>
+<td>Collection/Partition</td>
+<td>Namespace</td>
+<td>Collection/Payload</td>
+<td>Schema/Row</td>
+<td>Class/Tenant</td>
+<td>Collection</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>托管服务</strong></td>
+<td>Zilliz Cloud</td>
+<td>Pinecone</td>
+<td>Qdrant Cloud</td>
+<td>各PG云服务</td>
+<td>Weaviate Cloud</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<h3 id="12-性能对比基准参考100万768维HNSW">1.2 性能对比（基准参考，100万768维，HNSW）</h3>
+<table>
+<thead><tr>
+<th>指标</th>
+<th>Milvus</th>
+<th>Pinecone</th>
+<th>Qdrant</th>
+<th>pgvector</th>
+<th>Weaviate</th>
+<th>ChromaDB</th>
+<th>FAISS</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>QPS (top-10)</strong></td>
+<td>3000-8000</td>
+<td>1000-3000</td>
+<td>2000-5000</td>
+<td>200-800</td>
+<td>500-1500</td>
+<td>100-500</td>
+<td>5000-15000</td>
+</tr>
+<tr>
+<td><strong>延迟 P50</strong></td>
+<td>1-3ms</td>
+<td>5-15ms</td>
+<td>2-5ms</td>
+<td>10-30ms</td>
+<td>10-30ms</td>
+<td>20-50ms</td>
+<td>0.5-2ms</td>
+</tr>
+<tr>
+<td><strong>延迟 P99</strong></td>
+<td>5-15ms</td>
+<td>20-50ms</td>
+<td>5-15ms</td>
+<td>30-100ms</td>
+<td>30-100ms</td>
+<td>50-200ms</td>
+<td>2-5ms</td>
+</tr>
+<tr>
+<td><strong>召回率@10</strong></td>
+<td>>99%</td>
+<td>>99%</td>
+<td>>99%</td>
+<td>>95%</td>
+<td>>99%</td>
+<td>>95%</td>
+<td>>99%</td>
+</tr>
+</tbody></table>
+<blockquote><p>⚠️ 注意：基准数据因硬件、配置、数据分布差异较大，仅供参考</p></blockquote>
+<h3 id="13-扩展性对比">1.3 扩展性对比</h3>
+<table>
+<thead><tr>
+<th>指标</th>
+<th>Milvus</th>
+<th>Pinecone</th>
+<th>Qdrant</th>
+<th>pgvector</th>
+<th>Weaviate</th>
+<th>ChromaDB</th>
+<th>FAISS</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>最大向量数</strong></td>
+<td>万亿级</td>
+<td>十亿+</td>
+<td>十亿+</td>
+<td>千万级</td>
+<td>十亿+</td>
+<td>百万级</td>
+<td>十亿+</td>
+</tr>
+<tr>
+<td><strong>最大维度</strong></td>
+<td>32768</td>
+<td>20000</td>
+<td>65536</td>
+<td>16000</td>
+<td>65536</td>
+<td>无限制</td>
+<td>无限制</td>
+</tr>
+<tr>
+<td><strong>水平扩展</strong></td>
+<td>✅ 自动分片</td>
+<td>✅ 自动</td>
+<td>✅ 手动分片</td>
+<td>❌</td>
+<td>✅ 自动分片</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>内存效率</strong></td>
+<td>中-高</td>
+<td>高</td>
+<td>高</td>
+<td>中</td>
+<td>中</td>
+<td>低</td>
+<td>高</td>
+</tr>
+<tr>
+<td><strong>磁盘索引</strong></td>
+<td>✅ DiskANN</td>
+<td>✅ 冷热分层</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+<h3 id="14-功能特性对比">1.4 功能特性对比</h3>
+<table>
+<thead><tr>
+<th>特性</th>
+<th>Milvus</th>
+<th>Pinecone</th>
+<th>Qdrant</th>
+<th>pgvector</th>
+<th>Weaviate</th>
+<th>ChromaDB</th>
+<th>FAISS</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>标量过滤</strong></td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅ SQL</td>
+<td>✅</td>
+<td>✅ 基础</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>混合搜索</strong></td>
+<td>✅</td>
+<td>✅ 稀疏+稠密</td>
+<td>✅</td>
+<td>✅ SQL+全文</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>多向量</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>内置向量化</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>RAG生成</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>ACID事务</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>全文搜索</strong></td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>地理搜索</strong></td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅ PostGIS</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-各数据库深度分析">2. 各数据库深度分析</h2>
+<h3 id="21-Milvus">2.1 Milvus</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">生产验证最充分，大规模部署案例多</li>
+<li style="margin-left:0px">索引类型最丰富（IVF/HNSW/DiskANN 等）</li>
+<li style="margin-left:0px">分布式架构成熟，支持万亿级数据</li>
+<li style="margin-left:0px">活跃的开源社区，迭代速度快</li>
+<li style="margin-left:0px">Zilliz Cloud 提供全托管服务</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">组件多（etcd/MinIO/Pulsar），运维复杂</li>
+<li style="margin-left:0px">最低资源要求较高</li>
+<li style="margin-left:0px">学习曲线较陡</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">大规模生产环境（百万到万亿级）</li>
+<li style="margin-left:0px">需要多种索引策略</li>
+<li style="margin-left:0px">有专职基础设施团队</li>
+<h3 id="22-Pinecone">2.2 Pinecone</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">零运维，开箱即用</li>
+<li style="margin-left:0px">Serverless 模式自动扩缩容</li>
+<li style="margin-left:0px">混合搜索（稀疏+稠密）原生支持</li>
+<li style="margin-left:0px">延迟稳定，SLA 保障</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">闭源，数据存储在第三方</li>
+<li style="margin-left:0px">成本随规模增长较快</li>
+<li style="margin-left:0px">无法自定义索引算法</li>
+<li style="margin-left:0px">供应商锁定风险</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">快速上线，不想自建基础设施</li>
+<li style="margin-left:0px">中小规模（百万到千万级）</li>
+<li style="margin-left:0px">对运维成本敏感</li>
+<h3 id="23-Qdrant">2.3 Qdrant</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">Rust 实现，性能优异且稳定</li>
+<li style="margin-left:0px">Payload 过滤能力强，支持复杂条件</li>
+<li style="margin-left:0px">多向量支持，适合多模态场景</li>
+<li style="margin-left:0px">部署简单（单二进制）</li>
+<li style="margin-left:0px">定价合理</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">社区规模小于 Milvus</li>
+<li style="margin-left:0px">分布式功能相对 Milvus 较新</li>
+<li style="margin-left:0px">大规模（十亿+）案例较少</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">需要高性能 + 丰富过滤</li>
+<li style="margin-left:0px">多模态/多表示场景</li>
+<li style="margin-left:0px">中等规模，注重部署简便性</li>
+<h3 id="24-pgvector">2.4 pgvector</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">零额外基础设施，复用现有 PG</li>
+<li style="margin-left:0px">SQL 查询与向量搜索完美融合</li>
+<li style="margin-left:0px">ACID 事务保证</li>
+<li style="margin-left:0px">生态成熟（备份/复制/监控）</li>
+<li style="margin-left:0px">学习成本最低（SQL）</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">性能不如专用向量数据库</li>
+<li style="margin-left:0px">不支持分布式向量搜索</li>
+<li style="margin-left:0px">大规模场景受限（千万级实用上限）</li>
+<li style="margin-left:0px">索引类型较少</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">已有 PostgreSQL 的团队</li>
+<li style="margin-left:0px">需要事务一致性的场景</li>
+<li style="margin-left:0px">数据量 < 500 万</li>
+<li style="margin-left:0px">快速原型验证</li>
+<h3 id="25-Weaviate">2.5 Weaviate</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">内置向量化模块，无需外部 Embedding 服务</li>
+<li style="margin-left:0px">GraphQL API 声明式查询</li>
+<li style="margin-left:0px">多模态搜索原生支持</li>
+<li style="margin-left:0px">内置 RAG 生成模块</li>
+<li style="margin-left:0px">模块化架构，可扩展性强</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">GraphQL 学习曲线</li>
+<li style="margin-left:0px">性能不如 Milvus/Qdrant</li>
+<li style="margin-left:0px">模块依赖较多</li>
+<li style="margin-left:0px">社区规模中等</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">多模态搜索（文本+图像+音频）</li>
+<li style="margin-left:0px">需要端到端向量化管道</li>
+<li style="margin-left:0px">偏好 GraphQL API</li>
+<h3 id="26-ChromaDB">2.6 ChromaDB</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">最简单的 API，几行代码上手</li>
+<li style="margin-left:0px">嵌入式部署，无需服务器</li>
+<li style="margin-left:0px">内置 Embedding 支持</li>
+<li style="margin-left:0px">适合本地开发和实验</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">不支持分布式</li>
+<li style="margin-left:0px">性能和规模有限</li>
+<li style="margin-left:0px">生产环境稳定性存疑</li>
+<li style="margin-left:0px">功能较基础</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">本地开发和原型验证</li>
+<li style="margin-left:0px">小规模实验（< 10万向量）</li>
+<li style="margin-left:0px">Jupyter Notebook 中使用</li>
+<h3 id="27-FAISS">2.7 FAISS</h3>
+<p><strong>优势：</strong></p>
+<li style="margin-left:0px">性能最高（纯算法库，无网络开销）</li>
+<li style="margin-left:0px">索引类型最丰富</li>
+<li style="margin-left:0px">GPU 加速支持</li>
+<li style="margin-left:0px">学术界广泛使用</li>
+<p><strong>劣势：</strong></p>
+<li style="margin-left:0px">不是数据库（无持久化、无查询语言、无过滤）</li>
+<li style="margin-left:0px">需要自行实现数据管理</li>
+<li style="margin-left:0px">不支持分布式（需自行分片）</li>
+<li style="margin-left:0px">C++/Python API</li>
+<p><strong>最佳场景：</strong></p>
+<li style="margin-left:0px">需要极致性能</li>
+<li style="margin-left:0px">作为其他系统的底层引擎</li>
+<li style="margin-left:0px">学术研究和实验</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-选型决策流程">3. 选型决策流程</h2>
+<pre><code>
+开始选型
+  │
+  ├─ 数据量 &lt; 10万？
+  │   └─ 是 → ChromaDB / FAISS（开发实验）
+  │
+  ├─ 已有 PostgreSQL 且数据量 &lt; 500万？
+  │   └─ 是 → pgvector（零成本集成）
+  │
+  ├─ 不想自建基础设施？
+  │   └─ 是 → Pinecone / Weaviate Cloud / Zilliz Cloud
+  │
+  ├─ 需要多模态搜索？
+  │   └─ 是 → Weaviate（内置向量化）或 Qdrant（多向量）
+  │
+  ├─ 数据量 &gt; 1亿 且需要高 QPS？
+  │   └─ 是 → Milvus（分布式成熟）
+  │
+  ├─ 需要丰富 Payload 过滤 + 高性能？
+  │   └─ 是 → Qdrant
+  │
+  └─ 默认推荐 → Milvus 或 Qdrant
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-成本对比月度估算100万向量768维">4. 成本对比（月度估算，100万向量768维）</h2>
+<table>
+<thead><tr>
+<th>方案</th>
+<th>计算资源</th>
+<th>存储</th>
+<th>月成本估算</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Milvus 自建</strong></td>
+<td>4C16G × 2</td>
+<td>50GB</td>
+<td>¥800-1500</td>
+</tr>
+<tr>
+<td><strong>Milvus (Zilliz)</strong></td>
+<td>Serverless</td>
+<td>-</td>
+<td>$100-300</td>
+</tr>
+<tr>
+<td><strong>Pinecone (Serverless)</strong></td>
+<td>按量</td>
+<td>-</td>
+<td>$50-200</td>
+</tr>
+<tr>
+<td><strong>Pinecone (Pod)</strong></td>
+<td>p1.x1</td>
+<td>-</td>
+<td>$250</td>
+</tr>
+<tr>
+<td><strong>Qdrant 自建</strong></td>
+<td>4C8G</td>
+<td>30GB</td>
+<td>¥400-800</td>
+</tr>
+<tr>
+<td><strong>Qdrant Cloud</strong></td>
+<td>2GB RAM</td>
+<td>-</td>
+<td>$25-80</td>
+</tr>
+<tr>
+<td><strong>pgvector</strong></td>
+<td>复用现有 PG</td>
+<td>10GB</td>
+<td>~¥0（增量）</td>
+</tr>
+<tr>
+<td><strong>Weaviate Cloud</strong></td>
+<td>Standard</td>
+<td>-</td>
+<td>$50-250</td>
+</tr>
+<tr>
+<td><strong>ChromaDB</strong></td>
+<td>本地/4C8G</td>
+<td>5GB</td>
+<td>¥0-400</td>
+</tr>
+<tr>
+<td><strong>FAISS</strong></td>
+<td>本地</td>
+<td>内存</td>
+<td>¥0</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-技术栈集成对比">5. 技术栈集成对比</h2>
+<h3 id="51-LangChain-集成">5.1 LangChain 集成</h3>
+<p>所有主流向量数据库都有 LangChain 集成：</p>
+<pre><code class="language-python">
+from langchain.vectorstores import (
+    Milvus, Pinecone, Qdrant,
+    Weaviate, PGVector, Chroma
+)
+
+# 使用方式基本统一
+vectorstore = Milvus.from_documents(docs, embeddings, connection_args={...})
+vectorstore = Pinecone.from_documents(docs, embeddings, index_name=&quot;...&quot;)
+vectorstore = Qdrant.from_documents(docs, embeddings, host=&quot;localhost&quot;)
+vectorstore = Weaviate.from_documents(docs, embeddings, by_text=False)
+vectorstore = PGVector.from_documents(docs, embeddings, connection_string=&quot;...&quot;)
+vectorstore = Chroma.from_documents(docs, embeddings)
+</code></pre>
+<h3 id="52-LlamaIndex-集成">5.2 LlamaIndex 集成</h3>
+<pre><code class="language-python">
+from llama_index.vector_stores import (
+    MilvusVectorStore, PineconeVectorStore,
+    QdrantVectorStore, WeaviateVectorStore,
+    PGVectorStore, ChromaVectorStore
+)
+</code></pre>
+<h3 id="53-SDK-语言支持">5.3 SDK 语言支持</h3>
+<table>
+<thead><tr>
+<th>数据库</th>
+<th>Python</th>
+<th>Java</th>
+<th>Go</th>
+<th>Node.js</th>
+<th>Rust</th>
+<th>C#</th>
+</tr></thead><tbody>
+<tr>
+<td>Milvus</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Pinecone</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Qdrant</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>pgvector</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Weaviate</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>ChromaDB</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>FAISS</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-迁移指南">6. 迁移指南</h2>
+<h3 id="61-从-FAISS-迁移到生产级-DB">6.1 从 FAISS 迁移到生产级 DB</h3>
+<pre><code>
+FAISS（本地实验）
+  ↓ 需要持久化、过滤、并发
+  ├→ 快速验证 → ChromaDB / pgvector
+  ├→ 生产上线 → Qdrant / Milvus
+  └→ 全托管 → Pinecone
+</code></pre>
+<h3 id="62-数据迁移通用流程">6.2 数据迁移通用流程</h3>
+<li style="margin-left:0px"><strong>导出向量和元数据</strong>（从源 DB）</li>
+<li style="margin-left:0px"><strong>转换数据格式</strong>（统一 schema）</li>
+<li style="margin-left:0px"><strong>创建目标 Collection/Index</strong></li>
+<li style="margin-left:0px"><strong>批量导入</strong>（使用目标 DB 的 Batch API）</li>
+<li style="margin-left:0px"><strong>验证</strong>（对比召回率和延迟）</li>
+<li style="margin-left:0px"><strong>切换流量</strong></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-总结推荐">7. 总结推荐</h2>
+<table>
+<thead><tr>
+<th>场景</th>
+<th>推荐方案</th>
+<th>理由</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>初创公司快速上线</strong></td>
+<td>Pinecone</td>
+<td>零运维，按量付费</td>
+</tr>
+<tr>
+<td><strong>已有 PG 的团队</strong></td>
+<td>pgvector</td>
+<td>零成本集成</td>
+</tr>
+<tr>
+<td><strong>大规模生产（亿级+）</strong></td>
+<td>Milvus</td>
+<td>分布式成熟，性能优异</td>
+</tr>
+<tr>
+<td><strong>高性能 + 丰富过滤</strong></td>
+<td>Qdrant</td>
+<td>Rust 性能，Payload 过滤</td>
+</tr>
+<tr>
+<td><strong>多模态搜索</strong></td>
+<td>Weaviate</td>
+<td>内置向量化和多模态模块</td>
+</tr>
+<tr>
+<td><strong>本地实验/学习</strong></td>
+<td>ChromaDB</td>
+<td>API 最简单</td>
+</tr>
+<tr>
+<td><strong>极致性能研究</strong></td>
+<td>FAISS</td>
+<td>纯算法库，无开销</td>
+</tr>
+<tr>
+<td><strong>企业级全托管</strong></td>
+<td>Zilliz Cloud</td>
+<td>Milvus 能力 + 托管服务</td>
+</tr>
+</tbody></table>
+<blockquote><p>💡 <strong>最终建议</strong>：没有"最好"的向量数据库，只有"最适合"的。根据团队技术栈、数据规模、运维能力和预算综合评估。建议先用 ChromaDB/pgvector 做 POC，再根据需求选择生产方案。</p></blockquote>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>向量数据库选型是 RAG/搜索系统架构设计的第一步决策。本篇提供系统化的对比框架，帮助根据数据规模、性能需求、运维能力做出最优选择。</p>
+<p><strong>难度等级</strong>：🟡 ⭐⭐ 初中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">详细方案：<a href="#Milvus分布式向量DB">Milvus分布式向量DB</a>、<a href="#Pinecone云原生向量DB">Pinecone云原生向量DB</a>、<a href="#Qdrant与pgvector">Qdrant与pgvector</a>、<a href="#Weaviate多模态搜索">Weaviate多模态搜索</a></li>
+<li style="margin-left:0px">决策依据：数据规模 → 索引类型选择 → 部署方式</li>
+<li style="margin-left:0px">上游依赖：<a href="#Embedding模型选型">Embedding模型选型</a></li>
+<li style="margin-left:0px">下游应用：<a href="#RAG系统架构">RAG系统架构</a>、<a href="#Agent记忆系统">Agent记忆系统</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from pymilvus import connections, Collection
+
+app = FastAPI()
+connections.connect(&quot;default&quot;, host=&quot;milvus&quot;, port=&quot;19530&quot;)
+collection = Collection(&quot;documents&quot;)
+
+@app.post(&quot;/search&quot;)
+async def semantic_search(query: str, top_k: int = 5):
+    embedding = get_embedding(query)  # 调用 Embedding 模型
+    results = collection.search(
+        data=[embedding], anns_field=&quot;vector&quot;,
+        param={&quot;metric_type&quot;: &quot;L2&quot;, &quot;params&quot;: {&quot;ef&quot;: 128}},
+        limit=top_k, output_fields=[&quot;title&quot;, &quot;content&quot;]
+    )
+    return {&quot;results&quot;: [hit.to_dict() for hit in results[0]]}
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Milvus + Embedding 服务
+services:
+  milvus:
+    image: milvusdb/milvus:v2.4.0
+    ports: [&quot;19530:19530&quot;]
+    # ... (etcd, minio 依赖省略)
+  embedding-api:
+    build: ./embedding
+    ports: [&quot;8081:8081&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>为 Hermes Agent 添加知识库检索能力：开发一个检索插件，查询 Milvus/Qdrant 中的文档向量，返回相关上下文供 Agent 的 LLM 推理使用。实现 RAG（检索增强生成）模式。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote>
+</main>
+</body>
+</html>

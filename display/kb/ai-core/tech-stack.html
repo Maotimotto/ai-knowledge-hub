@@ -1,0 +1,2568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大模型技术栈 - AI大模型知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.7;color:#333;background:#fff}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#fff;border-right:1px solid rgba(0,0,0,0.1);position:sticky;top:0;height:100vh;overflow-y:auto;padding:0}
+.sidebar-header{padding:20px;border-bottom:1px solid rgba(0,0,0,0.06)}
+.sidebar-logo{font-size:18px;font-weight:700;color:#0075de;text-decoration:none;display:block}
+.sidebar-subtitle{font-size:12px;color:#888;display:block;margin-top:2px}
+.sidebar-section{padding:12px 0}
+.sidebar-link{display:block;padding:6px 20px;color:#333;text-decoration:none;font-size:14px;border-left:3px solid transparent;transition:all 0.15s}
+.sidebar-link:hover{background:#f6f5f4}
+.sidebar-link.active{border-left-color:#0075de;color:#0075de;background:#f0f7ff;font-weight:500}
+.sidebar-link.root-link{font-weight:600;font-size:15px;padding:8px 20px}
+.sidebar-group .section-link{padding-left:28px;font-size:13px}
+.main{flex:1;padding:40px 60px;max-width:900px;min-width:0}
+.breadcrumb{font-size:13px;color:#888;margin-bottom:16px}
+.breadcrumb a{color:#0075de;text-decoration:none}
+.breadcrumb span{margin:0 6px}
+.page-title{font-size:44px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.2}
+.page-desc{font-size:16px;color:#666;margin-bottom:32px}
+h1{font-size:32px;font-weight:700;color:#1a1a1a;margin:32px 0 12px}
+h2{font-size:28px;font-weight:600;color:#1a1a1a;margin:28px 0 10px}
+h3{font-size:20px;font-weight:600;color:#333;margin:20px 0 8px}
+h4{font-size:17px;font-weight:600;color:#444;margin:16px 0 6px}
+h5,h6{font-size:15px;font-weight:600;color:#555;margin:12px 0 4px}
+p{margin:8px 0}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+.wikilink{color:#0075de;background:#f0f7ff;padding:1px 4px;border-radius:3px;font-size:inherit}
+pre{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:16px;margin:12px 0;overflow-x:auto;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;line-height:1.5}
+code.inline{background:#f6f5f4;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:14px}
+.kw{color:#7c3aed}
+.str{color:#059669}
+.cmt{color:#9ca3af;font-style:italic}
+.num{color:#d97706}
+.table-wrapper{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr.even td{background:#fff}
+tr.odd td{background:#fafafa}
+blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:12px 0;background:#f0f7ff;color:#444;font-size:14px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+.list-item{margin:3px 0;font-size:15px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:500;vertical-align:middle;margin-left:8px}
+.toc-box{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin:20px 0}
+.toc-box h3{font-size:15px;margin:0 0 8px;color:#333}
+.toc-box ul{list-style:none;padding:0}
+.toc-box li{margin:3px 0}
+.toc-box a{font-size:13px;color:#555}
+.toc-box a:hover{color:#0075de}
+.local-toc{background:#fafafa;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:12px 16px;margin:12px 0}
+.local-toc h3{font-size:13px;margin:0 0 6px;color:#666}
+.local-toc ul{list-style:none;padding:0}
+.local-toc li{margin:2px 0}
+.local-toc a{font-size:13px;color:#555}
+.file-section{margin:40px 0;padding-top:20px;border-top:1px solid rgba(0,0,0,0.06)}
+.file-section:first-of-type{border-top:none}
+.file-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.file-title{margin:0;font-size:22px}
+.related-box{background:#f0f7ff;border:1px solid #0075de22;border-radius:8px;padding:16px 20px;margin:20px 0}
+.related-box h3{font-size:14px;margin:0 0 8px;color:#0075de}
+.project-link{display:block;font-size:14px;margin:4px 0}
+.diagram{width:100%;max-width:700px;margin:16px 0;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff}
+.math{font-family:'Times New Roman',serif;font-style:italic;color:#444}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:relative}.main{padding:20px}}
+
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">
+<a href="index.html" class="sidebar-logo">AI知识库</a>
+<span class="sidebar-subtitle">AI大模型</span>
+</div>
+<div class="sidebar-section">
+<a href="index.html" class="sidebar-link root-link">AI大模型 知识体系</a>
+<div class="sidebar-group">
+<a href="nlp-basics.html" class="sidebar-link section-link">NLP基础</a>
+</div>
+<div class="sidebar-group">
+<a href="transformer.html" class="sidebar-link section-link">Transformer架构</a>
+</div>
+<div class="sidebar-group">
+<a href="tech-stack.html" class="sidebar-link section-link">大模型技术栈</a>
+</div>
+<div class="sidebar-group">
+<a href="rag.html" class="sidebar-link section-link">RAG技术</a>
+</div>
+<div class="sidebar-group">
+<a href="agent.html" class="sidebar-link section-link">Agent开发</a>
+</div>
+<div class="sidebar-group">
+<a href="langgraph.html" class="sidebar-link section-link">LangGraph</a>
+</div>
+<div class="sidebar-group">
+<a href="finetune.html" class="sidebar-link section-link">模型微调</a>
+</div>
+</div>
+</aside>
+<main class="main">
+<div class="breadcrumb">
+<a href="index.html">AI大模型</a> <span>/</span> <span>大模型技术栈</span>
+</div>
+<h1 class="page-title">大模型技术栈</h1>
+<p class="page-desc">大模型开发全景技术栈</p>
+
+<div class="toc-box"><h3>目录</h3><ul><li><a href="#6b9a8b7a">AI大模型开发课程大纲-V6.5.md</a></li><li><a href="#f31fb90f">大模型技术栈全景.md</a></li></ul></div>
+
+<section class="file-section" id="6b9a8b7a"><div class="file-header"><h2 class="file-title">AI大模型开发课程大纲-V6.5</h2><span class="badge" style="background:#d4a017">基础</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#d86d173a">AI大模型开发课程大纲-V6.5</a></li></ul></div><blockquote> 全局定位
+<strong>知识领域</strong>：AI大模型 → 技术栈全景 → 课程学习路线
+<strong>在AI知识图谱中的位置</strong>：课程大纲是AI大模型学习的系统性路线图
+<strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础入门">大模型基础</a>，下启各专题深入学习</blockquote>
+<blockquote> 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 大模型基础 | <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础入门">AI大模型/01-大模型基础/大模型基础入门</a> | 入门知识 |
+| 技术栈全景 | <a class="wikilink" href="#AI大模型/03-大模型技术栈/大模型技术栈全景">AI大模型/03-大模型技术栈/大模型技术栈全景</a> | 技术总览 |
+| Transformer | <a class="wikilink" href="#面试常问问题/Transformer">面试常问问题/Transformer</a> | 核心架构 |</blockquote>
+<blockquote> 落地实践
+- 课程大纲=AI工程师成长路线图，按阶段系统学习避免碎片化
+- 根据大纲定位自身薄弱环节，有针对性补齐短板</blockquote>
+<h1 id="d86d173a">AI大模型开发课程大纲-V6.5</h1>
+<blockquote>来源: <code class="inline">/mnt/c/Users/24961/Desktop/AI大模型开发（Python）V6.5-详细版大纲.pdf</code></blockquote>
+<hr>
+<p>全面拥抱国产大模型，构筑AI领域国家竞争力</p>
+<p>Python</p>
+<p>课程简章V6.5</p>
+<p>解锁「大模型」新技能 成就「高薪AI」人才</p>
+<p>联合头部大厂 共建「大模型」应用开发课程</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>AI大模型开发（Python）大纲</p>
+<p>课程阶段 课程天数</p>
+<p>大模型开发入门</p>
+<p>1</p>
+<p>AI大模型搭建聊天机器人需求分析 8</p>
+<p>私有化部署 、Python调用大模型实现智能聊天</p>
+<p>大模型开发语言进阶</p>
+<p>2 7</p>
+<p>Python面向对象 Python多线程及网络编程</p>
+<p>数据处理与统计分析</p>
+<p>3 7</p>
+<p>数据分析的流程和步骤 RFM客户价值模型实战</p>
+<p>机器学习基础</p>
+<p>4 8</p>
+<p>机器学习核心原理与分类 分类、回归、聚类算法</p>
+<p>深度学习基础</p>
+<p>5 7</p>
+<p>Pytorch深度学习框架 经典神经网络结构（CNN、RNN等）</p>
+<p>NLP自然语言处理基础</p>
+<p>6</p>
+<p>自然语言处理基础知识与建模流程 RNN系列模型讲解 10</p>
+<p>Transformer架构 迁移学习</p>
+<p>【项目1】蜂窝头条文本分类项目</p>
+<p>7 7</p>
+<p>NLP文本分类和智能聊天解决方案</p>
+<p>【项目2】医疗知识图谱项目</p>
+<p>8 10</p>
+<p>NLP知识图谱和关系抽取解决方案</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>大模型微调开发</p>
+<p>9 8</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>大模型Prompt-Tuning微调</th><th>大模型LoRA微调</th><th>大模型全量微调</th></tr></thead>
+</table></div>
+<p>大模型Agent智能体开发</p>
+<p>10 6</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Agent开发</th><th>MCP原理与实践</th><th>Dify+RagFlow</th></tr></thead>
+</table></div>
+<p>大模型RAG系统开发</p>
+<p>11</p>
+<p>6</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>RAG基础知识</th><th>RAG核心逻辑与检索优化</th><th>系统调试与优化</th></tr></thead>
+</table></div>
+<p>大模型技术专题</p>
+<p>12</p>
+<p>3</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>大模型蒸馏专题</th><th>DeepSeek专题剖析</th><th>前沿技术更新与分享</th></tr></thead>
+</table></div>
+<p>面试加强课</p>
+<p>13 3</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>常见算法题</th><th>机器学习&深度学习面试题精讲</th></tr></thead>
+</table></div>
+<p>图像分析基础</p>
+<p>14 5</p>
+<p>图像分析、分类、分割</p>
+<p>多模态大模型项目</p>
+<p>15 5</p>
+<p>基于Stable Diffusion小程序图像生成项目流程与步骤分析</p>
+<p>黑马重磅推出AI6.5课程</p>
+<p>培养企业紧缺的大模型开发工程师</p>
+<p>AI热门岗位、匹配企业算法岗位需求</p>
+<p>优势一</p>
+<p>课程匹配AI时代主流的NLP自然语言处理和大模型开发岗位，紧跟AI技术发展持续迭代高含金量</p>
+<p>课程和项目</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>大模型方向</th><th>自然语言处理NLP方向</th><th>多模态大模型方向</th></tr></thead>
+<tbody><tr class="even"><td>设计、实现和优化大规模深度学习</td><td>通过处理和分析文本数据，实现语</td><td>主要应用于需要处理多种类型数据</td></tr></tbody>
+<tbody><tr class="odd"><td>模型，包括数据预处理、模型架构</td><td>言翻译、情感分析、自动摘要、聊</td><td>的场景，如视觉问答、图文生成、</td></tr></tbody>
+<tbody><tr class="even"><td>设计、训练调优、性能优化以及模</td><td>天机器人等功能，使计算机能够理</td><td>语音识别与合成等</td></tr></tbody>
+<tbody><tr class="odd"><td>型部署等</td><td>解和生成人类语言</td></tr></tbody>
+</table></div>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>与大厂深入合作、共建大模型课程</p>
+<p>优势二</p>
+<p>课程引入一线前沿大模型开发平台，不仅可以提供丰富的GPU云端算力，还可以让学生轻</p>
+<p>松实现垂直领域大模型开发</p>
+<p>与讯飞星火大模型合作开发 基于讯飞 与腾讯云合作开发 StableDiffusion多 与阿里云合作开发 基于阿里PAI</p>
+<p>Maas平台应用和微调课程 模态大模型等课程 平台和百炼平台等课程</p>
+<p>专项领域AI赋能、定制垂直行业大模型</p>
+<p>优势三</p>
+<p>课程全面接入Prompt、RAG、微调及智能体等全套大模型开发内容，旨在打造快就业，</p>
+<p>高薪资的AI大模型专精人才</p>
+<p>70% 8大</p>
+<p>一课搞定国内外 主流大模型 涵盖 行业大模型项目</p>
+<p>核心微调原理 从设计到部署，大模型应用开发全流程落地</p>
+<p>全面融入DeepSeek大模型开发、紧跟前沿大模型技术更新方向</p>
+<p>优势四</p>
+<p>DeepSeek爆火让更多企业接入大模型，催生大量AI开发岗位，课程充分融入DeepSeek，</p>
+<p>无缝对接企业大模型开发</p>
+<p>全面融入DeepSeek大模型开发、紧跟</p>
+<p>前沿大模型技术更新方向</p>
+<p>基于DeepSeek/Qwen实现物流行业RAG系统</p>
+<p>基于DeepSeek实现Agent开发应用</p>
+<p>DeepSeek大模型微调实战</p>
+<p>DeepSeek核心原理剖析</p>
+<p>大模型模块开发图谱</p>
+<p>优势五</p>
+<p>掌握全栈大模型开发核心技术，100天挑战年薪30W+</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>拆解核心</th><th>动手实战</th><th>行业落地</th></tr></thead>
+<tbody><tr class="even"><td>大模型原理和优化</td><td>从原理到应用</td><td>文本分析技能</td></tr></tbody>
+<tbody><tr class="odd"><td>主流大模型：剖析ChatGPT、</td><td>RAG（检索增强生成）：解决</td><td>RAG（检索增强生成）：解决</td></tr></tbody>
+<tbody><tr class="even"><td>Llama、QWen、DeepSeek</td><td>模型“胡说八道”的问题</td><td>模型“胡说八道”的问题</td></tr></tbody>
+</table></div>
+<p>等明星模型</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>GPT-2实战：从小模型入手，</th><th>GPT-2实战：从小模型入手，</th></tr></thead>
+<tbody><tr class="even"><td>微调方法：给大模型“调教”技</td><td>理解大模型的开发流程</td><td>理解大模型的开发流程</td></tr></tbody>
+</table></div>
+<p>巧，让它更适合特定任务</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Agent：打造业务领域专属智</th><th>Agent：打造业务领域专属智</th></tr></thead>
+<tbody><tr class="even"><td>提示词工程用：巧妙的话“指</td><td>能体</td><td>能体</td></tr></tbody>
+</table></div>
+<p>挥”模型干活</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>多模态</th><th>扩展能力</th></tr></thead>
+<tbody><tr class="even"><td>图文结合的未来</td><td>工具与优化</td></tr></tbody>
+<tbody><tr class="odd"><td>Stable Diffusion (SD)：扩散</td><td>Function Call & AI Agents</td></tr></tbody>
+<tbody><tr class="even"><td>模型（从噪声到图像）、</td><td>& MCP：让模型调用外部工具</td></tr></tbody>
+<tbody><tr class="odd"><td>LoRA训练、部署</td><td>（查数据库、发邮件）</td></tr></tbody>
+<tbody><tr class="even"><td>基于扩散模型的图像生成应用</td><td>RAG优化项目：通过RAG系统，</td></tr></tbody>
+</table></div>
+<p>如何让问答更精准、更快</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>01 大模型开发入门</p>
+<p>课时：8天</p>
+<p>课程亮点</p>
+<p>涵盖基础知识：包括 Python 基本语法、数据类型（如字符串、列表、元组、字典</p>
+<p>等）、控制流（条件语句、循环等），为进一步学习打下坚实基础</p>
+<p>注重实践操作：通过实际案例和项目练习，让学生能够将理论知识应用到实际编程</p>
+<p>中，提升动手能力和解决问题的能力</p>
+<p>培养逻辑思维：帮助学生学会如何分解问题、设计算法，以及通过编程实现解决方</p>
+<p>案，从而有效培养逻辑思维能力</p>
+<p>能力目标</p>
+<p>掌握搭建聊天机器人的步骤 掌握列表-字典的相关操作</p>
+<p>掌握搭建聊天机器人必备语言和工具使用 独立基于需求定义函数并调用</p>
+<p>AI大模型应用场景 掌握函数的各种参数</p>
+<p>AI大模型主要行业应用与赋能 掌握函数的引用相关</p>
+<p>主流大模型应用与实操 独立完成匿名函数的编写和使用</p>
+<p>掌握大模型必备Python语言的基本语法 掌握文件的相关操作</p>
+<p>掌握PyCharm的基本使用 掌握异常的处理方式</p>
+<p>独立完成简单的Python程序开发 掌握包, 模块的用法</p>
+<p>掌握分支结构的用法 熟悉Streamlit框架搭建页面</p>
+<p>掌握循环结构的用法 了解LangChain框架组成和开发流程</p>
+<p>掌握容器类型相关的概述 熟悉通义百炼大模型平台</p>
+<p>掌握字符串的相关操作 熟悉通义大模型API调用</p>
+<p>掌握容器类型的遍历</p>
+<p>传智教育旗下高端IT教育品牌 AI+大数据A开I大发模课型程开简发章</p>
+<p>课程大纲</p>
+<p>AI大模型入门与应用</p>
+<p>AI大模型搭建聊天机器人需求分析；AI大模型搭建聊天机器人步骤和流程；</p>
+<p>AI大模型项目介绍和</p>
+<p>环境搭建 AI大模型搭建聊天机器人必备语言和工具项目环境搭建</p>
+<p>通用AI大模型和垂直领域大模型应用实操，包括AI赋能办公、运营、文生图</p>
+<p>AI大模型入门与应用 多模态等多种应用场景，帮助学生熟悉AI大模型行业落地场景，为后续开发</p>
+<p>提供支持</p>
+<p>AI大模型Python语言基础</p>
+<p>学习大模型必备Python语言；Python解释器和Pycharm开发工具安装；注释</p>
+<p>大模型必备Python</p>
+<p>基础语法 和定义变量；标识符和关键字以及命名规范；输入和输出函数；算数运算,比</p>
+<p>较运算,逻辑运算,赋值运算</p>
+<p>大模型必备Python</p>
+<p>分支语句 if elif else；循环结构 while for；跳转语句 break 和 continue</p>
+<p>控制语句</p>
+<p>循环嵌套-99乘法表；循环案例-猜数字游戏；不同容器的介绍和定义；索引</p>
+<p>大模型必备Python 操作；切片操作；字符串的常见功能；容器的遍历；列表详解；元组详解；</p>
+<p>容器</p>
+<p>字典容器的使用；容器类型嵌套案例-随机分配办公室；容器类型-公共的运</p>
+<p>算符和方法</p>
+<p>大模型必备Python 函数入门；函数的参数和返回值；变量作用域；函数的多种参数；拆包和变</p>
+<p>函数</p>
+<p>量交换；引用和匿名函数；递归实操；【综合案例】斐波那契数列</p>
+<p>大模型必备Python文 文件的读写入门；中文乱码和路径问题；文件复制；os模块；with-open语</p>
+<p>件和异常处理</p>
+<p>法；异常处理方式；导入包和模块</p>
+<p>聊天机器人搭建</p>
+<p>基于Stream-</p>
+<p>Streamlit框架；LangChain框架组成和开发流程；通义百炼大模型平台；通</p>
+<p>lit+LangChain搭建</p>
+<p>义大模型API调用</p>
+<p>智能聊天机器人</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>02 大模型开发语言进阶</p>
+<p>课时：7天</p>
+<p>课程亮点</p>
+<p>涵盖基础知识：包括 Python 基本语法、数据类型（如字符串、列表、元组、字典</p>
+<p>等）、控制流（条件语句、循环等），为进一步学习打下坚实基础</p>
+<p>注重实践操作：通过实际案例和项目练习，让学生能够将理论知识应用到实际编程</p>
+<p>中，提升动手能力和解决问题的能力</p>
+<p>培养逻辑思维：帮助学生学会如何分解问题、设计算法，以及通过编程实现解决方</p>
+<p>案，从而有效培养逻辑思维能力</p>
+<p>能力目标</p>
+<p>掌握面向对象编程思想 掌握生成器, 迭代器的用法</p>
+<p>独立运用面向对象思想完成指定需求 理解正则表达式的相关运用</p>
+<p>掌握深拷贝和浅拷贝代码原理 理解算法和数据结构的相关概述</p>
+<p>独立完成面向对象版-学生管理系统 掌握常用的数据结构及代码实现</p>
+<p>掌握闭包, 装饰器的用法 掌握常用的排序算法</p>
+<p>独立完成网编案例代码实现 掌握常用的查找算法</p>
+<p>掌握多进程, 多线程相关代码实现 理解时间复杂度相关概述</p>
+<p>掌握上下文管理器对象的使用</p>
+<p>课程大纲</p>
+<p>Python面向对象进阶</p>
+<p>面向对象和面向过程；类和对象的区别；定义类和属性；定义方法和魔法方</p>
+<p>面向对象入门</p>
+<p>法；面向对象-案例；【实战案例】面向对象综合实战案例</p>
+<p>继承的使用；私有权限；类属性和对象属性；类方法和静态方法；面向对象版</p>
+<p>面向对象进阶</p>
+<p>-学生管理系统；【实战作业】面向对象版-学生管理系统（采取部分实战）</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>Python高阶语法</p>
+<p>闭包+装饰器 深拷贝, 浅拷贝详解；闭包详解；装饰器详解；【实战案例】装饰器实战案例</p>
+<p>网编相关概述介绍；网编案例-客户端发送文件到服务器端；并行和并发详</p>
+<p>网编+多进程入门</p>
+<p>解；多进程-代码实现；【实战案例】网编案例-客户端和服务器端交互</p>
+<p>多线程代码实现；守护线程详解；互斥锁详解；线程同步详解；上下文管理</p>
+<p>多线程详解</p>
+<p>器详解；Json数据文件读取和处理；【实战案例】Json数据文件读取和处理</p>
+<p>生成器详解；迭代器详解；正则表达式详解；【实战案例】正则表达式文本匹</p>
+<p>生成器,正则详解</p>
+<p>配综合案例</p>
+<p>数据结构算法详解</p>
+<p>算法详解 + 链表代码 算法-时间复杂度详解；顺序表详解；链表详解；自定义代码-模拟链表；</p>
+<p>实现 【实战案例】模拟链表案例</p>
+<p>算法详解 + 二叉树代 排序算法详解.（冒泡、选择、插入和快排4选2）；查找算法详解；二叉树详</p>
+<p>码实现 解；综合案例-自定义代码模拟二叉树；【实战案例】模拟二叉树案例</p>
+<p>03 数据处理与统计分析</p>
+<p>课时：7天</p>
+<p>课程亮点</p>
+<p>涵盖基础知识：包括Linux, SQL, Numpy, Pandas等，为进一步学习打下坚实基础</p>
+<p>注重实践操作：通过实际案例和项目练习，让学生能够将理论知识应用到实际编程</p>
+<p>中，提升动手能力和解决问题的能力</p>
+<p>培养逻辑思维：帮助学生学会如何分解问题、设计算法，以及通过编程实现解决方</p>
+<p>案，从而有效培养逻辑思维能力</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>能力目标</p>
+<p>理解Linux的相关概述 掌握Numpy的常用内置函数..</p>
+<p>掌握Linux的环境搭建 掌握Pandas的用法, 如: 聚合统计,</p>
+<p>掌握Linux的常用命令 分组汇总统计分析, 日期运算,绘图等</p>
+<p>掌握SQL环境搭建 掌握RFM案例需求分析</p>
+<p>掌握SQL语句基本使用 掌握RFM代码实现.</p>
+<p>掌握多表查询相关操作 通过扩展多场景案例的方式学会</p>
+<p>掌握窗口函数的用法 Python数据处理与统计分析</p>
+<p>理解Numpy的作用及应用场景</p>
+<p>课程大纲</p>
+<p>Linux基础</p>
+<p>Linux的相关概述及环境搭建；Linux的基础命令-文件,文件夹相关；Linux的</p>
+<p>基础命令-查找相关；Linux常用命令-Vi编辑器详解；Linux权限管理相关命</p>
+<p>Linux入门</p>
+<p>令；Linux网络相关命令；Linux压缩和解压缩相关命令；Linux安装软件方式</p>
+<p>详解</p>
+<p>SQL统计分析</p>
+<p>MySQL入门 数据库相关概述及环境搭建；DDL语句详解；DML语句详解；约束详解</p>
+<p>DQL-单表查询详解；DQL-多表查询详解；窗口函数详解；【实战作业】</p>
+<p>MySQL进阶</p>
+<p>NorthWind数据分析案例（7张表34个统计需求）</p>
+<p>Pandas数据处理与统计分析</p>
+<p>Python做数据分析的优势介绍；Numpy矩阵运算库相关概念；创建Numpy对</p>
+<p>象的各种方式；Numpy内置函数详解；Series对象的属性和方法详解；</p>
+<p>Numpy+Pandas入门</p>
+<p>DataFrame对象的属性和方法详解；DataFrame对象运算详解；DataFrame</p>
+<p>导入导出数据；【实战案例】电影案例统计分析</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>DataFrame加载指定行列的数据；DataFrame聚合统计；综合小案例-链家数</p>
+<p>Pandas进阶 据分析；DataFrame数据组合方式；缺失值处理详解；apply()自定义函数详</p>
+<p>解；日期相关运算；【实战案例】链家数据分析</p>
+<p>数据处理与统计分析案例</p>
+<p>Matplotlib绘图方式详解；Seaborn绘图方式详解；综合案例-RFM会员价值</p>
+<p>RFM案例 度预估模型；【实战案例】RFM会员价值度预估模型；【实战作业】零售会</p>
+<p>员案例数据分析</p>
+<p>04 机器学习基础</p>
+<p>课时：8天</p>
+<p>课程亮点</p>
+<p>全面覆盖机器学习基础概念：从机器学习的定义、发展历程到其核心原理，本课程以</p>
+<p>清晰易懂的方式介绍基本概念，为学员打下坚实的理论基础</p>
+<p>实战导向的KNN算法教学：K最近邻（KNN）算法作为经典且易于理解的分类与回归</p>
+<p>方法，本课程将重点讲解其工作原理、距离度量方式、K值选择策略等关键要素。通</p>
+<p>过丰富的实战案例，如鸢尾花分类案例，掌握KNN算法在解决实际问题中的应用技巧</p>
+<p>精准掌握线性回归模型：从线性回归的基本概念出发，逐步引导学员理解模型构建、</p>
+<p>参数估计、性能评估等关键环节，动手实现一个简单的线性回归模型。通过房价预测</p>
+<p>的实战项目，让学员在解决实际问题中深化对线性回归的理解和应用能力</p>
+<p>深入理解逻辑回归与分类问题：逻辑回归作为解决分类问题的基石，课程将详细剖析</p>
+<p>其背后的逻辑原理、损失函数设计、优化算法等核心内容。涵盖二分类与多分类问</p>
+<p>题，通过实战演练，让学员掌握逻辑回归在复杂分类场景下的应用策略</p>
+<p>无监督学习的典范——Kmeans算法：深入探索Kmeans聚类算法，介绍其聚类原理、</p>
+<p>初始化方法、收敛条件及优化策略。通过实际案例，如客户细分等，展示Kmeans算</p>
+<p>法在发现数据内在结构、识别潜在群体等方面的应用价值</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>精通Scikit-Learn机器学习库：Scikit-Learn提供了丰富的算法实现和数据处理工</p>
+<p>具，本课程将全面介绍其安装、配置及基本使用方法。结合具体项目案例，分享在实</p>
+<p>际工作中使用Scikit-Learn的经验与技巧，帮助学员少走弯路，快速成长</p>
+<p>能力目标</p>
+<p>知道什么是人工智能 知道过拟合的解决方法</p>
+<p>了解人工智能算法的分类 知道回归任务的评估方法</p>
+<p>知道人工智能的建模流程 知道逻辑回归是什么</p>
+<p>知道模型的拟合问题 知道数据集的构成</p>
+<p>深入理解KNN算法原理 知道回归任务的损失函数</p>
+<p>掌握常见距离度量方法 知道分类任务的评估方法</p>
+<p>掌握特征预处理的方法 理解无监督算法聚类算法</p>
+<p>动手实现与调优KNN算法 掌握K-Means算法原理</p>
+<p>知道线性回归是什么 熟练运用K-Means算法</p>
+<p>掌握基本的数据知识 掌握聚类算法的评估方法</p>
+<p>掌握梯度下降算法</p>
+<p>课程大纲</p>
+<p>人工智能概述</p>
+<p>AL.ML.DL的介绍；人工智能的应用领域；数据集构成；特征和目标值的关</p>
+<p>人工智能的基本概念 系；AI算法分类；分类与回归的区别；如何判断使用分类和回归算法；人工</p>
+<p>与建模流程 智能的建模流程；特征工程方法；模型的拟合问题；什么是欠拟合和过拟</p>
+<p>合；Scikit-Learn工具包的安装方法</p>
+<p>K近邻算法</p>
+<p>KNN算法思想；KNN算法的APl；距离度量方式；特征预处理；鸢尾花案</p>
+<p>KNN算法详解与实战 例；特征工程；模型训练与评估；网格搜索交叉验证；手写数字识别案例；</p>
+<p>【案例】手写数字识别案例</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>线性回归</p>
+<p>线性回归简介；线性回归的定义；线性回归API介绍；计算过程；求解流程；</p>
+<p>线性回归的基本概念</p>
+<p>数学概念术语；导数的定义；常见导数的计算；偏导计算；向量特点；矩阵</p>
+<p>与模型构建</p>
+<p>特点</p>
+<p>一元线性回归方程求解；多元线性回；梯度下降算法；梯度下降的特点；梯度</p>
+<p>线性回归的参数估计、</p>
+<p>下降算法分类；回归的评估指标；波士顿房价预测案例；梯度下降的房价预</p>
+<p>评估方法与实战</p>
+<p>测；过拟合和欠拟合；正则化；【案例】房价预测案例</p>
+<p>逻辑回归</p>
+<p>逻辑回归应用场景；数学知识；逻辑回归思想；逻辑回归的实现方式；</p>
+<p>逻辑回归的原理、特</p>
+<p>sigmoid函数；输出结果；了解数据获取方式；数据可视化；数据集划分；</p>
+<p>征处理方法与实战</p>
+<p>损失函数；损失函数推导；癌症分类案例；【案例】癌症分类案例</p>
+<p>混淆矩阵；精确率和召回率；F1-score；ROC曲线和AUC指标；ROC曲线的绘</p>
+<p>逻辑回归的优化方式、</p>
+<p>制；电信客户流失案例介绍；电信客户流失案例实现过程；【案例】电信客户</p>
+<p>评估方法与实战</p>
+<p>流失案例</p>
+<p>决策树算法</p>
+<p>决策树定义及决策树</p>
+<p>决策树定义；熵的计算；信息增益计算；ID3树；【案例】用户流失案例</p>
+<p>的构建方法</p>
+<p>决策树的优化方法及 C4.5树；CART树构建；树的比较；决策树剪枝方法；【案例】泰坦尼克号</p>
+<p>案例实践 生存预测</p>
+<p>K-Means算法</p>
+<p>聚类算法思想；K-Means的API；K-Means的实现流程；SSE+肘部法；SC</p>
+<p>K-Means算法详解</p>
+<p>和CH系数；SSE实现；评估指标的实现；顾客聚类案例实践；【案例】顾客</p>
+<p>与实战</p>
+<p>聚类案例</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>05 深度学习基础</p>
+<p>课时：7天</p>
+<p>课程亮点</p>
+<p>精通PyTorch深度学习框架：深入剖析PyTorch深度学习框架，从数据加载、模型构</p>
+<p>建到训练评估的全流程，重点讲解处理神经网络时遇到的关键技术点，让学员快速掌</p>
+<p>握利用PyTorch搭建高效、可扩展神经网络的能力</p>
+<p>扎实神经网络理论基础：系统讲解神经网络的基础知识，包括网络结构、激活函数、</p>
+<p>损失函数等核心概念，为深入学习深度学习奠定坚实的理论基础</p>
+<p>深入理解反向传播算法：反向传播是神经网络优化的核心，详细剖析其原理与实现细</p>
+<p>节，帮助学员理解权重更新过程，掌握优化神经网络性能的关键技能</p>
+<p>算法优化与正则化实战：深入探讨深度学习中的正则化技术（如L1/L2正则化、</p>
+<p>Dropout等）和算法优化策略（如Adam、RMSprop等优化器），结合实际应用案</p>
+<p>例，展示如何有效防止过拟合，加速模型收敛，提升模型泛化能力</p>
+<p>计算机视觉与CNN网络：聚焦于计算机视觉领域，详细介绍卷积神经网络（CNN）的</p>
+<p>基本架构、工作原理及其在图像分类任务中的应用。通过实战项目，让学员掌握利用</p>
+<p>CNN解决复杂视觉问题的能力</p>
+<p>自然语言处理与RNN网络：探索自然语言处理的奥秘，从基础概念出发，逐步深入循</p>
+<p>环神经网络（RNN）的原理与应用。通过文本生成等实战案例，让学员掌握利用RNN</p>
+<p>处理自然语言数据的技能</p>
+<p>课程大纲</p>
+<p>Pytorch深度学习框架</p>
+<p>深度学习是什么；深度学习发展历史；Pytorch与其他深度学习框架的对比；</p>
+<p>torch张量创建；线性张量和随机张量；全01张量；元素类型转换；张量创建</p>
+<p>深度学习框架</p>
+<p>方式；张量到数组转换；数组到张量转换；张量到数值转换；张量的数值计</p>
+<p>Pytorch详解</p>
+<p>算；张量的运算函数；索引操作；多维索引；reshape；squeeze和</p>
+<p>unsqueeze方法；transpose和permute方法；view方法；张量拼接</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>神经网络</p>
+<p>神经网络介绍；神经网络组成；神经元的构成；激活函数的作用；Sigmod激</p>
+<p>神经网络的组成及其</p>
+<p>活函数；tanh和relu激活；其他激活函数；参数初始化方法；网络构建；神</p>
+<p>构建方法</p>
+<p>经网络优缺点</p>
+<p>交叉熵损失；二分类交叉熵；MSE损失；MAE损失；回归损失；反向传播算</p>
+<p>神经网络的优化方</p>
+<p>法；指数加权平均；动量法；等间隔学习率衰减；学习率衰减；随机失活；BN</p>
+<p>法及手机价格分类</p>
+<p>层；手机价格分类数据获取；模型构建；模型训练；模型预测与评估；【实战</p>
+<p>案例实践</p>
+<p>案例】基于深度学习的销售数据分类预测</p>
+<p>CNN网络</p>
+<p>图像基础知识；卷积神经网络的构成；卷积层计算；全连接层的作用；池化</p>
+<p>计算机视觉入门、</p>
+<p>层；手写数字的数据集获取；LeNet模型构建；模型训练；模型预测；【实</p>
+<p>CNN网络</p>
+<p>战案例】基于Cifar10的图像分类</p>
+<p>RNN网络</p>
+<p>自然语言处理概述；词嵌入的作用；RNN的原理；RNN实现；数据集的构</p>
+<p>自然语言处理入门、</p>
+<p>成；词表构建；数据集构建；RNN模型构建；模型训练；RNN模型预测；</p>
+<p>RNN网络</p>
+<p>【实战案例】基于RNN实现文本生成</p>
+<p>06 NLP自然语言处理基础</p>
+<p>课时：10天</p>
+<p>课程亮点</p>
+<p>系统的NLP基础知识：详细介绍了自然语言处理（NLP）的发展历史，帮助学生了解</p>
+<p>NLP的演变和重要里程碑，打下坚实的理论基础</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>全面的文本预处理方法：详细介绍包括中文分词、命名实体识别（NER）、词性标注</p>
+<p>等文本预处理的基本方法，确保学生掌握处理原始文本数据的关键技术；探讨文本张</p>
+<p>量表示方法和特征处理技术，如n-gram和长度规范，帮助学生理解如何将文本数据</p>
+<p>转化为模型可处理的形式</p>
+<p>深入的循环神经网络（RNN）分析：详细对比分析了RNN、LSTM和GRU三种循环神</p>
+<p>经网络模型的原理和实现方式，重点讲解attention机制，通过案例展示其应用效果，</p>
+<p>帮助学生对复杂模型的理解和提升实战能力</p>
+<p>Transformer模型的全面剖析：详细讲解了Transformer模型的结构，并进行源代码解</p>
+<p>析，使学生能够深入理解这一革命性模型的内部工作原理。实战应用：通过实际代码</p>
+<p>演示，帮助学生掌握Transformer模型的实现和应用</p>
+<p>实用的迁移学习技能：讲解基于预训练语言模型的微调方法，提升模型应用能力。详</p>
+<p>细讲解了Transformers库的使用方法，使学生能够快速上手并应用于实际项目中，提</p>
+<p>高实战能力</p>
+<p>能力目标</p>
+<p>了解什么是自然语言处理 掌握Pytorch中传统RNN工具的使用</p>
+<p>了解自然语言处理的发展简史 了解LSTM内部结构及计算公式</p>
+<p>了解自然语言处理的应用场景.. 掌握Pytorch中LSTM工具的使用</p>
+<p>了解什么是文本预处理技术及其作用 了解GRU内部结构及计算公式</p>
+<p>掌握分词, 词性标注, 命名实体识别等文本 掌握Pytorch中GRU工具的使用</p>
+<p>处理的方法 掌握使用RNN构建人名分类器实现过程</p>
+<p>掌握文本张量表示的方法 了解什么是注意力机制及其作用</p>
+<p>掌握实现常见的文本特征处理的方法 掌握注意力计算规则</p>
+<p>掌握回译文据增强的具体方法 掌握注意力机制的实现步骤</p>
+<p>了解RNN模型的作用 掌握使用基于GRU的seq2seq模型架构</p>
+<p>了解RNN模型的分类 实现翻译的过程</p>
+<p>了解传统RNN的内部结构及计算公式 掌握Attention机制在解码器端的实现过程</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>掌握transformer模型架构原理 掌握层次softmax以及负采样方法原理</p>
+<p>掌握position位置编码方式 掌握fasttext实现文本分类任务</p>
+<p>掌握编码器的模型结构 了解迁移学习的概念</p>
+<p>掌握多头注意力机制的原理 了解什么是预训练模型</p>
+<p>掌握输出部分的模型结构. 掌握常见的预训练模型结构.</p>
+<p>掌握基于Pytorch实现整个transfor 掌握transformers库的使用</p>
+<p>-mer模型 掌握迁移学习文本分类任务</p>
+<p>掌握fasttext模型架构的原理 掌握迁移学习完型填空任务</p>
+<p>掌握fasttext模型优化方法 掌握迁移学习文本匹配任务</p>
+<p>课程大纲</p>
+<p>自然语言处理入门</p>
+<p>自然语言处理基础 介绍自然语言处理的概念；分析自然语言处理的发展简史；学习自然语言处</p>
+<p>知识</p>
+<p>理的应用场景..</p>
+<p>文本预处理</p>
+<p>虚拟环境的配置和安装；介绍文本处理基本方法类型；jieba分词工具安装；</p>
+<p>文本处理的基本方法</p>
+<p>实现jieba的精确模式分词</p>
+<p>实现jieba全模式分词；实现jieba搜索引擎模式分词；实现jieba自定义词典的定</p>
+<p>文本处理的基本方法</p>
+<p>义；基于jieba实现文本的词性标注；讲解命名实体识别的原理</p>
+<p>介绍文本张量表示的概念；one-hot词向量的原理解析；one-hot词向量的代</p>
+<p>码实现；word2vec词向量训练方法的原理；word2vec-cbow模型的原理讲</p>
+<p>文本张量的表示方法</p>
+<p>解；word2vec-skipgram模型的原理讲解；基于fasttext实现word2vec词向</p>
+<p>量的训练；word Embedding的原理解析；实现word Embedding并可视化展示</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>获取标签数量分布；获取句子长度分布；获取正负样本长度散点分布；获取不</p>
+<p>文本数据分析+特征</p>
+<p>同词汇总数统计； 获取训练集高频形容词词云；获取验证集形容词词云；什么</p>
+<p>处理+数据增强</p>
+<p>是n-gram特征；文本长度规范及其作用；回译数据增强方法实现文本扩增</p>
+<p>RNN循环神经网络</p>
+<p>什么是RNN模型；RNN模型原理；RNN模型的类别；RNN模型结构分析；使</p>
+<p>用Pytorch构建RNN模型；LSTM模型结构分析；Bi-LSTM模型原理介绍；使</p>
+<p>RNN系列模型讲解</p>
+<p>用Pytorch构建LSTM模型；GRU模型结构分析；Bi-GRU模型原理介绍；使</p>
+<p>用Pytorch构建GRU模型</p>
+<p>项目背景介绍；数据预处理:正则化脏数据清洗；构建数据源NameClassData-</p>
+<p>set；构建迭代器遍历数据；构建RNN模型；构建LSTM模型；构建GRU模型；</p>
+<p>人名分类器案例 构建RNN训练函数；构建LSTM训练函数；构建GRU训练函数；模型训练并制</p>
+<p>图；模型训练结果对比分析；构建RNN预测函数；构建LSTM预测函数；构建</p>
+<p>GRU预测函数；【实战案例】文本分类（人名分类器案例）</p>
+<p>注意力机制原理介绍；Attention计算逻辑；有无attention模型对比；注意力</p>
+<p>注意力机制 计算规则；什么是深度神经网络注意力机制；注意力机制的作用；注意力机</p>
+<p>制实现步骤</p>
+<p>清洗文本和构建文本字典；构建数据源对象；构建数据迭代器；构建基于GRU</p>
+<p>的编码器；构建基于GRU的解码器；构建基于GRU和Attention的解码器；</p>
+<p>Seq2Seq英译法案例 teacher_forcing介绍；teacher_forcing的作用；构建内部迭代训练函数；构建</p>
+<p>模型训练函数；构建模型评估函数并测试；Attention张量制图；【实战案例】</p>
+<p>文本翻译（Seq2Seq英译法案例）</p>
+<p>Transformer模型</p>
+<p>输入部分介绍；文本嵌入层的作用；位置编码器的作用；位置编码器的代码</p>
+<p>分析；掩码张量介绍；掩码张量的作用；生成掩码张量的代码分析；注意力</p>
+<p>计算规则的代码分析；带有mask的输入参数；多头注意力机制概念；多头注</p>
+<p>transformer输入+编</p>
+<p>码器架构 意力机制的代码实现；前馈全连接层；前馈全连接层的代码分析；规范化层</p>
+<p>的作用；规范化层的代码实现；子层连接结构；子层连接结构的代码分析；</p>
+<p>编码器层的作用；编码器层的代码分析；编码器的作用；编码器的代码分析</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解码器层的作用；解码器层的代码实现；解码器的作用；解码器的代码分析；</p>
+<p>transformer输出+</p>
+<p>输出部分介绍；线性层的作用；softmax层的作用；线性层和softmax层的代码</p>
+<p>解码器架构</p>
+<p>分析； 编码器-解码器结构的代码实现；Tansformer模型构建过程的代码分析</p>
+<p>迁移学习</p>
+<p>讲解fasttext工具的概念和原理；安装fasttext工具包；分析fastext模型的原</p>
+<p>理；讲解层次softmax方法的原理；讲解负采样方法的原理；基于fasttext实</p>
+<p>fasttext工具应用</p>
+<p>现词向量的训练；基于fasttext实现文本分类；基于fasttext实现词向量的</p>
+<p>迁移</p>
+<p>讲解迁移学习有关概念；理解什么是预训练模型(Pretrained model)；掌握预训</p>
+<p>迁移学习介绍 练模型的应用方式微调(Fine-tuning)；了解NLP中常见评估数据集；了解NLP</p>
+<p>中的常见预训练模型；掌握transformers库的三种使用方式</p>
+<p>迁移学习-中文分类（任务介绍、数据介绍、数据预处理、自定义下游任务</p>
+<p>网络模型、模型训练、模型评估）；迁移学习-中文填空（任务介绍、数据</p>
+<p>介绍、数据预处理、自定义下游任务网络模型、模型训练、模型评估）；迁</p>
+<p>迁移学习案例实践</p>
+<p>移学习-中文句子关系（任务介绍、数据介绍、数据预处理、自定义下游任</p>
+<p>务网络模型、模型训练、模型评估）；【实战案例】迁移学习案例实践（中</p>
+<p>文分类、中文填空、中文句子关系）</p>
+<p>07【项目1】蜂窝头条文本分类项目</p>
+<p>课时：7天</p>
+<p>项目介绍</p>
+<p>该项目基于BERT系列模型和模型压缩技术实现咨询行业文本多分类任务。项目使用</p>
+<p>真实场景下的海量数据，快速搭建随机森林和FastText基线模型，验证商业化落地的可行</p>
+<p>性。搭建基于BERT的微调模型、应用量化、剪枝、预训练模型微调、知识蒸馏等多种手</p>
+<p>段，优化模型的离线效果和在线效果</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>架构图</p>
+<p>效果评估 准确率 召回率 F1-score</p>
+<p>模型压缩 模型量化 模型剪枝 模型蒸馏</p>
+<p>模型选择 集成学习 FastText BERT 模型调优</p>
+<p>数据清洗 文本分词</p>
+<p>数据</p>
+<p>预处理</p>
+<p>Stop words Embeddiog</p>
+<p>数据源 主流新闻网站 社交媒体平台 自媒体平台</p>
+<p>学习目标</p>
+<p>基于大规模业务留存数据构建快速文本分类系统</p>
+<p>基于推荐系统内部分频道投递的需求, 快速搭建短文本精准分类投递的模型</p>
+<p>基于随机森林和FastText搭建快速基线模型, 验证业务通道的能力</p>
+<p>基于BERT的迁移学习优化模型搭建的能力</p>
+<p>实现神经网络量化的优化与测试</p>
+<p>实现神经网络剪枝的优化与测试</p>
+<p>实现神经网络知识蒸馏的优化与测试</p>
+<p>更多主流预训练模型的优化与深度模型剖析</p>
+<p>BERT模型在生成式任务和工程优化上的深入扩展</p>
+<p>小样本学习, 对比学习, 主动学习的介绍</p>
+<p>解决方案</p>
+<p>海量文本快速分类基线模型解决方案</p>
+<p>基于预训练模型优化的解决方案</p>
+<p>模型量化优化的解决方案</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>模型剪枝优化的解决方案</p>
+<p>模型知识蒸馏优化的解决方案</p>
+<p>主流迁移学习模型微调优化的解决方案</p>
+<p>主讲知识点</p>
+<p>项目背景介绍, 投满分项目再今日头条中的作用, 数据集的样式等. 快速实现基于随机</p>
+<p>森林的基线模型1.0, 和基于FastText的基线模型2.0</p>
+<p>迁移学习优化, 实现基于BERT的迁移学习模型搭建和训练, 并对比模型关键指标的提升</p>
+<p>模型的量化, 实现对大型预训练模型的量化, 并对比原始模型与量化模型的差异</p>
+<p>模型的剪枝, 实现对模型的剪枝的操作, 包含主流的对特定网络模块的剪枝, 多参数模</p>
+<p>块的剪枝, 全局剪枝, 用户自定义剪枝, 包含处理细节和理论知识</p>
+<p>迁移学习微调, 包含BERT模型微调, AlBERT模型, GPT2模型, T5模型, Transformer-XL</p>
+<p>模型, XLNet模型, Electra模型, Reformer模型的详细介绍, 以及消融实验的介绍</p>
+<p>模型的知识蒸馏, 详细解析知识蒸馏的原理和意义, 并实现知识蒸馏模型的搭建, 对比</p>
+<p>知识蒸馏后的新模型的优异表现, 并做详细的对比测试</p>
+<p>扩展章节之一. 详细解析BERT系列模型, 包含AlBERT, RoBERTa, macBERT, SpanBERT,</p>
+<p>FinBERT, K-BERT, KG-BERT等模型, 充实武器库和对工业界主流模型的宏观把握</p>
+<p>扩展章节之二. 针对于BERT模型的深入解析和扩展, 包括BERT在生成式任务上的优</p>
+<p>化, BERT在工业界优化上的经验汇总, BERT模型参数的详细解析, 以及运维与集群知</p>
+<p>识的介绍</p>
+<p>扩展章节之三. 小样本学习介绍, 对比学习介绍, 主动学习介绍</p>
+<p>Git在工业界之应用介绍</p>
+<p>【项目1】智能聊天机器人项目（赠送）</p>
+<p>课时：6天</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>医疗领域智能聊天机器人项目是一个基于自然语言理解方向的问答机器人。类似的应</p>
+<p>用，还有百度地图的小度、天猫精灵、淘宝小蜜，招商银行的小招等。该项目结合医学知</p>
+<p>识图谱、深度学习、对话管理、微信公众号开发等技术，旨在降低首医成本，为患者提供</p>
+<p>基本医学诊断意见服务</p>
+<p>架构图</p>
+<p>在线部分</p>
+<p>句子相关模型服务 对话数据</p>
+<p>请求</p>
+<p>werobot服务 主要逻辑服务 用户会话管理</p>
+<p>结果</p>
+<p>规则对话/Unit 图数据库</p>
+<p>离线部分</p>
+<p>数据采集</p>
+<p>结构与非结构化数据 NER模型使用 实体审核模型使用</p>
+<p>学习目标</p>
+<p>基于大规模知识图谱技术与自然语言处理在医疗领域的应用场景</p>
+<p>基于语音识别与语音生成技术的与患者语音沟通的交互方式</p>
+<p>基于微服务架构的人工智能产品</p>
+<p>基于端到端以及结合知识库的多轮多任务对话系统网络结构</p>
+<p>掌握数据清洗以及知识抽取、知识图谱构建</p>
+<p>掌握图数据库neo4j相关技术点及基本操作</p>
+<p>掌握Pipeline方式与end-to-end流程设计方式以及不同</p>
+<p>掌握mem2seq模型论文到代码实现方案</p>
+<p>掌握微信公众号接口开发以及第三发api接口集成</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>医疗领域NER解决方案</p>
+<p>对话主题相关解决方案</p>
+<p>微信端服务部署解决方案</p>
+<p>对话管理系统与AI结合解决方案</p>
+<p>主讲知识点</p>
+<p>项目介绍:生活类任务对话系统介绍|在线医生项目介绍</p>
+<p>聊天机器人入门:申请公众号、搭建微信开发环境；安装werobot以及常用接口实现；</p>
+<p>Demo：你说我学与图尚往来；案例：配置自己的机器人</p>
+<p>数据爬取:爬取专业医疗知识网站|数据筛选，清理不完备数据|数据提取定位以及知识</p>
+<p>抽取数据准备；医学问答数据提取；疾病、症状知识抽取</p>
+<p>医学知识图谱:知识图谱介绍；知识图谱在医疗领域的应用|知识存储各大厂商介绍Neo4j</p>
+<p>安装环境搭建；Python调用neo4j并完成数据插入与查询操作；案例：完成基于知识</p>
+<p>图谱的对话机器人</p>
+<p>医学命名实体识别:命名实体识别介绍；命名实体识别在医学方面的应用；BiLSTM+CRF</p>
+<p>模型原理介绍；BiLSTM+CRF模型实现|IDCNN模型原理介绍；IDCNN模型实现；案</p>
+<p>例：疾病与症状命名实体识别</p>
+<p>任务对话系统（Pipeline方法）: 任务对话系统介绍|自然语言理解介绍-领域识别；自</p>
+<p>然语言理解介绍-用户意图识别|语义槽介绍以及在任务对话系统中的作用；语义槽设</p>
+<p>计；命名实体识别在语义槽中的应用|语义槽实现；对话管理-对话状态追踪介绍；对</p>
+<p>话状态追踪实现；对话管理-对话策略介绍；对话策略实现；项目：基于pipeline的对</p>
+<p>话系统实现</p>
+<p>论文学习与转化:Mem2seq的来龙去脉以及论文解读；模型对比：包括与seq2seq以</p>
+<p>及+attention；准备训练数据；Mem2seq模型实现</p>
+<p>任务对话系统（end-to-end方法）:端到端对话系统介绍；基于端到端模型Mem2seq</p>
+<p>的项目介绍；项目：基于端到端的任务对话系统部署上线</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>08【项目2】医疗知识图谱项目</p>
+<p>课时：10天</p>
+<p>项目介绍</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>医疗知识图谱（Medical</th><th>Knowledge</th><th>Graph,  MKG）项目旨在构建一个高效、可扩</th></tr></thead>
+</table></div>
+<p>展、面向医疗领域的知识图谱，以支持智能化医疗应用的开发。通过整合结构化和非结构</p>
+<p>化医疗数据、先进的自然语言处理（NLP）技术和图数据库技术，MKG实现精准的知识表</p>
+<p>示、高效的查询和智能推理，为临床决策支持、患者服务和医学研究提供强大助力。本项</p>
+<p>目遵循企业级工程化标准，覆盖从数据获取到部署的全生命周期，确保系统可靠性、可扩</p>
+<p>展性和医疗行业合规性</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>系统应用</th><th>API接口封装</th><th>人机交互</th><th>Web开发</th></tr></thead>
+<tbody><tr class="even"><td>系统评估</td><td>指标制定</td><td>性能评测</td><td>人工测试</td></tr></tbody>
+<tbody><tr class="odd"><td>问答系统</td><td>意图识别</td><td>槽位填充</td><td>图谱查询</td></tr></tbody>
+<tbody><tr class="even"><td>图谱构建</td><td>实体识别</td><td>关系抽取</td><td>属性抽取</td><td>知识融合</td></tr></tbody>
+<tbody><tr class="odd"><td>数据处理</td><td>格式转换</td><td>数据清洗</td><td>数据标注</td></tr></tbody>
+<tbody><tr class="even"><td>原始数据</td><td>某医院病患真实医疗数据(脱敏)</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>图谱全流程管理 —— 掌握从数据获取到图谱构建的全生命周期</p>
+<p>图谱理论与应用 —— 熟悉知识图谱定义、类型及多领域应用</p>
+<p>Neo4j 技术 —— 精通图数据库的存储与查询优化</p>
+<p>深度学习 NER —— 掌握 CRF、BERT、BiLSTM+CRF 等实体识别方法</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>多样化关系抽取 —— 熟练运用规则、Pipeline 与 Casrel 模型提取关系</p>
+<p>知识融合与消歧 —— 掌握实体消歧和关系对齐技术</p>
+<p>医疗问答开发 —— 实现意图识别与对话管理的智能问答系统</p>
+<p>NLP 语义处理 —— 精通自然语言理解（NLU）与生成（NLG）</p>
+<p>模型工程化 —— 掌握数据预处理与模型训练全流程</p>
+<p>垂直领域图谱 —— 构建医疗、商业等领域的定制知识图谱</p>
+<p>解决方案</p>
+<p>数据获取与预处理</p>
+<p>非结构化文本实体识别（NER）</p>
+<p>非结构化文本多样化关系抽取</p>
+<p>知识融合与实体消歧</p>
+<p>Neo4j图数据库存储与查询优化</p>
+<p>医疗问答系统</p>
+<p>工程化部署</p>
+<p>主讲知识点</p>
+<p>智能搜索优化 —— 利用语义理解与实体关联提升搜索准确性（图谱智能搜索）</p>
+<p>医疗诊断与研发 —— 构建医疗知识图谱，支持疾病诊断及药物研发</p>
+<p>高效知识存储与查询 —— 基于 Neo4j 存储与查询 SPO 三元组数据</p>
+<p>智能问答系统 —— 结合 NLU 与知识图谱实现精准问答</p>
+<p>异构数据整合 —— 通过实体抽取融合多源数据构建一致知识图谱</p>
+<p>【项目2】关系抽取项目（赠送）</p>
+<p>课时：8天</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>基于泛娱乐数据场景，依赖NLP技术从文本中提取实体和它们之间的关系，辅助企业</p>
+<p>构建知识图谱。基于规则的方法由人工设定模版，完成简单关系的任务抽取；基于Pipe-</p>
+<p>line流水线方法，利用BI-LSTM+Attention模型实现关系分类；通过Joint联合抽取方法，</p>
+<p>解决多元复杂关系抽取问题Casrel模型搭建。基于Neo4j图数据库构建知识图谱展示</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型应用</th><th>API接口搭建</th><th>知识图谱构建</th></tr></thead>
+<tbody><tr class="even"><td>性能评估</td><td>准确率</td><td>精确率</td><td>召回率</td><td>F1-score</td></tr></tbody>
+<tbody><tr class="odd"><td>基于规则</td><td>基于Pipeline</td><td>基于Joint</td></tr></tbody>
+<tbody><tr class="even"><td>分析词性</td><td>编码实体上下文信息</td><td>构建共享参数模型</td></tr></tbody>
+</table></div>
+<p>关系抽取</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>构建关系类型词典</th><th>编码实体位置信息</th><th>联合抽取构建三元组</th></tr></thead>
+<tbody><tr class="even"><td>编写正则模板</td><td>构建实体识别模型</td><td>校正三元组关系</td></tr></tbody>
+<tbody><tr class="odd"><td>获取实体和关系</td><td>构建关系分类模型</td></tr></tbody>
+<tbody><tr class="even"><td>数据预处理</td><td>脏数据清洗</td><td>文本分词</td><td>词性标注</td><td>实体识别</td></tr></tbody>
+<tbody><tr class="odd"><td>数据源</td><td>媒体数据</td><td>网页数据</td><td>文档数据</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>理解关系抽取任务</p>
+<p>了解实现关系抽取任务的基本方法</p>
+<p>掌握Casrel模型架构及工作原理</p>
+<p>掌握关系抽取数据处理方法</p>
+<p>掌握关系抽取的应用场景</p>
+<p>解决方案</p>
+<p>文本数据处理解决方案</p>
+<p>基于Casrel模型实现关系抽取的解决方案</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>主讲知识点</p>
+<p>项目介绍：理解关系抽取任务以及关系抽取的常见场景</p>
+<p>环境构建：项目开发所需搭建的环境</p>
+<p>数据集介绍：数据来源、获取方式以及存储方式介绍</p>
+<p>数据处理：构建DataSet以及Dataloader</p>
+<p>Casrel模型构建：实现关系抽取</p>
+<p>09 大模型微调开发</p>
+<p>课时：8天</p>
+<p>课程亮点</p>
+<p>全面的理论基础：讲解介绍LLM的基础知识和主要架构类别，让学生可以全面了解大</p>
+<p>模型的工作原理和发展脉络</p>
+<p>主流模型深度解析：分析介绍了ChatGPT等主流大模型的原理，并涵盖了多个开源代</p>
+<p>表模型。这使学生能够深入理解当前最先进的大模型技术，为后续的实践应用打下基础</p>
+<p>微调技术的系统讲解：讲解大模型微调的主要方式，特别是Prompt-Tuning技术的入</p>
+<p>门和进阶内容。这为学生提供了调整和优化大模型的实用技能，有助于在实际应用中</p>
+<p>提高模型性能</p>
+<p>实用框架应用：学习LangChain等应用框架，有助于学生快速开发和部署基于大模型</p>
+<p>的应用</p>
+<p>提示词工程实战：结合金融行业的实际案例进行实战演练。这使学生能够掌握如何有</p>
+<p>效地设计和优化提示词，以提高大模型的输出质量</p>
+<p>多领域应用案例：课程涵盖了金融、医疗、新零售等多个领域的应用案例。这些实战</p>
+<p>项目展示了大模型在不同行业的应用潜力，帮助学习者将理论知识转化为实际解决方案</p>
+<p>多任务学习实践：课程包含了基于ChatGLM的多任务学习实战，涵盖了信息抽取和文</p>
+<p>本分类等任务。这种多任务学习方法展示了大模型的灵活性和强大功能</p>
+<p>本地知识库问答实现：课程最后介绍了如何结合LangChain和ChatGLM-6B实现本地</p>
+<p>知识库问答。这个项目展示了如何将大模型与特定领域知识相结合，为个性化应用提</p>
+<p>供了实践指导</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>能力目标</p>
+<p>了解大语言模型发展历程 掌握大语言模型的主要类别架构</p>
+<p>掌握什么是语言模型 掌握Bert模型的思想原理</p>
+<p>了解语言模型的主要类别 掌握Gpt模型的思想原理</p>
+<p>掌握语言模型的评价指标 掌握T5模型的思想原理</p>
+<p>了解ChatGPT模型训练的原理 掌握基于GPT2模型搭建医疗问诊机器</p>
+<p>了解什么是强化学习 人的实现过程</p>
+<p>掌握ChatGPT模型训练步骤 了解项目背景</p>
+<p>了解主流开源大模型的类型 掌握评论文本分类的主要解决方法</p>
+<p>掌握ChatGLM模型的架构及原理 配置项目依赖环境</p>
+<p>掌握LLaMA模型的架构及原理 了解BERT+PET方式实现文本分类的</p>
+<p>掌握BLOOM模型的架构及原理 整体项目架构</p>
+<p>掌握BaiChuan模型的架构及原理 掌握BERT+PET方式数据处理的工具</p>
+<p>了解LLM进阶历程四种范式. 函数代码实现</p>
+<p>掌握Fine-Tuning模型微调的基本原理 掌握基于BERT+PET方式模型搭建代</p>
+<p>掌握Prompt_Tuning模型微调的基本原理 码的实现</p>
+<p>了解企业面向超大规模模型的Prompt-Tun- 掌握基于BERT+PET方式模型训练和</p>
+<p>ing方法类型 预测代码的实现</p>
+<p>理解Prefix-Tuning大模型参数微调方法 了解BERT+P-Tuning方式实现文本分</p>
+<p>的原理 类的整体项目架构</p>
+<p>理解Adapter-Tuning大模型参数微调方 掌握BERT+P-Tuning方式数据处理的</p>
+<p>法的原理 工具函数代码实现</p>
+<p>理解LoRA三种大模型参数微调方法的原理 掌握基于BERT+P-Tuning方式模型搭</p>
+<p>理解什么是LangChain 建代码的实现</p>
+<p>明确LangChain主要组件的作用 掌握基于BERT+P-Tuning方式模型训</p>
+<p>了解LangChain常见的使用场景 练和预测代码的实现</p>
+<p>了解什么是提示工程 完成配驱动云服务环境的配置</p>
+<p>掌握提示工程的设计技巧 理解ChatGLM-6B模型架构原理</p>
+<p>掌握Few-shot、Zero-shot的思想 了解整体项目架构</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>掌握Few-shot方式下prompt的设计方式 了解本项目中多任务数据集的格式</p>
+<p>掌握利用LLM实现文本分类的代码 掌握实现数据预处理的函数代码</p>
+<p>掌握利用LLM实现信息抽取的代码 掌握基于ChatGLM+LoRA方式模型搭</p>
+<p>掌握利用LLM实现文本匹配的代码 建代码的实现</p>
+<p>理解医疗问诊机器人的开发背景 掌握模型的训练,验证及相关工具代码</p>
+<p>了解企业中聊天机器人的应用场景 的实现</p>
+<p>掌握使用模型预测代码的实现 掌握RAG数据集的本地向量化处理过程</p>
+<p>理解RAG系统的原理 掌握RAG知识检索的过程</p>
+<p>掌握实现RAG系统的基本流程 掌握RAG系统的优化方法</p>
+<p>掌握应用LangChain框架实现RAG的代码</p>
+<p>课程大纲</p>
+<p>大模型背景简介</p>
+<p>大模型项目研发流程介绍；大语言模型的背景介绍；语言模型发展的三个阶</p>
+<p>段；语言模型的基本定义； N-Gram语言模型详解；神经网络语言模型分</p>
+<p>LLM基础知识+主要</p>
+<p>析； transformer预训练和大语言模型；bleu评估指标代码实现；rouge指标</p>
+<p>类别架构分析</p>
+<p>代码的实现； ppl困惑度代码的实现；大语言模型的主要类别；AE自编码模</p>
+<p>型-bert介绍；AR自回归模型-gpt介绍； Encoder-Decoder模型-T5介绍</p>
+<p>主流大模型介绍</p>
+<p>介绍ChatGPT的发展史（gpt1模型架构原理讲解、gpt2模型架构原理讲解、</p>
+<p>gpt3模型架构原理讲解）；讲解ChatGPT模型训练的原理（sft有监督微调、</p>
+<p>reward奖励模型机制、ppo算法强化学习思想）；ChatGLM-6B模型原理详</p>
+<p>ChatGPT模型及主流 解（模型训练目标、模型结构、模型配置(6B)、硬件要求、模型特点）；</p>
+<p>开源模型原理介绍</p>
+<p>LLaMA模型原理详解（模型训练目标、模型结构、模型配置、硬件要求、模</p>
+<p>型特点）；BLOOM模型的原理详解（模型训练目标、模型结构、模型配</p>
+<p>置、硬件要求、模型特点）；BaiChuan模型的原理详解（模型训练目标；模</p>
+<p>型结构；模型配置(6B)；硬件要求；模型特点）</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>大模型微调主要方式</p>
+<p>大模型Fine-Tuning的思想；大模型Prompt-Tuning的思想和执行步骤；</p>
+<p>Prompt-Tuning的技术发展历程；PET方法的原理和作用；面向Prompt的微</p>
+<p>大模型prompt-Tun- 调方法介绍；HardPrompt以及SoftPrompt的介绍；P-Tuning方法的介绍；</p>
+<p>ing技术 PPT方法的原理介绍； Instruction-Tuning的原理分析；COT方法的分析和</p>
+<p>实践；Prefix-Tuning的思想原理；Adapter-tuning方法的原理讲解；LoRA</p>
+<p>方法的原理和实践</p>
+<p>LangChain的概念介绍；Models组件的介绍；LLMs_MOdels模型组件的使</p>
+<p>用；Chat_Models模型组件的使用；Embedding_Models模型组件的使用；</p>
+<p>LangChain大模型</p>
+<p>Prompt-ZeroShot方法介绍；Prompt-FewShot方法介绍；SimpleSequnetial-</p>
+<p>应用框架</p>
+<p>Chain组件的应用实践；data_loader文档加载器的介绍；document_spliter文</p>
+<p>档分割器的介绍；vector_database向量数据库介绍；LangChain检索器的应用</p>
+<p>大模型提示词工程应用实战</p>
+<p>提示词工程简介；清洗的指令形式构造方法；文本参考和拆分子任务；给模</p>
+<p>大模型在金融业务领 型思考和借助外部工具方法介绍；Few-shot和Zero-shot思想的回顾；基于</p>
+<p>域的实践</p>
+<p>ChatGLM实现金融文本分类；基于ChatGLM实现金融信息抽取；基于Chat-</p>
+<p>GLM实现金融文本匹</p>
+<p>开发医疗问诊机器人实战</p>
+<p>GPT2实现聊天机器人项目简介；Data_Preprocess数据预处理；构建Data-</p>
+<p>基于GPT2模型搭建 set对象；实例化Dataloader对象；项目Config类的实现；项目模型的架构分</p>
+<p>聊天机器人</p>
+<p>析；train训练函数的代码实现；模型predict预测函数的实践；基于Flask开</p>
+<p>发网页界面</p>
+<p>新零售行业评价决策系统实战</p>
+<p>项目背景介绍+环境 介绍新零售文本评价项目背景；分析评论文本分类主要实现方法；解析传统</p>
+<p>配置 的深度学习文本分类方法；讲解模型高效参数微调方法；项目依赖环境的配置</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>PET方法的思想回顾；PET方法数据集的介绍；BERT+PET模型的配置文件</p>
+<p>基于BERT+PET方式</p>
+<p>实现呢；HardTemplate类的实现；数据预处理代码的实现；BERT+PET模型</p>
+<p>实现文本分类</p>
+<p>的搭建；BERT+PET模型的训练和测试代码实现</p>
+<p>P-Tuning方法的思想回顾；P-Tuning方法数据集的介绍；BERT+P-Tuning</p>
+<p>基于BERT+P-Tun-</p>
+<p>ing方式实现文本分 模型的配置文件实现呢；SoftTemplate类的实现；数据预处理代码的实现；</p>
+<p>类</p>
+<p>BERT+P-Tuning模型的搭建；BERT+P-Tuning模型的训练和测试代码实现</p>
+<p>基于大模型联合任务开发应用实战</p>
+<p>项目架构流程图分析；项目数据集的格式分析；项目配置文件代码实现；数</p>
+<p>基于ChatGLM微调</p>
+<p>据格式的转换和预处理；构建Dataset和Dataloader对象；搭建Chat-</p>
+<p>实现信息抽取+文本</p>
+<p>GLM+Lora模型；实现ChatGLM+Lora模型的训练代码；实现Chat-</p>
+<p>分类的多任务</p>
+<p>GLM+Lora模型的预测代码</p>
+<p>RAG知识库检索系统</p>
+<p>基于LangChain+Chat-</p>
+<p>RAG问答机器人项目原理介绍；LangChain自定义模型实现；驱动云服务器</p>
+<p>GLM-6B实现本地知</p>
+<p>的操作实践；将本地文档存到Faiss向量数据库；实现QA问答</p>
+<p>识问答机器人</p>
+<p>基于Qwen/DeepSeek通义大模型的头条新闻分类项目</p>
+<p>项目介绍</p>
+<p>项目基于DeepSeek/QWen大模型实现头条新闻分类项目，项目采用DeepSpeed进行</p>
+<p>大模型并行计算，采用QLora和GPTQ对模型进行量化以及采用vLLM和oLLAMA对模型进</p>
+<p>行部署和推理优化。通过该项目可以快速掌握从大模型到小模型的蒸馏量化方案，掌握大</p>
+<p>模型并行计算和部署及推理框架</p>
+<p>架构图</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型部署</th><th>其于vLLM的模型部署</th></tr></thead>
+<tbody><tr class="even"><td>模型量化</td><td>PTQ</td><td>QAT</td><td>GPTQ</td><td>QLora</td></tr></tbody>
+<tbody><tr class="odd"><td>Lora微调</td><td>deepSpeed</td><td>模型并行</td><td>张量并行</td></tr></tbody>
+</table></div>
+<p>模型微调</p>
+<p>流水线并行 ZeRo</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型选择</th><th>Qwen 开源模型</th></tr></thead>
+<tbody><tr class="even"><td>数据</td><td>电子商务业务数据</td><td>开源数据</td><td>生成数据</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>了解Qwen大模型的模型架构</p>
+<p>掌握DeepSpeed大模型并行计算方式</p>
+<p>熟悉QLora和GPTQ对模型进行量化</p>
+<p>掌握采用vLLM和oLLAMA对模型进行部署和推理优化</p>
+<p>解决方案</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>大模型并行计算解决方案</th><th>大模型部署解决方案</th></tr></thead>
+<tbody><tr class="even"><td>大模型量化解决方案</td><td>大模型推理优化解决方案</td></tr></tbody>
+</table></div>
+<p>主讲知识点</p>
+<p>数据集处理、模型构建、模型训练、模型预测</p>
+<p>大模型并行计算：DeepSpeed,数据并行、流水线并行、模型并行</p>
+<p>大模型量化:训练量化方法QLora，训练后量化方法GPTQ</p>
+<p>模型部署和推理优化框架：vLLM和oLLAMA</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>微博文本信息抽取项目</p>
+<p>项目介绍</p>
+<p>基于ChatGLM-6B+LoRA微调实现微博文本信息抽取+文本分类的多任务，通过一个</p>
+<p>大模型同时解决多种任务开发和应用，项目基于LLM进行混合任务开发应用的实现，利用</p>
+<p>ChatGLM-6B大模型进行P-Tuning微调的方式，基于Flask框架实现API接口开发和应用</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型上线</th><th>人机交互</th><th>Web开发</th></tr></thead>
+<tbody><tr class="even"><td>模型评估</td><td>参数优化</td><td>指标制定</td><td>人工评估</td></tr></tbody>
+<tbody><tr class="odd"><td>模型构建</td><td>ChatGLM-6B</td><td>LORA模型</td><td>P-Tuing</td></tr></tbody>
+<tbody><tr class="even"><td>数据处理</td><td>格式转换</td><td>模板定义</td><td>向量表示</td></tr></tbody>
+</table></div>
+<p>原始数据 泛娱乐数据集+电商用户评论文本</p>
+<p>学习目标</p>
+<p>了解和掌握大语言模型的基本原理和架构，特别是ChatGLM-6B模型的结构和工作机制</p>
+<p>掌握大模型LoRA微调技术，通过微调预训练的大模型来适应特定任务的需求</p>
+<p>掌握大模型P-Tuning微调技术，对大模型进行高效的参数调整，增强其在特定任务上的</p>
+<p>表现</p>
+<p>理解和应用多任务学习的概念，通过一个模型同时解决文本信息抽取和文本分类两种任</p>
+<p>务，提高模型的综合能力和应用效率</p>
+<p>掌握文本信息抽取技术，从非结构化的文本数据中提取有价值的信息，如实体、关系、</p>
+<p>事件等</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习文本分类的基本原理和方法，掌握如何将文本数据按照预定义的类别进行归类</p>
+<p>通过Flask框架，学习如何开发和部署API接口，使模型能够通过网络服务被访问和使用</p>
+<p>解决方案</p>
+<p>联合任务数据预处理适配模型训练的解决方案</p>
+<p>实现ChatGLM-6B+LoRA训练的解决方案</p>
+<p>实现ChatGLM-6B+P-Tuning训练的解决方案</p>
+<p>基于Flask框架实现模型API接口开发的解决方案</p>
+<p>主讲知识点</p>
+<p>项目介绍：理解信息抽取任务以及文本分类的业务意义及应用场景</p>
+<p>项目流程介绍（完整的实现整个任务的逻辑框架）</p>
+<p>数据预处理：修改数据格式适配大模型训练、数据张量的转换等</p>
+<p>ChatGLM-6B模型解析，LoRA方法讲解、P-Tuning方法解析</p>
+<p>基于ChatGLM-6B+LoRA方法实现模型的训练和评估</p>
+<p>基于ChatGLM-6B+P-Tuning方法实现模型的训练和评估</p>
+<p>基于Flask框架开发API接口，实现模型线上应用</p>
+<p>DeepSeek私有化部署与答疑专属AI助手智能体搭建</p>
+<p>项目介绍</p>
+<p>基于ChatGLM-6B+LoRA微调实现微博文本信息抽取+文本分类的多任务，通过一个</p>
+<p>大模型同时解决多种任务开发和应用，项目基于LLM进行混合任务开发应用的实现，利用</p>
+<p>ChatGLM-6B大模型进行P-Tuning微调的方式，基于Flask框架实现API接口开发和应用</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>应用端</th><th>APP端</th><th>用户</th><th>web</th><th>API端</th></tr></thead>
+</table></div>
+<p>Streamlit前端界面 本</p>
+<p>地</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>前端</th><th>封装请求</th><th>解析响应</th></tr></thead>
+</table></div>
+<p>环</p>
+<p>本地服务器</p>
+<p>境</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>HTTP请求</th><th>返回响应</th></tr></thead>
+</table></div>
+<p>远程环境</p>
+<p>Ollama</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>启用对话</th><th>模型拉取</th><th>健康检查</th><th>对话响应</th></tr></thead>
+<tbody><tr class="even"><td>Qwen-PMP</td><td>Qwen-RM</td></tr></tbody>
+</table></div>
+<p>后端</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Qwen-Chat</th><th>Qwen-Chat-RLHF</th><th>Pretrain Models</th></tr></thead>
+</table></div>
+<p>RM Models</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Qwen</th><th>Code-Qwen</th><th>Code-Qwen-Chat</th><th>SFT Models</th></tr></thead>
+</table></div>
+<p>RIHF Modelst</p>
+<p>Math-Qwen-Chat</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Qwen-VL</th><th>Qwen-VL-chat</th></tr></thead>
+</table></div>
+<p>学习目标</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>掌握大模型部署方案</th><th>掌握基于Dify构建RAG系统</th></tr></thead>
+<tbody><tr class="even"><td>掌握Dify大模型应用开发平台使用</td><td>掌握基于RagFlow的工作流构建</td></tr></tbody>
+</table></div>
+<p>解决方案</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>大模型私有化部署方案</th><th>搭建本地知识库解决方案</th></tr></thead>
+<tbody><tr class="even"><td>Dify搭建聊天机器人</td><td>大模型智能体解决方案</td></tr></tbody>
+</table></div>
+<p>主讲知识点</p>
+<p>使用公开的大模型，全自动化地建立和清洗语料集</p>
+<p>通过蒸馏的方式，迁移大模型地特性或领域知识</p>
+<p>高效部署大模型服务</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>医疗问诊机器人</p>
+<p>项目介绍</p>
+<p>该项目基于GPT-2模型构建医疗问诊对话系统，旨在为用户提供初步的医疗咨询服</p>
+<p>务。通过自然语言对话，系统能够了解用户的症状，提供可能的疾病建议和健康管理指</p>
+<p>导，帮助用户进行自我照顾，并在必要时建议就医。该项目不仅提升了医疗服务的便捷</p>
+<p>性，还减轻了医疗机构的负担，具有广泛的应用前景和实用价值</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型上线</th><th>人机交互</th><th>Web开发</th></tr></thead>
+<tbody><tr class="even"><td>模型评估</td><td>指标制定</td><td>人工评估</td></tr></tbody>
+<tbody><tr class="odd"><td>模型构建</td><td>GPT2模型</td><td>参数设置</td><td>梯度裁剪</td></tr></tbody>
+<tbody><tr class="even"><td>数据处理</td><td>格式转换</td><td>向量表示</td></tr></tbody>
+</table></div>
+<p>原始数据 网络爬虫数据（医患问诊语料）</p>
+<p>学习目标</p>
+<p>学习GPT-2模型的原理和应用，理解其在对话生成中的作用</p>
+<p>学习如何收集、清洗和预处理医疗对话数据，使其适合模型训练</p>
+<p>掌握对GPT-2模型进行微调的方法，提高模型在特定领域的准确性</p>
+<p>掌握前端用户界面开发、后端API接口构建，形成完整的对话系统</p>
+<p>解决方案</p>
+<p>GPT2模型基础原理及架构分析解决方案</p>
+<p>GPT2模型输入输出工作机制解决方案</p>
+<p>数据清洗方法解决方案</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>GPT2模型微调评估解决方案</p>
+<p>Flask框架API开发解决方案</p>
+<p>主讲知识点</p>
+<p>项目介绍：理解聊天机器人的意义及实际应用场景</p>
+<p>项目实现流程介绍（数据预处理+模型训练+模型评估+上线）</p>
+<p>项目环境配置以及开发框架的选择</p>
+<p>解析GPT2模型架构及原理</p>
+<p>实现医疗数据的预处理，适配GPT2模型训练</p>
+<p>基于GPT2模型实现问答模型的微调训练</p>
+<p>基于Flask框架开发API接口，实现模型线上应用</p>
+<p>新零售行业评价决策系统</p>
+<p>项目介绍</p>
+<p>项目旨在基于BERT+P-Tuning和PET两种方式，构建一个新零售行业的评价决策系</p>
+<p>统。系统通过对客户评价文本进行准确分类，基于深度分析结果生成针对不同业务场景的</p>
+<p>决策建议，帮助企业改进产品和服务质量，从而提升客户满意度</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型上线</th><th>人机交互</th><th>Web开发</th></tr></thead>
+<tbody><tr class="even"><td>模型评估</td><td>参数优化</td><td>指标制定</td><td>人工评估</td></tr></tbody>
+<tbody><tr class="odd"><td>模型构建</td><td>BERT模型搭建</td><td>架构微调</td></tr></tbody>
+<tbody><tr class="even"><td>数据处理</td><td>格式转换</td><td>文本分词</td><td>向量表示</td></tr></tbody>
+<tbody><tr class="odd"><td>原始数据</td><td>电商用户评论数据集</td></tr></tbody>
+</table></div>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习目标</p>
+<p>掌握BERT模型的架构和工作机制</p>
+<p>理解P-Tuning以及PET的基本概念和工作原理</p>
+<p>学习如何在BERT模型上进行P-Tuning和PEFT调优</p>
+<p>了解模型性能评估的指标和方法，如准确率、召回率、F1分数等</p>
+<p>掌握情感分析和文本分类的实现方法</p>
+<p>解决方案</p>
+<p>BERT模型基础原理及架构分析解决方案</p>
+<p>PET以及P—Tuning微调方法原理及应用机制解决方案</p>
+<p>数据格式转换、适配模型训练的解决方案</p>
+<p>BERT模型微调评估解决方案</p>
+<p>Flask框架API开发解决方案</p>
+<p>主讲知识点</p>
+<p>项目意义：新零售行业背景和需求</p>
+<p>BERT模型介绍：架构、预训练任务、应用场景</p>
+<p>P-Tuning方法的原理：定义、作用、优点</p>
+<p>PET方法的原理：定义、作用、优点</p>
+<p>模型训练调优：数据清洗、参数选择、模型训练</p>
+<p>模型性能评估：构建评估指标（Precision、Recall）评估方法（混淆矩阵）</p>
+<p>10 大模型Agent智能体开发</p>
+<p>课时：6天</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>大模型AI Agent开发应用</p>
+<p>项目介绍</p>
+<p>该项目深入探索大模型Agent的开发与应用，包括大模型Function Call函数调用的原</p>
+<p>理和实现，涵盖实时天气查询、订机票和数据库查询操作的实际案例；项目详细分析</p>
+<p>GPTs和Assistant API的原理及其应用方式，开发学习答疑聊天机器人和水果收银助手；</p>
+<p>还包括AI Agent的原理及其与传统软件的区别，基于CrewAI框架开发自动写信并发送邮件</p>
+<p>的Agent。通过这些内容，将全面掌握大模型AI Agent的开发技术及其在实际场景中的应用</p>
+<p>架构图</p>
+<p>记忆</p>
+<p>搜索</p>
+<p>子目标分解</p>
+<p>计算器 工具 Agent 规划</p>
+<p>反思与完善</p>
+<p>代码解释器</p>
+<p>行动</p>
+<p>检索、推理、编程等</p>
+<p>学习目标</p>
+<p>理解大模型Function Call函数调用功能</p>
+<p>学习如何基于Function Call实现大模型插件功能</p>
+<p>能够通过Function Call实现实际应用案例：实时查询天气、订机票、数据库查询</p>
+<p>理解GPTs和Assistant API的原理及应用</p>
+<p>掌握如何基于GPTs store和Assistant API开发实用的聊天机器人应用</p>
+<p>理解AI Agent的原理及其与传统软件的区别</p>
+<p>开发自动写信并发送邮件的AI Agent</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>基于Function Call实现实时查询天气的解决方案</p>
+<p>基于Function Call实现订机票的解决方案</p>
+<p>基于Function Call实现数据库查询的解决方案</p>
+<p>基于GPTs实现学习答疑助手的解决方案</p>
+<p>基于Assistant API实现水果收银助手的解决方案</p>
+<p>基于CrewAI实现自动写信并发送邮件的AI Agent的解决方案</p>
+<p>主讲知识点</p>
+<p>大模型Function Call函数调用功能的原理和实现方式</p>
+<p>开发Function Call实现大模型：实时查询天气、订机票、数据库查询等功能</p>
+<p>解析GPTs和Assistant API的原理及应用方式</p>
+<p>基于GPTs store和Assistant API开发实用的聊天机器人应用</p>
+<p>拆解AI Agent的原理及对比与传统软件的区别</p>
+<p>基于CrewAI框架开发自动写信并发送邮件的AI Agent</p>
+<p>11 大模型RAG系统开发</p>
+<p>课时：6天</p>
+<p>EduRAG智慧问答系统</p>
+<p>项目介绍</p>
+<p>基于教育行业答疑大模型抽取RAG解决方案，通过项目学习完成企业及RAG系统完整</p>
+<p>流程搭建与测试及优化</p>
+<p>架构图</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>用户输入query</p>
+<p>存在</p>
+<p>Mysql数据库检索 直接返回对应的答案</p>
+<p>阈值<0.85</p>
+<p>阈值<0.85 不存在</p>
+<p>RAG系统检索</p>
+<p>本地文档 query</p>
+<p>文档切分 Documents</p>
+<p>将字符串向量化(Embedding)</p>
+<p>result</p>
+<p>Documents的Embedding</p>
+<p>数据库检索 LLM</p>
+<p>存入Milvus数据库</p>
+<p>得到top-K相关的doc query+doc拼接</p>
+<p>学习目标</p>
+<p>了解LangChain基本概念、明确LangChain主要组件的作用、了解LangChain常见的</p>
+<p>使用场景</p>
+<p>掌握基于LangChain+ChatGLM-6B模型实现本地知识库的问答实现原理+过程</p>
+<p>RAG系统开发与优化：掌握从数据分片到答案生成的RAG全流程，熟练应用 HyDE、</p>
+<p>子查询等检索增强策略提升系统性能</p>
+<p>大模型应用实践：能够集成 LLM（如 OllamaLLM）并设计高效 Prompt，解决知识问</p>
+<p>答中的业务定制化需求</p>
+<p>智能查询路由设计：实现规则、相似度和 LLM 三层路由，精准分发查询并优化复杂</p>
+<p>意图识别效率</p>
+<p>后端服务与前端开发：使用 FastAPI 开发高并发 API 并通过 Gradio 构建交互界面，</p>
+<p>满足企业级服务与用户体验要求</p>
+<p>数据处理与多源集成：熟练处理结构化与非结构化数据，结合 MySQL 和向量搜索打</p>
+<p>造高效知识检索系统</p>
+<p>企业级问题解决能力：通过日志调试和高并发设计，具备定制化开发与性能优化的实</p>
+<p>战技能，适配智能客服等场景</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>数据库查询优化：BM25 + Redis 缓存</p>
+<p>语义检索：Milvus 混合向量检索</p>
+<p>查询分类：BERT 分类器</p>
+<p>动态检索策略：LLM 驱动的策略选择（直接检索、HyDE、子查询、回溯）</p>
+<p>答案生成：LLM + RAG 提示模板</p>
+<p>性能优化：Redis 缓存 + 模块化设计</p>
+<p>日志与监控：统一日志系统（logging）</p>
+<p>配置管理：ConfigParser + config.ini</p>
+<p>主讲知识点</p>
+<p>智能问答系统架构：FAQ 系统与 RAG 系统的区别与应用场景</p>
+<p>数据库技术：MySQL 表查询；Redis 键值存储与缓存机制；Milvus 向量数据库的架</p>
+<p>构与索引类型</p>
+<p>检索算法：BM25 算法原理；密集向量 & 稀疏向量混合检索；重排序的作用。</p>
+<p>query的意图识别+改写：BERT 分类器的训练与推理；LLM的调用与提示设计；查询</p>
+<p>分类与动态检索策略的实现逻辑</p>
+<p>企业级开发实践：模块化代码设计与代码复用；配置文件（config.ini）与环境变量管</p>
+<p>理；日志系统设计与错误处理</p>
+<p>物流信息咨询智能问答项目</p>
+<p>项目介绍</p>
+<p>项目基于LangChain+ChatGLM-6B实现电商物流本地知识库问答机器人搭建，让模</p>
+<p>型根据本地信息进行准确回答，解决大模型的“幻觉”问题，实现精准问答。通过项目皆在</p>
+<p>掌握LangChain工具的基本使用方式，理解向量知识库以及实现知识库的技术原理，快速</p>
+<p>构建检索增强生成（RAG）系统</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>架构图</p>
+<p>query+context构建prompt LLM(ChatGLM) result</p>
+<p>doc拼接，得到context</p>
+<p>得到top-K相关doc</p>
+<p>query的embedding Faiss搜索</p>
+<p>构建Faiss索引 documents的embedding</p>
+<p>将字符串向量化 (Embedding)</p>
+<p>Documents 文档切分</p>
+<p>加载读取</p>
+<p>query 用本地知识构建Faiss索引 本地txt文档</p>
+<p>学习目标</p>
+<p>掌握LangChain工具的基本使用方法，了解如何通过LangChain构建和管理语言模型</p>
+<p>应用</p>
+<p>熟悉ChatGLM-6B模型的应用，了解如何将大语言模型与本地知识库结合，实现高效</p>
+<p>准确的问答功能</p>
+<p>理解向量知识库的基本概念和技术原理，掌握如何构建和使用向量知识库来存储和检</p>
+<p>索知识信息</p>
+<p>掌握知识库的构建方法，从数据采集、处理到存储，学习如何将电商物流相关信息整</p>
+<p>合到知识库中</p>
+<p>理解RAG系统的基本原理和实现方法，学习如何结合检索和生成技术，提升问答系统</p>
+<p>的准确性和实用性</p>
+<p>从零开始搭建一个问答机器人，掌握整个系统的设计、实现和部署过程</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>LangChain工具使用介绍解决方案</p>
+<p>ChatGLM-6B模型集成到问答系统中的解决方案</p>
+<p>向量知识库的构建和检索的解决方案</p>
+<p>搭建RAG系统的解决方案</p>
+<p>主讲知识点</p>
+<p>项目介绍：理解什么是RAG系统</p>
+<p>项目流程梳理（从本地知识库搭建，到知识检索，模型生成答案等流程介绍）</p>
+<p>数据预处理：本地文档知识分割，向量，存储</p>
+<p>LangChain框架的详解讲解：6大组件应用原理和实现方法</p>
+<p>基于本地大模型ChatGLM-6B封装到LangChain框架中</p>
+<p>实现LangChain+ChatGLM-6B模型的知识问答系统搭建</p>
+<p>12 大模型技术专题</p>
+<p>课时：3天</p>
+<p>大模型蒸馏解决方案</p>
+<p>项目介绍</p>
+<p>项目目标是将已知的某个大规模语言模型的特性或领域知识，迁移到一个小规模语言模</p>
+<p>型上。通过自动化构建和清洗语料集、高效的训练和部署方式，快速高效地完成蒸馏任务</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>构建数据集</th><th>模型训练</th><th>高效部署</th></tr></thead>
+</table></div>
+<p>下载基座模型</p>
+<p>搭建llamafactory环境</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>生成 评估</th><th>刪除纸 文图</th></tr></thead>
+</table></div>
+<p>生成问题</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>问题 问题</th><th>质问题 去重</th></tr></thead>
+</table></div>
+<p>安装vLLM</p>
+<p>设置基座模型</p>
+<p>设置数据集</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>生成 刪除过</th><th>评估 删除低</th></tr></thead>
+</table></div>
+<p>生成答案</p>
+<p>答案</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>长样本</th><th>答案 质答案</th><th>设置本次训练的基本性质</th></tr></thead>
+</table></div>
+<p>设置关键参数</p>
+<p>部署vLLM服务</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>整理</th><th>刪除纸编写</th><th>启动训练</th></tr></thead>
+</table></div>
+<p>生成训练</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>数据格式</th><th>质d问at题aset.json</th></tr></thead>
+</table></div>
+<p>数据</p>
+<p>部署服务</p>
+<p>学习目标</p>
+<p>掌握从0起步，全自动建立和清洗语料集的方法和技巧</p>
+<p>掌握大模型硬标签蒸馏理论和实战操作</p>
+<p>掌握高效部署大模型应用的思路和方法</p>
+<p>解决方案</p>
+<p>0基础建立语料集解决方案</p>
+<p>LLaMA-Factory实施硬标签蒸馏解决方案</p>
+<p>vllm高效部署解决方案+业务场景扩展</p>
+<p>主讲知识点</p>
+<p>使用公开的大模型，全自动化地建立和清洗语料集</p>
+<p>通过蒸馏的方式，迁移大模型地特性或领域知识</p>
+<p>高效部署大模型服务</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>虚拟试衣项目</p>
+<p>项目介绍</p>
+<p>利用计算机视觉技术，上传照片，选择不同的服装进行试穿，使得用户无需到实体</p>
+<p>店，就能够在线上体验不同的风格，更方便地进行购物决策。该项目利用人体数据、服装</p>
+<p>图像和文本提示，扩散模型Diffusion Model在人体数据和服装图像的控制因子下，分别处</p>
+<p>理文本提示，最后进行信息的融合，实现逼真的试衣效果</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>预测方式</th><th>输入:人体图片+Text+服装图像</th><th>输出:试衣结果</th></tr></thead>
+<tbody><tr class="even"><td>训练方式</td><td>Zero-shot</td><td>LoRA微调</td><td>DreamBooth</td><td>Textual inversion</td></tr></tbody>
+<tbody><tr class="odd"><td>模型构成</td><td>DiffusionModel</td><td>ControlNet</td><td>Attention</td><td>Fussion融合</td></tr></tbody>
+<tbody><tr class="even"><td>特征编码器</td><td>Text Encoddina mode</td><td>Image Encoddina mode</td></tr></tbody>
+<tbody><tr class="odd"><td>数据源</td><td>人体数据</td><td>文本提示</td><td>服装图像</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>了解虚拟试衣的背景</p>
+<p>知道阿里PAI平台的使用方式</p>
+<p>能够搭建虚拟试衣的环境</p>
+<p>能够完成虚拟试衣的实践并进行资源清理</p>
+<p>解决方案</p>
+<p>虚拟试衣的常见解决方案</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>阿里PAI平台使用的解决方案</p>
+<p>PAI—DSW环境搭建的解决方案</p>
+<p>虚拟试衣实践的解决方案</p>
+<p>主讲知识点</p>
+<p>虚拟试衣简介：背景，应用场景，优势，方法</p>
+<p>阿里PAI平台：介绍，平台意义，产品结构，PAI的架构，PAI的注册与开通</p>
+<p>PAI-DSW环境搭建：DSW介绍，产品特点，环境搭建方法</p>
+<p>虚拟试衣实践：Diffusers,加速器accelerate,下载SD模型，Lora微调，模型部署，推理验证</p>
+<p>多风格英译汉翻译机项目</p>
+<p>项目介绍</p>
+<p>多风格英译汉翻译机项目是一项致力于开发具备多种翻译风格的英译汉机器翻译系统</p>
+<p>的创新项目。该项目旨在通过人工智能技术，实现英语到汉语的精准、高效翻译，并针对</p>
+<p>不同翻译场景提供多样化的翻译风格选择，以满足用户在不同场合下的翻译需求</p>
+<p>架构图</p>
+<p>翻译机</p>
+<p>默认风格</p>
+<p>学术风格</p>
+<p>英文文本 中文文本</p>
+<p>星火iFlytekspark大模型</p>
+<p>默认风格</p>
+<p>琼瑶风格</p>
+<p>学习目标</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>多风格翻译机的介绍，应用场景</p>
+<p>翻译机前端界面的搭建</p>
+<p>星火大模型API的调用方式</p>
+<p>翻译风格的设计</p>
+<p>解决方案</p>
+<p>前端界面搭建的解决方法</p>
+<p>API调用的解决方案</p>
+<p>提示词应用的解决方式</p>
+<p>主讲知识点</p>
+<p>多风格翻译机的介绍，应用场景</p>
+<p>翻译机前端界面的搭建：stream,streamlit,websocket</p>
+<p>星火大模型API的调用方式:key，value</p>
+<p>翻译风格的设计:提示词工程的应用</p>
+<p>财经文本情感分析项目</p>
+<p>项目介绍</p>
+<p>该项目基于讯飞大模型定制平台使用零代码Lora微调的方式实现金融领域的财经新闻</p>
+<p>情感分析任务。通过自动化的方式快速分析大量的财经新闻报道，从中提取情感信息，帮</p>
+<p>助投资者更好地把握市场情绪。通过该项目掌握如何上传数据并设定参数就可以快速定制</p>
+<p>你的专属大模型</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型部署</th><th>webAPI的方式</th><th>在线体验</th></tr></thead>
+<tbody><tr class="even"><td>训练方式</td><td>全量微调</td><td>LoRA微调</td><td>学习率</td><td>训练次数</td></tr></tbody>
+<tbody><tr class="odd"><td>模型选择</td><td>Bloom-7z</td><td>星火大模型</td><td>LLAma</td></tr></tbody>
+<tbody><tr class="even"><td>数据处理</td><td>数据清洗</td><td>数据集划分</td></tr></tbody>
+<tbody><tr class="odd"><td>数据准备</td><td>正负面财经新闻标题数据集</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>通过该案例了解大模型定制平台的使用流程</p>
+<p>知道在大模型定制训练平台中如何进行数据集的构建</p>
+<p>能够在大模型定制训练平台中如何设置大模型，并进行微调</p>
+<p>知道在大模型定制平台中如何进行模型部署</p>
+<p>解决方案</p>
+<p>数据集处理的解决方法</p>
+<p>数据集上传的解决方案</p>
+<p>模型选择微调的解决方案</p>
+<p>模型部署的解决方案</p>
+<p>主讲知识点</p>
+<p>准备数据集:正负面新闻标题数据集中包含17149条新闻数据，包括input和target两个字段</p>
+<p>上传数据集:大模型定制训练平台</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>模型定制:BLOOMZ-7B是一个由BigScience研发并开源的大型语言模型（LLM），</p>
+<p>参数量为70亿。它是在一个包含46种语言和13种编程语言的1.5万亿个tokens上训练</p>
+<p>的，可用于多种自然语言处理任务</p>
+<p>模型训练: lora 学习率 训练次数</p>
+<p>效果评测：提升效果(%)=优化后(正确/已选) - 优化前(正确/已选)</p>
+<p>模型服务：可使用webAPI的方式进行调用，也可在线体验服务的应用</p>
+<p>星火的语音大模型</p>
+<p>项目介绍</p>
+<p>该项目基于语音识别大模型IAT、大语言模型LLM和超拟人合成技术TTS实现语音交</p>
+<p>互。当语音识别系统将语音信号转换为文本后，大模型可以根据文本内容生成相应的回答</p>
+<p>或指令。然后，超拟人合成技术将这些回答或指令转换为自然流畅的人声，实现与用户的</p>
+<p>语音交互。从而为用户提供更加智能、自然和真实的语音交互体验</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>音频</th><th>文字</th><th>文字</th><th>音频</th></tr></thead>
+<tbody><tr class="even"><td>语音转文字</td><td>大模型回答</td><td>超拟人合成</td></tr></tbody>
+<tbody><tr class="odd"><td>用户说话</td><td>将文字传给</td><td>务片将大模型返</td><td>语音播放</td></tr></tbody>
+</table></div>
+<p>通过llm-iat将</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>SparkAPI，大模</th><th>回内容传给llm-</th></tr></thead>
+</table></div>
+<p>音频转换为文字</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>型回复文本内容</th><th>合成为音兴须</th></tr></thead>
+</table></div>
+<p>学习目标</p>
+<p>了解语音识别、超拟人合成的背景，应用场景等</p>
+<p>掌握语音识别的原理和实现方式</p>
+<p>掌握大语言模型在多轮对话中的应用</p>
+<p>掌握超拟人合成的原理</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>语音识别的解决方案</p>
+<p>大模型多轮对话的解决方案</p>
+<p>超拟人合成的解决方案</p>
+<p>主讲知识点</p>
+<p>语音识别的背景、原理、应用场景</p>
+<p>语音识别的实现流程：数据预处理+特征的提取+模型构建+模型训练+模型推理</p>
+<p>大语言模型的介绍及其在多伦对话中的应用</p>
+<p>超拟人合成的介绍、原理、应用场景</p>
+<p>超拟人合成的实现流程：文本预处理（情感分析）+模型选择+模型训练+模型推理+</p>
+<p>语音后处理</p>
+<p>13 面试加强课</p>
+<p>课时：3天</p>
+<p>课程亮点</p>
+<p>覆盖模型部署的核心内容，掌握模型部署方法和技巧</p>
+<p>回顾常见数据结构，能够应对面试中高频数据结构问题</p>
+<p>能够掌握常见算法，包括动态规划、递归及高频LeetCode刷题</p>
+<p>能够完成核心机器学习与深度学习面试题</p>
+<p>覆盖大模型核心阶段面试题</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>能力目标</p>
+<p>了解Flask的基本工作流程 掌握Gradio框架的Blocks类的使用</p>
+<p>掌握Flask表单使用 掌握Gradio服务封装案例实战</p>
+<p>掌握Flask服务交付 了解Docker</p>
+<p>掌握Flask服务封装实战 掌握Docker的安装及使用</p>
+<p>了解Gradio的基本工作流程及主要特性 掌握Docker的镜像操作</p>
+<p>掌握Gradio安装及基本用法 掌握Docker的容器操作</p>
+<p>掌握Gradio框架的Interface类的使用 掌握使用Docker手动构建镜像</p>
+<p>掌握使用Docker自动构建镜像 掌握深度学习常用算法的基本原理及</p>
+<p>掌握Docker镜像推送操作 API使用</p>
+<p>掌握Pandas常用操作及面试高频题 掌握大模型高频面试考点</p>
+<p>掌握机器学习常用算法的基本原理及API使用 了解大模型应用框架</p>
+<p>掌握机器学习常见面试高频题 掌握项目简历优化技巧及常见面试话术</p>
+<p>课程大纲</p>
+<p>服务化框架实战</p>
+<p>深度学习框架 Flask作用与流程；Flask入门HelloWorld；Flask表单使用；Flask服务交付</p>
+<p>Pytorch详解</p>
+<p>（json）；Flask服务封装实战案例</p>
+<p>Gradio简介；Gradio安装及基本用法；Gradio基本参数（Interface+-</p>
+<p>Gradio框架实战应用</p>
+<p>Blocks）；Gradio应用分享；Gradio案例（文本分类、图像分类）</p>
+<p>模型容器化部署实战</p>
+<p>Docker介绍安装；Docker快速入手；Docker镜像操作；Docker容器操作；</p>
+<p>Docker部署实战</p>
+<p>Docker手动构建镜像；Docker自动构建镜像；Docker镜像推送</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>自然语言处理核心项目串讲</p>
+<p>Pandas+机器学习+</p>
+<p>Pandas回顾；机器学习回顾+面试高频题讲解；深度学习回顾+面试高频题</p>
+<p>深度学习高频面试题</p>
+<p>讲解</p>
+<p>讲解</p>
+<p>大模型核心项目串讲及简历优化</p>
+<p>算法工程师高频面试 大模型高频面试题讲解；大模型应用框架（推理框架+应用框架）；项目简</p>
+<p>题讲解 历优化及面试话术</p>
+<p>14 图像分析基础</p>
+<p>课时：5天</p>
+<p>课程亮点</p>
+<p>图像数据特性的深度剖析，课程从图像数据的基本特性出发帮助学生建立对图像数据</p>
+<p>的直观理解和深刻认知</p>
+<p>CNN网络精髓的掌握，详细讲解卷积神经网络（CNN）的基本原理、架构设计和优化</p>
+<p>策略，还通过编程实践让学生亲手搭建和训练CNN模型</p>
+<p>图像分类任务的实现，重点讲解图像分类的基本原理、常用算法，并通过大量实例演</p>
+<p>示如何应用CNN等深度学习模型进行图像分类</p>
+<p>语义分割与实例分割的高级技能，课程将深入探讨图像的语义分割和实例分割技术，</p>
+<p>通过详细讲解算法原理、模型架构和训练技巧，学生将掌握这些高级图像分析技能</p>
+<p>能力目标</p>
+<p>知道计算机视觉的主要任务 掌握图像的几何变换方法</p>
+<p>了解计算机视觉的应用领域和发展历史 理解图像分类任务的目的</p>
+<p>知道图像的表示形式 知道图像分类的评估方法</p>
+<p>掌握图像的颜色空间 知道图像增强的常用方法</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>能力目标</p>
+<p>掌握图像的几何变换方法 知道图像增强的常用方法</p>
+<p>理解图像分类任务的目的 知道语义分割和实例分割的区别</p>
+<p>知道图像分类的评估方法 能够利用Unet网络实现图像的语义分割</p>
+<p>知道图像增强的常用方法 能够使用maskRCNN完成图像的实例分割</p>
+<p>课程大纲</p>
+<p>计算机视觉背景</p>
+<p>计算机视觉背景、任 计算机视觉定义；计算机视觉的任务；计算机视觉的应用领域；计算机视觉</p>
+<p>务、发展历史介绍</p>
+<p>的发展历史</p>
+<p>图像分析特性</p>
+<p>图像特性分析与图像 图像的表示方法；图像的IO操作；图像的颜色空间；图像的加法；图像混</p>
+<p>处理实践</p>
+<p>合；图像的几何变换；图像噪声；图像平滑方法</p>
+<p>图像分类</p>
+<p>图像分类任务详解；图像分类的数据集；图像分类的评估方法；常用的图像</p>
+<p>图像分类任务详解与</p>
+<p>增强方法；tf.image进行图像增强；imagedatagenrator进行图像增强；模型</p>
+<p>图像增强技术实践</p>
+<p>微调；数据集获取；【案例】图像几何颜色增强实践</p>
+<p>图像分类的CNN网络回顾；AlexNet网络实践；VGG网络架构；GoogLeNet</p>
+<p>图像分类的经典网络</p>
+<p>结构与鲜花分类案例 详解与实践；Inception系列网络；ResNet网络结构与实践；残差块和瓶颈</p>
+<p>实践</p>
+<p>块；【案例】鲜花分类案例</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>图像分割</p>
+<p>图像分割定义；图像分割的类型；图像分割的开源数据集；图像分割的评估</p>
+<p>图像的语义分割详解</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>及Unet实现VOC语义</th><th>指标；unet网络结构；语义分割VOC数据集获取；数据集生成器；模型构</th></tr></thead>
+</table></div>
+<p>分割案例</p>
+<p>建；编码器实践；解码器实践；模型训练；模型预测；【案例】基于Unet的</p>
+<p>VOC数据的语义分割案例</p>
+<p>图像实例分割；MaskRCNN的网络构成；MaskRCNN的流程；ROlAlign原理</p>
+<p>图像的实例分割详解</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>及MaskRCNN气球实</th><th>与实践；气球分割数据集的获取；模型训练；损失函数的实践；模型预测；</th></tr></thead>
+</table></div>
+<p>例分割案例</p>
+<p>【案例】MaskRCNN气球实例分割实践</p>
+<p>15 多模态大模型项目</p>
+<p>课时：5天</p>
+<p>项目介绍</p>
+<p>该项目基于Stable Diffusion模型架构实现高质量、多样、逼真的图像生成。利用CLIP</p>
+<p>模型，扩散过程和VAE的解码，通过逐渐模糊和清晰化图像来实现图像生成的过程，该方</p>
+<p>法在图像生成领域具有广泛的应用，包括艺术创作、虚拟场景生成、数据增强等</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>图像生成</th><th>文生图</th><th>图生图</th><th>图像修复</th></tr></thead>
+<tbody><tr class="even"><td>模型训练</td><td>LoRA</td><td>dreambooth</td><td>Hypernetwork</td><td>Textual Inversion</td></tr></tbody>
+<tbody><tr class="odd"><td>模型构成</td><td>CLIP</td><td>Diftusiong</td><td>Latent Diffusion</td><td>VAE</td><td>Unet</td></tr></tbody>
+<tbody><tr class="even"><td>输入数据</td><td>文本数据</td><td>图像数据</td><td>姿态数据</td></tr></tbody>
+</table></div>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习目标</p>
+<p>知道AIGC是什么，理解AIGC的产品形态</p>
+<p>知道图像生成的常用方式</p>
+<p>理解GAN ，VAE，Diffusion的思想</p>
+<p>掌握StableDiffusion的网络结构</p>
+<p>输入数理据解文图匹配的clip模型</p>
+<p>理解Unet网络和采样算法的作用</p>
+<p>知道VAE解码器的作用</p>
+<p>知道drembooth和lora的模型训练方式</p>
+<p>能够搭建图像生成的小程序</p>
+<p>解决方案</p>
+<p>图像生成的常见解决方案</p>
+<p>文图匹配的解决方案</p>
+<p>扩散模型噪声去除的解决方案</p>
+<p>潜在空间扩散模型的解决方案</p>
+<p>扩散模型训练的解决方案</p>
+<p>小程序搭建的解决方案</p>
+<p>主讲知识点</p>
+<p>AIGC的详解:AIGC简介，类型，应用场景，产品形态</p>
+<p>图像生成算法:GAN; VAE ;Diffusion; DALLe; imagen</p>
+<p>Stable Diffusion的详解:Diffusion,latent diffusion ;Stable Diffusion</p>
+<p>Stable Diffusion实践: 模型构建，模型训练，lora,dreambooth,图像生成效果</p>
+<p>图像生成小程序搭建: 基于Stable Diffusion构建图像生成的小程序</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>扩展项目</p>
+<p>蜂窝头条文本摘要项目</p>
+<p>项目介绍</p>
+<p>文本摘要项目核心目的是提取文本中的关键信息，生成简短、凝练的内容摘要。这不</p>
+<p>仅有助于用户快速获取信息，还能有效地组织和归纳大量的文本数据。通过本项目的学</p>
+<p>习，可以掌握工业界最主流的处理文本摘要的模型和优化技术。项目采用textRank和</p>
+<p>seq2seq架构完成文本摘要，优化采用PGM架构搭建生成式文本摘要，并通过评估算法</p>
+<p>BLEU和ROUGE进行评估</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>架构图</p>
+<p>combine split</p>
+<p>articles Text Sentences Vectors</p>
+<p>Sentence Similarity</p>
+<p>Summary Graph</p>
+<p>Rankings Matrix</p>
+<p>学习目标</p>
+<p>掌握人工智能处理原始数据到模型所需数据的全流程</p>
+<p>掌握抽取式摘要模型textRank的实现流程和原理</p>
+<p>掌握如何利用gensim工具训练自己的word2vec词向量, 并拥有垂直领域词向量训练的</p>
+<p>经验和技能</p>
+<p>掌握经典seq2seq架构完成文本摘要任务</p>
+<p>掌握前沿PGN架构完成文本摘要任务</p>
+<p>掌握评估生成式任务的BLEU算法和ROUGE算法理论和实现</p>
+<p>掌握coverage机制的原理和实现</p>
+<p>掌握beam-search的原理和实现</p>
+<p>掌握单词替换, 回译数据, 半监督学习等主流数据增强的算法</p>
+<p>掌握Scheduled Sampling和Weight Tying的训练策略优化</p>
+<p>掌握AI模型的硬件部署优化, GPU部署, CPU部署等等</p>
+<p>解决方案</p>
+<p>抽取式文本摘要解决方案</p>
+<p>生成式文本摘要解决方案</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>自主训练词向量解决方案</p>
+<p>解码方案的优化解决方案</p>
+<p>数据增强优化解决方案</p>
+<p>训练策略优化解决方案</p>
+<p>GPU部署解决方案</p>
+<p>CPU部署解决方案</p>
+<p>主讲知识点</p>
+<p>文本摘要的应用场景 | 主流处理方案的模式</p>
+<p>文本摘要的应用场景 | 主流处理方案的模式</p>
+<p>工业场景下的原始数据全流程处理, 原始数据很杂乱, 需要按照需求一步步的取舍,去</p>
+<p>噪, 最终得到模型阶段可用的数据</p>
+<p>搭建基于textRank的抽取式文本摘要模型, 并进行评估</p>
+<p>搭建基于经典seq2seq架构的生成式文本摘要, 并进行评估</p>
+<p>搭建基于PGN先进架构的生成式文本摘要, 并进行评估</p>
+<p>详细解析生成式NLP任务的评估算法BLEU和ROUGE, 并实现rouge的评估代码</p>
+<p>针对于损失函数的优化方案coverage解决文本重复问题</p>
+<p>针对于解码器端的优化, 按照beam search进行解码的实现方案</p>
+<p>针对于NLP领域数据增强的实现方案, 采用单词替换法, 回译数据法, 半监督学习法的</p>
+<p>理论和代码实现</p>
+<p>针对于训练策略的优化, Scheduled Sampling和Weight Tying的理论和代码实现</p>
+<p>实现模型的GPU部署和CPU部署</p>
+<p>天鹰智能交通CV项目</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>智能交通项目是一个可跟踪路面实时车辆通行状况，并逐帧记录不同行车道车流量数</p>
+<p>目的深度学习项目，“车辆自动计数系统”由计数系统、图像抓拍系统、实时监控录像系统</p>
+<p>组成，在视频中可看出每个车辆的连续帧路径，该项目可拓展性强，可根据企业业务外接</p>
+<p>计费结算系统、LED显示系统、语音播报系统、供电防雷系统等</p>
+<p>架构图</p>
+<p>用户层 摄像头 视频 报警装置</p>
+<p>车辆计数</p>
+<p>Yolo目标检测 卡尔曼滤波算法 SORT目标追踪 匈牙利算法</p>
+<p>服务层</p>
+<p>车道线</p>
+<p>直方图精确定位 张氏较正法 最小二乘拟合 仿射变换</p>
+<p>学习目标</p>
+<p>利用卡尔曼滤波最优滤波方程对建立的交通流系统状态方程、观测方程</p>
+<p>采用背景差分法对在检测区的车辆进行检测和跟踪</p>
+<p>利用DGPS/DR组合车辆定位中各子系统的模型对车辆定位提高精度</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>利用Haar Adaboost 自定义目标检测对过往的车辆进行检测、计数和分类</p>
+<p>Haar Adaboos与粒子滤波技术</p>
+<p>车辆外形标注，识别，训练的工程化方法实践</p>
+<p>利用CV，CA,CTRA,CTRV等高级运动模型构造卡尔曼滤波实现车流跟踪</p>
+<p>基于迁移学习的其它类型识别模型训练</p>
+<p>解决方案</p>
+<p>特定目标车辆跟踪Siamese系列模型的解决方案</p>
+<p>SORT/DeepSORT算法多目标车辆跟踪解决方案</p>
+<p>建立交通流系统状态和观测状态的解决方案</p>
+<p>车辆检测、计数和分类解决方案</p>
+<p>图像去畸变的解决方案</p>
+<p>实时车道线检测的解决方案</p>
+<p>主讲知识点</p>
+<p>项目概述:系统架构设计、项目关键技术说明|项目业务需求分析、项目业务流程设计</p>
+<p>环境部署:系统介绍项目开发环境概述、Tensorflow框架、项目工程文件创建|项目开发环境</p>
+<p>配置、项目性能优化设置|视频数据源的Python读入及逐帧识别|交通流量解决方案分析及数</p>
+<p>据源处理</p>
+<p>道路车辆跟踪及流量统计项目流程方案:业务理解，任务拆解|目标检测模型实现|图像理解</p>
+<p>框架及马尔方法|图像视频理解：运动目标检测与跟踪主流工程实践方法|视频背景建模与前</p>
+<p>景选取实践</p>
+<p>车辆跟踪核心技术:背景建模实现：基于视频的运动目标分割|前景探测：运动目标车辆的</p>
+<p>检测与跟踪|基于光流的目标跟踪实践|基于均值偏移的目标跟踪实践|基于粒子滤波的目标</p>
+<p>跟踪实践|卡尔曼滤波实践</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>流量统计核心技术:首先采用背景差分法和卡尔曼滤波算法对在检测区的车辆进行检测和跟</p>
+<p>踪|使用经过检测、处理的被测车辆图像触发距其最近的相机进行图形分割|通过LDA分类器</p>
+<p>对分段车辆的几何形状及外观特征进行正确地分类|实现滤波,参照DELOS算法实现对城市</p>
+<p>快速路的事故检测</p>
+<p>模型训练及项目主流程: 车辆区域特征样本标注|车辆检测模型训练及测试|深度学习CNN建</p>
+<p>模，建立车辆分类器|系统逐帧采集视频图像并检测车辆|为检测到每个车辆目标初始化卡尔</p>
+<p>曼滤波器，通过卡尔曼滤波器逐帧匹配目标进行位置预测|对比检测位置与预测位置，逐帧</p>
+<p>链接前景图像，获取车辆的跟踪路径</p>
+<p>项目总结:HEVC压缩域等的车流量检测应用优劣比较总结|帧间差分法、图像阈值分割和数</p>
+<p>学形态学的运动目标检测方法总结|结合智能优化算法对其改进的遗传算法—克隆选择遗传</p>
+<p>算法比较总结</p>
+<p>猫眼人脸支付CV项目</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>人脸支付项目是一个基于计算机视觉方向的人脸识别项目，该项目以支付系统为背景</p>
+<p>介绍人脸处理的整体流程。类似的应用，如办公打卡，智慧食堂，人脸考勤，嫌疑人识别</p>
+<p>等。该项目利用机器学习和深度学习的方法，针对摄像头捕获的视频图像，进行人脸区域</p>
+<p>检测，人脸跟踪，人脸姿态，年龄，性别，关键点等属性的检测，人脸矫正，人脸比对完</p>
+<p>成人脸的识别。通过该项目，学生可学习到人脸相关任务的技术点以及相应的业务流程</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>人脸视频采集</th><th>支付系统</th><th>人脸识别服务接口调用</th></tr></thead>
+</table></div>
+<p>用户层</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>人脸视频采集</th><th>人脸抓拍</th><th>人脸注册服务接口调用</th></tr></thead>
+<tbody><tr class="even"><td>人脸识别服务接口</td><td>人脸注册服务接口</td></tr></tbody>
+<tbody><tr class="odd"><td>服务层</td><td>人脸检测</td><td>姿态检测</td><td>性别年龄检测</td><td>关键点检测</td></tr></tbody>
+<tbody><tr class="even"><td>特征点对齐</td><td>人脸比对</td><td>人脸质量检测</td></tr></tbody>
+<tbody><tr class="odd"><td>人脸区域检测</td><td>人脸属性识别</td><td>人脸姿态识别</td></tr></tbody>
+<tbody><tr class="even"><td>YOLO模型</td><td>RexNet50模型</td><td>ResNet18模型</td></tr></tbody>
+</table></div>
+<p>算法端</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>人脸关键点检测</th><th>人脸对比</th><th>注册人脸</th></tr></thead>
+<tbody><tr class="even"><td>ResXNet模型</td><td>Insightface模型</td><td>数据库构建</td></tr></tbody>
+</table></div>
+<p>学习目标</p>
+<p>基于深度学习的通过实时摄像头采集的视频数据的自动识别人脸并跟踪的任务</p>
+<p>基于目标检测和跟踪的人脸识别任务</p>
+<p>基于端到端的人脸视频属性检测和人脸身份比对的目标识别系统</p>
+<p>掌握基于机器学习和深度学习的人脸检测，人脸属性识别和人脸比对的整体流程</p>
+<p>掌握人脸数据的特殊的图像增强的方式</p>
+<p>掌握人脸数据库的构建，查询，删改等实现方法</p>
+<p>掌握人脸项目的各个子任务的集成方式</p>
+<p>掌握基于放射变换人脸矫正的方法</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>解决方案</p>
+<p>视频中人脸检测的解决方案</p>
+<p>人脸姿态（欧拉角）检测的解决方案</p>
+<p>人脸关键点识别的解决方案</p>
+<p>人脸多任务（年龄，性别等）检测的解决方案</p>
+<p>人脸特征比对的解决方案</p>
+<p>主讲知识点</p>
+<p>项目介绍：支付方式发展的介绍|人脸支付项目介绍|开发环境的搭建</p>
+<p>视频中的人脸检测：人脸检测方法介绍|人脸检测的评价指标介绍|数据标注方式的介绍</p>
+<p>及获取数据方式的介绍|数据增强方法的介绍|yolo模型的介绍及模型构架|模型训练方</p>
+<p>式的介绍及实现|模型验证方式介绍及实现</p>
+<p>人脸姿态：人脸姿态检测方法介绍|人脸姿态数据标注方法和获取方法介绍及实现</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Resnet模型介绍及构建</th><th>模型训练和验证的介绍和实现</th></tr></thead>
+</table></div>
+<p>人脸关键点：人脸关键点检测方法介绍|人脸关键点数据标注方法和获取方法介绍及实</p>
+<p>现|resnet模型介绍及构建|模型训练和验证的介绍和实现</p>
+<p>人脸多任务：人脸多任务介绍|人脸多任务数据标注方法和获取方法介绍及实现|senet</p>
+<p>模型介绍及构建|模型训练和验证的介绍和实现</p>
+<p>人脸比对：人脸比对介绍|人脸比对数据标注方法和获取方法介绍及实现|arcface模型</p>
+<p>介绍及构建|模型训练和验证的介绍和实现|人脸数据库的构建与管理</p>
+<p>系统集成：基于仿射变换的人脸矫正的实现|姿态过大或距离过远的人脸的过滤|系统集</p>
+<p>成方式的介绍和实现</p>
+<p>百京金融风控人工智能项目</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>该项目主要解决传统金融由于风控审批靠人工进行，审批速度慢问题，所以基于用户</p>
+<p>申请信息的快速自动审批系统（风控系统）就成了互联网金融领域核心的竞争力。项目搭</p>
+<p>建了整套金融风控知识体系，从反欺诈、信用风险策略、评分卡模型构建等热点知识，使</p>
+<p>得学员具备中级金融风控分析师能力</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>数据源</th><th>数据预处理</th><th>特征工程(重点)</th><th>模型训练</th><th>模型评分卡</th></tr></thead>
+<tbody><tr class="even"><td>数据的源头</td><td>了解数据</td><td>可能要多次尝试</td><td>baseline/优化</td><td>把结果转换为信用分</td></tr></tbody>
+<tbody><tr class="odd"><td>数据库(MySQL)</td><td>探索性数据分析</td><td>特征衍生(构造)</td><td>逻辑回归</td><td>A:信用较差</td></tr></tbody>
+<tbody><tr class="even"><td>文件</td><td>(EDA)</td><td>数值型 类别型</td><td>集成学习</td><td>B:信用一般</td></tr></tbody>
+<tbody><tr class="odd"><td>第三方数据服务</td><td>toad</td><td>C:信用良好</td></tr></tbody>
+<tbody><tr class="even"><td>接口数据</td><td>D:信用优秀</td></tr></tbody>
+</table></div>
+<p>...</p>
+<p>离散化(分箱)</p>
+<p>编码</p>
+<p>特征选择(筛选)</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习目标</p>
+<p>掌握金融风控相关业务知识</p>
+<p>掌握机器学习项目特征工程通用方法</p>
+<p>掌握评分卡建模特征工程方法</p>
+<p>掌握评分卡模型构建、调优与监控方法</p>
+<p>掌握常用异常点检测算法的应用</p>
+<p>掌握模型解释常用方法</p>
+<p>解决方案</p>
+<p>金融领域数据处理解决方案</p>
+<p>金融风控策略解决方案</p>
+<p>金融风控特征工程解决方案</p>
+<p>金融风控评分卡模型解决方案</p>
+<p>信用分风险策略解决方案</p>
+<p>风控模型部署与评估解决方案</p>
+<p>主讲知识点</p>
+<p>风控领域业务知识介绍：常见信贷风险、金融风控领域常用术语等</p>
+<p>评分卡建模概述：信贷审批业务基本流程、ABC评分卡概念、正负样本定义方法等</p>
+<p>评分卡建模特征工程：特征衍生、特征交叉、特征评估与筛选</p>
+<p>机器学习评分卡模型训练：逻辑回归评分卡、集成学习评分卡、模型评价（KS，</p>
+<p>AUC），评分映射方法，模型报告</p>
+<p>不均衡学习和异常点检测：样本不均衡的处理方法，异常点检测的常用方法</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>传智教育旗下高端IT教育品牌</th><th>AI大模型开发</th></tr></thead>
+</table></div>
+<p>黑马头条推荐系统</p>
+<p>项目介绍</p>
+<p>推荐系统是在面对用户信息过载的情况下，或者用户没有明确购买信息的情况下，通</p>
+<p>过程序或工具自动化实现物品或商品的自动推荐过程。该项目属于文本系列推荐项目</p>
+<p>架构图</p>
+<p>数据采集</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>日志系统</th><th>Flume</th><th>日志数据</th><th>业务数据</th></tr></thead>
+</table></div>
+<p>HDFS集群(HIVE)</p>
+<p>用户点击</p>
+<p>Kafka</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>业务新文章</th><th>用户行为</th><th>用户画像</th><th>文章画像</th></tr></thead>
+</table></div>
+<p>离</p>
+<p>Spark 线</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>热门、新文章</th><th>特征服务平台Hbase</th></tr></thead>
+</table></div>
+<p>Streaming 部</p>
+<p>分</p>
+<p>特征工程</p>
+<p>Grpc</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>用户请求</th><th>Redis</th><th>Hbase</th></tr></thead>
+</table></div>
+<p>用</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>推荐</th><th>集群</th></tr></thead>
+</table></div>
+<p>缓存 多路召回</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>户</th><th>接口</th><th>模型训练</th></tr></thead>
+</table></div>
+<p>召 存储</p>
+<p>推荐结果</p>
+<p>排 回</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>ABTest</th><th>离线评估</th></tr></thead>
+<tbody><tr class="even"><td>序 读</td><td>排序模型</td></tr></tbody>
+</table></div>
+<p>取</p>
+<p>在线部分</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习目标</p>
+<p>掌握推荐系统相关业务知识</p>
+<p>掌握机器学习项目特征工程通用方法</p>
+<p>掌握推荐系统数据特征工程方法</p>
+<p>解决方案</p>
+<p>推荐系统架构解决方案</p>
+<p>用户标签系统解决方案</p>
+<p>推荐系统召回算法解决方案</p>
+<p>基于NLP实现文本推荐</p>
+<p>主讲知识点</p>
+<p>推荐系统项目业务背景介绍</p>
+<p>推荐系统架构</p>
+<p>企业级用户画像</p>
+<p>SparkMllib案例实战</p>
+<p>多路召回算法</p>
+<p>排序算法</p>
+<p>推荐系统指标评估</p>
+<p>小兔智购用户画像及推荐系统项目</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>项目介绍</p>
+<p>项目以电商为背景，提供全方位的标签体系、完整的标签构建流程、先进的用户画像</p>
+<p>技术架构,  使用Spark+ES+Doris完成海量数据的处理及各类标签计算与存储，充分满足企</p>
+<p>业离线和实时需求，为全行业用户画像系统提供了解决方案</p>
+<p>架构图</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>元数据管理：MySQL</th><th>调度：DolphinScheduler/Yarn</th></tr></thead>
+<tbody><tr class="even"><td>SeaTunnel</td><td>HiveSQL</td><td>HiveSQL</td><td>SeaTunnel</td></tr></tbody>
+</table></div>
+<p>DB</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>ODS</th><th>DW</th><th>ADS</th></tr></thead>
+</table></div>
+<p>SparkSQL</p>
+<p>SeaTunnel Spark</p>
+<p>SeaTunnel</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>Flume</th><th>Spark</th><th>Spark</th></tr></thead>
+</table></div>
+<p>日志</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>ODS</th><th>DW</th></tr></thead>
+</table></div>
+<p>其中Spark的计算任务有:</p>
+<p>使用Spark SQL来完成数据加工和部分标签计算                    使用Spark Core来完成部分标签计算</p>
+<p>使用Structured Streaming来完成日志处理和实时标签计算      使用Spark MLlib完成挖掘类标签的构建</p>
+<p>传智教育旗下高端IT教育品牌 AI大模型开发</p>
+<p>学习目标</p>
+<p>掌握用户画像应用场景 熟悉用户画像挖掘类标签构建</p>
+<p>掌握用户画像系统架构 掌握用户画像实时类标签构建</p>
+<p>掌握用户画像构建流程 掌握SeaTunnel数据同步组件</p>
+<p>掌握用户画像规则类标签构建 掌握ES和Doris结果存储</p>
+<p>掌握用户画像统计类标签构建 了解推荐系统使用</p>
+<p>解决方案</p>
+<p>用户画像解决方案,主要针对于泛电商或保险行业完成用户标签设计与开发,提供了全</p>
+<p>行业解决方案。课程采用由浅入深,层层递进的讲解方式, 让学生轻松掌握企业级用户</p>
+<p>画像系统的设计与开发全流程，项目使用的技术栈包括Spark、ES、Doris、SeaTun</p>
+<p>-nel、Kafka，均为时下主流的大数据技术</p>
+<p>主讲知识点</p>
+<p>用户画像应用场景</p>
+<p>用户画像系统架构</p>
+<p>用户画像构建流程</p>
+<p>使用Spark Core开发规则类标签</p>
+<p>使用Spark Core和Spark SQL开发统计类标签</p>
+<p>使用Spark MLlib开发挖掘类标签</p>
+<p>使用Structured Streaming开发实时类标签</p>
+<p>使用SeaTunnel做数据同步</p>
+<p>使用ES和Doris存储结果数据</p>
+<p>使用Spark MLlib开发推荐系统</p>
+<p>全面拥抱国产大模型，构筑AI领域国家竞争力</p>
+<p>全新课程体系 V6.5</p>
+<p>课程简章</p>
+<p>解锁「大模型」新技能 成就「高薪AI」人才</p>
+<p>联合头部大厂 共建「大模型」应用开发课程</p>
+<p>全国咨询热线</p>
+<p>400-618-4000</p>
+<p>官方网站地址</p>
+<p>www.itcast.cn</p>
+</section><section class="file-section" id="f31fb90f"><div class="file-header"><h2 class="file-title">大模型技术栈全景</h2><span class="badge" style="background:#d4a017">基础</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:0px"><a href="#4132f4a1">大模型技术栈</a></li><li style="margin-left:16px"><a href="#f54c431d">NLP框架</a></li><li style="margin-left:16px"><a href="#7b4e730d">注意力机制</a></li><li style="margin-left:16px"><a href="#bbca2718">Transformer</a></li><li style="margin-left:16px"><a href="#221c3eff">BERT</a></li><li style="margin-left:16px"><a href="#939a02f4">Prompt工程</a></li><li style="margin-left:16px"><a href="#fb6a72bb">RAG</a></li><li style="margin-left:16px"><a href="#4f3d5281">Milvus</a></li><li style="margin-left:16px"><a href="#8de59538">LangChain</a></li><li style="margin-left:16px"><a href="#4923cf0a">LangGraph</a></li><li style="margin-left:16px"><a href="#b18b6559">Agent相关</a></li><li style="margin-left:16px"><a href="#f7d2f408">模型量化、压缩、剪枝</a></li></ul></div><blockquote> 全局定位
+<strong>知识领域</strong>：AI大模型 → 技术栈全景 → 技术选型指南
+<strong>在AI知识图谱中的位置</strong>：技术栈全景是AI项目技术选型的核心参考，覆盖全链路
+<strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础入门">大模型基础</a>，下启各技术方向深入</blockquote>
+<blockquote> 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 大模型基础 | <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础入门">AI大模型/01-大模型基础/大模型基础入门</a> | 理论基础 |
+| 课程大纲 | <a class="wikilink" href="#AI大模型/03-大模型技术栈/AI大模型开发课程大纲-V6.5">AI大模型/03-大模型技术栈/AI大模型开发课程大纲-V6.5</a> | 学习路线 |
+| PyTorch | <a class="wikilink" href="#06-PyTorch基础">06-PyTorch基础</a> | DL框架 |</blockquote>
+<blockquote> 落地实践
+- 技术栈=NLP框架+训练框架(PyTorch)+推理引擎(vLLM)+应用层(RAG/Agent)
+- 根据项目需求选择技术栈组合，避免过度工程化</blockquote>
+<h2 id="4132f4a1">大模型技术栈</h2>
+<h3 id="f54c431d">NLP框架</h3>
+<div class="list-item" style="padding-left:20px">传统RNN</div>
+<div class="list-item" style="padding-left:28px">循环神经网络，是一种用于处理序列数据的神经网络，能够复用历史信息对当前输入进行建模</div>
+<p>与普通前馈神经网络不同，RNN在时间维度上有“记忆”</p>
+<div class="list-item" style="padding-left:36px">内部结构简单，计算资源要求低</div>
+<div class="list-item" style="padding-left:44px">RNN是一种用于处理序列数据的神经网络，通过隐藏状态在时间维度上传递信息，但存在梯度消失和长期依赖问题。LSTM和GRU通过门控机制有效缓解了这些问题，尽管Transformer成为主流，RNN在时间序列和实时场景应用中仍具有实际应用价值</div>
+<div class="list-item" style="padding-left:36px">在解决长序列问题的表示很差，在进行反向传播的时候（多次的矩阵相乘），过长序列会导致梯度消失或爆炸</div>
+<div class="list-item" style="padding-left:44px">梯度消失：浅层靠近输入的权重几乎不更新，模型学不动了</div>
+<div class="list-item" style="padding-left:44px">梯度爆炸：损失突然变成NaN/极大值，极重更新过大，参数剧烈震荡，训练不稳定</div>
+<div class="list-item" style="padding-left:44px">梯度是指函数值增长最快的方向</div>
+<div class="list-item" style="padding-left:28px">核心思想：在每个时间步都会接收当前输入，结合上一步的隐藏状态，计算当前隐藏状态</div>
+<div class="list-item" style="padding-left:36px">内部结构分析：</div>
+<p>上一时间步的隐层输出，和当前时间步的输入进行拼接，形成新的张量，之后通过一个全连接层（线性层），该层使用tanh作为激活函数，最终得到当前时间步的输出</p>
+<div class="list-item" style="padding-left:44px">tanh，输出内容（-1，1）以0为中心</div>
+<div class="list-item" style="padding-left:44px">激活函数</div>
+<div class="list-item" style="padding-left:52px">引入非线性，增强模型表达能力</div>
+<div class="list-item" style="padding-left:52px">决定神经元是否被“激活”</div>
+<div class="list-item" style="padding-left:52px">将输入映射到合适的输出范围</div>
+<div class="list-item" style="padding-left:52px">影响梯度传播与训练效率</div>
+<div class="list-item" style="padding-left:28px">解决什么问题</div>
+<div class="list-item" style="padding-left:36px">序列 -> 标签    情感分析、文本分类</div>
+<p>序列 -> 序列    机器翻译、文本生成</p>
+<p>多对一 用一段话预测情绪</p>
+<p>一对多 给图片生成描述</p>
+<div class="list-item" style="padding-left:28px">梯度消失/梯度爆炸</div>
+<div class="list-item" style="padding-left:36px">反射传播要跨多个时间步</div>
+<p>多次连乘导致梯度指数级变小/变大</p>
+<div class="list-item" style="padding-left:44px">只能记住短期信息</div>
+<div class="list-item" style="padding-left:28px">长期依赖问题</div>
+<div class="list-item" style="padding-left:36px">普通RNN很难把前面很远的词联系起来</div>
+<div class="list-item" style="padding-left:28px">常见问题</div>
+<div class="list-item" style="padding-left:36px">RNN与普通神经网络的区别？</div>
+<p>RNN引入隐藏状态，能够建模序列中的时间依赖关系，普通神经网络无法处理序列信息</p>
+<div class="list-item" style="padding-left:36px">RNN为什么会梯度消失？</div>
+<p>由于时间反向传播时多次矩阵相乘，梯度会指数级衰减，导致模型无法学习长期依赖</p>
+<div class="list-item" style="padding-left:36px">LSTM为什么能解决这个问题？</div>
+<p>LSTM通过门控机制和细胞状态，使梯度可以在时间维度上稳定传播</p>
+<div class="list-item" style="padding-left:36px">GRU与LSTM的区别？</div>
+<p>GRU在结构上更简单，参数更少，训练更快，但在复杂任务上表达能力弱于LSTM</p>
+<div class="list-item" style="padding-left:36px">Transformer出来后，RNN还有意义吗？</div>
+<p>在小数据、低延迟、实时预测等场景中，RNN仍然具有工程价值</p>
+<div class="list-item" style="padding-left:20px">LSTM</div>
+<div class="list-item" style="padding-left:28px">长短时记忆结构，能有效捕捉长序列之间的语义关联，缓解梯度消失/爆炸现象</div>
+<div class="list-item" style="padding-left:36px">引入门控机制来控制信息的记住、更新和遗忘</div>
+<div class="list-item" style="padding-left:44px">LSTM是一种改进的RNN，通过引入细胞状态和遗忘、输入、输出三种门控机制，相比RNN，具有更强的序列建模能力，但参数更多，训练更慢。在时间序列和部分实时场景中仍具有实际应用价值</div>
+<div class="list-item" style="padding-left:28px">Bi-LSTM：双向LSTM，没有改变SLTM本身的任何内部结构，只是将LSTM应用两次且方向不同，再将两次得到的结果进行拼接作为最终输出</div>
+<div class="list-item" style="padding-left:28px">核心</div>
+<div class="list-item" style="padding-left:36px">遗忘门：决定过去的信息保留多少</div>
+<div class="list-item" style="padding-left:36px">输入门：决定当前信息写入多少</div>
+<div class="list-item" style="padding-left:36px">细胞状态：更新细胞状态，LSTM能记住长期信息的关键</div>
+<div class="list-item" style="padding-left:36px">输出门：决定当前输出</div>
+<div class="list-item" style="padding-left:28px">常见问题</div>
+<div class="list-item" style="padding-left:36px">LSTM解决了RNN什么问题？</div>
+<p>主要解决了梯度消失和长期依赖问题</p>
+<div class="list-item" style="padding-left:36px">LSTM中最关键的设计？</div>
+<p>细胞状态和门控机制</p>
+<div class="list-item" style="padding-left:36px">为什么要有遗忘门？</div>
+<p>避免无用历史信息长期累积，提升模型泛化能力</p>
+<div class="list-item" style="padding-left:36px">LSTM比RNN训练更慢？</div>
+<p>参数更多，计算图更复杂，门控计算增加</p>
+<div class="list-item" style="padding-left:20px">GRU</div>
+<div class="list-item" style="padding-left:28px">门控循环单元结构，同LSTM一样能够有效捕捉长序列之间的语义关联，缓解梯度消失/爆炸，同时它的计算比LSTM更简单</div>
+<div class="list-item" style="padding-left:36px">GRU通过控制更新门和重置门控制历史信息与当前输入的融合，在保持建模能力的同时降低了模型的复杂度</div>
+<div class="list-item" style="padding-left:28px">核心</div>
+<div class="list-item" style="padding-left:36px">GRU没有独立的隐藏状态，直接使用隐藏状态h来存储记忆</div>
+<div class="list-item" style="padding-left:44px">加法更新是缓解梯度消失的核心原因</div>
+<div class="list-item" style="padding-left:36px">更新门</div>
+<div class="list-item" style="padding-left:44px">保留多少历史信息</div>
+<p>引入多少新信息</p>
+<div class="list-item" style="padding-left:36px">重置门</div>
+<div class="list-item" style="padding-left:44px">在计算当前候选状态时，忽略多少历史信息</div>
+<div class="list-item" style="padding-left:28px">Bi-GRU：与Bi-LSTM一样，都是不改变其内部结构，而是将模型应用两次且方向不同，再将两次结果进行拼接作为最终输出</div>
+<div class="list-item" style="padding-left:28px">常见问题</div>
+<div class="list-item" style="padding-left:36px">GRU解决了什么问题？</div>
+<p>缓解了RNN的梯度消失/爆炸</p>
+<div class="list-item" style="padding-left:36px">GRU为什么比LSTM训练快？</div>
+<p>结构更简单，参数更少，计算开销更大</p>
+<div class="list-item" style="padding-left:36px">GRU为什么不需要细胞状态？</div>
+<p>GRU将记忆直接融合进隐藏状态，通过更新门控制信息保留</p>
+<div class="list-item" style="padding-left:36px">更新门的作用是什么？</div>
+<p>控制历史信息和新信息的权重平衡</p>
+<div class="list-item" style="padding-left:36px">实际项目中如何选择GRU和LSTM？</div>
+<p>数据量小、对效率敏感时选GRU；复杂的长期依赖任务选LSTM</p>
+<div class="list-item" style="padding-left:28px">优势：在捕捉长序列语义关系时，能有效抑制梯度消失/爆炸，效果都优于传统RNN，计算复杂度相比LSTM要小</div>
+<p>缺点：仍不能完全解决梯度消失问题，同时有着传统RNN的一大弊端，即不可并行计算</p>
+<h3 id="7b4e730d">注意力机制</h3>
+<div class="list-item" style="padding-left:20px">本质：给不同的信息分配不同的重要性权重</div>
+<p>在建模时动态分配权重的方法，使用模型能够关注与当前任务最相关的部分信息</p>
+<div class="list-item" style="padding-left:20px">分类</div>
+<div class="list-item" style="padding-left:28px">软注意（全局注意）</div>
+<div class="list-item" style="padding-left:36px">对每个输入项的权重分配为0-1之间，也就是某些部分关注多，某些部分关注少，对大部分信息都有考虑，计算量相对大</div>
+<div class="list-item" style="padding-left:28px">硬注意（局部注意）</div>
+<div class="list-item" style="padding-left:36px">对每个输入项的权重分配非0即1，只要考虑哪部分需要关注，哪部分不需要关注，优势在于可以减少一些时间成本，但有可能丢失掉一些本应该注意的信息</div>
+<div class="list-item" style="padding-left:28px">自注意力机制</div>
+<div class="list-item" style="padding-left:36px">对每个输入项的权重分配取决于输入项之间的相互作用，即通过输入项内部的“表决”来决定应该关注哪些输入项</div>
+<div class="list-item" style="padding-left:28px">交叉注意力</div>
+<div class="list-item" style="padding-left:36px">Q来自一个序列，K/V来自另一个序列</div>
+<div class="list-item" style="padding-left:28px">多头注意力</div>
+<div class="list-item" style="padding-left:36px">单一注意力视角有限</div>
+<p>多头，多种子空间关注不同关系</p>
+<div class="list-item" style="padding-left:44px">多头注意力允许模型在不同表示子空间中并行关注信息，提高表达能力</div>
+<div class="list-item" style="padding-left:20px">计算过程</div>
+<div class="list-item" style="padding-left:36px">√dk是一个关键的数值稳定技巧，影响模型的收敛性和性能（一种归一化思想）</div>
+<p>dk：也就是Key向量的维度</p>
+<p>例：如果输入是512维，那么分成8个头，则每个头的dk=64</p>
+<p>除以 √dk：核心原因是防止点积过大导致softmax激活函数饱和</p>
+<p>（在极端值下很小）-> 直接导致模型不学习，梯度不稳定</p>
+<div class="list-item" style="padding-left:44px">softmax()函数：将任意实数向量转换为概率分布</div>
+<p>常用于多分类任务的输出层，将模型的原始得分转化为每个类别的“概率”</p>
+<p>每个p属于（0，1），所有元素之和为1</p>
+<div class="list-item" style="padding-left:36px">dk是Key的维度，除以 √dk是为了控制点积的大小，防止softmax失效，注意力机制稳定训练的关键设计</div>
+<div class="list-item" style="padding-left:28px">1、Query和Key进行相似度计算，得到Attention Score</div>
+<div class="list-item" style="padding-left:36px">QKV解释</div>
+<div class="list-item" style="padding-left:44px">查询张量Q：解码器每一步的输出（预测结果）或者是当前输入的x</div>
+<div class="list-item" style="padding-left:52px">我现在想找什么mwpq</div>
+<div class="list-item" style="padding-left:44px">键张量K：解码器上一步的隐藏层输出</div>
+<div class="list-item" style="padding-left:52px">每个位置的“标签”</div>
+<div class="list-item" style="padding-left:44px">值张量V：编码器部分每个时间步输出结果组合而成</div>
+<div class="list-item" style="padding-left:52px">真正的信息内容</div>
+<div class="list-item" style="padding-left:28px">2、对Attention Score进行Softmax归一化，得到权值矩阵</div>
+<div class="list-item" style="padding-left:28px">3、权重矩阵与Value进行加权求和计算</div>
+<div class="list-item" style="padding-left:28px">注意力机制实现步骤</div>
+<div class="list-item" style="padding-left:36px">第一步：根据注意力计算规则，对QKV进行相应的计算</div>
+<div class="list-item" style="padding-left:36px">第二步：根据第一步采用的计算方法，如果是拼接方法，则需要将Q与第一步计算结果再进行拼接，如果是转置点乘，一般是自注意力机制，Q与V相同，则不需要与Q拼接</div>
+<div class="list-item" style="padding-left:36px">第三步：最后为了使整个attention机制按照指定尺寸输出，使用线性层作用在第二眇的结果上做一个线性变换，得到最终对Q的注意力表示</div>
+<div class="list-item" style="padding-left:20px">常见问题</div>
+<div class="list-item" style="padding-left:28px">为什么Attention能解决长期依赖问题？</div>
+<p>任意位置之间可以直接建立联系，避免信息逐步衰减</p>
+<div class="list-item" style="padding-left:28px">Self-Attention和Cross-Attention的区别？</div>
+<p>Self-Attention的QKV来自同一序列</p>
+<p>Cross-Attention来自不同的序列</p>
+<div class="list-item" style="padding-left:28px">为什么Transformer不需要RNN？</div>
+<p>Attention能直接建模序列依赖，并支持并行计算</p>
+<div class="list-item" style="padding-left:28px">多头注意力的作用？</div>
+<p>在不同子空间中捕捉不同类型的关系</p>
+<div class="list-item" style="padding-left:28px">Attention的时间复杂度是多少？</div>
+<p>标准自注意力O(n²)</p>
+<h3 id="bbca2718">Transformer</h3>
+<div class="list-item" style="padding-left:20px">1、Transformer能够利用分布式GPU进行并行训练，提升模型训练效率</div>
+<p>2、在分析预测更长的文本时，捕捉间隔较长的语义关联效果更好</p>
+<div class="list-item" style="padding-left:20px">组成</div>
+<div class="list-item" style="padding-left:28px">输入部分</div>
+<div class="list-item" style="padding-left:36px">源文本嵌入层及其位置编码层</div>
+<div class="list-item" style="padding-left:36px">目标文本嵌入层及位置编码层</div>
+<div class="list-item" style="padding-left:28px">输出部分</div>
+<div class="list-item" style="padding-left:36px">线性层</div>
+<div class="list-item" style="padding-left:36px">Softmax层</div>
+<div class="list-item" style="padding-left:28px">编码器部分</div>
+<div class="list-item" style="padding-left:36px">N个编码器层堆叠而成</div>
+<div class="list-item" style="padding-left:36px">每个编码器层由两个子层连接结构组成</div>
+<div class="list-item" style="padding-left:36px">第一个子层连接结构包括一个多头自注意力子层和规范化层以及一个残差连接</div>
+<div class="list-item" style="padding-left:36px">第二个子层连接结构包括一个前馈全连接子层和规范化层以及一个残差连接</div>
+<div class="list-item" style="padding-left:28px">解码器部分</div>
+<div class="list-item" style="padding-left:36px">N个解码器层堆叠而成</div>
+<div class="list-item" style="padding-left:36px">每个解码器层由三个子层连接结构组成</div>
+<div class="list-item" style="padding-left:36px">第一个子层连接结构包括一个多头自注意力层和一个规范化层以及一个残差连接</div>
+<div class="list-item" style="padding-left:36px">第二个子层连接结构包括一个多头注意力子层和规范化层以及一个残差连接</div>
+<div class="list-item" style="padding-left:36px">第三个子层连接结构包括一个前馈全连接子层和规范化层以及一个残差连接</div>
+<div class="list-item" style="padding-left:20px">输入部分</div>
+<div class="list-item" style="padding-left:28px">嵌入层</div>
+<div class="list-item" style="padding-left:36px">将文本中的词汇的数字表示转变为向量表示，</div>
+<p>希望在高维空间捕捉词汇的关系</p>
+<div class="list-item" style="padding-left:28px">位置编码层</div>
+<div class="list-item" style="padding-left:36px">在Transformer的编码器结构中，并没有针对词汇位置信息的处理，在Embedding层加入位置编码器，将词汇位置不同可能产生不同语义的信息加入到词嵌入张量中，以弥补位置信息的缺失</div>
+<div class="list-item" style="padding-left:36px">Attention对顺序不敏感，需要显示流入位置信息</div>
+<p>正弦位置编码：无需训练，支持任意长度，能表示相对位置关系</p>
+<div class="list-item" style="padding-left:36px">RoPE：LLaMA / Qwen 等主流大模型</div>
+<div class="list-item" style="padding-left:20px">编码器部分</div>
+<div class="list-item" style="padding-left:28px">编码器层</div>
+<div class="list-item" style="padding-left:36px">每个编码器层完成一次对输入的特征提取过程</div>
+<div class="list-item" style="padding-left:36px">掩码张量</div>
+<div class="list-item" style="padding-left:44px">有一些生成的Attention张量中存在未知信息，在训练时可能被看到，但解码器上的输出不是一次就能产生最终结果的，而是一次次通过上一次结果综合得出的，所以利用掩码进行遮掩</div>
+<div class="list-item" style="padding-left:36px">dropout</div>
+<div class="list-item" style="padding-left:44px">随机失活，抑制注意力与前馈神经网络的过拟合，提升模型泛化能力，稳定训练</div>
+<div class="list-item" style="padding-left:52px">Attention权重上的Dropout</div>
+<div class="list-item" style="padding-left:52px">子层输出的Dropout</div>
+<div class="list-item" style="padding-left:52px">FNN内部的Dropout</div>
+<div class="list-item" style="padding-left:52px">Embedding+Positional Encoding后的Dropout</div>
+<div class="list-item" style="padding-left:44px">Attention后分布过于尖锐，可能只关注部分token，使用Doprout可以提升平滑度，提高上下文利用能力</div>
+<div class="list-item" style="padding-left:44px">大模型基本不使用</div>
+<p>数据量极大，使用Pre-Norm+RMSNorm</p>
+<p>过拟合风险低</p>
+<div class="list-item" style="padding-left:36px">多头自注意力机制</div>
+<div class="list-item" style="padding-left:44px">多个“不同视角”的自己在同时看一句话</div>
+<div class="list-item" style="padding-left:44px">每个注意力机制去优化每个词汇不同特征部分，从而均衡同一种注意力机制可能产生的偏差，让词义拥有来自更多元的表达</div>
+<div class="list-item" style="padding-left:36px">前馈全连接层</div>
+<div class="list-item" style="padding-left:44px">具有两层线性层的全连接网络</div>
+<div class="list-item" style="padding-left:44px">考虑注意力机制可能对复杂过程的拟合程度不够，通过增加两层网络来增强模型的能力</div>
+<div class="list-item" style="padding-left:36px">规范化层</div>
+<div class="list-item" style="padding-left:44px">所有深层网络都需要标准网络层，因为随着网络层数的增加，计算后的参数可能出现过大/小，会导致学习过程出现异常，模型收敛较慢，在一定层数后接规范化层进行数值的规范化，使其特征在合理范围内</div>
+<div class="list-item" style="padding-left:36px">子层连接结构</div>
+<div class="list-item" style="padding-left:44px">输入到每个子层以及规范化的过程中，还使用了残差连接（跳跃连接），把这一部分整体叫做子层连接（子层及链接结构）</div>
+<div class="list-item" style="padding-left:28px">编码器由多个编码器堆叠而成</div>
+<div class="list-item" style="padding-left:36px">标准Transformer有6个编码器堆叠，多头自注意力机制分8头，模型维度是512，每个头64维，有36个线性层</div>
+<div class="list-item" style="padding-left:20px">解码器部分</div>
+<div class="list-item" style="padding-left:28px">解码器层</div>
+<div class="list-item" style="padding-left:36px">根据给定的输入向目标方向进行特征提取操作</div>
+<div class="list-item" style="padding-left:36px">根据编码器的结果以及上一次预测的结果，对下一次可能出现的“值进行特征表示”</div>
+<div class="list-item" style="padding-left:28px">解码器层由多个解码器堆叠而成</div>
+<div class="list-item" style="padding-left:36px">标准Transformer有6个解码器堆叠，多头注意力机制分8头，模型维度是512，每头64维，有60个线性层</div>
+<div class="list-item" style="padding-left:20px">输出部分</div>
+<div class="list-item" style="padding-left:28px">线性层</div>
+<div class="list-item" style="padding-left:36px">通过对上一步的线性变化得到指定维度的输出，转换维度</div>
+<div class="list-item" style="padding-left:28px">Softmax层</div>
+<div class="list-item" style="padding-left:36px">使最后一维的向量中的数字缩放到0-1的概率值域内，并满足和为1</div>
+<h3 id="221c3eff">BERT</h3>
+<div class="list-item" style="padding-left:20px">2018年Google提出的一种预训练模型</div>
+<div class="list-item" style="padding-left:28px">只使用了经典Transformer架构中的Encoder部分</div>
+<div class="list-item" style="padding-left:20px">Bert预训练模型所接收的最大Sequence长度是512</div>
+<div class="list-item" style="padding-left:20px">采用了Transformer的Encoder block进行连接，一个典型的双向编码模型</div>
+<div class="list-item" style="padding-left:36px">预微调模块</div>
+<div class="list-item" style="padding-left:36px">Transformer模块</div>
+<div class="list-item" style="padding-left:36px">Embedding模块</div>
+<div class="list-item" style="padding-left:20px">Embedding模块</div>
+<div class="list-item" style="padding-left:28px">Token Embedding：词嵌入张量，每一个是GLS标志，可以用于之后的分类任务</div>
+<div class="list-item" style="padding-left:28px">Segment Embedding：句子嵌入张量，为了服务后续两个句子为输入的预训练任务</div>
+<div class="list-item" style="padding-left:28px">Position Embedding：位置编码张量，不是三角函数计算的固定位置编码，通过学习得出来</div>
+<div class="list-item" style="padding-left:20px">预微调模块</div>
+<div class="list-item" style="padding-left:28px">经过中间Transformer的处理后，BERT的最后一层根据任务的不同需求而做不同的调整即可</div>
+<div class="list-item" style="padding-left:28px">对于Seq-level的分类任务，Bert直接取第一个CLStoke的最终隐藏层，再加一层全连接层后进行softmax来预测最终的标签</div>
+<div class="list-item" style="padding-left:36px">全连接层起到任务适配作用，假设CLS的维度向量是768，但分类标签数只有3，寻到不能直接对768维做softmax得到三类</div>
+<div class="list-item" style="padding-left:20px">两个预训练任务</div>
+<div class="list-item" style="padding-left:28px">Masked LM（带mask的语言模型训练）</div>
+<div class="list-item" style="padding-left:36px">BERT提出一个深度双向表达模型，即采用Mask任务来训练模型</div>
+<div class="list-item" style="padding-left:36px">1、在原始训练文本中，随机抽取15%的token作为参与MASK任务的对象</div>
+<div class="list-item" style="padding-left:36px">2、在被选中的Token中，数据生成器并不是全部变成MASK，有三种情况</div>
+<div class="list-item" style="padding-left:44px">80%的概率下用Mask标记替换Token</div>
+<div class="list-item" style="padding-left:44px">10%的概率下用一个随机单词替换Token</div>
+<div class="list-item" style="padding-left:44px">10%的概率下保持Token不变</div>
+<div class="list-item" style="padding-left:28px">Next Sentence Prediction（下一句话预测任务）</div>
+<div class="list-item" style="padding-left:36px">采用的方式是输入句子对（A，B），模型来预测句子是不是句子A的真实的下一句话</div>
+<div class="list-item" style="padding-left:36px">1、所有任务训练的句子都被选中作为句子A</div>
+<div class="list-item" style="padding-left:44px">其中50%是真实跟随A的下一句话，正样本</div>
+<div class="list-item" style="padding-left:44px">其中50%是原始文本中随机抽取的一句话，负样本</div>
+<div class="list-item" style="padding-left:36px">2、在此任务中，Bert模型能在测试集上取得97%-98%的准确率</div>
+<h3 id="939a02f4">Prompt工程</h3>
+<div class="list-item" style="padding-left:20px">人为构造的输入序列，用于引导模型根据先前输入的内容生成相关的输出</div>
+<div class="list-item" style="padding-left:28px">提高生成准确性</div>
+<div class="list-item" style="padding-left:28px">增强自由度</div>
+<div class="list-item" style="padding-left:28px">提高效率</div>
+<div class="list-item" style="padding-left:28px">支持复杂任务</div>
+<div class="list-item" style="padding-left:20px">在不修改大模型参数的情况下，与大模型交互以及引导其行为以获得所需结果</div>
+<div class="list-item" style="padding-left:20px">5大原则</div>
+<div class="list-item" style="padding-left:28px">1、明确目标，给出清晰的指令</div>
+<p>2、提供上下文</p>
+<p>3、复杂任务拆分简单任务</p>
+<p>4、提供示例</p>
+<p>5、借助外部工具</p>
+<div class="list-item" style="padding-left:20px">相关技术</div>
+<div class="list-item" style="padding-left:28px">Zero-shot：无示例直接完成</div>
+<div class="list-item" style="padding-left:28px">Few-shot：1-3个示例引导</div>
+<div class="list-item" style="padding-left:28px">CoT思维链：分步推理</div>
+<div class="list-item" style="padding-left:28px">ReAct：推理+行动</div>
+<div class="list-item" style="padding-left:36px">通常是调用外部工具</div>
+<div class="list-item" style="padding-left:28px">Reflection：初答后反思</div>
+<div class="list-item" style="padding-left:28px">Prompt Chaining：多提示串联</div>
+<div class="list-item" style="padding-left:36px">拆分任务为多个提示，像流水线一样处理问题</div>
+<div class="list-item" style="padding-left:20px">pipeline是Transformer中的提供的高层封装工具，它把模型加载、Tokenizer、输入处理、输出解码等步骤封装好了</div>
+<div class="list-item" style="padding-left:28px">开箱即用，想生成文本就生成文本</div>
+<div class="list-item" style="padding-left:20px">AutoModelForCausalLM是一个低层接口，可以使用它自由地控制输入输出、训练或微调模型，但也需要自己处理Tokenizer和推理流程</div>
+<div class="list-item" style="padding-left:28px">给我模型，自己掌握生成的每一步</div>
+<div class="list-item" style="padding-left:20px">LLM是一个极富创造力的“文科生”，不是逻辑严谨的“程序员”</div>
+<div class="list-item" style="padding-left:28px">模仿JSON格式</div>
+<div class="list-item" style="padding-left:36px">LangChain中的智能修复师：OutpuFixingParser</div>
+<p>利用AI的智能来修复自己犯下的错</p>
+<p>底层依赖pydantic-->像写一个普通的类来定义清晰、严格的数据结构，自动处理数据的校验、转换和文档生成</p>
+<div class="list-item" style="padding-left:20px">攻防技术</div>
+<div class="list-item" style="padding-left:28px">常见攻击方式：提示流入（伪装指令，角色扮演覆盖系统），越狱攻击（诱导模型生成违禁内容）</div>
+<h3 id="fb6a72bb">RAG</h3>
+<div class="list-item" style="padding-left:20px">检索增强生成（RAG）技术是一种结合了检索和生成两个阶段的自然语言生成技术</div>
+<div class="list-item" style="padding-left:20px">使用开发人员无需为每个特定任务重新训练整个大型模型，可以简单地连接相关知识库，为模型提供额外的输入，从而提高答案的准确性</div>
+<div class="list-item" style="padding-left:28px">通过合并来自外部知识源的附加信息来增加大模型，使得大模型能够生成更准确和上下文感知的答案，减少幻觉</div>
+<div class="list-item" style="padding-left:20px">索引</div>
+<div class="list-item" style="padding-left:28px">离线执行的关键步骤。</div>
+<p>首先清理和提取原始数据，将各种文件格式转换为标准化纯文本，为了适应上下文约束，这些文本被分为更小且易于管理的块，然后使用嵌入模型将这些块转换为向量表示，最后创建一个索引来将这些文本块及其向量嵌入存储键值对，从而实现高效且可扩展的搜索功能</p>
+<div class="list-item" style="padding-left:20px">检索</div>
+<div class="list-item" style="padding-left:28px">用户查询用于从外部知识源检索相关上下文。</div>
+<p>用户查询由编码模型处理，该模型生成语义相关的嵌入，然后对向量数据库进行相似性搜索，以检索前k个最接近的数据对象。</p>
+<div class="list-item" style="padding-left:20px">生成</div>
+<div class="list-item" style="padding-left:28px">将用户查询和检索到的附加到上下文填充到提示模板中。最后，将检索步骤中增强提示输入到LLM中。</div>
+<h3 id="4f3d5281">Milvus</h3>
+<div class="list-item" style="padding-left:20px">开源向量数据库（2019），存储、索引和管理尝试神经网络和其他机器学习模型的大规模嵌入向量</div>
+<div class="list-item" style="padding-left:28px">milvus从底层设计用于处理非结构化数据转换而来的嵌入向量</div>
+<div class="list-item" style="padding-left:20px">数据分类</div>
+<div class="list-item" style="padding-left:28px">结构化</div>
+<div class="list-item" style="padding-left:36px">具有固定格式或组织形式的数据</div>
+<div class="list-item" style="padding-left:36px">用户信息表、财务交易记录等</div>
+<div class="list-item" style="padding-left:28px">非结构化</div>
+<div class="list-item" style="padding-left:36px">没有固定的格式或预定义的数据模型</div>
+<div class="list-item" style="padding-left:36px">电子邮件、社交媒体帖子、监控视频、照片等</div>
+<div class="list-item" style="padding-left:20px">为什么选择Milvus</div>
+<div class="list-item" style="padding-left:28px">在处理大规模数据集的向量搜索时具有高性能->索引</div>
+<div class="list-item" style="padding-left:28px">开发者社区活跃，提供多语言支持和工具链</div>
+<div class="list-item" style="padding-left:28px">云扩展性和高可靠性，即使出现故障也不会受到影响</div>
+<div class="list-item" style="padding-left:28px">可以进行混合搜索</div>
+<div class="list-item" style="padding-left:20px">相关概念</div>
+<div class="list-item" style="padding-left:28px">数据模型</div>
+<div class="list-item" style="padding-left:36px">结构具有层次性，类似传统“库-表-行-列”</div>
+<div class="list-item" style="padding-left:44px">Collection（集合）</div>
+<div class="list-item" style="padding-left:52px">相当于“表”，向量数据和标量数据（ID、类别、时间戳等）的逻辑分组</div>
+<div class="list-item" style="padding-left:44px">Partition（分区）</div>
+<div class="list-item" style="padding-left:52px">集合内部的逻辑划分，将数据隔离在不同的物理存储单元中，从而在搜索时指定分区进行查询，有效减少搜索范围，提升性能</div>
+<div class="list-item" style="padding-left:44px">Entity（实体）</div>
+<div class="list-item" style="padding-left:52px">相当于“行”，一个实体代表一个被向量化的对象</div>
+<div class="list-item" style="padding-left:44px">Field（字段）</div>
+<div class="list-item" style="padding-left:52px">相当于“列”</div>
+<div class="list-item" style="padding-left:44px">Primary Key（主键字段）</div>
+<div class="list-item" style="padding-left:52px">唯一标识一个实体</div>
+<div class="list-item" style="padding-left:44px">Vector Field（向量字段）</div>
+<div class="list-item" style="padding-left:52px">存储向量数据，FLOAT_VECTOR（稠密向量）或SPARSE_FLOAT_VECTOR（稀疏向量）</div>
+<div class="list-item" style="padding-left:44px">Scalar Field（标量字段）</div>
+<div class="list-item" style="padding-left:52px">存储元数据，INT32，VARCHAR，BOOL，FLOAT等</div>
+<div class="list-item" style="padding-left:36px">可以分配权限，一个milvus集群最多支持64个数据库</div>
+<div class="list-item" style="padding-left:28px">向量相似度和ANN</div>
+<div class="list-item" style="padding-left:36px">向量相似度的核心是计算两个向量在多维空间中的“距离”和“夹角”</div>
+<div class="list-item" style="padding-left:44px">欧式距离</div>
+<div class="list-item" style="padding-left:52px">空间中两点之间的直线距离，值越小，越相似</div>
+<div class="list-item" style="padding-left:44px">内积</div>
+<div class="list-item" style="padding-left:52px">两个向量的方向是否一致，值越大，越相似</div>
+<div class="list-item" style="padding-left:36px">ANN（近似最近邻）搜索</div>
+<div class="list-item" style="padding-left:44px">牺牲极小的精度来换取巨大的性能提升</div>
+<div class="list-item" style="padding-left:52px">保证极快的速度找到多个“足够相似”的邻居</div>
+<div class="list-item" style="padding-left:36px">索引</div>
+<div class="list-item" style="padding-left:44px">一种特征的数据结构，极大提升数据检索速度</div>
+<div class="list-item" style="padding-left:52px">代表是需要额外的空间和写入数据维护成本来更新索引</div>
+<div class="list-item" style="padding-left:44px">分类</div>
+<div class="list-item" style="padding-left:52px">精确索引</div>
+<div class="list-item" style="padding-left:60px">FLAT：100%准确的精确搜索</div>
+<div class="list-item" style="padding-left:68px">性能极差</div>
+<div class="list-item" style="padding-left:76px">适合数据集小的情况</div>
+<div class="list-item" style="padding-left:60px">SPARSE_INVERTED_INDEX</div>
+<div class="list-item" style="padding-left:68px">专门为稀疏向量设计的倒排索引</div>
+<div class="list-item" style="padding-left:76px">核心：关心哪些维度上有值</div>
+<div class="list-item" style="padding-left:52px">近似索引</div>
+<div class="list-item" style="padding-left:60px">IVF_FLAT：基于聚类的倒排文件</div>
+<div class="list-item" style="padding-left:68px">ANN的典型代表</div>
+<div class="list-item" style="padding-left:76px">预先将所有向量进行分组，只访问最可能包含结果的几个组，避免全局扫描</div>
+<div class="list-item" style="padding-left:60px">NHSW</div>
+<div class="list-item" style="padding-left:68px">基于图的索引</div>
+<div class="list-item" style="padding-left:76px">召回率非常高，性能也很好</div>
+<div class="list-item" style="padding-left:84px">构建索引时速度较慢，且占用内存极大</div>
+<div class="list-item" style="padding-left:44px">分区是宏观上的数据划分，而索引是微观上的数据组织结构</div>
+<h3 id="8de59538">LangChain</h3>
+<div class="list-item" style="padding-left:20px">开源框架，用于构建基于大语言模型的应用，将大模型开发常用的功能、工具和流程封装为模块化组件</div>
+<div class="list-item" style="padding-left:28px">一列火车，只能在固定的轨道上从头跑到尾</div>
+<div class="list-item" style="padding-left:20px">核心模块</div>
+<div class="list-item" style="padding-left:28px">Model I/O</div>
+<div class="list-item" style="padding-left:36px">Prompts</div>
+<div class="list-item" style="padding-left:44px">LangChain对所有LLM进行了API抽象，统一了大模型访问API，同时提供了Prompt提示模板管理机制</div>
+<div class="list-item" style="padding-left:44px">Prompt模板</div>
+<div class="list-item" style="padding-left:52px">一个预告定义好、可以复用的输入结构</div>
+<div class="list-item" style="padding-left:60px">清晰地规划了最终发送给LLM指令中，哪些是固定的框架，使用进只需要填充动态变化的部分即可</div>
+<div class="list-item" style="padding-left:52px">实现代码简洁、复用、安全和可维护性</div>
+<div class="list-item" style="padding-left:36px">LLMs</div>
+<div class="list-item" style="padding-left:44px">适用于传统“文本补全”式模型</div>
+<div class="list-item" style="padding-left:36px">Chat Models</div>
+<div class="list-item" style="padding-left:44px">适于基于消息格式的对话模型</div>
+<div class="list-item" style="padding-left:44px">OpenAI方式接入</div>
+<div class="list-item" style="padding-left:52px">专注于生成单段文本，不适合对话场景，没有内置的上下文管理</div>
+<div class="list-item" style="padding-left:44px">ChatOpenAI方式接入</div>
+<div class="list-item" style="padding-left:52px">能记住对话内容，通过消息列表来管理对话，适合构建聊天机器人或需要上下文的场景，支持流式输出和更多参数调整</div>
+<div class="list-item" style="padding-left:44px">llm.invoke()——>输入类型：字符串、消息对象队列、字典列表</div>
+<div class="list-item" style="padding-left:36px">Output Parsers（输出解析器）</div>
+<div class="list-item" style="padding-left:44px">接受大模型返回的内容，对内容进行格式化</div>
+<div class="list-item" style="padding-left:44px">重要性</div>
+<div class="list-item" style="padding-left:52px">LLM输出不确定性</div>
+<div class="list-item" style="padding-left:60px">LLM生成自然语言文本，格式不固定，包含噪声或多余信息</div>
+<div class="list-item" style="padding-left:52px">结构化需求</div>
+<div class="list-item" style="padding-left:60px">将LLM输出用于数据库存储、API调用需要标准化的数据格式</div>
+<div class="list-item" style="padding-left:52px">提高效率</div>
+<div class="list-item" style="padding-left:60px">通过OutputParser自动化解析过程，减少手动处理，支持链式操作</div>
+<div class="list-item" style="padding-left:52px">错误处理</div>
+<div class="list-item" style="padding-left:60px">许多OutputParser内置重试/修复机制，处理LLM输出内容中的语法错误/不完整内容</div>
+<div class="list-item" style="padding-left:44px">核心解析器</div>
+<div class="list-item" style="padding-left:52px">StrOutputParser——默认解析器</div>
+<p>JsonOutputParser</p>
+<p>PydanticOutputParser——提供类型安全和数据验证</p>
+<p>CommaSeqaaratedListParser</p>
+<p>DatetimeOutputParser</p>
+<div class="list-item" style="padding-left:28px">Retrieval（检索）</div>
+<div class="list-item" style="padding-left:36px">Docuent Loader(文档加载器)</div>
+<div class="list-item" style="padding-left:44px">用于各种数据源加载的组件，将不同格式的文件/数据源转换为统一的Document对象</div>
+<div class="list-item" style="padding-left:44px">Document对象</div>
+<div class="list-item" style="padding-left:52px">page_content（文档内容）</div>
+<div class="list-item" style="padding-left:52px">metadata（元数据）</div>
+<div class="list-item" style="padding-left:44px">多格式支持</div>
+<p>统一数据结构</p>
+<p>元数据管理</p>
+<p>工业应用</p>
+<div class="list-item" style="padding-left:36px">Text Splitters（文本分割器）</div>
+<div class="list-item" style="padding-left:44px">处理长文本的核心组件</div>
+<div class="list-item" style="padding-left:52px">将大块文本分割成小片段</div>
+<div class="list-item" style="padding-left:52px">LLM有文本输入限制，长文本无法一次性处理，</div>
+<p>通过智能剪切文本，确保每个小块完整、有意义</p>
+<div class="list-item" style="padding-left:52px">chunks以Document对象形式存在</div>
+<div class="list-item" style="padding-left:44px">主要作用</div>
+<div class="list-item" style="padding-left:52px">处理大文档</div>
+<div class="list-item" style="padding-left:52px">保留上下文</div>
+<div class="list-item" style="padding-left:60px">重叠机制（overlap），避免切断句子/段落</div>
+<div class="list-item" style="padding-left:52px">支持多种策略</div>
+<div class="list-item" style="padding-left:60px">提供通用分割（按字符）或语义分割（md标题，代码结构）</div>
+<div class="list-item" style="padding-left:52px">工业应用</div>
+<div class="list-item" style="padding-left:44px">常用分割器</div>
+<div class="list-item" style="padding-left:52px">RecursiveCharacterTextSplitter（递归字符分割器）</div>
+<div class="list-item" style="padding-left:60px">先尝试自然边界，太大则继续细分</div>
+<div class="list-item" style="padding-left:60px">保持语义完整，满足块大小限制</div>
+<div class="list-item" style="padding-left:52px">CharacterTextSplitter（字符分割器）</div>
+<div class="list-item" style="padding-left:60px">仅根据单个字符（\n）来分割文本</div>
+<div class="list-item" style="padding-left:52px">TokenTextSplitter（Token分割器）</div>
+<div class="list-item" style="padding-left:52px">结构文本分割器</div>
+<div class="list-item" style="padding-left:60px">MarkdownTextSplitter</div>
+<div class="list-item" style="padding-left:60px">HTMLSplitter</div>
+<div class="list-item" style="padding-left:60px">LatexTextSplitter</div>
+<div class="list-item" style="padding-left:52px">PythonCodeTextSplitter（代码分割器）</div>
+<div class="list-item" style="padding-left:52px">NLP语义分割器</div>
+<div class="list-item" style="padding-left:60px">SentenceTextSplitter</div>
+<div class="list-item" style="padding-left:60px">SpacyTextSplitter</div>
+<div class="list-item" style="padding-left:60px">NLTKTextSplitter</div>
+<div class="list-item" style="padding-left:44px">chunk的目的</div>
+<div class="list-item" style="padding-left:52px">便于LLM处理</div>
+<div class="list-item" style="padding-left:52px">用于向量嵌入</div>
+<div class="list-item" style="padding-left:52px">优化检索</div>
+<div class="list-item" style="padding-left:52px">内存和计算效率</div>
+<div class="list-item" style="padding-left:52px">参数</div>
+<div class="list-item" style="padding-left:60px">Chunk_size</div>
+<div class="list-item" style="padding-left:68px">每个chunk的最大长度</div>
+<div class="list-item" style="padding-left:76px">太小：块太碎，上下文丢失，检索效果差</div>
+<div class="list-item" style="padding-left:76px">太大：块过长，可能超LLM输入限制/增加计算成本</div>
+<div class="list-item" style="padding-left:60px">Chunk_overlap</div>
+<div class="list-item" style="padding-left:68px">相邻chunk之间重叠的字符数</div>
+<div class="list-item" style="padding-left:76px">保留语义完整性，检索连贯</div>
+<div class="list-item" style="padding-left:36px">Retrievers（检索器）</div>
+<div class="list-item" style="padding-left:44px">LangChain中用于从数据源检索相关文档的核心组件，RAG系统的关键部分</div>
+<div class="list-item" style="padding-left:52px">负责根据用户查询从存储的文档中找到最匹配的内容（一般是chunk），传递到LLM生成答案</div>
+<div class="list-item" style="padding-left:52px">提供内置Retriever，也支持自定义</div>
+<div class="list-item" style="padding-left:44px">特点</div>
+<div class="list-item" style="padding-left:52px">支持多种检索策略</div>
+<div class="list-item" style="padding-left:60px">向量相似度检索（基于Embedding）</div>
+<div class="list-item" style="padding-left:60px">关键字检索（BM25）</div>
+<div class="list-item" style="padding-left:60px">混合检索（稠密向量+稀疏向量）</div>
+<div class="list-item" style="padding-left:52px">提升LLM准确性</div>
+<div class="list-item" style="padding-left:60px">提供真实文档，减少“幻觉”</div>
+<div class="list-item" style="padding-left:52px">工业应用</div>
+<div class="list-item" style="padding-left:44px">Retrievers（检索器）通常与VectorStore（向量存储）结合使用，支持异步检索和分数过滤（如相关度阈值）</div>
+<div class="list-item" style="padding-left:36px">Embedding Models</div>
+<div class="list-item" style="padding-left:28px">Chains（链）</div>
+<div class="list-item" style="padding-left:36px">对一些常见场景封装了现成的模块，实现任务的过程像工作流一样</div>
+<div class="list-item" style="padding-left:36px">最基本的Chain结构</div>
+<div class="list-item" style="padding-left:44px">用户输入（prompt）-> 大模型（LLM）-> 结果解析（OutputParser）-> 解析后的输出</div>
+<div class="list-item" style="padding-left:36px">LCEL</div>
+<div class="list-item" style="padding-left:44px">LangChain表达式语言，灵活自定义Chain</div>
+<div class="list-item" style="padding-left:44px">分类</div>
+<div class="list-item" style="padding-left:52px">串行链</div>
+<div class="list-item" style="padding-left:52px">并行链</div>
+<div class="list-item" style="padding-left:52px">分支与RunnablePassthrough</div>
+<div class="list-item" style="padding-left:52px">RunnableLambda自定义Chain</div>
+<div class="list-item" style="padding-left:28px">Agents</div>
+<div class="list-item" style="padding-left:36px">一种基于大模型的应用设计模式，用于LLM的自然语言理解和推理能力，根据用户的fd需求自动调用外部系统、设备共同完成任务</div>
+<div class="list-item" style="padding-left:28px">Memory（记忆模块）</div>
+<div class="list-item" style="padding-left:36px">赋予LLM上下文感知能力，模型本身无状态</div>
+<div class="list-item" style="padding-left:36px">ConversationBufferMemory（基础记忆）</div>
+<div class="list-item" style="padding-left:44px">将所有记忆原封不动完整保存下来，新对话时，将全部记录一起发送到LLM</div>
+<div class="list-item" style="padding-left:44px">优点</div>
+<div class="list-item" style="padding-left:52px">信息完整</div>
+<div class="list-item" style="padding-left:52px">简单直观</div>
+<div class="list-item" style="padding-left:44px">缺点</div>
+<div class="list-item" style="padding-left:52px">成本高/Token消耗大</div>
+<div class="list-item" style="padding-left:36px">ConversationBufferWindowMmory</div>
+<div class="list-item" style="padding-left:44px">只会保留最近K轮的对话历史</div>
+<div class="list-item" style="padding-left:44px">优点</div>
+<div class="list-item" style="padding-left:52px">控制成本和Token</div>
+<div class="list-item" style="padding-left:52px">性能均衡</div>
+<div class="list-item" style="padding-left:44px">缺点</div>
+<div class="list-item" style="padding-left:52px">丢失早期信息</div>
+<h3 id="4923cf0a">LangGraph</h3>
+<div class="list-item" style="padding-left:20px">基于LangChain的扩展库，工作流程从Chain升级成了Graph</div>
+<div class="list-item" style="padding-left:28px">引入Graph的结构，赋予开发者更多灵活性和控制力，构建更健壮、可靠、智能的AI应用</div>
+<div class="list-item" style="padding-left:20px">构建了一个复杂的地铁网络，可以自由设置站点、路线，根据需求在不同线路间切换</div>
+<div class="list-item" style="padding-left:28px">StateGraph：核心结构，用于需要维护长期状态的场景；</div>
+<p>MessageGraph：轻量化图，只用于传递消息</p>
+<div class="list-item" style="padding-left:20px">核心思想：状态、节点、边</div>
+<div class="list-item" style="padding-left:28px">状态：整个图的“记忆中心”，Agent的思考过程、用户的历史提问都可以记录在其中</div>
+<div class="list-item" style="padding-left:36px">键值形式存在，本质上是一个字典</div>
+<div class="list-item" style="padding-left:28px">节点：图中的“工作站”，每个节点执行一个具体的任务，接收当前状态，执行完成后更新返回状态</div>
+<div class="list-item" style="padding-left:36px">一般封装成一个函数执行业务逻辑：默认节点、函数节点、工具节点、大模型节点、条件节点、聚合节点、人工干预节点</div>
+<div class="list-item" style="padding-left:28px">边：连接节点的“线路”，决定了任务的流向，根据当前状态，动态决定下一个节点</div>
+<div class="list-item" style="padding-left:36px">普通边：连接两个节点，无条件跳转</div>
+<p>条件边：基于状态动态选择路径，通过函数返回目标节点名</p>
+<div class="list-item" style="padding-left:20px">记忆功能</div>
+<div class="list-item" style="padding-left:28px">langgraph.checkpoint.memory</div>
+<div class="list-item" style="padding-left:20px">案例</div>
+<div class="list-item" style="padding-left:28px">多智能体协作</div>
+<div class="list-item" style="padding-left:36px">多Agent分配不同的任务：规划、执行、审查，条件边判断结果</div>
+<div class="list-item" style="padding-left:28px">需要“人”来把关</div>
+<div class="list-item" style="padding-left:36px">Graph中设置“暂停节点”，可以等待人工干预</div>
+<div class="list-item" style="padding-left:28px">更聪明的RAG</div>
+<div class="list-item" style="padding-left:36px">传统RAG比较死板，用LangGraph构建一个“自适应”流程：生成查询->检索节点->评估节点->条件边；评估结果是否满足要求，决定下一个节点</div>
+<div class="list-item" style="padding-left:20px">执行一个项目的步骤</div>
+<div class="list-item" style="padding-left:28px">初始化模型和工具 -> 初始化图和状态 -> 定义节点 -> 定义边和出口入口 -> 编译图 -> 执行图</div>
+<h3 id="b18b6559">Agent相关</h3>
+<div class="list-item" style="padding-left:20px">Agent智能体</div>
+<div class="list-item" style="padding-left:28px">一个能感知环境、做出决策并采取行为来完成特定目标的“智能体”</div>
+<div class="list-item" style="padding-left:20px">Function Call </div>
+<div class="list-item" style="padding-left:28px">模型生成文本的过程中，选择调用一个外部函数/方法，并将参数传递给它</div>
+<div class="list-item" style="padding-left:28px">工作流：</div>
+<p>定义工具-->模型决策-->工具执行-->结果返回-->生成最终答案</p>
+<div class="list-item" style="padding-left:20px">MCP协议（模型上下文协议）</div>
+<div class="list-item" style="padding-left:28px">实现LLM与外部数据源和工具的无缝集成，用来LLM与数据源之间建立安全双向的链接</div>
+<div class="list-item" style="padding-left:36px">希望能把MCP协议打造成AI世界的“Type-c”接口</div>
+<div class="list-item" style="padding-left:28px">MCP与传统API比较</div>
+<div class="list-item" style="padding-left:36px">MCP：</div>
+<p>面向能力</p>
+<p>操作“工具”或“函数”，核心是远程过程调（RPC）</p>
+<p>自发现能力强，协议内置了get_tools这样的元调用，客户端可以程序化查询服务端有哪些可用的工具</p>
+<p>高度标准化</p>
+<p>为LLM或Agent提供工具</p>
+<div class="list-item" style="padding-left:36px">传统REST API：</div>
+<p>面向资源</p>
+<p>操作“资源”，如用户、订单。</p>
+<p>自发现能力弱，需要依赖OpenAI/Swagger才能发现有哪些API和参数</p>
+<p>标准灵活但松散</p>
+<p>适用Web、移动应用等</p>
+<div class="list-item" style="padding-left:20px">A2A协议</div>
+<div class="list-item" style="padding-left:28px">2025年4月Google，Agent2Agent Protocol</div>
+<p>该协议为不同智能体之间搭建了一座高效沟通与协作的桥梁（独立A-独立A，独立A-企业A都能有效通信）</p>
+<h3 id="f7d2f408">模型量化、压缩、剪枝</h3>
+<div class="list-item" style="padding-left:20px">量化：把模型中的值的精度降低</div>
+<div class="list-item" style="padding-left:28px">目的：减少模型占用内存，提升推理速度，减少功耗</div>
+<div class="list-item" style="padding-left:28px">静态量化：训练完成后直接量化模型</div>
+<p>动态量化：推理时动态将激活值量化</p>
+<p>量化感知训练：在训练/微调过程中模拟量化效果</p>
+<div class="list-item" style="padding-left:20px">蒸馏：使用大模型指导训练一个小模型，让小模型的学习大模型的知识和行为</div>
+<div class="list-item" style="padding-left:28px">目的：训练更轻量的小模型，保持大部分性能、同时提升推理效率</div>
+<div class="list-item" style="padding-left:20px">剪枝：去除神经网络中不重要的权重或者神经元</div>
+<div class="list-item" style="padding-left:28px">目的：减少计算量，加速推理，减少体量，有助于防止过拟合</div>
+</section>
+</main>
+</div>
+<script>
+document.querySelectorAll('.sidebar-group').forEach(g => {
+    const link = g.querySelector('.section-link');
+    link.addEventListener('click', function(e) {
+        // Navigate normally
+    });
+});
+// Highlight current page in sidebar
+document.querySelectorAll('.sidebar-link').forEach(l => {
+    if(l.getAttribute('href') === 'tech-stack.html') l.classList.add('active');
+});
+</script>
+</body>
+</html>

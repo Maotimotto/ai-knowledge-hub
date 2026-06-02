@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>计算机视觉基础 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link1">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>计算机视觉基础</h1>
+<div class="toc"><div class="toc-title">目录</div><a href="#1-经典CNN网络">经典CNN网络</a><a href="#2-卷积与池化">卷积与池化</a><a href="#3-目标检测技术">目标检测技术</a><a href="#4-数据集">数据集</a><a href="#5-AI三剑客">AI三剑客</a></div>
+<h1 id="计算机视觉基础---经典网络与技术图解">计算机视觉基础 - 经典网络与技术图解</h1>
+<blockquote><p>来源: 黑马程序员计算机视觉基础</p></blockquote>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="全局定位">全局定位</h2>
+<li style="margin-left:0px"><strong>所属知识域</strong>：<a href="#AI大模型">AI大模型</a> > 计算机视觉基础</li>
+<li style="margin-left:0px"><strong>核心主题</strong>：经典CV网络架构图解，CNN/ResNet/YOLO等视觉模型</li>
+<li style="margin-left:0px"><strong>前置依赖</strong>：深度学习基础、<a href="#Transformer">Transformer</a></li>
+<li style="margin-left:0px"><strong>关联技能</strong>：目标检测、图像分类、模型架构设计</li>
+<li style="margin-left:0px"><strong>应用场景</strong>：计算机视觉面试复习、模型架构速查</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>相关图片见 assets/ 目录</p></blockquote>
+<h2 id="1-经典CNN网络">1. 经典CNN网络</h2>
+<h3 id="11-LeNet-5">1.1 LeNet-5</h3>
+<p>最早的CNN架构（1998），用于手写数字识别。</p>
+<p>网络结构：</p>
+<li style="margin-left:0px">输入: 32×32灰度图像</li>
+<li style="margin-left:0px">C1: 卷积层 (6个5×5卷积核)</li>
+<li style="margin-left:0px">S2: 池化层 (2×2平均池化)</li>
+<li style="margin-left:0px">C3: 卷积层 (16个5×5卷积核)</li>
+<li style="margin-left:0px">S4: 池化层 (2×2平均池化)</li>
+<li style="margin-left:0px">C5: 卷积层 (120个5×5卷积核)</li>
+<li style="margin-left:0px">F6: 全连接层 (84个神经元)</li>
+<li style="margin-left:0px">输出: 10个类别</li>
+<p>详见: assets/LeNet-5.png, assets/LeNet-5手写数字识别.png</p>
+<h3 id="12-AlexNet">1.2 AlexNet</h3>
+<p>ILSVRC 2012冠军，深度学习里程碑。</p>
+<p>关键创新：</p>
+<li style="margin-left:0px">使用ReLU激活函数</li>
+<li style="margin-left:0px">Dropout正则化</li>
+<li style="margin-left:0px">数据增强</li>
+<li style="margin-left:0px">GPU训练（GTX 580 3GB）</li>
+<p>详见: assets/AlexNet网络结构图GTX530_3GB.png</p>
+<h3 id="13-ZFNet">1.3 ZFNet</h3>
+<p>改进AlexNet的卷积核大小和步幅。</p>
+<p>详见: assets/ZFNet-AlexNet.png</p>
+<h3 id="14-GoogLeNetInception">1.4 GoogLeNet/Inception</h3>
+<p>引入Inception模块，多尺度卷积核并行。</p>
+<p>详见: assets/GoogLeNet网络结构.png</p>
+<h2 id="2-卷积与池化">2. 卷积与池化</h2>
+<h3 id="21-卷积运算">2.1 卷积运算</h3>
+<p>卷积层通过滑动卷积核提取局部特征，是CNN的核心操作。</p>
+<p>详见: assets/卷积提取特征动画.gif, assets/卷积层可视化.png</p>
+<h3 id="22-特征图计算">2.2 特征图计算</h3>
+<p>输出特征图大小计算公式：</p>
+<pre><code>
+OH = (H + 2P - FH) / S + 1
+OW = (W + 2P - FW) / S + 1
+</code></pre>
+<p>详见: assets/卷积网络特征图计算.png</p>
+<h3 id="23-池化操作">2.3 池化操作</h3>
+<p>池化层缩小空间维度，增强鲁棒性：</p>
+<li style="margin-left:0px">Max池化：取窗口内最大值</li>
+<li style="margin-left:0px">Average池化：取窗口内平均值</li>
+<p>详见: assets/池化.png</p>
+<h2 id="3-目标检测技术">3. 目标检测技术</h2>
+<h3 id="31-ROI-Pooling">3.1 ROI Pooling</h3>
+<p>将不同大小的特征区域映射为固定大小输出，用于Fast R-CNN。</p>
+<p>详见: assets/ROI pooling.png</p>
+<h3 id="32-ROI-Align">3.2 ROI Align</h3>
+<p>改进ROI Pooling，使用双线性插值避免量化误差。</p>
+<p>详见: assets/ROI align.png, assets/ROI pooling_ROI_Align.png</p>
+<h2 id="4-数据集">4. 数据集</h2>
+<h3 id="41-VOC数据集">4.1 VOC数据集</h3>
+<p>PASCAL VOC是经典目标检测数据集，包含20个类别。</p>
+<p>详见: assets/VOC数据集详情.png, assets/VOC数据标签解读.png</p>
+<h2 id="5-AI三剑客">5. AI三剑客</h2>
+<p>深度学习三巨头：Yann LeCun、Geoffrey Hinton、Yoshua Bengio</p>
+<p>详见: assets/AI三剑客.png</p>
+</main>
+</body>
+</html>

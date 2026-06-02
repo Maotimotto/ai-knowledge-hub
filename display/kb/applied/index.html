@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>总览 — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>总览</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html" class="active">总览</a></li>
+<li><a href="startup.html">创业</a></li>
+<li><a href="finance.html">金融</a></li>
+<li><a href="docker.html">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>应用实战</h1>
+<p style="font-size:18px;color:#6b7280;margin-bottom:32px">从创业到面试，从工具到框架 —— 将AI技术转化为实际生产力</p>
+
+<div class="svg-wrap">
+<svg viewBox="0 0 860 420" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#9ca3af"/></marker></defs>
+<!-- Center -->
+<rect x="350" y="170" width="160" height="60" rx="12" fill="#0075de" opacity="0.1" stroke="#0075de" stroke-width="1.5"/>
+<text x="430" y="198" text-anchor="middle" font-size="14" font-weight="600" fill="#0075de">应用实战</text>
+<text x="430" y="216" text-anchor="middle" font-size="11" fill="#6b7280">93 篇文档</text>
+<!-- Top row -->
+<rect x="40" y="30" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="110" y="55" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">创业 (25)</text>
+<rect x="210" y="30" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="280" y="55" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">金融 (15)</text>
+<rect x="380" y="30" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="450" y="55" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">LangChain (7)</text>
+<rect x="550" y="30" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="620" y="55" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">面试 (9)</text>
+<rect x="700" y="30" width="120" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="760" y="55" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">Docker (3)</text>
+<!-- Lines from top -->
+<line x1="110" y1="80" x2="390" y2="175" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="280" y1="80" x2="410" y2="175" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="450" y1="80" x2="430" y2="170" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="620" y1="80" x2="450" y2="175" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="760" y1="80" x2="470" y2="175" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Bottom row -->
+<rect x="40" y="330" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="110" y="355" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">小工具 (12)</text>
+<rect x="210" y="330" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="280" y="355" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">Git (4)</text>
+<rect x="380" y="330" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="450" y="355" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">数据库 (1)</text>
+<rect x="550" y="330" width="140" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="620" y="355" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">Hermes (8)</text>
+<rect x="700" y="330" width="120" height="50" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="760" y="355" text-anchor="middle" font-size="13" font-weight="500" fill="#37352f">浙商 (3)</text>
+<!-- Lines from bottom -->
+<line x1="110" y1="330" x2="390" y2="230" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="280" y1="330" x2="410" y2="230" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="450" y1="330" x2="430" y2="230" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="620" y1="330" x2="450" y2="230" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<line x1="760" y1="330" x2="470" y2="230" stroke="#d1d5db" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Learning paths -->
+<rect x="160" y="180" width="140" height="50" rx="8" fill="#d1fae5" stroke="#065f46" stroke-width="1"/>
+<text x="230" y="205" text-anchor="middle" font-size="13" font-weight="500" fill="#065f46">学习路径 (5)</text>
+<line x1="300" y1="205" x2="350" y2="200" stroke="#065f46" stroke-width="1" marker-end="url(#arr)"/>
+</svg>
+</div>
+
+<h2>知识主题</h2>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#f59e0b">创</span>
+<h3 style="margin:0"><a href="startup.html">创业</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">25篇</span>
+</div>
+<div class="excerpt">赛道研究/产品设计/技术架构/竞品分析/运营/财务</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#10b981">金</span>
+<h3 style="margin:0"><a href="finance.html">金融</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">15篇</span>
+</div>
+<div class="excerpt">投顾助手/风控/智能公告/行业分析/数据库设计</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#3b82f6">D</span>
+<h3 style="margin:0"><a href="docker.html">Docker</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">3篇</span>
+</div>
+<div class="excerpt">Docker基础/Anaconda部署/MySQL容器化</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#8b5cf6">数</span>
+<h3 style="margin:0"><a href="database.html">数据库</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">1篇</span>
+</div>
+<div class="excerpt">50道SQL练习题/JOIN/窗口函数/子查询</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#0075de">L</span>
+<h3 style="margin:0"><a href="langchain.html">LangChain</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">7篇</span>
+</div>
+<div class="excerpt">概述/Model IO/Chains/Memory/Tools/Agents/Retrieval</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#6b7280">小</span>
+<h3 style="margin:0"><a href="tools.html">小工具</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">12篇</span>
+</div>
+<div class="excerpt">Python基础/Linux/Shell/MySQL/NumpyPandas/算法</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#ef4444">浙</span>
+<h3 style="margin:0"><a href="zheshang.html">浙商证券</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">3篇</span>
+</div>
+<div class="excerpt">券商分析/客户群体/智能研报需求</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#f97316">G</span>
+<h3 style="margin:0"><a href="middleware.html">Git</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">4篇</span>
+</div>
+<div class="excerpt">Git原理/命令速查/IDE集成/命令详解</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#06b6d4">H</span>
+<h3 style="margin:0"><a href="hermes-agent.html">Hermes Agent</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">8篇</span>
+</div>
+<div class="excerpt">配置/Skill/Plugin/MCP/Cron/Memory/调试</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#84cc16">学</span>
+<h3 style="margin:0"><a href="learning-paths.html">学习路径</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">5篇</span>
+</div>
+<div class="excerpt">AI工程师/Agent速成/模型微调/创业技术栈</div>
+</div>
+<div class="doc-card">
+<div style="display:flex;align-items:center;margin-bottom:8px">
+<span class="section-icon" style="background:#ec4899">面</span>
+<h3 style="margin:0"><a href="interview.html">面试准备</a></h3>
+<span class="badge badge-blue" style="margin-left:auto">9篇</span>
+</div>
+<div class="excerpt">自我介绍/简历模板/面经/ML/Transformer/项目</div>
+</div></div></div>
+
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

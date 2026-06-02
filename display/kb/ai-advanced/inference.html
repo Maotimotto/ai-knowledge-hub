@@ -1,0 +1,2475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LLM推理部署 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link1">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>LLM推理部署</h1>
+<div class="toc"><div class="toc-title">目录</div><a href="#vLLM-部署与配置">vLLM部署与配置</a><a href="#llamacpp-与-GGUF">llama.cpp与GGUF</a><a href="#TGI-Text-Generation-Inference-推理服务">TGI推理服务</a><a href="#推测解码技术-Speculative-Decoding">推测解码技术</a><a href="#批处理与调度策略">批处理与调度策略</a><a href="#推理性能基准测试">推理性能基准测试</a></div>
+<div class="cross-ref"><strong>关联项目:</strong> <a href="../projects/llm-api-gateway.html">llm-api-gateway</a> -- LLM推理网关，集成限流、监控、安全过滤</div><h1 id="vLLM-部署与配置">vLLM 部署与配置</h1>
+<blockquote><p>vLLM 是 UC Berkeley 开源的高吞吐 LLM 推理引擎，核心创新为 PagedAttention。</p></blockquote>
+<h2 id="1-架构概览">1. 架构概览</h2>
+<pre><code>
+┌─────────────────────────────────────────────┐
+│              OpenAI-Compatible API           │
+│         (FastAPI /chat/completions)          │
+├─────────────────────────────────────────────┤
+│             Scheduler (Continuous Batching)  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
+│  │ Request 1│  │ Request 2│  │ Request 3│  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘  │
+│       └──────────────┼──────────────┘        │
+│                      ▼                       │
+│           Sequence Manager                   │
+├─────────────────────────────────────────────┤
+│        PagedAttention KV Cache Manager       │
+│   ┌───┐┌───┐┌───┐┌───┐┌───┐  (Block Pool)  │
+│   │B0 ││B1 ││B2 ││B3 ││...│                 │
+│   └───┘└───┘└───┘└───┘└───┘                 │
+├─────────────────────────────────────────────┤
+│     Execution Engine (CUDA / ROCm / TPU)     │
+│  ┌────────────┐  ┌─────────────────────┐    │
+│  │ Tensor     │  │ Custom CUDA Kernels │    │
+│  │ Parallel   │  │ (PagedAttention)    │    │
+│  └────────────┘  └─────────────────────┘    │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h2 id="2-PagedAttention-原理">2. PagedAttention 原理</h2>
+<p>传统 Attention 将 KV Cache 存储在连续内存中，导致严重的内存碎片和浪费：</p>
+<pre><code>
+传统方式 (连续内存):
+┌──────────────────────────────────────────────┐
+│ [Seq1 KV] [Seq1 KV] [Seq1 KV] [padding...]  │
+│ [Seq2 KV] [Seq2 KV] [padding...]            │  ← 内部碎片
+│ [Seq3 KV] [padding...................]       │  ← 外部碎片
+└──────────────────────────────────────────────┘
+
+PagedAttention (分块管理):
+┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐
+│ B0 │ │ B1 │ │ B2 │ │ B3 │ │ B4 │  ← 物理块池
+└──┬─┘ └──┬─┘ └──┬─┘ └──┬─┘ └────┘
+   │      │      │      │
+   ▼      ▼      ▼      ▼
+  Seq1   Seq1   Seq2   Seq3        ← 逻辑→物理映射表
+</code></pre>
+<p>核心思想：将 KV Cache 划分为固定大小的<strong>物理块（Block）</strong>，通过<strong>页表（Block Table）</strong>建立逻辑块到物理块的映射，类似操作系统的虚拟内存分页。</p>
+<p><strong>优势</strong>：</p>
+<li style="margin-left:0px">内存浪费仅在最后一个块（平均 0.5 块 = 6% 浪费 vs 传统 60-80%）</li>
+<li style="margin-left:0px">支持 Copy-on-Write：共享 prefix 的请求可共享 KV 块</li>
+<li style="margin-left:0px">按需分配，无需预分配最大长度</li>
+<h2 id="3-安装与基础部署">3. 安装与基础部署</h2>
+<h3 id="31-安装">3.1 安装</h3>
+<pre><code class="language-bash">
+# pip 安装 (推荐 Python 3.9+)
+pip install vllm
+
+# 从源码安装
+git clone https://github.com/vllm-project/vllm.git
+cd vllm
+pip install -e .
+
+# Docker
+docker pull vllm/vllm-openai:latest
+</code></pre>
+<h3 id="32-命令行启动">3.2 命令行启动</h3>
+<pre><code class="language-bash">
+# 基础启动
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --host 0.0.0.0 \
+    --port 8000
+
+# 完整参数示例
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --tensor-parallel-size 4 \
+    --dtype auto \
+    --max-model-len 8192 \
+    --gpu-memory-utilization 0.90 \
+    --swap-space 4 \
+    --max-num-seqs 256 \
+    --max-num-batched-tokens 32768 \
+    --enable-chunked-prefill \
+    --host 0.0.0.0 \
+    --port 8000 \
+    --api-key sk-your-key
+</code></pre>
+<h3 id="33-Docker-部署">3.3 Docker 部署</h3>
+<pre><code class="language-bash">
+# 单 GPU
+docker run -d --gpus all \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --gpu-memory-utilization 0.90
+
+# 多 GPU (Tensor Parallel)
+docker run -d --gpus &#x27;&quot;device=0,1,2,3&quot;&#x27; \
+    -v ~/.cache/huggingface:/root/.cache/huggingface \
+    -p 8000:8000 \
+    --ipc=host \
+    vllm/vllm-openai:latest \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --tensor-parallel-size 4
+</code></pre>
+<h3 id="34-docker-composeyml">3.4 docker-compose.yml</h3>
+<pre><code class="language-yaml">
+version: &quot;3.8&quot;
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 4
+              capabilities: [gpu]
+    volumes:
+      - huggingface:/root/.cache/huggingface
+    ports:
+      - &quot;8000:8000&quot;
+    ipc: host
+    command: &gt;
+      --model meta-llama/Llama-3-70B-Instruct
+      --tensor-parallel-size 4
+      --gpu-memory-utilization 0.90
+      --max-model-len 8192
+      --enable-chunked-prefill
+
+volumes:
+  huggingface:
+</code></pre>
+<h2 id="4-OpenAI-兼容-API">4. OpenAI 兼容 API</h2>
+<pre><code class="language-python">
+from openai import OpenAI
+
+client = OpenAI(
+    base_url=&quot;http://localhost:8000/v1&quot;,
+    api_key=&quot;unused&quot;,  # 本地可随意设置
+)
+
+# Chat Completion
+response = client.chat.completions.create(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Explain quantum computing in simple terms.&quot;}
+    ],
+    temperature=0.7,
+    max_tokens=512,
+    stream=True,
+)
+
+for chunk in response:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end=&quot;&quot;)
+</code></pre>
+<pre><code class="language-python">
+# Embeddings
+response = client.embeddings.create(
+    model=&quot;BAAI/bge-base-en-v1.5&quot;,
+    input=[&quot;Hello world&quot;, &quot;How are you?&quot;]
+)
+print(response.data[0].embedding[:5])
+
+# Completion (非 Chat)
+response = client.completions.create(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    prompt=&quot;The capital of France is&quot;,
+    max_tokens=10,
+    temperature=0,
+)
+</code></pre>
+<h2 id="5-Tensor-Parallelism">5. Tensor Parallelism</h2>
+<pre><code>
+单机 4 GPU Tensor Parallel (TP=4):
+
+  Input Token Embedding
+         │
+    ┌────┼────┬────┐
+    ▼    ▼    ▼    ▼
+  GPU0  GPU1  GPU2  GPU3
+  ┌───┐┌───┐┌───┐┌───┐
+  │W_q││W_q││W_q││W_q│  ← Q 矩阵按列切分
+  │/4 ││/4 ││/4 ││/4 │
+  └─┬─┘└─┬─┘└─┬─┘└─┬─┘
+    │    │    │    │
+    ▼    ▼    ▼    ▼
+  AllReduce (NCCL)
+    │
+    ▼
+  [合并结果继续]
+</code></pre>
+<pre><code class="language-bash">
+# TP=2 启动
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --tensor-parallel-size 2
+
+# Pipeline Parallel + Tensor Parallel (跨节点)
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-405B-Instruct \
+    --tensor-parallel-size 8 \
+    --pipeline-parallel-size 2 \
+    --distributed-executor-backend ray
+</code></pre>
+<h2 id="6-量化部署">6. 量化部署</h2>
+<pre><code class="language-bash">
+# AWQ 量化 (推荐)
+python -m vllm.entrypoints.openai.api_server \
+    --model TheBloke/Llama-2-7B-Chat-AWQ \
+    --quantization awq \
+    --dtype float16
+
+# GPTQ 量化
+python -m vllm.entrypoints.openai.api_server \
+    --model TheBloke/Llama-2-7B-Chat-GPTQ \
+    --quantization gptq \
+    --dtype float16
+
+# FP8 (H100/H200)
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --quantization fp8 \
+    --tensor-parallel-size 4
+</code></pre>
+<h2 id="7-性能调优">7. 性能调优</h2>
+<h3 id="71-关键参数">7.1 关键参数</h3>
+<table>
+<thead><tr>
+<th>参数</th>
+<th>说明</th>
+<th>推荐值</th>
+</tr></thead><tbody>
+<tr>
+<td><code>--gpu-memory-utilization</code></td>
+<td>GPU 显存使用比例</td>
+<td>0.85-0.95</td>
+</tr>
+<tr>
+<td><code>--max-num-seqs</code></td>
+<td>最大并发序列数</td>
+<td>128-512</td>
+</tr>
+<tr>
+<td><code>--max-num-batched-tokens</code></td>
+<td>每批最大 token 数</td>
+<td>32768+</td>
+</tr>
+<tr>
+<td><code>--max-model-len</code></td>
+<td>最大序列长度</td>
+<td>按需设置</td>
+</tr>
+<tr>
+<td><code>--swap-space</code></td>
+<td>CPU swap 空间 (GB)</td>
+<td>4-16</td>
+</tr>
+<tr>
+<td><code>--enable-chunked-prefill</code></td>
+<td>分块 prefill</td>
+<td>推荐开启</td>
+</tr>
+<tr>
+<td><code>--enforce-eager</code></td>
+<td>禁用 CUDA Graph</td>
+<td>调试用</td>
+</tr>
+</tbody></table>
+<h3 id="72-Python-API-调优">7.2 Python API 调优</h3>
+<pre><code class="language-python">
+from vllm import LLM, SamplingParams
+
+llm = LLM(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    tensor_parallel_size=1,
+    gpu_memory_utilization=0.90,
+    max_model_len=4096,
+    max_num_seqs=256,
+    enable_chunked_prefill=True,
+    swap_space=4,
+    dtype=&quot;auto&quot;,
+    enforce_eager=False,  # True 可降低延迟但降低吞吐
+)
+
+sampling = SamplingParams(
+    temperature=0.7,
+    top_p=0.9,
+    max_tokens=512,
+    stop=[&quot;&lt;/s&gt;&quot;],
+)
+
+# 批量推理
+prompts = [&quot;Hello, my name is&quot;, &quot;The meaning of life is&quot;]
+outputs = llm.generate(prompts, sampling)
+for output in outputs:
+    print(output.outputs[0].text)
+</code></pre>
+<h3 id="73-生产环境-Checklist">7.3 生产环境 Checklist</h3>
+<pre><code>
+□ GPU 显存利用率调至 0.90+
+□ 开启 chunked prefill 减少首 token 延迟
+□ 设置合理的 max-num-seqs 防止 OOM
+□ AWQ/FP8 量化降低显存占用
+□ Tensor Parallel 用于大模型 (70B+)
+□ 使用 --disable-log-requests 减少日志开销
+□ 监控 /metrics Prometheus 端点
+□ 配置健康检查 /health
+□ 使用 nginx/envoy 做负载均衡
+</code></pre>
+<h2 id="8-与-OpenAI-API-对接">8. 与 OpenAI API 对接</h2>
+<pre><code class="language-python">
+# 测试 API 兼容性
+import requests
+
+resp = requests.post(&quot;http://localhost:8000/v1/chat/completions&quot;, json={
+    &quot;model&quot;: &quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hi&quot;}],
+    &quot;temperature&quot;: 0,
+    &quot;max_tokens&quot;: 50,
+}, headers={&quot;Authorization&quot;: &quot;Bearer sk-test&quot;})
+print(resp.json())
+</code></pre>
+<h2 id="9-扩展阅读">9. 扩展阅读</h2>
+<li style="margin-left:0px">vLLM 官方文档: https://docs.vllm.ai</li>
+<li style="margin-left:0px">PagedAttention 论文: https://arxiv.org/abs/2309.06180</li>
+<li style="margin-left:0px">vLLM GitHub: https://github.com/vllm-project/vllm</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>vLLM 是当前最主流的开源 LLM 推理引擎，掌握其部署与配置是搭建私有模型服务的基础技能。本篇在<a href="#推理部署全景">推理部署全景</a>中处于核心位置，是连接<a href="#模型选型">模型选型</a>与<a href="#API服务封装">API服务封装</a>的桥梁，直接影响线上推理的吞吐、延迟和成本。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">核心依赖：<a href="#PagedAttention原理">PagedAttention原理</a>（KV Cache 管理）、<a href="#Tensor Parallelism">Tensor Parallelism</a>（多卡并行）</li>
+<li style="margin-left:0px">量化加速：<a href="#GGUF与llama.cpp">GGUF与llama.cpp</a>、<a href="#AWQ量化实战">AWQ量化实战</a>、<a href="#GPTQ量化">GPTQ量化</a></li>
+<li style="margin-left:0px">部署对比：<a href="#TGI推理服务">TGI推理服务</a>、<a href="#Ollama本地部署">Ollama本地部署</a></li>
+<li style="margin-left:0px">上游应用：<a href="#RAG系统架构">RAG系统架构</a>、<a href="#Agent推理链路">Agent推理链路</a></li>
+<li style="margin-left:0px">监控配套：<a href="#LLM监控最佳实践">LLM监控最佳实践</a>、<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">成本管理：<a href="#成本管理与优化">成本管理与优化</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="llamacpp-与-GGUF">llama.cpp 与 GGUF</h1>
+<blockquote><p>llama.cpp 由 Georgi Gerganov 开发，是纯 C/C++ 实现的 LLM 推理引擎，主打轻量部署和 CPU 推理。</p></blockquote>
+<h2 id="1-架构概览">1. 架构概览</h2>
+<pre><code>
+┌─────────────────────────────────────────────────┐
+│                  用户接口层                       │
+│  ┌──────────┐ ┌──────────┐ ┌─────────────────┐ │
+│  │ CLI 工具  │ │ Server   │ │ Python binding  │ │
+│  │(main)    │ │(llama-   │ │ (llama-cpp-     │ │
+│  │          │ │ server)  │ │  python)        │ │
+│  └────┬─────┘ └────┬─────┘ └───────┬─────────┘ │
+├───────┼─────────────┼───────────────┼───────────┤
+│       └─────────────┼───────────────┘           │
+│                     ▼                            │
+│            llama.cpp Core Library                │
+│  ┌─────────────────────────────────────────┐    │
+│  │  GGUF Model Loader → Tokenizer → Graph │    │
+│  └─────────────────────┬───────────────────┘    │
+│                        ▼                         │
+│            Compute Backends                      │
+│  ┌────────┐ ┌────────┐ ┌───────┐ ┌──────────┐ │
+│  │  CPU   │ │ Metal  │ │ CUDA  │ │ Vulkan   │ │
+│  │(AVX2/  │ │ (M1/M2 │ │(NV/   │ │(通用GPU) │ │
+│  │ AVX512)│ │  M3/M4)│ │ AMD)  │ │          │ │
+│  └────────┘ └────────┘ └───────┘ └──────────┘ │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="2-GGUF-量化格式">2. GGUF 量化格式</h2>
+<p>GGUF (GGML Unified Format) 是 llama.cpp 使用的模型格式，支持多种量化方案：</p>
+<pre><code>
+量化类型对比 (以 Llama-2-7B 为例):
+
+┌──────────┬───────────┬────────┬──────────┬────────────┐
+│ 量化类型  │ 文件大小   │ 质量   │ 速度     │ 适用场景    │
+├──────────┼───────────┼────────┼──────────┼────────────┤
+│ F16      │ ~14 GB    │ 最高   │ 最慢     │ 无损精度    │
+│ Q8_0     │ ~7.5 GB   │ 极高   │ 慢       │ 近无损      │
+│ Q6_K     │ ~5.5 GB   │ 很高   │ 中       │ 高质量推理  │
+│ Q5_K_M   │ ~4.8 GB   │ 高     │ 中       │ 均衡选择    │
+│ Q4_K_M   │ ~4.1 GB   │ 良好   │ 快       │ 推荐默认    │
+│ Q4_0     │ ~3.8 GB   │ 中等   │ 快       │ 内存受限    │
+│ Q3_K_M   │ ~3.3 GB   │ 可接受 │ 很快     │ 极限压缩    │
+│ Q2_K     │ ~2.7 GB   │ 较差   │ 最快     │ 实验用      │
+│ IQ4_XS   │ ~3.3 GB   │ 良好   │ 快       │ imatrix量化 │
+│ IQ3_XXS  │ ~2.4 GB   │ 中等   │ 很快     │ imatrix极限 │
+└──────────┴───────────┴────────┴──────────┴────────────┘
+
+推荐: Q4_K_M 为性价比最优选择
+</code></pre>
+<h3 id="21-量化原理">2.1 量化原理</h3>
+<pre><code>
+标准 FP16 权重: [0.123, -0.456, 0.789, -0.012, ...]
+
+Q4_K_M 量化 (4-bit, K-quant, Medium):
+┌────────────────────────────────────────────────┐
+│ 块大小 = 32 个权重                              │
+│ 每块存储:                                      │
+│   - 1x FP16 scale (缩放因子)                   │
+│   - 1x FP16 min (最小值)                       │
+│   - 32x 4-bit 量化值                           │
+│                                                │
+│ K-quant: 对关键层 (attention) 使用更高精度      │
+│          对非关键层 (FFN) 使用更低精度          │
+└────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="22-转换与量化">2.2 转换与量化</h3>
+<pre><code class="language-bash">
+# 1. 将 HuggingFace 模型转为 GGUF
+python convert_hf_to_gguf.py \
+    /path/to/Llama-3-8B-Instruct \
+    --outfile llama-3-8b-f16.gguf \
+    --outtype f16
+
+# 2. 量化为不同精度
+./llama-quantize \
+    llama-3-8b-f16.gguf \
+    llama-3-8b-Q4_K_M.gguf \
+    Q4_K_M
+
+# 3. 使用 imatrix 量化 (质量更好)
+# 先生成 importance matrix
+./llama-imatrix \
+    -m llama-3-8b-f16.gguf \
+    -f calibration.txt \
+    -o imatrix.dat
+
+# 用 imatrix 量化
+./llama-quantize \
+    --imatrix imatrix.dat \
+    llama-3-8b-f16.gguf \
+    llama-3-8b-IQ4_XS.gguf \
+    IQ4_XS
+</code></pre>
+<h2 id="3-编译与后端选择">3. 编译与后端选择</h2>
+<h3 id="31-CPU-通用">3.1 CPU (通用)</h3>
+<pre><code class="language-bash">
+git clone https://github.com/ggerganov/llama.cpp
+cd llama.cpp
+cmake -B build
+cmake --build build --config Release -j$(nproc)
+</code></pre>
+<h3 id="32-CUDA-NVIDIA-GPU">3.2 CUDA (NVIDIA GPU)</h3>
+<pre><code class="language-bash">
+cmake -B build -DGGML_CUDA=ON
+cmake --build build --config Release -j$(nproc)
+</code></pre>
+<h3 id="33-Metal-Apple-Silicon">3.3 Metal (Apple Silicon)</h3>
+<pre><code class="language-bash">
+cmake -B build -DGGML_METAL=ON
+cmake --build build --config Release -j$(nproc)
+# Metal 默认自动开启 (macOS)
+</code></pre>
+<h3 id="34-Vulkan-通用-GPU">3.4 Vulkan (通用 GPU)</h3>
+<pre><code class="language-bash">
+cmake -B build -DGGML_VULKAN=ON
+cmake --build build --config Release -j$(nproc)
+</code></pre>
+<h3 id="35-多后端组合">3.5 多后端组合</h3>
+<pre><code class="language-bash">
+# CUDA + CPU (混合推理)
+cmake -B build -DGGML_CUDA=ON -DGGML_CPU_ALL_VARIANTS=ON
+
+# Metal + Accelerate (macOS)
+cmake -B build -DGGML_METAL=ON -DGGML_BLAS=ON -DGGML_BLAS_VENDOR=Apple
+</code></pre>
+<h2 id="4-推理使用">4. 推理使用</h2>
+<h3 id="41-CLI-基础推理">4.1 CLI 基础推理</h3>
+<pre><code class="language-bash">
+# 简单对话
+./build/bin/llama-cli \
+    -m models/llama-3-8b-Q4_K_M.gguf \
+    -p &quot;What is the meaning of life?&quot; \
+    -n 256 \
+    --temp 0.7 \
+    --top-p 0.9 \
+    -ngl 99  # offload 所有层到 GPU
+
+# 对话模式 (带 system prompt)
+./build/bin/llama-cli \
+    -m models/llama-3-8b-Q4_K_M.gguf \
+    -c 4096 \
+    --temp 0.7 \
+    -ngl 99 \
+    --chat-template llama3 \
+    -sys &quot;You are a helpful AI assistant.&quot;
+</code></pre>
+<h3 id="42-Server-模式">4.2 Server 模式</h3>
+<pre><code class="language-bash">
+./build/bin/llama-server \
+    -m models/llama-3-8b-Q4_K_M.gguf \
+    --host 0.0.0.0 \
+    --port 8080 \
+    -c 4096 \
+    -ngl 99 \
+    --parallel 4 \
+    --cont-batching \
+    -np 4  # 并行 slots 数量
+</code></pre>
+<pre><code class="language-python">
+# OpenAI 兼容调用
+from openai import OpenAI
+
+client = OpenAI(base_url=&quot;http://localhost:8080/v1&quot;, api_key=&quot;none&quot;)
+
+resp = client.chat.completions.create(
+    model=&quot;llama-3-8b&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello!&quot;}],
+    temperature=0.7,
+    stream=True,
+)
+for chunk in resp:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        print(delta, end=&quot;&quot;)
+</code></pre>
+<h3 id="43-Server-架构">4.3 Server 架构</h3>
+<pre><code>
+llama-server 架构:
+
+┌──────────────────────────────────────────┐
+│            HTTP Server (llama.cpp)        │
+│  ┌─────────┐ ┌─────────┐ ┌───────────┐ │
+│  │ /health │ │/complet.│ │/v1/chat/  │ │
+│  │ /metrics│ │ /tokenize│ │completions│ │
+│  └────┬────┘ └────┬────┘ └─────┬─────┘ │
+│       └───────────┼────────────┘        │
+│                   ▼                      │
+│           Slot Scheduler                 │
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐  │
+│  │Slot 0│ │Slot 1│ │Slot 2│ │Slot 3│  │
+│  └──┬───┘ └──┬───┘ └──┬───┘ └──┬───┘  │
+│     └────────┼────────┼────────┘       │
+│              ▼                          │
+│     Continuous Batching Engine           │
+│              ▼                          │
+│     GGML Compute Graph                  │
+└──────────────────────────────────────────┘
+</code></pre>
+<h2 id="5-Python-绑定-llama-cpp-python">5. Python 绑定 (llama-cpp-python)</h2>
+<pre><code class="language-bash">
+# 安装 (CUDA)
+CMAKE_ARGS=&quot;-DGGML_CUDA=ON&quot; pip install llama-cpp-python
+
+# 安装 (Metal)
+CMAKE_ARGS=&quot;-DGGML_METAL=ON&quot; pip install llama-cpp-python
+
+# 或从预编译 wheel
+pip install llama-cpp-python --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
+</code></pre>
+<h3 id="51-Python-API">5.1 Python API</h3>
+<pre><code class="language-python">
+from llama_cpp import Llama
+
+llm = Llama(
+    model_path=&quot;models/llama-3-8b-Q4_K_M.gguf&quot;,
+    n_ctx=4096,       # 上下文长度
+    n_gpu_layers=-1,   # -1 = 全部 offload 到 GPU
+    n_threads=8,       # CPU 线程数
+    verbose=False,
+)
+
+# 文本生成
+output = llm.create_chat_completion(
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Explain PagedAttention.&quot;}
+    ],
+    temperature=0.7,
+    max_tokens=256,
+    stream=False,
+)
+print(output[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;])
+
+# 流式输出
+for chunk in llm.create_chat_completion(
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Write a haiku.&quot;}],
+    stream=True,
+    temperature=0.8,
+):
+    delta = chunk[&quot;choices&quot;][0][&quot;delta&quot;]
+    if &quot;content&quot; in delta:
+        print(delta[&quot;content&quot;], end=&quot;&quot;)
+</code></pre>
+<h3 id="52-OpenAI-兼容服务器">5.2 OpenAI 兼容服务器</h3>
+<pre><code class="language-bash">
+# 启动 OpenAI 兼容服务
+python -m llama_cpp.server \
+    --model models/llama-3-8b-Q4_K_M.gguf \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --n_gpu_layers -1 \
+    --n_ctx 4096 \
+    --n_batch 512
+</code></pre>
+<h2 id="6-性能优化">6. 性能优化</h2>
+<h3 id="61-关键参数">6.1 关键参数</h3>
+<pre><code class="language-bash">
+./llama-cli \
+    -m model.gguf \
+    -ngl 99 \           # GPU offload 层数
+    -c 4096 \           # 上下文长度 (越大越慢)
+    -t 8 \              # CPU 线程数 (CPU 推理时)
+    -b 512 \            # batch size
+    -ub 512 \           # prompt batch size
+    --mlock \           # 锁定内存 (防止 swap)
+    --no-mmap \         # 禁用 mmap (大模型推荐)
+    -p &quot;prompt&quot;
+</code></pre>
+<h3 id="62-选择指南">6.2 选择指南</h3>
+<pre><code>
+┌─────────────────────────────────────────────────┐
+│             推理引擎选择决策树                    │
+│                                                  │
+│  需要 CPU 推理? ──→ llama.cpp (首选)             │
+│       │                                          │
+│       No                                         │
+│       ▼                                          │
+│  Apple Silicon? ──→ llama.cpp + Metal            │
+│       │                                          │
+│       No                                         │
+│       ▼                                          │
+│  高吞吐生产环境? ──→ vLLM / TGI                  │
+│       │                                          │
+│       No                                         │
+│       ▼                                          │
+│  边缘/嵌入式? ──→ llama.cpp + Vulkan            │
+│       │                                          │
+│       No                                         │
+│       ▼                                          │
+│  需要最多模型支持? ──→ llama.cpp                 │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="7-社区资源">7. 社区资源</h2>
+<li style="margin-left:0px">模型下载: https://huggingface.co/models?sort=downloads&search=gguf</li>
+<li style="margin-left:0px">TheBloke 量化: https://huggingface.co/TheBloke</li>
+<li style="margin-left:0px">bartowski 量化: https://huggingface.co/bartowski</li>
+<li style="margin-left:0px">llama.cpp GitHub: https://github.com/ggerganov/llama.cpp</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>llama.cpp 是 CPU/边缘设备推理的首选方案，GGUF 格式已成为量化模型的事实标准。本篇补充了 vLLM 等 GPU 方案之外的轻量推理路径，是实现本地开发调试和边缘部署的关键能力。</p>
+<p><strong>难度等级</strong>：🟡 ⭐⭐ 初中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">格式生态：<a href="#GGUF量化格式详解">GGUF量化格式详解</a>、<a href="#模型格式转换工具链">模型格式转换工具链</a></li>
+<li style="margin-left:0px">GPU方案对比：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#TGI推理服务">TGI推理服务</a></li>
+<li style="margin-left:0px">应用场景：<a href="#Hermes Agent本地模型集成">Hermes Agent本地模型集成</a>、<a href="#Ollama本地部署">Ollama本地部署</a></li>
+<li style="margin-left:0px">量化技术：<a href="#AWQ量化实战">AWQ量化实战</a>、<a href="#GPTQ量化">GPTQ量化</a></li>
+<li style="margin-left:0px">前置知识：<a href="#混合精度训练">混合精度训练</a>、<a href="#模型量化总览">模型量化总览</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="TGI-Text-Generation-Inference-推理服务">TGI (Text Generation Inference) 推理服务</h1>
+<blockquote><p>HuggingFace TGI 是生产级 LLM 推理服务，专为 HuggingFace 生态设计。</p></blockquote>
+<h2 id="1-架构概览">1. 架构概览</h2>
+<pre><code>
+┌─────────────────────────────────────────────────┐
+│               gRPC / HTTP API                    │
+│         (protobuf + REST/JSON)                   │
+├─────────────────────────────────────────────────┤
+│              Router (Rust)                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
+│  │ Request  │  │ Streaming│  │  Health /    │  │
+│  │ Queue    │  │ Manager  │  │  Metrics     │  │
+│  └────┬─────┘  └────┬─────┘  └──────────────┘  │
+├───────┼──────────────┼──────────────────────────┤
+│       ▼              ▼                           │
+│         Batch Scheduler (Rust)                   │
+│    ┌─────────────────────────┐                   │
+│    │  Continuous Batching    │                   │
+│    │  + Token Budget Control │                   │
+│    └───────────┬─────────────┘                   │
+├────────────────┼────────────────────────────────┤
+│                ▼                                  │
+│     Inference Engine (Python/Rust)               │
+│  ┌────────────────────────────────────────────┐ │
+│  │  Model Sharding (Tensor/Sequence Parallel) │ │
+│  │  FlashAttention / PagedAttention           │ │
+│  │  Flash Decoding                            │ │
+│  │  Custom CUDA Kernels (Rust bindings)       │ │
+│  └────────────────────────────────────────────┘ │
+├─────────────────────────────────────────────────┤
+│             Quantization Layer                   │
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ │
+│  │GPTQ  │ │AWQ   │ │EETQ  │ │BitsAnd│ │FP8  │ │
+│  │      │ │      │ │      │ │Bytes │ │      │ │
+│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="2-Docker-部署">2. Docker 部署</h2>
+<h3 id="21-基础部署">2.1 基础部署</h3>
+<pre><code class="language-bash">
+# 最简单启动
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-8B-Instruct
+
+# 挂载本地模型缓存
+docker run --gpus all -p 8080:80 \
+    -v ~/.cache/huggingface:/data \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-8B-Instruct \
+    --max-input-length 4096 \
+    --max-total-tokens 8192 \
+    --max-batch-prefill-tokens 4096
+</code></pre>
+<h3 id="22-多-GPU-部署">2.2 多 GPU 部署</h3>
+<pre><code class="language-bash">
+# Tensor Parallel (4 GPU)
+docker run --gpus all -p 8080:80 \
+    -v ~/.cache/huggingface:/data \
+    -e NCCL_SHM_DISABLE=0 \
+    --shm-size 1g \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-70B-Instruct \
+    --num-shard 4 \
+    --max-batch-prefill-tokens 16384
+</code></pre>
+<h3 id="23-docker-composeyml">2.3 docker-compose.yml</h3>
+<pre><code class="language-yaml">
+version: &quot;3.8&quot;
+services:
+  tgi:
+    image: ghcr.io/huggingface/text-generation-inference:latest
+    ports:
+      - &quot;8080:80&quot;
+    volumes:
+      - hfcache:/data
+    shm_size: &quot;1g&quot;
+    environment:
+      - NCCL_SHM_DISABLE=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    command: &gt;
+      --model-id meta-llama/Llama-3-8B-Instruct
+      --max-input-length 4096
+      --max-total-tokens 8192
+      --max-batch-prefill-tokens 4096
+      --quantize gptq
+
+volumes:
+  hfcache:
+</code></pre>
+<h2 id="3-量化支持">3. 量化支持</h2>
+<h3 id="31-GPTQ">3.1 GPTQ</h3>
+<pre><code class="language-bash">
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id TheBloke/Llama-2-7B-Chat-GPTQ \
+    --quantize gptq \
+    --revision gptq-4bit-32g-actorder_True
+</code></pre>
+<h3 id="32-AWQ">3.2 AWQ</h3>
+<pre><code class="language-bash">
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id TheBloke/Llama-2-7B-Chat-AWQ \
+    --quantize awq
+</code></pre>
+<h3 id="33-EETQ-快速-8-bit">3.3 EETQ (快速 8-bit)</h3>
+<pre><code class="language-bash">
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-8B-Instruct \
+    --quantize eetq
+</code></pre>
+<h3 id="34-FP8-H100">3.4 FP8 (H100)</h3>
+<pre><code class="language-bash">
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-70B-Instruct \
+    --quantize fp8 \
+    --num-shard 4
+</code></pre>
+<h2 id="4-API-使用">4. API 使用</h2>
+<h3 id="41-REST-API">4.1 REST API</h3>
+<pre><code class="language-bash">
+# 文本生成
+curl http://localhost:8080/generate \
+    -X POST \
+    -H &#x27;Content-Type: application/json&#x27; \
+    -d &#x27;{
+        &quot;inputs&quot;: &quot;The future of AI is&quot;,
+        &quot;parameters&quot;: {
+            &quot;max_new_tokens&quot;: 200,
+            &quot;temperature&quot;: 0.7,
+            &quot;top_p&quot;: 0.9,
+            &quot;do_sample&quot;: true,
+            &quot;return_full_text&quot;: false
+        }
+    }&#x27;
+
+# 流式生成
+curl http://localhost:8080/generate_stream \
+    -X POST \
+    -H &#x27;Content-Type: application/json&#x27; \
+    -d &#x27;{
+        &quot;inputs&quot;: &quot;Once upon a time&quot;,
+        &quot;parameters&quot;: {&quot;max_new_tokens&quot;: 500, &quot;temperature&quot;: 0.8}
+    }&#x27;
+</code></pre>
+<h3 id="42-Python-客户端">4.2 Python 客户端</h3>
+<pre><code class="language-python">
+from huggingface_hub import InferenceClient
+
+client = InferenceClient(&quot;http://localhost:8080&quot;)
+
+# 文本生成
+text = client.text_generation(
+    &quot;The meaning of life is&quot;,
+    max_new_tokens=200,
+    temperature=0.7,
+    top_p=0.9,
+)
+print(text)
+
+# 流式生成
+for token in client.text_generation(
+    &quot;Write a story about a robot&quot;,
+    max_new_tokens=500,
+    stream=True,
+):
+    print(token, end=&quot;&quot;, flush=True)
+
+# Chat Completion (OpenAI 兼容)
+chat = client.chat_completion(
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are helpful.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hi!&quot;}
+    ],
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    max_tokens=200,
+)
+print(chat.choices[0].message.content)
+</code></pre>
+<h3 id="43-Streaming-Token-事件">4.3 Streaming Token 事件</h3>
+<pre><code>
+TGI 流式事件格式:
+
+event: data
+data: {&quot;index&quot;:0,&quot;token&quot;:{&quot;id&quot;:1234,&quot;text&quot;:&quot;Hello&quot;,&quot;logprob&quot;:-0.123,&quot;special&quot;:false}}
+
+event: data
+data: {&quot;index&quot;:1,&quot;token&quot;:{&quot;id&quot;:5678,&quot;text&quot;:&quot; world&quot;,&quot;logprob&quot;:-0.456,&quot;special&quot;:false}}
+
+event: data
+data: {&quot;index&quot;:2,&quot;token&quot;:{&quot;id&quot;:0,&quot;text&quot;:&quot;&quot;,&quot;logprob&quot;:null,&quot;special&quot;:true}}
+// special=true 表示生成结束 (EOS token)
+</code></pre>
+<h2 id="5-核心特性">5. 核心特性</h2>
+<h3 id="51-Flash-Attention">5.1 Flash Attention</h3>
+<p>TGI 内置 FlashAttention v2/v3 支持：</p>
+<pre><code class="language-bash">
+# Flash Attention 默认启用，可手动关闭
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-8B-Instruct \
+    --disable-flash-attention
+</code></pre>
+<h3 id="52-Watermark-水印">5.2 Watermark 水印</h3>
+<pre><code class="language-bash">
+# 启用 AWatermark (SynthID)
+docker run --gpus all -p 8080:80 \
+    ghcr.io/huggingface/text-generation-inference:latest \
+    --model-id meta-llama/Llama-3-8B-Instruct \
+    --watermark-gamma 1.0 \
+    --watermark-delta 2.0
+</code></pre>
+<h3 id="53-Structured-Output-JSON-Schema">5.3 Structured Output (JSON Schema)</h3>
+<pre><code class="language-bash">
+curl http://localhost:8080/v1/chat/completions \
+    -X POST \
+    -H &#x27;Content-Type: application/json&#x27; \
+    -d &#x27;{
+        &quot;model&quot;: &quot;tgi&quot;,
+        &quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Extract: John is 30 years old&quot;}],
+        &quot;response_format&quot;: {
+            &quot;type&quot;: &quot;json_object&quot;,
+            &quot;schema&quot;: {
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;properties&quot;: {
+                    &quot;name&quot;: {&quot;type&quot;: &quot;string&quot;},
+                    &quot;age&quot;: {&quot;type&quot;: &quot;integer&quot;}
+                }
+            }
+        }
+    }&#x27;
+</code></pre>
+<h2 id="6-性能调优">6. 性能调优</h2>
+<h3 id="61-关键参数">6.1 关键参数</h3>
+<table>
+<thead><tr>
+<th>参数</th>
+<th>说明</th>
+<th>推荐</th>
+</tr></thead><tbody>
+<tr>
+<td><code>--max-input-length</code></td>
+<td>最大输入长度</td>
+<td>4096</td>
+</tr>
+<tr>
+<td><code>--max-total-tokens</code></td>
+<td>总上下文长度</td>
+<td>8192</td>
+</tr>
+<tr>
+<td><code>--max-batch-prefill-tokens</code></td>
+<td>prefill 批大小</td>
+<td>=max-input-length</td>
+</tr>
+<tr>
+<td><code>--max-concurrent-requests</code></td>
+<td>最大并发</td>
+<td>128</td>
+</tr>
+<tr>
+<td><code>--max-batch-size</code></td>
+<td>批处理大小</td>
+<td>auto</td>
+</tr>
+<tr>
+<td><code>--waiting-served-ratio</code></td>
+<td>等待/服务比</td>
+<td>1.2</td>
+</tr>
+<tr>
+<td><code>--max-waiting-tokens</code></td>
+<td>等待 token 预算</td>
+<td>20</td>
+</tr>
+</tbody></table>
+<h3 id="62-环境变量">6.2 环境变量</h3>
+<pre><code class="language-bash">
+# 显存相关
+-e HUGGINGFACE_HUB_CACHE=/data
+-e TRANSFORMERS_CACHE=/data
+-e FLASH_ATTENTION=true
+-e NCCL_SHM_DISABLE=0
+
+# RoPE scaling (长上下文)
+-e ROPE_SCALING=dynamic
+-e ROPE_FACTOR=2.0
+
+# 日志
+-e LOG_LEVEL=info
+-e RUST_LOG=info
+</code></pre>
+<h2 id="7-TGI-vs-vLLM-对比">7. TGI vs vLLM 对比</h2>
+<pre><code>
+┌──────────────────┬──────────────────┬──────────────────┐
+│     特性          │      TGI         │     vLLM         │
+├──────────────────┼──────────────────┼──────────────────┤
+│ 开发语言          │ Rust + Python    │ Python + CUDA    │
+│ 开发者           │ HuggingFace      │ UC Berkeley      │
+│ 生态集成         │ HF 原生          │ 广泛兼容          │
+│ 部署方式          │ Docker 为主      │ pip/Docker       │
+│ API 兼容         │ HF + OpenAI      │ OpenAI           │
+│ 量化支持          │ GPTQ/AWQ/FP8    │ GPTQ/AWQ/FP8    │
+│ 注意力优化        │ FlashAttention   │ PagedAttention   │
+│ KV Cache 管理    │ 连续/优化         │ 分页 (PagedAttn) │
+│ 生产成熟度        │ 高               │ 高               │
+│ 社区活跃度        │ 高               │ 极高             │
+│ 多模态支持        │ 有限             │ 丰富             │
+│ 模型格式          │ HF 原生          │ HF 原生          │
+└──────────────────┴──────────────────┴──────────────────┘
+</code></pre>
+<h2 id="8-扩展阅读">8. 扩展阅读</h2>
+<li style="margin-left:0px">TGI GitHub: https://github.com/huggingface/text-generation-inference</li>
+<li style="margin-left:0px">TGI 文档: https://huggingface.co/docs/text-generation-inference</li>
+<li style="margin-left:0px">TGI 博客: https://huggingface.co/blog/tgi</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>TGI（Text Generation Inference）是 HuggingFace 出品的高性能推理服务，与 HF 生态深度集成。在需要 HF 模型格式和 Token Streaming 的场景下，TGI 是 vLLM 的主要替代方案。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">竞品对比：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#llama.cpp与GGUF">llama.cpp与GGUF</a></li>
+<li style="margin-left:0px">核心特性：<a href="#Continuous Batching">Continuous Batching</a>、<a href="#Flash Attention">Flash Attention</a></li>
+<li style="margin-left:0px">部署运维：<a href="#Docker部署实践">Docker部署实践</a>、<a href="#Kubernetes推理集群">Kubernetes推理集群</a></li>
+<li style="margin-left:0px">监控集成：<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a>、<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<li style="margin-left:0px">API封装：<a href="#API服务封装">API服务封装</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="推测解码技术-Speculative-Decoding">推测解码技术 (Speculative Decoding)</h1>
+<blockquote><p>推测解码通过"草稿-验证"模式加速自回归生成，可在不损失质量的前提下实现 2-3x 加速。</p></blockquote>
+<h2 id="1-核心原理">1. 核心原理</h2>
+<h3 id="11-自回归瓶颈">1.1 自回归瓶颈</h3>
+<pre><code>
+标准自回归解码 (每次只能生成 1 个 token):
+
+Step 1: [prompt] → model → token_1        (200ms)
+Step 2: [prompt, t1] → model → token_2    (200ms)
+Step 3: [prompt, t1, t2] → model → token_3 (200ms)
+...
+
+总延迟 = N × 单步延迟   (受 memory bandwidth 限制)
+</code></pre>
+<p><strong>核心洞察</strong>：生成阶段是 memory-bound 而非 compute-bound。大模型单次前向传播处理 1 个 token 和处理 10 个 token 的时间差距很小（GPU 计算单元未被充分利用）。</p>
+<h3 id="12-推测解码思想">1.2 推测解码思想</h3>
+<pre><code>
+推测解码 (Draft-Verify 模式):
+
+Draft Phase (小模型, 快速生成候选):
+  [prompt] → draft_model → [t1, t2, t3, t4, t5]   (50ms)
+
+Verify Phase (大模型, 并行验证所有候选):
+  [prompt, t1, t2, t3, t4, t5] → target_model → ✓✓✓✗?  (210ms)
+                                                    ││││
+                                                    │││└─ 拒绝, 从此处重新生成
+                                                    ││└── 接受
+                                                    │└─── 接受
+                                                    └──── 接受
+
+结果: 3 个 token 被接受 (比标准多 2 个)
+总延迟 ≈ 260ms (vs 标准 3×200=600ms)
+加速比 ≈ 2.3x
+</code></pre>
+<h3 id="13-数学保证">1.3 数学保证</h3>
+<pre><code>
+关键性质: 推测解码的输出分布与目标模型完全一致!
+
+接受概率公式:
+  对于 draft token x_i, 接受概率为:
+  
+  P_accept(x_i) = min(1, p_target(x_i) / p_draft(x_i))
+  
+  其中:
+    p_target(x_i) = 目标模型在位置 i 的概率
+    p_draft(x_i)  = 草稿模型在位置 i 的概率
+  
+  如果拒绝, 从修正分布重新采样:
+  p_corrected(x) = max(0, p_target(x) - p_draft(x)) / Z
+  Z = Σ max(0, p_target(x) - p_draft(x))
+
+→ 保证输出质量与单独使用目标模型完全相同
+→ 不存在精度损失
+</code></pre>
+<h2 id="2-实现方式">2. 实现方式</h2>
+<h3 id="21-Draft-Model-方式">2.1 Draft Model 方式</h3>
+<pre><code>
+┌──────────────────────────────────────────────┐
+│              Draft-Verify Pipeline            │
+│                                              │
+│  ┌──────────┐     ┌──────────────────────┐  │
+│  │  Draft   │     │     Target Model     │  │
+│  │  Model   │────→│    (大模型)           │  │
+│  │ (小模型)  │候选  │                      │  │
+│  │ 1-3B     │token │  7B / 70B / 405B    │  │
+│  └──────────┘     └──────────┬───────────┘  │
+│                              │               │
+│                    ┌─────────▼─────────┐     │
+│                    │   Token Verifier  │     │
+│                    │  (逐位比较接受/拒)  │     │
+│                    └───────────────────┘     │
+└──────────────────────────────────────────────┘
+
+常见 Draft-Target 配对:
+  Llama-2-7B (draft) → Llama-2-70B (target)
+  Llama-3-1B (draft) → Llama-3-8B (target)
+  DistilBERT (draft) → 同架构大模型
+</code></pre>
+<pre><code class="language-python">
+# 伪代码: 推测解码核心逻辑
+def speculative_decode(draft_model, target_model, prompt, num_speculative=5):
+    generated = []
+    context = prompt
+    
+    while not done:
+        # Step 1: Draft 模型快速生成 K 个候选
+        draft_tokens = []
+        draft_probs = []
+        x = context
+        for _ in range(num_speculative):
+            p = draft_model.forward(x)
+            t = sample(p)
+            draft_tokens.append(t)
+            draft_probs.append(p[t])
+            x = x + [t]
+        
+        # Step 2: Target 模型一次前向传播验证所有候选
+        # 注意: 这是一次前向传播, 不是 K 次!
+        all_input = context + draft_tokens
+        target_probs = target_model.forward(all_input)  # [K+1] 个位置的概率
+        
+        # Step 3: 逐位验证
+        accepted = 0
+        for i in range(num_speculative):
+            p_target = target_probs[i]
+            p_draft = draft_probs[i]
+            accept_ratio = p_target[draft_tokens[i]] / p_draft[draft_tokens[i]]
+            
+            if random() &lt; min(1, accept_ratio):
+                accepted += 1
+                generated.append(draft_tokens[i])
+            else:
+                # 从修正分布采样
+                corrected = normalize(max(0, p_target - p_draft))
+                generated.append(sample(corrected))
+                break
+        else:
+            # 所有 K 个都接受, 额外从 target 采样一个
+            generated.append(sample(target_probs[-1]))
+        
+        context = context + generated[-(accepted+1):]
+    
+    return generated
+</code></pre>
+<h3 id="22-Self-Speculative-无-Draft-模型">2.2 Self-Speculative (无 Draft 模型)</h3>
+<pre><code>
+自推测解码: 复用目标模型自身作为 draft
+
+方法 1: Early Exit
+┌─────────────────────────────────┐
+│  Target Model (32 layers)       │
+│                                 │
+│  Draft: 只跑前 4 层 (快 8x)    │  ← 不完整的 hidden state
+│  Verify: 跑全部 32 层           │  ← 完整推理
+└─────────────────────────────────┘
+
+方法 2: Layer Skipping
+┌─────────────────────────────────┐
+│  Target Model                   │
+│                                 │
+│  Draft: 跳过部分层 (1,3,5,...)  │  ← 稀疏执行
+│  Verify: 正常执行所有层          │
+└─────────────────────────────────┘
+
+方法 3: Token Pruning / Medusa Head
+  在 LM Head 之后添加轻量预测头
+</code></pre>
+<h2 id="3-Medusa">3. Medusa</h2>
+<pre><code>
+Medusa 架构 (多个并行预测头):
+
+                LM Backbone (共享)
+                    │
+         ┌────┬────┼────┬────┐
+         ▼    ▼    ▼    ▼    ▼
+       Head0 Head1 Head2 Head3 Head4
+       (t+1) (t+2) (t+3) (t+4) (t+5)
+         │    │    │    │    │
+         ▼    ▼    ▼    ▼    ▼
+       Top-K Top-K Top-K Top-K Top-K
+       候选   候选  候选  候选  候选
+         │    │    │    │    │
+         └────┴────┼────┴────┘
+                   ▼
+            Tree Attention 验证
+            (同时验证所有候选组合)
+                   │
+                   ▼
+            最长接受前缀
+</code></pre>
+<pre><code class="language-python">
+# Medusa 推理伪代码
+def medusa_generate(model, input_ids, num_heads=5, top_k=5):
+    &quot;&quot;&quot;一次前向传播生成多步预测&quot;&quot;&quot;
+    
+    # 获取 backbone hidden states
+    hidden = model.backbone(input_ids)
+    
+    # 所有 Medusa 头并行预测
+    candidates = []
+    for head_idx in range(num_heads):
+        logits = model.medusa_heads[head_idx](hidden[:, -1])
+        top_k_tokens = torch.topk(logits, top_k, dim=-1)
+        candidates.append(top_k_tokens)
+    
+    # 构建候选树 (tree attention)
+    tree = build_candidate_tree(candidates)  # top_k^num_heads 组合
+    
+    # 用 tree attention 验证
+    # 关键: 使用特殊的 attention mask 使得树中每个节点
+    # 只能看到它的祖先节点 (因果性)
+    verified = target_model.verify_with_tree_attention(
+        input_ids, tree, mask=tree_attention_mask
+    )
+    
+    # 找到最长接受路径
+    accepted_tokens = find_longest_accepted_path(verified)
+    
+    return accepted_tokens
+</code></pre>
+<h3 id="Medusa-Tree-Attention-Mask">Medusa Tree Attention Mask</h3>
+<pre><code>
+候选树结构:
+        root (当前token)
+       /    \
+      a      b          ← 第1步候选
+     / \    / \
+    c   d  e   f        ← 第2步候选
+    
+Tree Attention Mask (causal):
+       root  a  b  c  d  e  f
+root  [  1    0  0  0  0  0  0 ]
+a     [  1    1  0  0  0  0  0 ]  ← a 只看到 root
+b     [  1    0  1  0  0  0  0 ]  ← b 只看到 root
+c     [  1    1  0  1  0  0  0 ]  ← c 看到 root→a
+d     [  1    1  0  0  1  0  0 ]  ← d 看到 root→a
+e     [  1    0  1  0  0  1  0 ]  ← e 看到 root→b
+f     [  1    0  1  0  0  0  1 ]  ← f 看到 root→b
+
+一次前向传播验证所有路径!
+</code></pre>
+<h2 id="4-EAGLE">4. EAGLE</h2>
+<pre><code>
+EAGLE (Extrapolation Algorithm for Greater Language-model Efficiency):
+
+核心思想: 使用特征级别的自回归外推, 而非 token 级别
+
+┌──────────────────────────────────────────┐
+│              EAGLE 架构                   │
+│                                          │
+│  Target Model Backbone                   │
+│         │                                │
+│    hidden state h_t                      │
+│         │                                │
+│  ┌──────▼───────┐                        │
+│  │ EAGLE Draft  │                        │
+│  │ Head         │                        │
+│  │ (1层 MLP)    │  ← 极轻量              │
+│  └──────┬───────┘                        │
+│         │                                │
+│    predicted h_{t+1}                     │
+│         │                                │
+│  ┌──────▼───────┐                        │
+│  │ LM Head      │ → draft token          │
+│  └──────────────┘                        │
+│                                          │
+│  EAGLE 在特征空间做自回归:               │
+│  h_{t+1} = f(h_t, embed(token_t))       │
+│  比 token 级自回归更容易预测              │
+└──────────────────────────────────────────┘
+</code></pre>
+<p><strong>EAGLE 优势</strong>：</p>
+<li style="margin-left:0px">Draft head 极轻量（1 层 MLP），几乎不影响目标模型推理</li>
+<li style="margin-left:0px">特征级外推比 token 级外推准确率更高</li>
+<li style="margin-left:0px">可与 Tree Attention 结合（EAGLE-2）</li>
+<li style="margin-left:0px">不需要单独的 draft 模型</li>
+<h2 id="5-框架支持">5. 框架支持</h2>
+<h3 id="vLLM-中的推测解码">vLLM 中的推测解码</h3>
+<pre><code class="language-bash">
+# 使用 draft model
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --speculative-model meta-llama/Llama-3-8B-Instruct \
+    --num-speculative-tokens 5 \
+    --tensor-parallel-size 4
+
+# 使用 ngram 推测 (无需 draft 模型)
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-70B-Instruct \
+    --speculative-model &quot;[ngram]&quot; \
+    --ngram-prompt-lookup-max 4 \
+    --num-speculative-tokens 5
+
+# Medusa
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --speculative-model JackFram/llama-68m-medusa \
+    --use-medusa \
+    --num-speculative-tokens 5
+</code></pre>
+<h3 id="llamacpp-中的推测解码">llama.cpp 中的推测解码</h3>
+<pre><code class="language-bash">
+# draft model 方式
+./build/bin/llama-cli \
+    -m models/llama-3-70b-Q4_K_M.gguf \
+    -md models/llama-3-8b-Q4_K_M.gguf \
+    -ngl 99 \
+    -ngld 99 \
+    --draft-max 16 \
+    -p &quot;Your prompt here&quot;
+</code></pre>
+<h2 id="6-性能分析">6. 性能分析</h2>
+<pre><code>
+加速比估算:
+
+理想加速比 ≈ K / (1 + c × K/t)
+
+其中:
+  K = 推测 token 数
+  c = draft 模型相对于 target 的延迟比
+  t = target 模型单步延迟比
+
+示例:
+  K=5, c=0.05 (draft 比 target 快 20x)
+  加速比 ≈ 5 / (1 + 0.05×5) = 5/1.25 = 4x
+
+  K=5, c=0.1 (draft 比 target 快 10x)
+  加速比 ≈ 5 / (1 + 0.1×5) = 5/1.5 = 3.3x
+
+实际考虑:
+  - Accept rate: 通常 60-80% (与任务相关)
+  - 编程/数学任务 accept rate 更高
+  - 创意写作任务 accept rate 较低
+</code></pre>
+<h2 id="7-各方法对比">7. 各方法对比</h2>
+<pre><code>
+┌────────────┬──────────┬───────────┬────────────┬──────────────┐
+│  方法       │ 加速比    │ 额外显存   │ 需要训练   │ 框架支持     │
+├────────────┼──────────┼───────────┼────────────┼──────────────┤
+│ Draft Model│ 2-3x     │ draft模型  │ 需要模型   │ vLLM/llama.cpp│
+│ Medusa     │ 2-3x     │ Medusa头   │ 需要训练头  │ vLLM         │
+│ EAGLE      │ 2.5-4x   │ 1层MLP    │ 需要训练头  │ 官方实现     │
+│ Self-Spec  │ 1.5-2x   │ 无额外    │ 不需要     │ vLLM         │
+│ Lookahead  │ 1.5-2x   │ 无额外    │ 不需要     │ llama.cpp    │
+│ ngram      │ 1.5-3x   │ 无额外    │ 不需要     │ vLLM         │
+└────────────┴──────────┴───────────┴────────────┴──────────────┘
+</code></pre>
+<h2 id="8-最佳实践">8. 最佳实践</h2>
+<pre><code>
+推测解码选择指南:
+
+1. 有同系列小模型? → Draft Model (简单有效)
+2. 无法获取小模型? → ngram / Self-Speculative (无需额外模型)
+3. 需要最大加速? → EAGLE-2 (训练轻量 draft head)
+4. 代码/数学生成? → 推测解码效果最好 (accept rate 高)
+5. 长文本生成? → 效果有限 (accept rate 随长度下降)
+6. batch size 很大? → 推测解码收益下降 (已 compute-bound)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>推测解码（Speculative Decoding）是通过小模型草稿+大模型验证来加速推理的技术，可在不损失质量的前提下获得 2-3x 加速。本篇属于推理优化的进阶内容，适合已有推理部署经验后深入学习。</p>
+<p><strong>难度等级</strong>：🔴 ⭐⭐⭐⭐ 高级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">前置知识：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#推理性能基准测试">推理性能基准测试</a></li>
+<li style="margin-left:0px">技术原理：<a href="#自回归生成原理">自回归生成原理</a>、<a href="#KV Cache优化">KV Cache优化</a></li>
+<li style="margin-left:0px">应用场景：<a href="#长上下文推理优化">长上下文推理优化</a>、<a href="#流式输出实现">流式输出实现</a></li>
+<li style="margin-left:0px">相关优化：<a href="#Continuous Batching">Continuous Batching</a>、<a href="#Flash Attention">Flash Attention</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="批处理与调度策略">批处理与调度策略</h1>
+<blockquote><p>批处理和调度策略是 LLM 推理性能优化的核心，直接影响吞吐量和延迟。</p></blockquote>
+<h2 id="1-批处理策略演进">1. 批处理策略演进</h2>
+<h3 id="11-Static-Batching-传统方式">1.1 Static Batching (传统方式)</h3>
+<pre><code>
+静态批处理: 等所有请求完成才释放 batch
+
+时间 →
+Req1: [===prefill===|=========decode=========|]
+Req2: [===prefill===|===decode===|pad|pad|pad|]
+Req3: [===prefill===|=====decode=====|pad|pad|]
+
+问题:
+  - Req2 先完成但必须等 Req1 (GPU 空闲浪费)
+  - padding 导致计算浪费
+  - 新请求必须等当前 batch 全部完成
+</code></pre>
+<h3 id="12-Continuous-Batching-动态批处理">1.2 Continuous Batching (动态批处理)</h3>
+<pre><code>
+连续批处理: 每个 step 可以加入/移除请求
+
+时间 →
+Step1: [Req1] [Req2] [Req3]           ← 3 个请求
+Step2: [Req1] [Req2] [Req3]           ← 继续
+Step3: [Req1] [Req2] [Req3] [Req4]    ← Req4 加入
+Step4: [Req1] [xxxx] [Req3] [Req4]    ← Req2 完成, 释放
+Step5: [xxxx] [xxxx] [Req3] [Req4]    ← Req1 完成, 释放
+Step6: [xxxx] [xxxx] [xxxx] [Req4]    ← Req3 完成, 释放
+
+优势:
+  - 请求完成即释放, 无等待浪费
+  - 新请求可随时加入 batch
+  - GPU 利用率显著提升 (2-4x 吞吐提升)
+</code></pre>
+<p><strong>vLLM 连续批处理实现</strong>：</p>
+<pre><code class="language-python">
+# vLLM Scheduler 伪代码
+class Scheduler:
+    def __init__(self):
+        self.running = []    # 正在 decode 的序列
+        self.waiting = []    # 等待 prefill 的序列
+        self.swapped = []    # 被 swap 到 CPU 的序列
+    
+    def schedule(self):
+        &quot;&quot;&quot;每步调度逻辑&quot;&quot;&quot;
+        scheduled = []
+        budget = self.max_num_batched_tokens
+        
+        # 1. 优先处理 running (decode)
+        for seq in self.running:
+            if budget &gt;= 1:
+                scheduled.append(seq)
+                budget -= 1
+        
+        # 2. 有剩余预算则处理 waiting (prefill)
+        while self.waiting and budget &gt;= 0:
+            seq = self.waiting.pop(0)
+            num_tokens = len(seq.prompt_tokens)
+            if num_tokens &lt;= budget:
+                scheduled.append(seq, is_prefill=True)
+                budget -= num_tokens
+            elif self.enable_chunked_prefill:
+                # 分块 prefill: 只处理部分 token
+                scheduled.append(seq, is_prefill=True, chunk=num_tokens)
+                budget = 0
+        
+        # 3. 如果内存不足, swap 低优先级序列到 CPU
+        if self.is_memory_critical():
+            seq = self.running.pop()
+            self.swap_to_cpu(seq)
+            self.swapped.append(seq)
+        
+        return scheduled
+</code></pre>
+<h2 id="2-Dynamic-Batching-变体">2. Dynamic Batching 变体</h2>
+<h3 id="21-Chunked-Prefill">2.1 Chunked Prefill</h3>
+<pre><code>
+问题: 长 prompt 的 prefill 占用大量计算, 阻塞 decode
+
+无 Chunked Prefill:
+Step1: [=== 很长的 prefill (Req1, 1000 tokens) ===]
+       ← decode 请求全部被阻塞!
+
+有 Chunked Prefill:
+Step1: [=== prefill chunk (512 tokens) ===] [d] [d] [d]
+Step2: [=== prefill chunk (488 tokens) ===] [d] [d] [d]
+       ← decode 请求穿插在 prefill 中, 延迟更低
+</code></pre>
+<pre><code class="language-bash">
+# vLLM 启用 chunked prefill
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --enable-chunked-prefill \
+    --max-num-batched-tokens 8192
+
+# TGI 中通过 max-batch-prefill-tokens 控制
+</code></pre>
+<h3 id="22-Priority-Based-Scheduling">2.2 Priority-Based Scheduling</h3>
+<pre><code class="language-python">
+# 基于优先级的调度策略
+class PriorityScheduler:
+    def __init__(self):
+        self.queues = {
+            &quot;high&quot;: [],    # 付费用户 / 低延迟需求
+            &quot;normal&quot;: [],  # 普通请求
+            &quot;low&quot;: [],     # 批处理任务
+        }
+    
+    def add_request(self, request, priority=&quot;normal&quot;):
+        self.queues[priority].append(request)
+    
+    def schedule(self, budget):
+        &quot;&quot;&quot;高优先级先调度, 但保证低优先级不饿死&quot;&quot;&quot;
+        scheduled = []
+        
+        # 80% 预算给高优先级
+        for seq in self.queues[&quot;high&quot;]:
+            if budget &gt; 0:
+                scheduled.append(seq)
+                budget -= 1
+        
+        # 15% 给普通
+        for seq in self.queues[&quot;normal&quot;]:
+            if budget &gt; 0:
+                scheduled.append(seq)
+                budget -= 1
+        
+        # 5% 给低优先级 (防止饿死)
+        for seq in self.queues[&quot;low&quot;]:
+            if budget &gt; 0:
+                scheduled.append(seq)
+                budget -= 1
+        
+        return scheduled
+</code></pre>
+<h2 id="3-Prefix-Caching">3. Prefix Caching</h2>
+<h3 id="31-基本原理">3.1 基本原理</h3>
+<pre><code>
+Prefix Caching: 共享相同前缀的请求复用 KV Cache
+
+请求1: [System Prompt (100 tokens)] + [User Q1]
+请求2: [System Prompt (100 tokens)] + [User Q2]
+请求3: [System Prompt (100 tokens)] + [User Q3]
+
+无 Prefix Caching:
+  每个请求都重新计算 100 token 的 system prompt
+  → 300 tokens 重复计算
+
+有 Prefix Caching:
+  第 1 次: 计算 system prompt → 缓存 KV
+  第 2 次: 命中缓存, 直接复用 → 0 tokens 计算
+  第 3 次: 命中缓存, 直接复用 → 0 tokens 计算
+  → 节省 66% prefill 计算
+</code></pre>
+<h3 id="32-实现架构">3.2 实现架构</h3>
+<pre><code>
+Prefix Cache 结构:
+
+┌─────────────────────────────────────────┐
+│          KV Cache Block Pool            │
+│  ┌───┐┌───┐┌───┐┌───┐┌───┐┌───┐       │
+│  │B0 ││B1 ││B2 ││B3 ││B4 ││B5 │       │
+│  │sys││sys││sys││Q1 ││Q2 ││Q3 │       │
+│  │pre││pre││pre│   │   │   │           │
+│  └─┬─┘└─┬─┘└─┬─┘└─┬─┘└─┬─┘└─┬─┘       │
+│    │    │    │    │    │    │           │
+│    └────┼────┘    │    │    │           │
+│         │         │    │    │           │
+│    [共享前缀]      [独立] [独立] [独立]   │
+│    ref_count=3     rc=1  rc=1  rc=1     │
+└─────────────────────────────────────────┘
+
+Hash 索引:
+  hash(&quot;system prompt tokens&quot;) → [B0, B1, B2]
+  新请求匹配 hash → 直接复用, ref_count++
+</code></pre>
+<h3 id="33-vLLM-Prefix-Caching">3.3 vLLM Prefix Caching</h3>
+<pre><code class="language-bash">
+# 启用 automatic prefix caching (APC)
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --enable-prefix-caching
+
+# Python API
+from vllm import LLM
+
+llm = LLM(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    enable_prefix_caching=True,  # 自动前缀缓存
+)
+</code></pre>
+<h3 id="34-RadixAttention-SGLang">3.4 RadixAttention (SGLang)</h3>
+<pre><code>
+SGLang 的 RadixAttention: 使用 Radix Tree 管理前缀
+
+Radix Tree 结构:
+                    root
+                   /    \
+              [sys_p]   [sys_q]
+              /    \
+        [user_a]  [user_b]
+           |         |
+       [resp_1]  [resp_2]
+
+查找: O(L) 其中 L = prefix 长度
+共享: 自动发现最长公共前缀
+</code></pre>
+<pre><code class="language-python">
+# SGLang 中的 RadixAttention (默认开启)
+import sglang as sgl
+
+@sgl.function
+def chat_bot(s, question):
+    s += sgl.system(&quot;You are a helpful assistant.&quot;)  # 被缓存
+    s += sgl.user(question)
+    s += sgl.assistant(sgl.gen(&quot;answer&quot;, max_tokens=256))
+
+# 多次调用共享 system prompt 的 KV Cache
+for q in questions:
+    chat_bot.run(question=q)
+</code></pre>
+<h2 id="4-Paged-KV-Cache-管理">4. Paged KV Cache 管理</h2>
+<h3 id="41-Block-分配策略">4.1 Block 分配策略</h3>
+<pre><code class="language-python">
+class BlockManager:
+    def __init__(self, num_blocks, block_size=16):
+        self.block_size = block_size
+        self.free_blocks = list(range(num_blocks))
+        self.block_tables = {}  # seq_id → [block_ids]
+    
+    def allocate(self, seq_id, num_tokens):
+        &quot;&quot;&quot;按需分配物理块&quot;&quot;&quot;
+        num_blocks_needed = (num_tokens + self.block_size - 1) // self.block_size
+        blocks = []
+        for _ in range(num_blocks_needed):
+            if self.free_blocks:
+                blocks.append(self.free_blocks.pop())
+            else:
+                # 尝试 swap 或 eviction
+                self.evict_low_priority()
+                blocks.append(self.free_blocks.pop())
+        self.block_tables[seq_id] = blocks
+        return blocks
+    
+    def append_token(self, seq_id):
+        &quot;&quot;&quot;生成新 token 时, 可能需要分配新块&quot;&quot;&quot;
+        table = self.block_tables[seq_id]
+        last_block = table[-1]
+        if self.is_block_full(last_block):
+            new_block = self.free_blocks.pop()
+            table.append(new_block)
+    
+    def copy_on_write(self, src_seq_id, dst_seq_id):
+        &quot;&quot;&quot;共享 prefix 的 Copy-on-Write&quot;&quot;&quot;
+        src_blocks = self.block_tables[src_seq_id]
+        # dst 共享 src 的块, ref_count++
+        self.block_tables[dst_seq_id] = src_blocks.copy()
+        for b in src_blocks:
+            self.increment_ref(b)
+</code></pre>
+<h3 id="42-驱逐策略">4.2 驱逐策略</h3>
+<pre><code>
+KV Cache 驱逐策略 (当显存不足时):
+
+1. LRU (Least Recently Used):
+   驱逐最久未使用的块
+   → 简单但可能驱逐重要上下文
+
+2. LFU (Least Frequently Used):
+   驱逐使用频率最低的块
+   → 对热点前缀友好
+
+3. Priority-Based:
+   根据请求优先级驱逐低优先级的块
+   → 适合有 SLA 的场景
+
+4. Recency + Frequency:
+   综合考虑最近使用时间和频率
+   → 通常效果最好
+</code></pre>
+<h2 id="5-FlashAttention-的批处理优化">5. FlashAttention 的批处理优化</h2>
+<pre><code>
+FlashAttention 如何配合批处理:
+
+传统 Attention:
+  Q × K^T → [N×N] 矩阵 → Softmax → × V
+  需要 O(N²) 显存存储 attention matrix
+
+FlashAttention:
+  将 Q, K, V 分块 (tiling)
+  在 SRAM 中完成 attention 计算
+  不需要存储完整的 N×N 矩阵
+  → 显存 O(N), 计算速度更快
+
+FlashAttention + Continuous Batching:
+  将多个不同长度的序列 padding 到相同长度
+  使用 cu_seqlens 追踪每个序列的真实长度
+  避免无效计算
+</code></pre>
+<pre><code class="language-python">
+# FlashAttention 变长 batch
+from flash_attn import flash_attn_varlen_func
+
+# cu_seqlens: 每个序列的累计长度
+# [seq1_start, seq1_end, seq2_start, seq2_end, ...]
+cu_seqlens_q = torch.tensor([0, 100, 300, 500], dtype=torch.int32)
+cu_seqlens_k = cu_seqlens_q
+
+output = flash_attn_varlen_func(
+    q, k, v,
+    cu_seqlens_q=cu_seqlens_q,
+    cu_seqlens_k=cu_seqlens_k,
+    max_seqlen_q=200,
+    max_seqlen_k=200,
+)
+</code></pre>
+<h2 id="6-生产环境配置">6. 生产环境配置</h2>
+<h3 id="61-vLLM-推荐配置">6.1 vLLM 推荐配置</h3>
+<pre><code class="language-python">
+# 高吞吐场景
+llm = LLM(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    enable_chunked_prefill=True,
+    max_num_batched_tokens=32768,    # 大 batch
+    max_num_seqs=512,                # 高并发
+    gpu_memory_utilization=0.92,
+    enable_prefix_caching=True,
+    swap_space=8,                    # GB
+)
+
+# 低延迟场景
+llm = LLM(
+    model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+    enable_chunked_prefill=True,
+    max_num_batched_tokens=4096,     # 小 batch
+    max_num_seqs=64,                 # 低并发
+    gpu_memory_utilization=0.90,
+    enforce_eager=True,              # 禁用 CUDA Graph
+)
+</code></pre>
+<h3 id="62-调度策略对比">6.2 调度策略对比</h3>
+<pre><code>
+┌──────────────────┬──────────┬──────────┬──────────────┐
+│  策略             │ 吞吐量   │ 延迟     │ 适用场景      │
+├──────────────────┼──────────┼──────────┼──────────────┤
+│ Static Batching  │ 低       │ 高       │ 简单批处理    │
+│ Continuous Batch │ 高       │ 中       │ 通用推理服务  │
+│ Chunked Prefill  │ 高       │ 低(首token)│ 长输入场景   │
+│ + Prefix Cache   │ 极高     │ 极低     │ 多轮对话      │
+│ + Priority       │ 高       │ 按级别   │ SLA 分级     │
+└──────────────────┴──────────┴──────────┴──────────────┘
+</code></pre>
+<h2 id="7-扩展阅读">7. 扩展阅读</h2>
+<li style="margin-left:0px">Orca 论文 (Continuous Batching): https://www.usenix.org/conference/osdi22/presentation/yu</li>
+<li style="margin-left:0px">vLLM 论文: https://arxiv.org/abs/2309.06180</li>
+<li style="margin-left:0px">SGLang RadixAttention: https://arxiv.org/abs/2312.07104</li>
+<li style="margin-left:0px">FlashAttention: https://arxiv.org/abs/2205.14135</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>批处理与调度是推理引擎吞吐量的核心决定因素。理解 Continuous Batching、动态批处理等策略，是调优推理服务性能的关键能力。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">核心技术：<a href="#Continuous Batching原理">Continuous Batching原理</a>、<a href="#PagedAttention原理">PagedAttention原理</a></li>
+<li style="margin-left:0px">引擎实现：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#TGI推理服务">TGI推理服务</a></li>
+<li style="margin-left:0px">性能评估：<a href="#推理性能基准测试">推理性能基准测试</a></li>
+<li style="margin-left:0px">资源管理：<a href="#负载均衡与扩展">负载均衡与扩展</a>、<a href="#成本管理与优化">成本管理与优化</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="推理性能基准测试">推理性能基准测试</h1>
+<blockquote><p>系统化的基准测试方法论，覆盖延迟、吞吐量、首 Token 时间等核心指标。</p></blockquote>
+<h2 id="1-核心指标定义">1. 核心指标定义</h2>
+<h3 id="11-延迟指标">1.1 延迟指标</h3>
+<pre><code>
+请求延迟分解:
+
+[Request]  [Queuing]  [Prefill]  [Decode × N tokens]  [Response]
+   │          │          │              │                  │
+   t0         t1         t2             t3                 t4
+
+TTFT (Time To First Token) = t2 - t0
+  → 首 token 延迟, 用户体感最敏感
+  → 包含排队时间 + prefill 计算时间
+
+TPOT (Time Per Output Token) = (t4 - t2) / N
+  → 每个输出 token 的平均时间
+  → decode 阶段速度
+
+E2E Latency (端到端延迟) = t4 - t0
+  → 请求总延迟
+
+ITL (Inter-Token Latency) = 每个相邻 token 之间的间隔
+  → 用户感知的&quot;打字速度&quot;
+</code></pre>
+<h3 id="12-吞吐量指标">1.2 吞吐量指标</h3>
+<pre><code>
+Throughput (吞吐量) 度量:
+
+1. Request Throughput = 请求数 / 秒
+   → 每秒完成多少个请求
+
+2. Token Throughput = token 数 / 秒
+   → 每秒生成多少 token (最常用)
+   → 区分 input tokens/s 和 output tokens/s
+
+3. Goodput = 满足 SLA 的吞吐量
+   → 比如 &quot;TTFT &lt; 500ms 且 TPOT &lt; 50ms&quot; 的有效吞吐
+</code></pre>
+<h3 id="13-指标关系">1.3 指标关系</h3>
+<pre><code>
+延迟 vs 吞吐量 的权衡:
+
+     延迟 ↑
+       │  ×
+       │    ×
+       │      ×
+       │        ×  ×  ×
+       │                 ×  ×  × (延迟急剧上升)
+       │
+       └─────────────────────────→ 吞吐量
+       
+甜点: 在延迟可接受范围内的最大吞吐量
+</code></pre>
+<h2 id="2-基准测试工具">2. 基准测试工具</h2>
+<h3 id="21-vLLM-Benchmark">2.1 vLLM Benchmark</h3>
+<pre><code class="language-bash">
+# 安装 vLLM benchmark 工具
+pip install vllm
+
+# 启动 vLLM server
+python -m vllm.entrypoints.openai.api_server \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --gpu-memory-utilization 0.90 &amp;
+
+# 基础 benchmark
+python -m vllm bench serve \
+    --backend openai \
+    --base-url http://localhost:8000 \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --dataset-name sharegpt \
+    --dataset-path ShareGPT_V3_unfiltered_cleaned_split.json \
+    --num-prompts 1000 \
+    --request-rate 10 \
+    --save-result
+</code></pre>
+<h3 id="22-自定义-Benchmark-脚本">2.2 自定义 Benchmark 脚本</h3>
+<pre><code class="language-python">
+&quot;&quot;&quot;LLM 推理基准测试脚本&quot;&quot;&quot;
+import asyncio
+import time
+import statistics
+from openai import AsyncOpenAI
+
+async def benchmark(
+    base_url: str,
+    model: str,
+    prompts: list[str],
+    max_tokens: int = 256,
+    concurrency: int = 50,
+):
+    client = AsyncOpenAI(base_url=base_url, api_key=&quot;none&quot;)
+    semaphore = asyncio.Semaphore(concurrency)
+    
+    results = {
+        &quot;ttft&quot;: [],         # 首 token 延迟
+        &quot;tpot&quot;: [],         # 每 token 延迟
+        &quot;e2e&quot;: [],          # 端到端延迟
+        &quot;tokens_out&quot;: [],   # 输出 token 数
+        &quot;errors&quot;: 0,
+    }
+    
+    async def run_single(prompt: str):
+        async with semaphore:
+            start = time.perf_counter()
+            first_token_time = None
+            token_count = 0
+            
+            try:
+                stream = await client.chat.completions.create(
+                    model=model,
+                    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+                    max_tokens=max_tokens,
+                    temperature=0,
+                    stream=True,
+                )
+                
+                async for chunk in stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        if first_token_time is None:
+                            first_token_time = time.perf_counter()
+                        token_count += 1
+                
+                end = time.perf_counter()
+                
+                if first_token_time:
+                    results[&quot;ttft&quot;].append(first_token_time - start)
+                    results[&quot;tpot&quot;].append(
+                        (end - first_token_time) / max(token_count - 1, 1)
+                    )
+                    results[&quot;e2e&quot;].append(end - start)
+                    results[&quot;tokens_out&quot;].append(token_count)
+            
+            except Exception as e:
+                results[&quot;errors&quot;] += 1
+                print(f&quot;Error: {e}&quot;)
+    
+    # 并发执行
+    start_time = time.perf_counter()
+    await asyncio.gather(*[run_single(p) for p in prompts])
+    total_time = time.perf_counter() - start_time
+    
+    # 输出结果
+    print(&quot;=&quot; * 60)
+    print(f&quot;模型: {model}&quot;)
+    print(f&quot;请求数: {len(prompts)} (成功: {len(results[&#x27;ttft&#x27;])}, 失败: {results[&#x27;errors&#x27;]})&quot;)
+    print(f&quot;并发度: {concurrency}&quot;)
+    print(f&quot;总耗时: {total_time:.2f}s&quot;)
+    print(&quot;-&quot; * 60)
+    
+    if results[&quot;ttft&quot;]:
+        print(f&quot;TTFT (首token延迟):&quot;)
+        print(f&quot;  Mean:   {statistics.mean(results[&#x27;ttft&#x27;])*1000:.1f} ms&quot;)
+        print(f&quot;  Median: {statistics.median(results[&#x27;ttft&#x27;])*1000:.1f} ms&quot;)
+        print(f&quot;  P99:    {sorted(results[&#x27;ttft&#x27;])[int(len(results[&#x27;ttft&#x27;])*0.99)]*1000:.1f} ms&quot;)
+    
+    if results[&quot;tpot&quot;]:
+        print(f&quot;TPOT (每token延迟):&quot;)
+        print(f&quot;  Mean:   {statistics.mean(results[&#x27;tpot&#x27;])*1000:.1f} ms&quot;)
+        print(f&quot;  Median: {statistics.median(results[&#x27;tpot&#x27;])*1000:.1f} ms&quot;)
+    
+    if results[&quot;e2e&quot;]:
+        total_tokens = sum(results[&quot;tokens_out&quot;])
+        print(f&quot;吞吐量:&quot;)
+        print(f&quot;  Request: {len(results[&#x27;e2e&#x27;])/total_time:.1f} req/s&quot;)
+        print(f&quot;  Token:   {total_tokens/total_time:.1f} tokens/s&quot;)
+    print(&quot;=&quot; * 60)
+
+# 运行
+if __name__ == &quot;__main__&quot;:
+    import json
+    
+    # 加载 ShareGPT 数据集
+    with open(&quot;ShareGPT_V3_unfiltered_cleaned_split.json&quot;) as f:
+        dataset = json.load(f)
+    
+    prompts = []
+    for item in dataset[:500]:
+        if item[&quot;conversations&quot;]:
+            prompts.append(item[&quot;conversations&quot;][0][&quot;value&quot;])
+    
+    asyncio.run(benchmark(
+        base_url=&quot;http://localhost:8000/v1&quot;,
+        model=&quot;meta-llama/Llama-3-8B-Instruct&quot;,
+        prompts=prompts,
+        max_tokens=256,
+        concurrency=64,
+    ))
+</code></pre>
+<h3 id="23-GenAI-Perf-NVIDIA">2.3 GenAI-Perf (NVIDIA)</h3>
+<pre><code class="language-bash">
+# 安装
+pip install genai-perf
+
+# 运行 benchmark
+genai-perf profile \
+    -m meta-llama/Llama-3-8B-Instruct \
+    --service-kind openai \
+    --endpoint-type chat \
+    --url localhost:8000 \
+    --num-prompts 500 \
+    --random-seed 42 \
+    --synthetic-input-tokens-mean 512 \
+    --synthetic-input-tokens-stddev 100 \
+    --output-tokens-mean 256 \
+    --output-tokens-stddev 50 \
+    --concurrency 32 \
+    --artifact-dir ./results
+
+# 生成报告
+genai-perf report --artifact-dir ./results
+</code></pre>
+<h3 id="24-llmperf-Ray">2.4 llmperf (Ray)</h3>
+<pre><code class="language-bash">
+pip install llmperf
+
+python -m llmperf.ray_llmperf \
+    --model meta-llama/Llama-3-8B-Instruct \
+    --num-requests 100 \
+    --max-num-completed-requests 100 \
+    --num-concurrent-requests 10 \
+    --llm-api openai \
+    --base-url http://localhost:8000/v1
+</code></pre>
+<h2 id="3-标准测试数据集">3. 标准测试数据集</h2>
+<pre><code>
+常用 Benchmark 数据集:
+
+┌───────────────┬──────────┬──────────────┬──────────────────┐
+│ 数据集         │ 类型     │ 特点          │ 用途              │
+├───────────────┼──────────┼──────────────┼──────────────────┤
+│ ShareGPT      │ 真实对话  │ 长度分布不均   │ 真实场景测试      │
+│ HumanEval     │ 代码生成  │ 短输入长输出   │ 代码推理测试      │
+│ MT-Bench      │ 多轮对话  │ 8 类任务      │ 质量+速度评估     │
+│ GSM8K         │ 数学推理  │ 长 chain-of-  │ 推理密集型测试    │
+│               │          │ thought      │                  │
+│ Custom JSON   │ 自定义   │ 灵活配置      │ 特定场景测试      │
+└───────────────┴──────────┴──────────────┴──────────────────┘
+</code></pre>
+<pre><code class="language-python">
+# 生成自定义测试数据
+import random
+import json
+
+def generate_test_data(
+    num_requests: int = 1000,
+    input_mean: int = 512,
+    input_std: int = 200,
+    output_mean: int = 256,
+    output_std: int = 100,
+):
+    &quot;&quot;&quot;生成符合正态分布的测试请求&quot;&quot;&quot;
+    data = []
+    for _ in range(num_requests):
+        input_len = max(50, int(random.gauss(input_mean, input_std)))
+        output_len = max(10, int(random.gauss(output_mean, output_std)))
+        
+        prompt = &quot;Please &quot; + &quot;write &quot; * (input_len // 10) + &quot;about AI.&quot;
+        data.append({
+            &quot;prompt&quot;: prompt,
+            &quot;max_tokens&quot;: output_len,
+            &quot;input_tokens_approx&quot;: input_len,
+        })
+    
+    with open(&quot;test_data.json&quot;, &quot;w&quot;) as f:
+        json.dump(data, f, indent=2)
+    
+    return data
+</code></pre>
+<h2 id="4-系统级监控">4. 系统级监控</h2>
+<h3 id="41-GPU-监控">4.1 GPU 监控</h3>
+<pre><code class="language-bash">
+# 实时 GPU 监控
+watch -n 1 nvidia-smi
+
+# 详细 GPU 指标
+nvidia-smi --query-gpu=timestamp,utilization.gpu,utilization.memory,\
+memory.used,memory.total,temperature.gpu,power.draw \
+--format=csv -l 1 &gt; gpu_metrics.csv
+
+# DCGM (生产级监控)
+dcgmi dmon -e 1001,1002,1003,1004,1005 -d 1000
+</code></pre>
+<pre><code class="language-python">
+# Python GPU 监控
+import subprocess
+import time
+
+def monitor_gpu(interval=1.0, duration=60):
+    &quot;&quot;&quot;持续监控 GPU 使用情况&quot;&quot;&quot;
+    results = []
+    start = time.time()
+    
+    while time.time() - start &lt; duration:
+        output = subprocess.check_output(
+            [&quot;nvidia-smi&quot;, &quot;--query-gpu=utilization.gpu,memory.used,temperature.gpu&quot;,
+             &quot;--format=csv,noheader,nounits&quot;]
+        ).decode()
+        
+        gpu_util, mem_used, temp = output.strip().split(&quot;, &quot;)
+        results.append({
+            &quot;time&quot;: time.time() - start,
+            &quot;gpu_util&quot;: int(gpu_util),
+            &quot;mem_used&quot;: int(mem_used),
+            &quot;temp&quot;: int(temp),
+        })
+        time.sleep(interval)
+    
+    # 分析
+    avg_util = sum(r[&quot;gpu_util&quot;] for r in results) / len(results)
+    max_mem = max(r[&quot;mem_used&quot;] for r in results)
+    print(f&quot;平均 GPU 利用率: {avg_util:.1f}%&quot;)
+    print(f&quot;最大显存使用: {max_mem} MB&quot;)
+    return results
+</code></pre>
+<h3 id="42-vLLM-Prometheus-指标">4.2 vLLM Prometheus 指标</h3>
+<pre><code class="language-yaml">
+# prometheus.yml 配置
+scrape_configs:
+  - job_name: &quot;vllm&quot;
+    static_configs:
+      - targets: [&quot;localhost:8000&quot;]
+    metrics_path: /metrics
+</code></pre>
+<pre><code>
+关键 Prometheus 指标:
+
+# 请求级别
+vllm:request_success_total          # 成功请求总数
+vllm:request_failure_total          # 失败请求总数
+vllm:time_to_first_token_seconds    # TTFT 直方图
+vllm:e2e_request_latency_seconds    # E2E 延迟直方图
+
+# 生成级别
+vllm:generation_tokens_total        # 生成 token 总数
+vllm:avg_generation_tokens_per_request  # 平均输出长度
+
+# 系统级别
+vllm:num_requests_running           # 当前运行请求数
+vllm:num_requests_waiting           # 等待请求数
+vllm:gpu_cache_usage_perc           # KV Cache 使用率
+vllm:num_preemptions_total          # 抢占次数
+</code></pre>
+<h2 id="5-优化-Checklist">5. 优化 Checklist</h2>
+<pre><code>
+┌─────────────────────────────────────────────────────────┐
+│             LLM 推理优化 Checklist                       │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  模型层                                                  │
+│  □ 选择合适的量化精度 (FP8/AWQ/GPTQ)                    │
+│  □ 使用 FlashAttention / PagedAttention                 │
+│  □ 启用 CUDA Graph (减少 kernel launch 开销)            │
+│  □ 使用 Triton 优化的自定义 kernel                       │
+│                                                         │
+│  批处理层                                                │
+│  □ 启用 Continuous Batching                             │
+│  □ 开启 Chunked Prefill                                 │
+│  □ 启用 Prefix Caching (多轮对话场景)                   │
+│  □ 调整 max_num_seqs 和 max_num_batched_tokens          │
+│                                                         │
+│  调度层                                                  │
+│  □ 配置合理的请求优先级                                  │
+│  □ 设置请求超时防止慢请求阻塞                            │
+│  □ 实现 graceful shutdown                               │
+│                                                         │
+│  系统层                                                  │
+│  □ GPU 显存利用率调至 0.85-0.95                          │
+│  □ 使用 --ipc=host (Docker 共享内存)                    │
+│  □ 设置 NVLink/PCIe 拓扑感知 (多 GPU)                   │
+│  □ 配置 NUMA 绑定 (CPU 推理时)                          │
+│                                                         │
+│  网络层                                                  │
+│  □ 使用 HTTP/2 或 gRPC                                  │
+│  □ 启用请求压缩 (gzip)                                  │
+│  □ 配置负载均衡 (多实例)                                 │
+│  □ 实现健康检查和自动重启                                │
+│                                                         │
+│  监控层                                                  │
+│  □ 部署 Prometheus + Grafana                            │
+│  □ 监控 TTFT / TPOT / E2E 分位数                        │
+│  □ 设置告警阈值 (P99 延迟、GPU 使用率)                   │
+│  □ 记录请求日志用于分析                                  │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h2 id="6-常见问题诊断">6. 常见问题诊断</h2>
+<pre><code>
+问题: TTFT 过高 (&gt;2s)
+├── 原因 1: Prefill 计算慢
+│   → 启用 Chunked Prefill
+│   → 减小 max_num_batched_tokens
+│   → 使用更激进的量化
+├── 原因 2: 排队时间长
+│   → 增加 max_num_seqs
+│   → 增加 GPU 实例
+│   → 优化请求路由
+└── 原因 3: 长 prompt
+    → 启用 Prefix Caching
+    → 减少 prompt 长度
+    → 使用 prompt compression
+
+问题: TPOT 过高 (&gt;100ms)
+├── 原因 1: Batch size 太大
+│   → 减小 max_num_seqs
+│   → 使用请求优先级调度
+├── 原因 2: 显存不足导致 swap
+│   → 减小 max_model_len
+│   → 使用更激进的量化
+│   → 减少 swap_space
+└── 原因 3: 通信瓶颈 (多 GPU)
+    → 检查 NVLink 拓扑
+    → 减小 Tensor Parallel 度
+    → 使用 Pipeline Parallel
+
+问题: 吞吐量低
+├── 原因 1: Batch 利用率不足
+│   → 增加并发请求数
+│   → 使用 async HTTP 客户端
+├── 原因 2: GPU 利用率低
+│   → 增大 max_num_batched_tokens
+│   → 检查是否有 CPU 瓶颈
+└── 原因 3: 内存碎片
+    → 启用 PagedAttention (vLLM)
+    → 调整 block size
+</code></pre>
+<h2 id="7-Benchmark-结果示例">7. Benchmark 结果示例</h2>
+<pre><code>
+测试环境: 1× A100-80GB, Llama-3-8B-Instruct
+
+┌──────────────┬─────────┬─────────┬──────────┬──────────┐
+│ 量化 / 引擎   │ TTFT    │ TPOT    │ Through  │ Max Conc │
+│              │ (ms)    │ (ms)    │ (tok/s)  │          │
+├──────────────┼─────────┼─────────┼──────────┼──────────┤
+│ FP16 / vLLM  │ 120     │ 18      │ 4,200    │ 256      │
+│ AWQ  / vLLM  │ 95      │ 15      │ 5,100    │ 384      │
+│ FP8  / vLLM  │ 110     │ 16      │ 4,800    │ 320      │
+│ Q4KM / cpp   │ 85      │ 22      │ 2,800    │ 64       │
+│ FP16 / TGI   │ 130     │ 19      │ 3,900    │ 256      │
+│ GPTQ / TGI   │ 100     │ 16      │ 4,600    │ 320      │
+└──────────────┴─────────┴─────────┴──────────┴──────────┘
+注: 以上为示意数据, 实际数值因硬件/软件版本/数据集而异
+</code></pre>
+<h2 id="8-扩展阅读">8. 扩展阅读</h2>
+<li style="margin-left:0px">vLLM Benchmarks: https://docs.vllm.ai/en/latest/performance/benchmarks.html</li>
+<li style="margin-left:0px">NVIDIA GenAI-Perf: https://docs.nvidia.com/deeplearning/triton-inference-server/user-guide/docs/perf_benchmark/genai_perf.html</li>
+<li style="margin-left:0px">Anyscale LLMPerf: https://github.com/ray-project/llmperf</li>
+<li style="margin-left:0px">Stanford HELM: https://crfm.stanford.edu/helm/</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>推理性能基准测试是量化评估推理引擎和模型部署效果的标准化方法。没有基准测试就无法科学地进行优化决策和容量规划。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">测试对象：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#TGI推理服务">TGI推理服务</a>、<a href="#llama.cpp与GGUF">llama.cpp与GGUF</a></li>
+<li style="margin-left:0px">优化手段：<a href="#批处理与调度策略">批处理与调度策略</a>、<a href="#推测解码技术">推测解码技术</a></li>
+<li style="margin-left:0px">监控配套：<a href="#LLM监控最佳实践">LLM监控最佳实践</a>、<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">决策支持：<a href="#成本管理与优化">成本管理与优化</a>、<a href="#模型选型矩阵">模型选型矩阵</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+# 将 vLLM/TGI 作为后端，FastAPI 作为网关
+from fastapi import FastAPI
+from openai import OpenAI
+
+app = FastAPI()
+llm_client = OpenAI(base_url=&quot;http://vllm:8000/v1&quot;, api_key=&quot;sk-local&quot;)
+
+@app.post(&quot;/v1/chat/completions&quot;)
+async def proxy_chat(request: ChatRequest):
+    # 加入限流、监控、安全过滤等中间件逻辑
+    response = llm_client.chat.completions.create(**request.model_dump())
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - vLLM + FastAPI 网关
+services:
+  vllm:
+    image: vllm/vllm-openai:latest
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: --model meta-llama/Llama-3-8B-Instruct --gpu-memory-utilization 0.90
+  gateway:
+    build: ./gateway
+    ports: [&quot;8080:8080&quot;]
+    depends_on: [vllm]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中配置本地推理后端：在 <code>.hermes/config.yaml</code> 中设置 <code>provider: openai-compatible</code>，<code>base_url: http://localhost:8000/v1</code>，即可将本地 vLLM 实例作为 Agent 的推理后端。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote>
+</main>
+</body>
+</html>

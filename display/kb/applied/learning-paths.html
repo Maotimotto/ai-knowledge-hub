@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>学习路径 — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>学习路径</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
+<li><a href="startup.html">创业</a></li>
+<li><a href="finance.html">金融</a></li>
+<li><a href="docker.html">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html" class="active">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>学习路径</h1>
+<p style="color:#6b7280;margin-bottom:24px">按角色和目标规划的AI学习路径 · 5篇文档</p>
+<span class="badge badge-green">难度 1/5</span>
+
+<h2>四条学习路径</h2>
+<table>
+<tr><th>路径</th><th>目标人群</th><th>核心技能</th><th>预计周期</th></tr>
+<tr><td><a href="#ai-engineer">AI工程师成长路线</a></td><td>零基础转行</td><td>ML -> DL -> NLP -> LLM -> RAG -> Agent</td><td>6-12月</td></tr>
+<tr><td><a href="#agent">Agent开发速成路径</a></td><td>有Python基础</td><td>LLM API -> Prompt -> RAG -> Agent -> 部署</td><td>2-3月</td></tr>
+<tr><td><a href="#finetune">模型微调入门路径</a></td><td>有DL基础</td><td>LoRA -> QLoRA -> 数据准备 -> 训练 -> 评估</td><td>1-2月</td></tr>
+<tr><td><a href="#startup">创业技术栈路径</a></td><td>技术创业者</td><td>全栈开发 + AI能力 + 产品思维</td><td>3-6月</td></tr>
+</table>
+
+<h2 id="ai-engineer">AI工程师成长路线</h2>
+<div class="doc-card">
+<h3>01-AI工程师成长路线</h3>
+<div class="meta">学习路径/ · 完整路线</div>
+<div class="excerpt">零基础到AI工程师的完整成长路线：数学基础 -> Python编程 -> 机器学习 -> 深度学习 -> NLP -> 大模型 -> RAG -> Agent。每个阶段的学习目标、推荐资源和里程碑。</div>
+</div>
+
+<h2 id="agent">Agent开发速成路径</h2>
+<div class="doc-card">
+<h3>02-Agent开发速成路径</h3>
+<div class="meta">学习路径/ · 速成路线</div>
+<div class="excerpt">有Python基础的开发者快速上手Agent开发：LLM API调用 -> Prompt Engineering -> RAG系统搭建 -> Agent开发 -> 生产部署。2-3个月可独立完成Agent项目。</div>
+</div>
+
+<h2 id="finetune">模型微调入门路径</h2>
+<div class="doc-card">
+<h3>03-模型微调入门路径</h3>
+<div class="meta">学习路径/ · 算法方向</div>
+<div class="excerpt">有深度学习基础的算法工程师模型微调入门：LoRA/QLoRA原理 -> 微调数据准备 -> 训练配置 -> 评估指标 -> 部署上线。1-2个月掌握微调技能。</div>
+</div>
+
+<h2 id="startup">创业技术栈路径</h2>
+<div class="doc-card">
+<h3>04-创业技术栈路径</h3>
+<div class="meta">学习路径/ · 创业方向</div>
+<div class="excerpt">技术创业者的全栈技术学习路径：Web开发 + AI能力 + 产品思维 + 商业理解。3-6个月构建独立创业的技术能力。</div>
+</div>
+
+<div class="doc-card">
+<h3>MOC-学习路径</h3>
+<div class="meta">学习路径/ · 索引页</div>
+<div class="excerpt">学习路径的MOC索引页，按角色和目标提供四条学习路径导航，包含路径选择建议和学习策略。</div>
+</div>
+</div>
+
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI知识库 — 从基础到实战</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* Hero */
+.hero{text-align:center;padding:80px 24px 60px;border-bottom:1px solid rgba(0,0,0,0.1)}
+.hero h1{font-size:44px;font-weight:700;color:#37352f;margin-bottom:12px}
+.hero .subtitle{font-size:18px;color:#6b7280;margin-bottom:32px}
+.hero .search-box{max-width:520px;margin:0 auto;position:relative}
+.hero .search-box input{width:100%;padding:12px 16px 12px 44px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font-size:16px;outline:none;background:#f6f5f4}
+.hero .search-box input:focus{border-color:#0075de;box-shadow:0 0 0 3px rgba(0,117,222,0.1)}
+.hero .search-box .icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#9ca3af}
+
+/* Stats */
+.stats{display:flex;justify-content:center;gap:48px;padding:40px 0;border-bottom:1px solid rgba(0,0,0,0.1)}
+.stat{text-align:center}
+.stat .num{font-size:36px;font-weight:700;color:#0075de}
+.stat .label{font-size:14px;color:#6b7280;margin-top:4px}
+
+/* Section Cards */
+.sections{padding:60px 0}
+.sections h2{font-size:28px;font-weight:600;text-align:center;margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:32px;transition:box-shadow 0.2s}
+.card:hover{box-shadow:0 4px 24px rgba(0,0,0,0.08)}
+.card .card-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin-bottom:16px}
+.card h3{font-size:22px;font-weight:600;margin-bottom:8px}
+.card h3 a{color:#37352f}
+.card .desc{font-size:14px;color:#6b7280;margin-bottom:16px;line-height:1.6}
+.card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.card .tag{background:#f6f5f4;padding:3px 10px;border-radius:4px;font-size:12px;color:#6b7280}
+.card .doc-count{font-size:13px;color:#0075de;font-weight:500}
+
+/* Knowledge Graph */
+.graph-section{padding:60px 0;border-top:1px solid rgba(0,0,0,0.1)}
+.graph-section h2{font-size:28px;font-weight:600;text-align:center;margin-bottom:32px}
+.graph-wrap{max-width:900px;margin:0 auto;background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:32px;overflow-x:auto}
+
+/* Quick Links */
+.quick-links{padding:60px 0;border-top:1px solid rgba(0,0,0,0.1)}
+.quick-links h2{font-size:28px;font-weight:600;text-align:center;margin-bottom:32px}
+.link-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;max-width:900px;margin:0 auto}
+@media(max-width:768px){.link-grid{grid-template-columns:repeat(2,1fr)}}
+.link-item{padding:10px 16px;border:1px solid rgba(0,0,0,0.1);border-radius:8px;font-size:14px;text-align:center;transition:background 0.15s}
+.link-item:hover{background:#f6f5f4;text-decoration:none}
+
+/* Footer */
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:32px 0;text-align:center;font-size:13px;color:#9ca3af}
+</style>
+</head>
+<body>
+
+<div class="hero">
+<h1>AI知识库</h1>
+<p class="subtitle">321篇技术文档 · 从基础到实战</p>
+<div class="search-box">
+<span class="icon">Search</span>
+<input type="text" id="searchInput" placeholder="搜索知识板块..." oninput="filterSections(this.value)">
+</div>
+</div>
+
+<div class="container">
+
+<div class="stats">
+<div class="stat"><div class="num">321</div><div class="label">技术文档</div></div>
+<div class="stat"><div class="num">4</div><div class="label">知识板块</div></div>
+<div class="stat"><div class="num">50+</div><div class="label">主题分类</div></div>
+<div class="stat"><div class="num">12</div><div class="label">应用方向</div></div>
+</div>
+
+<div class="sections">
+<h2>知识板块</h2>
+<div class="grid" id="sectionGrid">
+
+<div class="card" data-keywords="NLP Transformer RAG Agent LangGraph 微调 模型 大模型">
+<div class="card-icon" style="background:#0075de">AI</div>
+<h3><a href="ai-core/index.html">AI核心</a></h3>
+<div class="tags">
+<span class="tag">NLP</span><span class="tag">Transformer</span><span class="tag">RAG</span>
+<span class="tag">Agent</span><span class="tag">LangGraph</span><span class="tag">微调</span>
+</div>
+<div class="desc">大模型核心技术体系：自然语言处理基础、Transformer架构原理、RAG检索增强生成、Agent智能体开发、LangGraph图编排、模型微调方法论。</div>
+<div class="doc-count">约 130 篇文档</div>
+</div>
+
+<div class="card" data-keywords="CV 项目实战 多模态 推理部署 向量DB 安全 模型服务 可观测性">
+<div class="card-icon" style="background:#37352f">进阶</div>
+<h3><a href="ai-advanced/index.html">AI进阶</a></h3>
+<div class="tags">
+<span class="tag">CV</span><span class="tag">项目实战</span><span class="tag">多模态</span>
+<span class="tag">推理部署</span><span class="tag">向量DB</span><span class="tag">安全</span>
+</div>
+<div class="desc">AI进阶技术：计算机视觉、多模态模型、推理引擎部署、向量数据库选型、模型服务架构、可观测性与安全防护。</div>
+<div class="doc-count">约 43 篇文档</div>
+</div>
+
+<div class="card" data-keywords="机器学习 深度学习 NLP LLM RAG高级 神经网络 数学基础">
+<div class="card-icon" style="background:#6b7280">基础</div>
+<h3><a href="foundation/index.html">基础学科</a></h3>
+<div class="tags">
+<span class="tag">机器学习</span><span class="tag">深度学习</span><span class="tag">NLP</span>
+<span class="tag">LLM</span><span class="tag">RAG高级</span>
+</div>
+<div class="desc">基础学科知识体系：经典机器学习算法、深度学习与神经网络、自然语言处理进阶、大语言模型原理、RAG高级检索策略。</div>
+<div class="doc-count">约 60 篇文档</div>
+</div>
+
+<div class="card" data-keywords="创业 金融 Docker LangChain 面试 工具 Git 数据库 Hermes 学习路径">
+<div class="card-icon" style="background:#f59e0b">实战</div>
+<h3><a href="applied/index.html">应用实战</a></h3>
+<div class="tags">
+<span class="tag">创业</span><span class="tag">金融</span><span class="tag">Docker</span>
+<span class="tag">LangChain</span><span class="tag">面试</span><span class="tag">工具</span>
+</div>
+<div class="desc">应用实战知识：AI创业全流程、金融行业落地、Docker容器化、LangChain框架、Hermes Agent、Git版本控制、面试准备、学习路径规划。</div>
+<div class="doc-count">约 93 篇文档</div>
+</div>
+
+</div>
+</div>
+
+<div class="graph-section">
+<h2>知识关系图谱</h2>
+<div class="graph-wrap">
+<svg viewBox="0 0 860 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+<defs>
+<marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#9ca3af"/></marker>
+</defs>
+<!-- Connections -->
+<line x1="430" y1="100" x2="200" y2="220" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="430" y1="100" x2="660" y2="220" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="200" y1="260" x2="200" y2="370" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="660" y1="260" x2="660" y2="370" stroke="#d1d5db" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="200" y1="260" x2="660" y2="260" stroke="#d1d5db" stroke-width="1" stroke-dasharray="6,4"/>
+<line x1="200" y1="370" x2="660" y2="370" stroke="#d1d5db" stroke-width="1" stroke-dasharray="6,4"/>
+<line x1="430" y1="100" x2="200" y2="370" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4,4"/>
+<line x1="430" y1="100" x2="660" y2="370" stroke="#d1d5db" stroke-width="1" stroke-dasharray="4,4"/>
+<!-- Top: Foundation -->
+<circle cx="430" cy="80" r="36" fill="#6b7280" opacity="0.12" stroke="#6b7280" stroke-width="1.5"/>
+<text x="430" y="76" text-anchor="middle" font-size="12" font-weight="600" fill="#37352f">基础学科</text>
+<text x="430" y="92" text-anchor="middle" font-size="10" fill="#6b7280">60 docs</text>
+<!-- Left: AI Core -->
+<circle cx="200" cy="240" r="42" fill="#0075de" opacity="0.12" stroke="#0075de" stroke-width="1.5"/>
+<text x="200" y="236" text-anchor="middle" font-size="13" font-weight="600" fill="#37352f">AI核心</text>
+<text x="200" y="252" text-anchor="middle" font-size="10" fill="#6b7280">130 docs</text>
+<!-- Right: AI Advanced -->
+<circle cx="660" cy="240" r="38" fill="#37352f" opacity="0.12" stroke="#37352f" stroke-width="1.5"/>
+<text x="660" y="236" text-anchor="middle" font-size="13" font-weight="600" fill="#37352f">AI进阶</text>
+<text x="660" y="252" text-anchor="middle" font-size="10" fill="#6b7280">43 docs</text>
+<!-- Bottom Left: Foundation detailed -->
+<circle cx="200" cy="390" r="34" fill="#8b5cf6" opacity="0.12" stroke="#8b5cf6" stroke-width="1"/>
+<text x="200" y="386" text-anchor="middle" font-size="11" font-weight="500" fill="#37352f">ML/DL</text>
+<text x="200" y="400" text-anchor="middle" font-size="9" fill="#6b7280">数学基础</text>
+<!-- Bottom Right: Applied -->
+<circle cx="660" cy="390" r="36" fill="#f59e0b" opacity="0.12" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="660" y="386" text-anchor="middle" font-size="12" font-weight="600" fill="#37352f">应用实战</text>
+<text x="660" y="400" text-anchor="middle" font-size="10" fill="#6b7280">93 docs</text>
+<!-- Labels -->
+<text x="310" y="155" font-size="10" fill="#9ca3af" transform="rotate(-32,310,155)">理论基础</text>
+<text x="550" y="155" font-size="10" fill="#9ca3af" transform="rotate(32,550,155)">技术进阶</text>
+<text x="140" y="320" font-size="10" fill="#9ca3af">NLP/Transformer/RAG</text>
+<text x="590" y="320" font-size="10" fill="#9ca3af">CV/部署/安全</text>
+<text x="380" y="470" font-size="10" fill="#9ca3af">创业 / 金融 / 面试 / 工具</text>
+</svg>
+</div>
+</div>
+
+<div class="quick-links">
+<h2>热门入口</h2>
+<div class="link-grid">
+<a class="link-item" href="ai-core/index.html">Transformer</a>
+<a class="link-item" href="ai-core/index.html">RAG技术</a>
+<a class="link-item" href="ai-core/index.html">Agent开发</a>
+<a class="link-item" href="ai-advanced/index.html">推理部署</a>
+<a class="link-item" href="foundation/index.html">机器学习</a>
+<a class="link-item" href="foundation/index.html">深度学习</a>
+<a class="link-item" href="applied/langchain.html">LangChain</a>
+<a class="link-item" href="applied/docker.html">Docker</a>
+<a class="link-item" href="applied/startup.html">创业实战</a>
+<a class="link-item" href="applied/finance.html">金融落地</a>
+<a class="link-item" href="applied/interview.html">面试准备</a>
+<a class="link-item" href="applied/hermes-agent.html">Hermes Agent</a>
+</div>
+</div>
+
+</div>
+
+<footer>
+<div class="container">
+<p>AI知识库 · 321篇技术文档 · 最后更新：2026年6月</p>
+<p style="margin-top:6px">从基础理论到工程实战，系统化AI学习之路</p>
+</div>
+</footer>
+
+<script>
+function filterSections(q){
+q=q.toLowerCase();
+document.querySelectorAll('#sectionGrid .card').forEach(c=>{
+var t=c.dataset.keywords+' '+c.textContent;
+c.style.display=t.toLowerCase().indexOf(q)>-1?'':'none';
+});
+}
+</script>
+</body>
+</html>

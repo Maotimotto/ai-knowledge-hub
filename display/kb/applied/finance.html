@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融 — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>金融</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
+<li><a href="startup.html">创业</a></li>
+<li><a href="finance.html" class="active">金融</a></li>
+<li><a href="docker.html">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>金融知识库</h1>
+<p style="color:#6b7280;margin-bottom:24px">AI在金融行业的落地方案与项目实战 · 15篇文档</p>
+<span class="badge badge-yellow">难度 3/5</span>
+<span class="badge badge-blue">金融科技</span>
+
+<h2 id="overview">概览</h2>
+<div class="doc-card">
+<h3>金融行业AI应用全景</h3>
+<div class="excerpt">
+<p>银行、证券、保险三大领域的AI应用矩阵：</p>
+<ul>
+<li><strong>银行</strong>：信贷风控、智能客服、合规审查、代码大模型</li>
+<li><strong>证券</strong>：投研助手、智能研报、风险预警</li>
+<li><strong>保险</strong>：智能核保、理赔辅助、质检合规</li>
+</ul>
+<p>核心技术方案：RAG检索增强 + Agent智能体 + 模型微调</p>
+</div>
+</div>
+
+<h2 id="industry">行业方向</h2>
+<div class="doc-card">
+<h3>金融行业</h3>
+<div class="meta">金融/行业方向 · 行业全景</div>
+<div class="excerpt">银行/证券/保险三大领域AI应用全景图，覆盖信贷、客服、合规、投研、风控等全业务链的AI落地方案。包含工行、建行、招行、民生银行等头部机构的实际案例。</div>
+</div>
+<div class="doc-card">
+<h3>金融风控6大落地场景</h3>
+<div class="meta">金融/行业方向</div>
+<div class="excerpt">金融风控领域六大AI落地方案：反欺诈检测、信用评估、异常交易监控、合规审查、市场风险预警、操作风险防控。</div>
+</div>
+
+<h2 id="project">项目方案</h2>
+<div class="doc-card">
+<h3>全天候个人投顾助手 — 项目计划书</h3>
+<div class="meta">金融/项目方案 · 核心项目</div>
+<div class="excerpt">Always-On Personal Investment Assistant完整项目计划书：产品定义、技术架构、商业模式、开发计划、里程碑规划。RAG + Agent + 实时行情数据的全栈AI投顾系统。</div>
+</div>
+<div class="doc-card">
+<h3>全天候个人投顾助手 — 核心业务流程</h3>
+<div class="meta">金融/项目方案</div>
+<div class="excerpt">投顾助手核心业务流程设计：用户意图识别 -> 知识检索 -> 投资分析 -> 风险评估 -> 建议生成 -> 合规审核的完整工作流。</div>
+</div>
+<div class="doc-card">
+<h3>全天候个人投顾助手 — 后端架构开发指导纲要</h3>
+<div class="meta">金融/项目方案</div>
+<div class="excerpt">后端技术架构开发指导：FastAPI服务架构、数据库设计、API接口规范、缓存策略、消息队列、Docker部署方案。</div>
+</div>
+
+<h2 id="tob">To-B项目方案</h2>
+<div class="doc-card">
+<h3>智能公告解读助手 (Regulatory Filing Insight Agent)</h3>
+<div class="meta">金融/To-B项目方案</div>
+<div class="excerpt">面向金融机构的智能公告解读Agent项目：自动解析上市公司公告、提取关键信息、生成分析报告、风险提示。基于RAG + Agent架构。</div>
+</div>
+<div class="doc-card">
+<h3>智能公告解读助手 — 项目指导文件</h3>
+<div class="meta">金融/To-B项目方案</div>
+<div class="excerpt">智能公告解读助手的详细项目指导文件：需求分析、技术选型、开发规范、测试策略、部署方案。</div>
+</div>
+
+<h2 id="phase">阶段项目方案</h2>
+<div class="doc-card">
+<h3>第一阶段项目方案</h3>
+<div class="meta">金融/阶段项目方案</div>
+<div class="excerpt">投顾助手第一阶段开发方案：MVP功能定义、技术栈选型、开发排期、风险评估。</div>
+</div>
+<div class="doc-card">
+<h3>数据库设计 / 接口文档设计 / 测试用例设计</h3>
+<div class="meta">金融/阶段项目方案 · 3篇文档</div>
+<div class="excerpt">投顾助手项目的数据库表结构设计、RESTful API接口文档、测试用例覆盖设计，是项目工程化的三大支柱文档。</div>
+</div>
+</div>
+<div class="toc"><h4>目录</h4>
+<a href="#overview">概览</a>
+<a href="#industry">行业方向</a>
+<a href="#project">项目方案</a>
+<a href="#tob">To-B方案</a>
+<a href="#phase">阶段方案</a></div>
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

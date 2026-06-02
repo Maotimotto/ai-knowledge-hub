@@ -1,0 +1,3580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>自然语言处理 - AI 知识库</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', 'PingFang SC', -apple-system, sans-serif;
+  font-size: 16px; line-height: 1.7; color: #37352f; background: #ffffff;
+  display: flex; min-height: 100vh;
+}
+/* Sidebar */
+.sidebar {
+  position: sticky; top: 0; left: 0; width: 280px; height: 100vh;
+  overflow-y: auto; background: #f6f5f4; border-right: 1px solid rgba(0,0,0,0.1);
+  flex-shrink: 0; padding: 0; z-index: 10;
+}
+.sidebar-header { padding: 24px 20px 16px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.sidebar-header h3 { font-size: 16px; font-weight: 600; color: #37352f; }
+.sidebar-content { padding: 12px 0; }
+.sidebar-section { margin-bottom: 8px; }
+.sidebar-dir { padding: 6px 20px; font-size: 13px; font-weight: 600; color: #6b6b6b; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-section ul { list-style: none; }
+.sidebar-section li a {
+  display: flex; align-items: center; gap: 8px; padding: 6px 20px 6px 28px;
+  font-size: 14px; color: #37352f; text-decoration: none; transition: background 0.15s;
+}
+.sidebar-section li a:hover { background: rgba(0,117,222,0.08); }
+/* Main content */
+.main-content { flex: 1; max-width: 900px; margin: 0 auto; padding: 40px 60px 80px; }
+/* Headings */
+h1 { font-size: 44px; font-weight: 700; margin: 0 0 16px; color: #37352f; letter-spacing: -0.5px; }
+h2 { font-size: 28px; font-weight: 600; margin: 48px 0 16px; color: #37352f; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+h3 { font-size: 22px; font-weight: 600; margin: 32px 0 12px; color: #37352f; }
+h4 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; color: #37352f; }
+h5 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; color: #37352f; }
+/* Paragraphs & text */
+p { margin: 0 0 16px; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+a { color: #0075de; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wikilink { color: #0075de; border-bottom: 1px dotted #0075de; }
+/* Lists */
+ul, ol { margin: 0 0 16px; padding-left: 24px; }
+li { margin-bottom: 4px; }
+/* Blockquotes */
+blockquote {
+  margin: 16px 0; padding: 12px 16px; border-left: 3px solid #0075de;
+  background: #f6f5f4; border-radius: 0 4px 4px 0; font-size: 14px; color: #4a4a4a;
+}
+blockquote p { margin: 0 0 4px; }
+/* Code */
+.inline-code {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.9em;
+  background: #f6f5f4; padding: 2px 6px; border-radius: 3px; color: #e74c3c;
+}
+.code-block { margin: 16px 0; border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.1); }
+.code-header { background: #f6f5f4; padding: 6px 12px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.code-lang { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6b6b6b; }
+.code-block pre { margin: 0; padding: 16px; overflow-x: auto; background: #ffffff; }
+.code-block code {
+  font-family: 'JetBrains Mono', monospace; font-size: 13.5px; line-height: 1.6; color: #37352f;
+}
+/* Tables */
+.table-wrapper { margin: 16px 0; overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { background: #f6f5f4; font-weight: 600; text-align: left; padding: 10px 12px; border: 1px solid rgba(0,0,0,0.1); }
+td { padding: 8px 12px; border: 1px solid rgba(0,0,0,0.1); }
+tr.alt-row { background: #f6f5f4; }
+/* Badges */
+.badge {
+  display: inline-block; padding: 2px 8px; border-radius: 4px;
+  font-size: 11px; font-weight: 600; line-height: 1.4; flex-shrink: 0;
+}
+.badge-beginner { background: #e6f7e6; color: #1a7a1a; }
+.badge-intermediate { background: #fff7e6; color: #b37700; }
+.badge-advanced { background: #ffe6e6; color: #b30000; }
+/* Math */
+.math-formula { font-family: 'Times New Roman', serif; font-style: italic; color: #37352f; }
+.math-block { margin: 16px 0; padding: 12px 16px; background: #f6f5f4; border-radius: 4px; text-align: center; font-family: 'Times New Roman', serif; font-size: 16px; }
+/* Diagrams */
+.diagram-svg { width: 100%; max-width: 800px; margin: 24px auto; display: block; }
+.diagram-container { margin: 24px 0; padding: 16px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1); border-radius: 8px; }
+.diagram-title { font-size: 16px; font-weight: 600; color: #37352f; margin-bottom: 12px; text-align: center; }
+/* HR */
+hr { margin: 32px 0; border: none; border-top: 1px solid rgba(0,0,0,0.1); }
+/* Section cards */
+.section-card {
+  margin: 24px 0; padding: 24px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px; transition: box-shadow 0.2s;
+}
+.section-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.section-card h2 { margin-top: 0; border: none; padding: 0; }
+/* Page header */
+.page-header { margin-bottom: 40px; padding-bottom: 24px; border-bottom: 1px solid rgba(0,0,0,0.1); }
+.page-subtitle { font-size: 18px; color: #6b6b6b; margin-top: 8px; }
+/* TOC */
+.toc { margin: 24px 0; padding: 20px 24px; background: #f6f5f4; border-radius: 8px; }
+.toc h3 { font-size: 16px; margin: 0 0 12px; }
+.toc ul { list-style: none; padding: 0; margin: 0; }
+.toc li { margin: 4px 0; }
+.toc a { font-size: 14px; color: #37352f; }
+.toc a:hover { color: #0075de; }
+.toc .toc-h3 { padding-left: 16px; }
+.toc .toc-h4 { padding-left: 32px; }
+/* Landing page */
+.landing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin: 32px 0; }
+.landing-card {
+  padding: 24px; background: #ffffff; border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px; transition: box-shadow 0.2s, transform 0.2s; text-decoration: none; color: #37352f;
+}
+.landing-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); text-decoration: none; }
+.landing-card h3 { margin: 0 0 8px; font-size: 20px; }
+.landing-card p { margin: 0; font-size: 14px; color: #6b6b6b; }
+/* Footer */
+.page-footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1); font-size: 13px; color: #999; text-align: center; }
+/* Responsive */
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  .sidebar { width: 100%; height: auto; position: relative; }
+  .main-content { padding: 20px; }
+  h1 { font-size: 32px; }
+}
+/* Syntax highlighting (basic) */
+.code-block code .kw { color: #d73a49; }
+.code-block code .str { color: #032f62; }
+.code-block code .cm { color: #6a737d; }
+.code-block code .fn { color: #6f42c1; }
+.code-block code .num { color: #005cc5; }
+</style>
+</head>
+<body>
+<nav class="sidebar"><div class="sidebar-header"><h3>目录导航</h3></div><div class="sidebar-content"><div class="sidebar-section"><div class="sidebar-dir">NLP 基础</div><ul><li><a href="#nlp基础"><span class="badge badge-beginner">入门</span>NLP基础</a></li><li><a href="#rnn循环神经网络核心笔记"><span class="badge badge-beginner">入门</span>RNN循环神经网络核心笔记</a></li><li><a href="#投满分"><span class="badge badge-advanced">高级</span>投满分</a></li></ul></div><div class="sidebar-section"><div class="sidebar-dir">NLP 项目实践</div><ul><li><a href="#1文本分类项目从0到1实施纲领"><span class="badge badge-advanced">高级</span>1、文本分类项目从0到1实施纲领</a></li><li><a href="#2调整后的项目实施方案"><span class="badge badge-beginner">入门</span>2、调整后的项目实施方案</a></li><li><a href="#3bert模型开发经验总结"><span class="badge badge-beginner">入门</span>3、BERT模型开发经验总结</a></li><li><a href="#4第三阶段-模型开发与训练问题总结"><span class="badge badge-beginner">入门</span>4、第三阶段-模型开发与训练问题总结</a></li><li><a href="#5api调试过程问题总结"><span class="badge badge-beginner">入门</span>5、API调试过程问题总结</a></li><li><a href="#readme"><span class="badge badge-beginner">入门</span>README</a></li></ul></div></div></nav>
+<main class="main-content">
+<div class="page-header">
+<h1>自然语言处理</h1>
+</div>
+<div class="toc"><h3>目录</h3><ul><li style="font-weight:600;margin-top:8px;">NLP 基础</li><li class="toc-h3"><a href="#nlp基础">NLP基础</a></li><li class="toc-h3"><a href="#rnn循环神经网络核心笔记">RNN循环神经网络核心笔记</a></li><li class="toc-h3"><a href="#投满分">投满分</a></li></ul><ul><li style="font-weight:600;margin-top:8px;">NLP 项目实践</li><li class="toc-h3"><a href="#1文本分类项目从0到1实施纲领">1、文本分类项目从0到1实施纲领</a></li><li class="toc-h3"><a href="#2调整后的项目实施方案">2、调整后的项目实施方案</a></li><li class="toc-h3"><a href="#3bert模型开发经验总结">3、BERT模型开发经验总结</a></li><li class="toc-h3"><a href="#4第三阶段-模型开发与训练问题总结">4、第三阶段-模型开发与训练问题总结</a></li><li class="toc-h3"><a href="#5api调试过程问题总结">5、API调试过程问题总结</a></li><li class="toc-h3"><a href="#readme">README</a></li></ul></div>
+<div class="diagram-container">
+<svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+  <style>
+    .rnn-cell { fill: #0075de; opacity: 0.15; stroke: #0075de; stroke-width: 2; }
+    .rnn-gate { fill: #e74c3c; opacity: 0.15; stroke: #e74c3c; stroke-width: 2; }
+    .rnn-line { stroke: #37352f; stroke-width: 1.5; fill: none; marker-end: url(#arr2); }
+    .rnn-rec { stroke: #0075de; stroke-width: 1.5; fill: none; marker-end: url(#arr2); }
+    .rnn-text { font-family: 'Inter', sans-serif; font-size: 11px; fill: #37352f; }
+    .rnn-label { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; fill: #37352f; }
+  </style>
+  <defs><marker id="arr2" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#37352f"/></marker></defs>
+  <text x="400" y="25" text-anchor="middle" class="rnn-label">RNN 循环神经网络数据流</text>
+  <!-- RNN cells -->
+  <rect x="80" y="70" width="70" height="50" class="rnn-cell" rx="8"/>
+  <text x="115" y="100" text-anchor="middle" class="rnn-text">h1</text>
+  <rect x="250" y="70" width="70" height="50" class="rnn-cell" rx="8"/>
+  <text x="285" y="100" text-anchor="middle" class="rnn-text">h2</text>
+  <rect x="420" y="70" width="70" height="50" class="rnn-cell" rx="8"/>
+  <text x="455" y="100" text-anchor="middle" class="rnn-text">h3</text>
+  <rect x="590" y="70" width="70" height="50" class="rnn-cell" rx="8"/>
+  <text x="625" y="100" text-anchor="middle" class="rnn-text">ht</text>
+  <!-- Input arrows -->
+  <line x1="115" y1="180" x2="115" y2="120" class="rnn-line"/>
+  <text x="115" y="195" text-anchor="middle" class="rnn-text">x1</text>
+  <line x1="285" y1="180" x2="285" y2="120" class="rnn-line"/>
+  <text x="285" y="195" text-anchor="middle" class="rnn-text">x2</text>
+  <line x1="455" y1="180" x2="455" y2="120" class="rnn-line"/>
+  <text x="455" y="195" text-anchor="middle" class="rnn-text">x3</text>
+  <line x1="625" y1="180" x2="625" y2="120" class="rnn-line"/>
+  <text x="625" y="195" text-anchor="middle" class="rnn-text">xt</text>
+  <!-- Hidden state connections -->
+  <line x1="150" y1="95" x2="250" y2="95" class="rnn-rec"/>
+  <line x1="320" y1="95" x2="420" y2="95" class="rnn-rec"/>
+  <line x1="490" y1="95" x2="590" y2="95" class="rnn-rec"/>
+  <!-- Output arrows -->
+  <line x1="115" y1="70" x2="115" y2="45" class="rnn-line"/>
+  <text x="115" y="40" text-anchor="middle" class="rnn-text">y1</text>
+  <line x1="285" y1="70" x2="285" y2="45" class="rnn-line"/>
+  <text x="285" y="40" text-anchor="middle" class="rnn-text">y2</text>
+  <line x1="455" y1="70" x2="455" y2="45" class="rnn-line"/>
+  <text x="455" y="40" text-anchor="middle" class="rnn-text">y3</text>
+  <line x1="625" y1="70" x2="625" y2="45" class="rnn-line"/>
+  <text x="625" y="40" text-anchor="middle" class="rnn-text">yt</text>
+  <!-- LSTM section -->
+  <text x="400" y="240" text-anchor="middle" class="rnn-label">LSTM 门控机制</text>
+  <rect x="200" y="260" width="400" height="70" fill="none" stroke="#e74c3c" stroke-width="1" stroke-dasharray="4 4" rx="8"/>
+  <text x="400" y="280" text-anchor="middle" class="rnn-text">遗忘门 f = sigmoid(W_f · [h_{t-1}, x_t] + b_f)</text>
+  <text x="400" y="300" text-anchor="middle" class="rnn-text">输入门 i = sigmoid(W_i · [h_{t-1}, x_t] + b_i)</text>
+  <text x="400" y="320" text-anchor="middle" class="rnn-text">输出门 o = sigmoid(W_o · [h_{t-1}, x_t] + b_o)</text>
+</svg></div><div class="section-card" id="nlp基础"><h2><span class="badge badge-beginner">入门</span> NLP基础</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#了解今日内容介绍">【了解】今日内容介绍</a></li><li><a href="#掌握rnn及其变体">【掌握】RNN及其变体</a></li><li class="toc-h3"><a href="#认识rnn模型">认识RNN模型</a></li><li class="toc-h4"><a href="#概述">概述</a></li><li class="toc-h4"><a href="#作用">作用</a></li><li class="toc-h4"><a href="#分类">分类</a></li><li class="toc-h3"><a href="#传统rnn模型">传统RNN模型</a></li><li class="toc-h4"><a href="#传统rnn内部结构">传统RNN内部结构</a></li><li class="toc-h4"><a href="#pytorch构建单层rnn">PyTorch构建单层RNN</a></li><li class="toc-h4"><a href="#pytorch构建单层rnn">PyTorch构建单层RNN</a></li><li class="toc-h4"><a href="#pytorch构建单层rnn">PyTorch构建单层RNN</a></li><li class="toc-h4"><a href="#pytorch构建多层rnn">PyTorch构建多层RNN</a></li><li class="toc-h4"><a href="#rnn深层理解">RNN深层理解</a></li><li class="toc-h4"><a href="#rnn的优缺点">RNN的优缺点</a></li><li class="toc-h3"><a href="#lstm模型">LSTM模型</a></li><li class="toc-h4"><a href="#概述">概述</a></li><li class="toc-h4"><a href="#lstm内部结构">LSTM内部结构</a></li><li class="toc-h4"><a href="#bi-lstm概述">Bi-LSTM概述</a></li><li class="toc-h4"><a href="#pytorch构建lstm">PyTorch构建LSTM</a></li><li class="toc-h4"><a href="#为什么能缓解梯度消失">为什么能缓解梯度消失</a></li><li class="toc-h4"><a href="#lstm优缺点">LSTM优缺点</a></li><li class="toc-h3"><a href="#gru模型">GRU模型</a></li><li class="toc-h4"><a href="#概述">概述</a></li><li class="toc-h4"><a href="#gru内部结构">GRU内部结构</a></li><li class="toc-h4"><a href="#bi-gru概述">Bi-GRU概述</a></li><li class="toc-h4"><a href="#pytorch构建gru">PyTorch构建GRU</a></li><li class="toc-h4"><a href="#优缺点">优缺点</a></li></ul></div><h1 id="nlp基础">NLP基础</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：NLP 知识体系的<strong>序列建模入门篇</strong>。从 RNN 的循环机制出发，经 LSTM/GRU 解决长程依赖，到理解为什么 Transformer 取代了 RNN。是衔接传统 NLP 与现代大语言模型的关键桥梁。
+
+<strong>🔗 知识串联</strong>：← 上游：<a href="#01-神经网络基础" class="wikilink">神经网络基础</a>、<a href="#06-pytorch基础" class="wikilink">PyTorch</a> → 下游：<a href="#transformer" class="wikilink">Transformer</a>（RNN → Self-Attention 的演进）、<a href="#大语言模型llm架构核心解析" class="wikilink">LLM 架构</a> → 横向：<a href="#rnn循环神经网络核心笔记" class="wikilink">RNN 核心笔记</a>、<a href="#05-rnn循环神经网络" class="wikilink">DL-RNN</a>
+
+<strong>⚡ 难度标识</strong>：🟡 中等 — RNN/LSTM 的梯度消失问题是核心难点
+
+<strong>🛠️ 落地实践</strong>：读完本文后，你应该能：① 解释 RNN 的循环机制和梯度消失问题 ② 对比 LSTM 与 GRU 的门控设计 ③ 理解为什么 Transformer 取代了 RNN</blockquote>
+
+<blockquote><strong>相关链接</strong>：<a href="#rnn循环神经网络核心笔记" class="wikilink">RNN核心笔记</a> | <a href="#transformer" class="wikilink">Transformer</a> | <a href="#05-rnn循环神经网络" class="wikilink">DL-RNN</a> | <a href="#大语言模型llm架构核心解析" class="wikilink">LLM架构</a></blockquote>
+
+<h2 id="了解今日内容介绍">【了解】今日内容介绍</h2>
+
+<ul><li>RNN系列模型</li>
+<li>RNN模型</li></ul>
+
+<ul><li>LSTM模型</li></ul>
+
+<ul><li>GRU模型</li></ul>
+
+
+
+
+
+<h2 id="掌握rnn及其变体">【掌握】RNN及其变体</h2>
+
+<h3 id="认识rnn模型">认识RNN模型</h3>
+
+<h4 id="概述">概述</h4>
+
+<p>RNN，Recurrent Neutral Network，循环神经网络，它一般以序列数据作为输入，通过网络内部的结构设计有效捕捉序列之间的关系特征，一般也是以序列形式进行输出。</p>
+
+<p>RNN的循环机制，就是让上一层的输出，能够作为当下输入的一部分。</p>
+
+<h4 id="作用">作用</h4>
+
+<p>因为RNN结构能够很好利用序列之间的关系，因此针对自然界具有连续性的输入序列。如人类的语言，语音等进行很好的处理，广泛应用于NLP领域的各项任务，如文本分类，情感分析，意图识别，机器翻译等。RNN后来被<a href="#transformer" class="wikilink">Transformer</a>架构所取代。</p>
+
+<h4 id="分类">分类</h4>
+
+<p>我们从2个角度来分类：输入和输出结构、内部构造。</p>
+
+<ul><li>输入和输出结构</li>
+<li>N vs N - RNN</li>
+<li>输入序列和输出序列是等长的</li>
+<li>使用范围较小，比如用于生成诗句</li>
+<li>N vs 1 - RNN</li>
+<li>输入是序列，输出是单值</li>
+<li>经常用于文本分类问题上</li>
+<li>1 vs N - RNN</li>
+<li>输入是单值，输出是序列。</li>
+<li>用于图片生成文字等</li>
+<li>N vs M - RNN</li>
+<li>不限制输入输出长度的RNN</li>
+<li>由编码器和解码器组成，两者的内部结构都是某RNN，也被称为seq2seq架构</li>
+<li>最早提出用于机器翻译，现在还能用于阅读理解，文本摘要等</li>
+<li>内部构造</li>
+<li>传统RNN</li>
+<li>LSTM</li>
+<li>Bi-LSTM</li>
+<li>GRU</li>
+<li>Bi-GRU</li></ul>
+
+
+
+<h3 id="传统rnn模型">传统RNN模型</h3>
+
+<h4 id="传统rnn内部结构">传统RNN内部结构</h4>
+
+<p>!<a href="assets/1740891550978.png">1740891550978</a></p>
+
+<p>内部结构分析：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">我们把目光集中在中间的方块部分，它的输入有两部分，分别是h(t-1)以及x(t)，代表上一时间步的隐层输出，以及此时间步的输入，它们进入RNN结构体后，会&quot;融合&quot;到一起，这种融合我们根据结构解释可知，是将二者进行拼接，形成新的张量[x(t), h(t-1)]，之后这个新的张量将通过一个全连接层(线性层)，该层使用tanh作为激活函数，最终得到该时间步的输出h(t)，它将作为下一个时间步的输入和x(t+1)一起进入结构体，以此类推。</code></pre></div>
+
+
+<h4 id="pytorch构建单层rnn">PyTorch构建单层RNN</h4>
+
+<p>一条样本，该样本只有一个token，隐藏层为一层的情况。</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># encoding:utf-8
+import torch
+from torch import nn
+
+
+def use1rnn():
+    # input_size:输入层数据的维度，也就是多少个特征
+    # hidden_size:隐藏层的特征
+    # num_layers:隐藏层的数量，默认是1
+    rnn = nn.RNN(5, 6, 1)
+
+    # sequence_length: 输入的序列长度
+    # batch_size: 批次的样本数量
+    # input_size：数据的维度
+    input = torch.randn(1, 1, 5)
+
+    # num_layer：隐藏层数
+    # batch_size：批次的样本数
+    # hidden_size：隐藏层的维度
+    h0 = torch.zeros(1, 1, 6)
+
+    output, hn = rnn(input,h0)
+    print(output)
+    print(output.size())
+    print(output.shape)
+    print(hn)
+
+
+
+
+if __name__ == &#x27;__main__&#x27;:
+    use1rnn()
+</code></pre></div>
+
+<p>隐藏层输出和output输出是一样的。</p>
+
+
+
+<h4 id="pytorch构建单层rnn">PyTorch构建单层RNN</h4>
+
+<p>一条样本，该样本有多个token，，隐藏层为一层的情况。</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">def use2rnn():
+    # input_size:输入层数据的维度，也就是多少个特征
+    # hidden_size:隐藏层的特征
+    # num_layers:隐藏层的数量，默认是1
+    rnn = nn.RNN(5, 6, 1)
+
+    # sequence_length: 输入的序列长度
+    # batch_size: 批次的样本数量
+    # input_size：数据的维度
+    input = torch.randn(2, 1, 5)
+
+    # num_layer：隐藏层数
+    # batch_size：批次的样本数
+    # hidden_size：隐藏层的维度
+    h0 = torch.zeros(1, 1, 6)
+
+    output, hn = rnn(input,h0)
+    print(output)
+    print(output.size())
+    print(output.shape)
+    print(hn)</code></pre></div>
+
+<p>隐藏层输出和最后一个token的输出是一样的。</p>
+
+
+
+<h4 id="pytorch构建单层rnn">PyTorch构建单层RNN</h4>
+
+<p>多条样本，多个token的，隐藏层为一层的情况。</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">def use3rnn():
+    # input_size:输入层数据的维度，也就是多少个特征
+    # hidden_size:隐藏层的特征
+    # num_layers:隐藏层的数量，默认是1
+    rnn = nn.RNN(5, 6, 1)
+
+    # sequence_length: 输入的序列长度
+    # batch_size: 批次的样本数量
+    # input_size：数据的维度
+    input = torch.randn(3, 2, 5)
+
+    # num_layer：隐藏层数
+    # batch_size：批次的样本数
+    # hidden_size：隐藏层的维度
+    h0 = torch.zeros(1, 2, 6)
+
+    output, hn = rnn(input,h0)
+    print(output)
+    print(output.size())
+    print(output.shape)
+    print(hn)</code></pre></div>
+
+<p>隐藏层输出和样本的最后输出是一样的。</p>
+
+
+
+<h4 id="pytorch构建多层rnn">PyTorch构建多层RNN</h4>
+
+<p>多条样本，多个token的，隐藏层为两层的情况，如下图：</p>
+
+<p>!<a href="assets/1756384268067.png">1756384268067</a></p>
+
+<p>代码如下：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">def use3rnn():
+    # input_size:输入层数据的维度，也就是多少个特征
+    # hidden_size:隐藏层的特征
+    # num_layers:隐藏层的数量，默认是1
+    rnn = nn.RNN(5, 6, 2)
+
+    # sequence_length: 输入的序列长度
+    # batch_size: 批次的样本数量
+    # input_size：数据的维度
+    input = torch.randn(3, 2, 5)
+
+    # num_layer：隐藏层数
+    # batch_size：批次的样本数
+    # hidden_size：隐藏层的维度
+    h0 = torch.zeros(2, 2, 6)
+
+    output, hn = rnn(input,h0)
+    print(output)
+    print(output.size())
+    print(output.shape)
+    print(hn)</code></pre></div>
+
+<p>隐藏层的最后一层和样本的最后输出是一样的。</p>
+
+<blockquote>仅做了解，一般RNN都是构建单层即可。</blockquote>
+
+
+
+<h4 id="rnn深层理解">RNN深层理解</h4>
+
+<ul><li>课件上是把数据一个一个送入的，但是代码是一次性送入的。这有什么区别呢？</li></ul>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 创建模型，准备数据
+rnn = nn.RNN(input_size=5, hidden_size=6, num_layers=1)
+input = torch.randn(3, 2, 5)
+h0 = torch.zeros(1, 2, 6)
+
+# 一次性送入模型
+output, hn = rnn(input, h0)
+print(&#x27;output--&gt;&#x27;, output)
+print(&quot;hn--&gt;&quot;, hn)
+
+
+# 一个token一个token送入模型
+for i in range(input.shape[1]):
+    # (3, 2, 5) -&gt; (2, 3, 5) -&gt; (3, 5) -&gt; (3, 1, 5)
+    x0 = input.transpose(0, 1)[i].unsqueeze(1)
+    # print(&#x27;x0--&gt;&#x27;, x0.shape)
+    h0 = torch.zeros(1, 1, 6)
+    output, x0 = rnn(x0, h0)
+    print(&#x27;output--&gt;&#x27;, output)
+    print(&quot;x0--&gt;&quot;, x0)</code></pre></div>
+
+<p>因此，无论是一个个送入数据，和一次性送入数据，结果都没有区别。都一样。</p>
+
+<ul><li>RNN中，h0可以省略</li></ul>
+
+<p>~~~python</p>
+<h1 id="创建模型准备数据">创建模型，准备数据</h1>
+<p>rnn = nn.RNN(input_size=5, hidden_size=6, num_layers=1)</p>
+<p>input = torch.randn(3, 2, 5)</p>
+<p>h0 = torch.zeros(1, 2, 6)</p>
+
+<h1 id="带h0的rnn">带h0的rnn</h1>
+<p>output, hn = rnn(input, h0)</p>
+<p>print('output-->', output)</p>
+<p>print("hn-->", hn)</p>
+
+<h1 id="省略h0的rnn">省略h0的rnn</h1>
+<p>output, hn = rnn(input)</p>
+<p>print("output-->", output)</p>
+<p>print('hn-->', hn)</p>
+<p>~~~</p>
+
+<p>上面代码的运行结果是一样的。</p>
+
+<ul><li>batch_first设置为True</li></ul>
+
+<p>~~~python</p>
+<p>torch.random.manual_seed(22)</p>
+<h1 id="创建模型不设置batch_first默认为false">创建模型，不设置batch_first，默认为False</h1>
+<p>rnn = nn.RNN(input_size=5, hidden_size=6, num_layers=1)</p>
+<p>input = torch.randn(3, 2, 5)</p>
+<p>print("input1-->", input)</p>
+<p>h0 = torch.zeros(1, 2, 6)</p>
+<p>print("h0-->", h0)</p>
+
+<h1 id="让数据流经模型">让数据流经模型</h1>
+<p>output, hn = rnn(input, h0)</p>
+<p>print('output1-->', output)</p>
+<p>print("hn1-->", hn)</p>
+<p>print("<em>" </em> 80)</p>
+
+<h1 id="创建模型设置batch_firsttrue">创建模型，设置batch_first=True</h1>
+<p>torch.random.manual_seed(22)</p>
+<p>rnn = nn.RNN(input_size=5, hidden_size=6, num_layers=1, batch_first=True)</p>
+
+<p>input = input.transpose(0, 1)</p>
+<p>print("input2-->", input)</p>
+<h1 id="让数据流经模型">让数据流经模型</h1>
+<p>h1 = torch.zeros(1, 2, 6)</p>
+<p>print("h1-->", h1)</p>
+<p>output, hn = rnn(input, h1)</p>
+<p>print('output2-->', output)</p>
+<p>print("hn2-->", hn)</p>
+<p>~~~</p>
+
+<p>上面代码运行的结果中，结果是一样的。只有前后output的形状不一样。</p>
+
+
+
+<h4 id="rnn的优缺点">RNN的优缺点</h4>
+
+<p>优点：</p>
+
+<ul><li>结构简单</li>
+<li>对计算资源要求低</li>
+<li>在短序列任务上性能和效果都表现优异</li></ul>
+
+<p>缺点：</p>
+
+<ul><li>传统RNN在解决长序列之间的关联时，通过实践，证明经典RNN表现很差</li>
+<li>原因是在进行反向传播的时候，过长的序列导致梯度的计算异常，发生梯度消失或爆炸</li>
+<li>如果在训练过程中发生了梯度消失，权重无法被更新，最终导致训练失败</li>
+<li>梯度爆炸所带来的梯度过大，大幅度更新网络参数，在极端情况下，结果会溢出（NaN值）</li></ul>
+
+
+
+<h3 id="lstm模型">LSTM模型</h3>
+
+<h4 id="概述">概述</h4>
+
+<p>LSTM，Long Short Term Memory，长短时记忆结构，是传统RNN的变体。与经典RNN相比，能够有效捕捉长序列之间的语义关联，缓解梯度消失或爆炸现象。</p>
+
+<p>LSTM的结构非常复杂，核心结构可以分为四部分：</p>
+
+<ul><li>遗忘门</li>
+<li>输入门</li>
+<li>细胞状态</li>
+<li>输出门</li></ul>
+
+<h4 id="lstm内部结构">LSTM内部结构</h4>
+
+<ul><li>遗忘门</li></ul>
+
+<p>!<a href="assets/1740891728772.png">1740891728772</a></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">与传统RNN的内部结构计算非常相似，首先将当前时间步输入x(t)与上一个时间步隐含状态h(t-1)拼接，得到[x(t), h(t-1)]，然后通过一个全连接层做变换，最后通过sigmoid函数进行激活得到f(t)，我们可以将f(t)看作是门值，好比一扇门开合的大小程度，门值都将作用在通过该扇门的张量，遗忘门门值将作用的上一层的细胞状态上，代表遗忘过去的多少信息又因为遗忘门门值是由x(t), h(t-1)计算得来的，因此整个公式意味着根据当前时间步输入和上一个时间步隐含状态h(t-1)来决定遗忘多少上一层的细胞状态所携带的过往信息。
+
+用于帮助调节流经网络的值，sigmoid函数将值压缩在0和1之间。</code></pre></div>
+
+<p>释义：上一个时间步隐藏输出和数据端输入拼接一起，与权重参数进行矩阵运算，再把数据经过sigmoid变换到【0,1】区间。</p>
+
+<p>结论：作用在上一个时间步的细胞状态之上，表示对上一个时间步信息遗忘多少。</p>
+
+<ul><li>输入门</li></ul>
+
+<p>!<a href="assets/1740891832641.png">1740891832641</a></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">我们看到输入门的计算公式有两个，第一个就是产生输入门门值的公式，它和遗忘门公式几乎相同，区别只是在于它们之后要作用的目标上。这个公式意味着输入信息有多少需要进行过滤，输入门的第二个公式是与传统RNN的内部结构计算相同，对于LSTM来讲，它得到的是当前的细胞状态，而不是像经典RNN一样得到的是隐含状态。</code></pre></div>
+
+<p>结论：输入门作用在当前时间步输入上，表示对当前时间步输入要使用多少。</p>
+
+<ul><li>细胞状态</li></ul>
+
+<p>!<a href="assets/1740891877702.png">1740891877702</a></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">细胞更新的结构与计算公式非常容易理解，这里没有全连接层，只是将刚刚得到的遗忘门门值与上一个时间步得到的C(t-1)相乘，再加上输入门门值与当前时间步得到的未更新C(t)相乘的结果。最终得到更新后的C(t)作为下一个时间步输入的一部分，整个细胞状态更新过程就是对遗忘门和输入门的应用。</code></pre></div>
+
+<p>结论：遗忘门作用在上一个时间步细胞状态之上 。输入门作用在当前时间步的输入上，更新细胞状态。</p>
+
+<ul><li>输出门</li></ul>
+
+<p>!<a href="assets/1740891950105.png">1740891950105</a></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">输出门部分的公式也是两个，第一个即是计算输出门的门值，它和遗忘门，输入门计算方式相同。第二个即是使用这个门值产生隐含状态h(t)，他将作用在更新后的细胞状态C(t)上，并做tanh激活，最终得到h(t)作为下一时间步输入的一部分。整个输出门的过程，就是为了产生隐含状态h(t)。</code></pre></div>
+
+<p>结论：输出门才是得到当前output输出的结果。</p>
+
+
+
+<h4 id="bi-lstm概述">Bi-LSTM概述</h4>
+
+<p>Bi-LSTM，即双向的LSTM，它没有改变LSTM本身任何内部结构，只是将LSTM应用两次，且方向标不同，再将两次得到的LSTM结果进行拼接作为最终输出。</p>
+
+<p>!<a href="assets/1740892073887.png">1740892073887</a></p>
+
+<p>上述结构解析</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">我们看到图中对&quot;我爱中国&quot;这句话或者叫这个输入序列，进行了从左到右和从右到左两次LSTM处理，将得到的结果张量进行了拼接作为最终输出。这种结构能够捕捉语言语法中一些特定的前置或后置特征，增强语义关联，但是模型参数和计算复杂度也随之增加了一倍，一般需要对语料和计算资源进行评估后决定是否使用该结构。</code></pre></div>
+
+<h4 id="pytorch构建lstm">PyTorch构建LSTM</h4>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import torch.nn as nn
+import torch
+
+def use1lstm():
+    # 模型：lstm
+    # input_size：输入数据的特征维度
+    # hidden_size：隐藏层的特征维度
+    # num_layer：隐藏层的数量
+    lstm = nn.LSTM(input_size=5, hidden_size=6, num_layers=1)
+
+    # 输入的数据：input
+    # sequence_length：数据的长度
+    # batch_size：批次的样本数
+    # input_size：数据的维度
+    input = torch.randn(1, 1, 5)
+
+    # 初始值：h0和c0
+    # num_layer：隐藏层数
+    # batch_size：批次样本数
+    # hidden_size：隐藏层维度
+    h0 = torch.zeros(1, 1, 6)
+    c0 = torch.zeros(1, 1, 6)
+
+    output, (hn, cn) = lstm(input, (h0, c0))
+    print(output)
+    print(hn)
+    print(cn)
+
+if __name__ == &#x27;__main__&#x27;:
+    use1lstm()</code></pre></div>
+
+
+
+<h4 id="为什么能缓解梯度消失">为什么能缓解梯度消失</h4>
+
+<p>~~~shell</p>
+<p>#1.细胞状态的更新有加法运算</p>
+
+<p>#2.遗忘门，可以遗忘一些信息，因此可以少计算一些（少连乘）</p>
+<p>~~~</p>
+
+
+
+<h4 id="lstm优缺点">LSTM优缺点</h4>
+
+<ul><li>优点</li></ul>
+
+<p>LSTM的门结构能够有效减缓长序列问题中可能出现的梯度消失或爆炸，虽然不能杜绝梯度消失或者爆炸现象，但在更长的序列问题上表现优于传统的RNN</p>
+
+<ul><li>缺点</li></ul>
+
+<p>内部结构复杂，训练效率在同等算力下比RNN低下</p>
+
+
+
+<h3 id="gru模型">GRU模型</h3>
+
+<h4 id="概述">概述</h4>
+
+<p>GRU，Gate Recurrent Unit，门控循环单元结构，它也是传统的RNN变体，同LSTM一样，能够有效捕捉长序列之间的语义关联，缓解梯度消失或爆炸现象，同时它的计算结构要比LSTM简单。它的核心可以分为两部分：</p>
+
+<ul><li>更新门</li>
+<li>重置门</li></ul>
+
+<h4 id="gru内部结构">GRU内部结构</h4>
+
+<p>!<a href="assets/1740900377291.png">1740900377291</a></p>
+
+<p>详细图：</p>
+
+<p>!<a href="assets/1740900400130.png">1740900400130</a></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">和之前分析过的LSTM中的门控一样，首先计算更新门和重置门的门值，分别是z(t)和r(t)，计算方法就是使用X(t)与h(t-1)拼接进行线性变换，
+
+再经过sigmoid激活。之后重置门门值作用在了h(t-1)上，代表控制上一时间步传来的信息有多少可以被利用。
+
+接着就是使用这个重置后的h(t-1)进行基本的RNN计算，即与x(t)拼接进行线性变化，经过tanh激活，得到新的h(t)。
+
+最后更新门的门值会作用在新的h(t)，而1-门值会作用在h(t-1)上，随后将两者的结果相加，得到最终的隐含状态输出h(t)，这个过程意味着更新门有能力保留之前的结果，当门值趋于1时，输出就是新的h(t)，而当门值趋于0时，输出就是上一时间步的h(t-1)。</code></pre></div>
+
+<p>结论：</p>
+
+<p>（1）上一个时间步隐藏输出和数据端输入拼接在一起，与权重参数w进行矩阵运算，再吧数据经过sigmoid变换到【0,1】区间，形成重置门。</p>
+
+<p>（2）zt * ht含义：对当前时间步要使用多少（记忆多少，依赖多少）。</p>
+
+<p>（3）（1-zt）*h（t-1）含义：对上一个时间步要使用多少（记忆多少，依赖多少）。</p>
+
+<p>（4）zt=0，完全使用上一个隐藏层信息；zt=1，完全使用本次隐藏层信息。</p>
+
+
+
+<h4 id="bi-gru概述">Bi-GRU概述</h4>
+
+<p>Bi-GRU与Bi-LSTM的逻辑相同，都是不改变其内部结构，而是将模型应用两次且方向不同，再将两次得到的GRU结果进行拼接作为最终输出。</p>
+
+
+
+<h4 id="pytorch构建gru">PyTorch构建GRU</h4>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import torch.nn as nn
+import torch
+
+def use1gru():
+    # 初始化模型
+    # input_size:输入样本维度
+    # hidden_size：隐藏层维度
+    # num_layer：隐藏层数量
+    gru = nn.GRU(input_size=5, hidden_size=6, num_layers=1)
+
+    # 初始化数据：input
+    # sequence_length：每一批次的长度，也就是数据量
+    # batch_size：总共多少批次
+    # input_size：和初始化模型相同
+    input = torch.randn(1, 1, 5)
+
+    # 初始化数据：h0
+    # num_layer：隐藏层数量
+    # batch_size：批次数量
+    # hidden_size：隐藏层维度
+    h0 = torch.randn(1, 1, 6)
+
+    output, hn = gru(input,h0)
+    print(output)
+    print(hn)
+
+if __name__ == &#x27;__main__&#x27;:
+    use1gru()</code></pre></div>
+
+<p>输出的结果和隐藏层的最后一层是一样的。</p>
+
+
+
+<h4 id="优缺点">优缺点</h4>
+
+<ul><li>优点</li></ul>
+
+<p>GRU和LSTM作用相同，在捕捉长序列语义关联时，能有效抑制梯度消失或爆炸，效果都优于传统RNN且计算复杂度相比LSTM要小</p>
+
+<ul><li>缺点</li></ul>
+
+<p>不能完全解决梯度消失或者爆炸的现象，且不能并行计算。当然所有的RNN及其变体模型都不能并行计算。正是因为如此，才有了后面的Transformer的诞生。</p>
+
+
+
+
+
+
+
+
+
+</div><div class="section-card" id="rnn循环神经网络核心笔记"><h2><span class="badge badge-beginner">入门</span> RNN循环神经网络核心笔记</h2><div class="toc"><h3>本节目录</h3><ul><li class="toc-h4"><a href="#pytorch构建单层rnn">PyTorch构建单层RNN</a></li><li><a href="#21-基本结构拆解">2.1 基本结构拆解</a></li><li><a href="#22-核心计算公式与符号定义">2.2 核心计算公式与符号定义</a></li><li><a href="#23-结构可视化循环机制流程图">2.3 结构可视化：循环机制流程图</a></li><li><a href="#31-场景1一对一序列分类">3.1 场景1：一对一（序列分类）</a></li><li><a href="#32-场景2一对多序列生成">3.2 场景2：一对多（序列生成）</a></li><li><a href="#33-场景3多对多序列转换">3.3 场景3：多对多（序列转换）</a></li><li><a href="#41-核心局限性长序列依赖问题">4.1 核心局限性：长序列依赖问题</a></li><li><a href="#42-经典改进模型">4.2 经典改进模型</a></li></ul></div>
+
+<h1 id="rnn-循环神经网络核心笔记">RNN 循环神经网络核心笔记</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：NLP 知识体系的<strong>序列建模入门篇</strong>。RNN 是处理序列数据的基础模型，理解其循环结构、梯度问题及 LSTM/GRU 改进方案，是掌握 Transformer 等现代架构的必经之路。
+
+<strong>🔗 知识串联</strong>：← 上游：<a href="#神经网络基础" class="wikilink">神经网络基础</a>（前向传播与反向传播）→ 下游：<a href="#投满分" class="wikilink">NLP 实战项目</a>、<a href="#transformer" class="wikilink">Transformer</a>（RNN → Attention 的演进）→ 横向：<a href="#小白也看得懂梯度下降优化方法演进与对比" class="wikilink">梯度下降优化</a>（RNN 的梯度问题）
+
+<strong>⚡ 难度标识</strong>：🟡 中等 — 需先理解神经网络基础和反向传播
+
+<strong>🛠️ 落地实践</strong>：读完本文后，你应该能：① 用大白话解释 RNN 的工作原理 ② 说明梯度消失/爆炸问题及 LSTM/GRU 的解决思路 ③ 区分 RNN 的各种序列结构（一对一、一对多、多对多）</blockquote>
+
+<hr>
+
+<p>我先把最重要的放在前面！！！</p>
+
+<p>网上看了很多关于rnn的笔记、视频，要么官话连篇，要么跟着读ppt，我结合一下个人理解，用最土的话说明白“高大上”的RNN。</p>
+
+<p>脱离图片讲理论就是耍流氓！</p>
+<p>脱离公式讲图片就是byl！</p>
+
+<p>!<a href="assets/1740891550978.png">1740891550978</a></p>
+
+<p>循环神经网络（Recurrent Neural Network，RNN）</p>
+
+<p>为什么循环？ 因为要去找词语词之间的关系，狗咬人和人咬狗含义不一样！所以期望得到有意义的数据，就要要有序输入数据，循环操作</p>
+<p>有那么一内内像：for循环、while循环、肥波纳妾（斐波那契）、迭代对不，都有循环...</p>
+
+<p>好，再看上面这个图，介绍一下：</p>
+<p>从下往上看</p>
+<p>1️⃣：X</p>
+<div class="math-block">$$</div>
+<p>X_{t-1} \ \ \ \ X_t \ \ \ \ X_{t+1}</p>
+<div class="math-block">$$</div>
+<p>这仨就是顺序时间内的输入，比如狗咬人，这仨分别就是：狗   咬   人</p>
+<p>t-1 、t  、t+1 就是顺序时间，但是呢，你想想，我们输入的具体时间对计算机来说重要吗？不重要吧！既然不重要那我们就知道他们的先后顺序就行了，所以起个名就叫时间步。</p>
+
+<p>2️⃣：A</p>
+<p>有没有发现图片里，左右都是A，中间是tanh?啥是A？啥是tanh？为啥不一样？</p>
+<p>其实这仨都应该是A，也就是用A来表示循环体，tanh只是告诉你，在这个循环公式中，偏置是tanh。你看，脱离了公式讲图片不就是耍流氓，但是我们现在仍然不着急，讲公式之前我们需要先搞清楚流程</p>
+
+<p>3️⃣：H</p>
+<div class="math-block">$$</div>
+<p>h_{t-1} \ \ \ h \ \ \ h_{t+1}</p>
+<div class="math-block">$$</div>
+<p>这仨就是对应时间步下的输出，为啥要输出呢？你可以理解为这个时间步下需要一个快照来保存该循环过程中的结果。</p>
+<p>那么好，既然输出了，怎么循环呢？</p>
+<p>为了方便你观察，我再复制一下图片,标记~</p>
+<p>!<a href="assets/1740891550978(1">1740891550978</a>.png)</p>
+
+<p>两个输出！俩有啥区别？</p>
+<p>实际输出上没区别，作用上有区别！</p>
+<p>什么意思？输出的值是一样的，一个是快照，留存了，一个作为下一层的输入，后续要做处理的！</p>
+<p>我们把这个作为下一层输入的东西，就叫做隐藏层输入。</p>
+
+
+<p>那么好，讲完了这些，发现没有，实际上的循环体不就是下面这块儿嘛!</p>
+<p>!<a href="assets/1740891550978(2">1740891550978</a>.png)</p>
+
+<p>那么整一个最大的循环体找到了，有啥问题不？是不是开头的时候没有隐藏层输入啊？</p>
+<p>怎么办？造一个不就完了</p>
+<p>!<a href="#pasted-image-20251025111255png" class="wikilink">Pasted image 20251025111255.png</a></p>
+
+<p>接下来是公式：</p>
+<p>1️⃣隐藏层状态更新：</p>
+<div class="math-block"><span class="math-formula">h_{1}=\tanh \left(W_{x} x_{1}+W_{h} h_{0}+b_{1}\right)</span></div>
+
+<p>2️⃣输出(快照)：</p>
+<div class="math-block"><span class="math-formula">y_{1}=\sigma\left(W_{x} x_{1}+W_{h} h_{0}+b_{1}\right)</span></div>
+
+<p>这里的sigma和tanh没区别的哈，也就是h1 = y1</p>
+<p>传入的数据都有全重，加上偏置再激活一下，公式还是那个套装方法</p>
+
+<p>下面是代码实现：</p>
+
+<h4 id="pytorch构建单层rnn">PyTorch构建单层RNN</h4>
+
+<p>一条样本，该样本只有一个token，隐藏层为一层的情况。</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># encoding:utf-8
+import torch
+from torch import nn
+
+
+def use1rnn():
+    还是那个“狗咬人”的例子，
+    
+    rnn = nn.RNN(input_size,hidden_size,num_layers)
+	# input_size:输入层数据的维度，也就是多少个特征
+    比如狗这个字被转换成了八维向量，那这里的数值就应该是8
+    
+    # hidden_size:隐藏层的特征
+    **“狗咬人” 中的场景**：原隐藏层维度为 5 → `hidden_size=5`（每个 ht) 是长度为 5 的向量）
+    若 hidden_size 从 5 变成 10：
+	**原因**：希望模型捕捉更细致的上下文信息（比如 “狗” 和 “咬” 的关系、“咬” 和 “人” 的关系）。
+	**对 “狗咬人” 的影响**：
+    1. 隐藏状态 \(h_1\)（处理 “狗” 后）从长度 5 的向量变成长度 10 的向量，能存储更多关于 “狗” 的细节（比如词性、语义倾向等）。
+    2. 权重矩阵 \(W_{hh}\) 形状从 `(5,5)` 变成 `(10,10)`（参数数量从 25 增加到 100），模型复杂度提升，可能学到更复杂的规律，但也更容易过拟合（比如过度记住 “狗咬人” 而泛化差）。
+    3. 输出 \(y_t\) 的维度由 \(W_{hy}\) 决定（\(W_{hy}\) 从 `(d_y,5)` 变成 `(d_y,10)`），输出向量能携带更丰富的隐藏层信息
+    
+    # num_layers:隐藏层的数量，默认是1
+    堆叠的 RNN 层数（多层 RNN 可捕捉更抽象的特征）6
+    **“狗咬人” 中的场景**：原 1 层 RNN → `num_layers=1`（只有一层隐藏层处理输入）。
+	 若 num_layers 从 1 变成 2：
+	**原因**：希望模型分层次处理信息（底层捕捉词本身特征，上层捕捉词之间的关系）。
+	**对 “狗咬人” 的影响**：
+    1. 第一层 RNN 处理输入 \(x_t\)，得到第一层隐藏状态 \(h_t^{(1)}\)（比如 “狗”→ \(h_1^{(1)}\) 捕捉 “狗” 的字面特征）。
+    2. 第二层 RNN 以第一层的隐藏状态为输入，计算第二层隐藏状态 \(h_t^{(2)} = \tanh(W_{xh}^{(2)}h_t^{(1)} + W_{hh}^{(2)}h_{t-1}^{(2)} + b_h^{(2)})\)（比如 \(h_2^{(2)}\) 基于 \(h_1^{(1)}\) 和 \(h_2^{(1)}\) 捕捉 “狗” 和 “咬” 的搭配关系）。
+    3. 最终输出基于第二层的隐藏状态 \(h_t^{(2)}\) 计算，能捕捉更抽象的上下文（比如 “狗咬人” 是一个完整动作，而非孤立的三个词），但模型参数更多，训练更难收敛。
+    
+    
+    input = torch.randn(sequence_length, batch_size, input_size)
+	# sequence_length: 输入的序列长度
+	**“狗咬人” 中的场景**：分词后是 3 个词 → `sequence_length=3`（对应 t=1、t=2、t=3 三个时间步）
+	比如 “狗咬了人”，分词后是 4 个词：`[&#x27;狗&#x27;,&#x27;咬&#x27;,&#x27;了&#x27;,&#x27;人&#x27;]`→ `sequence_length=4`
+    
+    # batch_size: 批次的样本数量
+    **“狗咬人” 中的场景**：若同时处理 “狗咬人” 和 “人咬狗” 两个句子 → `batch_size=2`。
+	若 batch_size 从 2 变成 5：需要一次处理更多句子（比如加入 “狗追人”“人打狗”“狗叫人”，共 5 个句子）。
+    
+    # input_size：数据的维度
+    同上面的input_size
+    
+    
+    h0 = torch.zeros(num_layer, batch_size, hidden_size)
+	# num_layer：隐藏层数
+	同上
+    # batch_size：批次的样本数
+    同上
+    # hidden_size：隐藏层的维度
+    同上
+    
+    
+    
+    output, hn = rnn(input,h0)
+    print(output)
+    print(output.size())
+    print(output.shape)
+    print(hn)
+
+
+if __name__ == &#x27;__main__&#x27;:
+    use1rnn()
+</code></pre></div>
+
+<p>后面是循规蹈矩的总结，不看也罢</p>
+
+<h1 id="一rnn的核心概念什么是循环神经网络">一、RNN的核心概念：什么是循环神经网络？</h1>
+
+<p>循环神经网络（Recurrent Neural Network，简称RNN）是一种专门用于处理<strong>序列数据</strong>的深度学习模型。与传统的前馈神经网络（如CNN、全连接网络）“输入输出相互独立”的特性不同，RNN通过引入“循环结构”，让模型能够捕捉序列中的<strong>时序依赖关系</strong>，即当前的输出不仅依赖于当前的输入，还依赖于之前的历史输入信息——这就像人类思考时会结合过往经验一样，RNN也具备了“记忆”能力。</p>
+
+<p><strong>核心本质</strong>：通过隐藏层状态的循环传递，实现对序列历史信息的累积与利用，突破传统神经网络“无记忆”的局限。</p>
+
+<p>序列数据是RNN的核心处理对象，常见的序列数据包括：</p>
+
+<ul><li>自然语言：句子（词的序列）、文本（句子的序列）；</li></ul>
+
+<ul><li>时序数据：股票价格（时间点的序列）、气象数据（日期的序列）；</li></ul>
+
+<ul><li>多媒体数据：语音（音频帧的序列）、视频（图像帧的序列）。</li></ul>
+
+<h1 id="二rnn的核心结构循环机制如何实现记忆">二、RNN的核心结构：循环机制如何实现“记忆”？</h1>
+
+<h2 id="21-基本结构拆解">2.1 基本结构拆解</h2>
+
+<p>RNN的核心结构由“输入层、隐藏层、输出层”组成，关键创新在于<strong>隐藏层的循环连接</strong>。为了更清晰地理解循环机制，我们可以从“展开式”和“折叠式”两个角度分析：</p>
+
+<ol><li><strong>折叠式结构</strong>：隐藏层会接收两个输入——当前时刻的输入数据和上一时刻隐藏层的输出状态（即“记忆信息”），经过计算后输出当前时刻的隐藏状态和预测结果，形成“输入→隐藏层（带循环）→输出”的闭环。</li></ol>
+
+<ol><li><strong>展开式结构</strong>：将循环结构按“时间步”展开（假设序列长度为T），则可得到T个串联的“子网络”，每个子网络对应一个时刻的计算。第t个时刻的子网络接收第t个输入和第t-1个时刻的隐藏状态，输出第t个时刻的隐藏状态和输出——这种展开方式能直观体现“历史信息逐时刻累积”的过程。</li></ol>
+
+<h2 id="22-核心计算公式与符号定义">2.2 核心计算公式与符号定义</h2>
+
+<p>设序列共有T个时间步，各核心变量定义及计算逻辑如下：</p>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>符号</th>
+<th>含义</th>
+<th>维度说明</th>
+</tr></thead><tbody>
+<tr>
+<td>x</td>
+<td>第t时刻的输入数据</td>
+<td>（输入维度，1），如词向量维度为512，则为（512,1）</td>
+</tr>
+<tr class="alt-row">
+<td>h</td>
+<td>第t时刻的隐藏层状态（核心“记忆”）</td>
+<td>（隐藏层维度，1），如隐藏层有128个神经元，则为（128,1）</td>
+</tr>
+<tr>
+<td>y</td>
+<td>第t时刻的输出结果</td>
+<td>（输出维度，1），如分类任务有10类，则为（10,1）</td>
+</tr>
+<tr class="alt-row">
+<td>W</td>
+<td>输入层到隐藏层的权重矩阵</td>
+<td>（隐藏层维度，输入维度）</td>
+</tr>
+<tr>
+<td>W</td>
+<td>隐藏层到自身的循环权重矩阵</td>
+<td>（隐藏层维度，隐藏层维度）</td>
+</tr>
+<tr class="alt-row">
+<td>W</td>
+<td>隐藏层到输出层的权重矩阵</td>
+<td>（输出维度，隐藏层维度）</td>
+</tr>
+<tr>
+<td>b</td>
+<td>隐藏层、输出层的偏置项</td>
+<td>（隐藏层维度，1）、（输出维度，1）</td>
+</tr>
+</tbody></table></div>
+<p>核心计算步骤（前向传播）：</p>
+
+<ol><li><strong>隐藏层状态更新</strong>：结合当前输入和上一时刻记忆，公式为：</li></ol>
+<p>h = tanh(W·x + W·h + b)</p>
+<p>注：tanh为激活函数，用于引入非线性并将状态值压缩到[-1,1]区间，防止梯度爆炸。</p>
+
+<ol><li><strong>输出层计算</strong>：基于当前隐藏状态生成输出，公式为：</li></ol>
+<p>y = softmax(W·h + b)</p>
+<p>注：softmax用于分类任务，若为回归任务可去掉。</p>
+
+<h2 id="23-结构可视化循环机制流程图">2.3 结构可视化：循环机制流程图</h2>
+
+<p>下图为RNN展开式结构的流程图，清晰展示了“历史信息通过隐藏状态逐时刻传递”的核心逻辑（以3个时间步为例）：</p>
+
+<p>!<a href="assets/1740891550978.png">1740891550978</a></p>
+<h1 id="三rnn的核心作用解决哪些实际问题">三、RNN的核心作用：解决哪些实际问题？</h1>
+
+<p>RNN的“记忆能力”使其在序列数据相关任务中不可或缺，核心作用可按“输入输出序列长度匹配”分为三大类场景，覆盖NLP、时序分析、语音等多个领域：</p>
+
+<h2 id="31-场景1一对一序列分类">3.1 场景1：一对一（序列分类）</h2>
+
+<p><strong>任务特点</strong>：输入为一个完整序列（如一句话、一段文本），输出为一个固定结果（如类别标签）——需利用整个序列的信息做全局判断。</p>
+
+<p><strong>典型应用</strong>：</p>
+
+<ul><li><strong>文本情感分析</strong>：输入一句话“这部电影剧情紧凑，演员演技出色”，输出“正面情感”。RNN通过逐词累积语义信息，最终通过最后一个时刻的隐藏状态h判断整体情感。</li></ul>
+
+<ul><li><strong>时序数据分类</strong>：输入一段心电图序列，输出“正常”或“异常”——RNN捕捉心率变化的时序规律，识别异常波动模式。</li></ul>
+
+<h2 id="32-场景2一对多序列生成">3.2 场景2：一对多（序列生成）</h2>
+
+<p><strong>任务特点</strong>：输入为一个固定信息（如一个关键词、一张图片），输出为一个序列（如一句话、一段文本）——需基于初始信息逐步生成有逻辑的序列。</p>
+
+<p><strong>典型应用</strong>：</p>
+
+<ul><li><strong>文本生成</strong>：输入关键词“春天、花园”，输出诗句“春入花园花竞放，蜂蝶翩跹戏蕊香”。RNN以初始关键词为x₁，生成的第一个词作为h₁，再基于h₁生成第二个词，逐时刻迭代生成序列。</li></ul>
+
+<ul><li><strong>图像描述生成</strong>：输入一张“小狗在草地上追球”的图片，先通过CNN提取图像特征作为初始输入x₀，再由RNN生成描述文本——需结合图像内容和语言语法的时序逻辑。</li></ul>
+
+<h2 id="33-场景3多对多序列转换">3.3 场景3：多对多（序列转换）</h2>
+
+<p><strong>任务特点</strong>：输入为一个序列，输出为另一个长度相同或不同的序列——需逐时刻匹配输入输出的时序关系，或实现序列间的语义转换。</p>
+
+<p><strong>典型应用</strong>：</p>
+
+<ul><li><strong>机器翻译（Encoder-Decoder结构）</strong>：输入英文序列“I love China”，输出中文序列“我爱中国”。这是RNN的经典应用，由“Encoder编码器”（RNN）处理输入序列得到全局语义向量h，再由“Decoder解码器”（RNN）基于h逐词生成输出序列。</li></ul>
+
+<ul><li><strong>时序预测</strong>：输入过去7天的气温序列[25℃,26℃,27℃,28℃,27℃,29℃,30℃]，输出未来3天的气温预测[31℃,30℃,29℃]——RNN捕捉气温的日变化规律（如昼夜温差、趋势延续性），基于历史序列预测未来。</li></ul>
+
+<ul><li><strong>语音识别</strong>：输入一段语音音频帧序列（多维度时序数据），输出对应的文本序列——RNN将连续的音频信号转换为离散的文字，需匹配语音节奏与文本的时序对应关系。</li></ul>
+
+<h1 id="四rnn的局限性与改进方向">四、RNN的局限性与改进方向</h1>
+
+<h2 id="41-核心局限性长序列依赖问题">4.1 核心局限性：长序列依赖问题</h2>
+
+<p>标准RNN虽能处理序列数据，但在<strong>长序列（如超过20个时间步）</strong>中会出现“梯度消失或梯度爆炸”问题：在反向传播更新参数时，梯度需要通过循环权重W逐时刻传递，当序列过长时，梯度会因多次乘以W而趋近于0（梯度消失）或无穷大（梯度爆炸）——导致模型无法学习到长距离的历史信息（如一句话中开头和结尾的语义关联）。</p>
+
+<h2 id="42-经典改进模型">4.2 经典改进模型</h2>
+
+<p>为解决长序列依赖问题，研究者提出了基于“门控机制”的改进模型，核心是通过“门”控制历史信息的累积与遗忘，最典型的有两种：</p>
+
+<ul><li><strong>LSTM（长短期记忆网络）</strong>：引入“输入门、遗忘门、输出门”三个门结构，遗忘门决定丢弃哪些历史信息，输入门决定保留哪些当前信息，输出门决定输出哪些隐藏状态——从结构上解决了梯度消失问题，能有效捕捉长序列依赖（如文本中的上下文关联）。</li></ul>
+
+<ul><li><strong>GRU（门控循环单元）</strong>：简化LSTM的结构，将输入门和遗忘门合并为“更新门”，保留重置门——参数更少、训练速度更快，在很多场景下性能接近LSTM。</li></ul>
+
+<h1 id="五核心总结">五、核心总结</h1>
+
+<p><strong>1. 核心价值</strong>：RNN通过隐藏层循环结构赋予模型“记忆”能力，是处理序列数据的基础模型，为NLP、时序分析等领域提供核心技术支撑。</p>
+
+<p><strong>2. 关键机制</strong>：通过隐藏状态h的逐时刻传递，累积历史信息，核心公式为h = tanh(Wx + Wh + b)。</p>
+
+<p><strong>3. 适用场景</strong>：覆盖一对一（分类）、一对多（生成）、多对多（转换）三大类序列任务，需根据任务选择具体结构（如Encoder-Decoder）。</p>
+
+<p><strong>4. 改进核心</strong>：标准RNN存在长序列依赖问题，LSTM/GRU通过门控机制解决，是实际应用中的主流选择。</p></div><div class="section-card" id="投满分"><h2><span class="badge badge-advanced">高级</span> 投满分</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#了解今日内容介绍">【了解】今日内容介绍</a></li><li><a href="#实现fasttext模型">【实现】Fasttext模型</a></li><li class="toc-h3"><a href="#前言说明">前言说明</a></li><li class="toc-h3"><a href="#模型构建流程">模型构建流程</a></li><li class="toc-h3"><a href="#回顾">回顾</a></li><li class="toc-h4"><a href="#预测流程">预测流程</a></li><li class="toc-h4"><a href="#常用参数">常用参数</a></li><li class="toc-h3"><a href="#代码实现">代码实现</a></li><li class="toc-h4"><a href="#配置">配置</a></li><li class="toc-h4"><a href="#数据预处理">数据预处理</a></li><li class="toc-h4"><a href="#模型训练">模型训练</a></li><li class="toc-h4"><a href="#模型预测评估">模型预测（评估）</a></li><li class="toc-h4"><a href="#模型部署">模型部署</a></li><li><a href="#实现bert模型">【实现】BERT模型</a></li><li class="toc-h3"><a href="#模型构建流程">模型构建流程</a></li><li class="toc-h3"><a href="#gpu跑模型事项">GPU跑模型事项</a></li><li class="toc-h3"><a href="#代码实现">代码实现</a></li><li class="toc-h4"><a href="#配置">配置</a></li><li class="toc-h4"><a href="#数据预处理">数据预处理</a></li><li class="toc-h4"><a href="#模型训练">模型训练</a></li><li class="toc-h4"><a href="#模型预测评估">模型预测（评估）</a></li><li class="toc-h4"><a href="#模型部署">模型部署</a></li><li><a href="#扩展fasttext子词与wordngrams">【扩展】FastText子词与wordNgrams</a></li><li class="toc-h3"><a href="#数据准备与分词">数据准备与分词</a></li><li class="toc-h3"><a href="#子词生成与ngrams">子词生成与Ngrams</a></li><li class="toc-h4"><a href="#字符级n-gramminn2maxn4">字符级n-gram（minn=2，maxn=4）</a></li><li class="toc-h4"><a href="#词级n-gramwordngrams2-示例">词级n-gram（wordNgrams=2 示例）</a></li><li class="toc-h3"><a href="#模型训练">模型训练</a></li><li class="toc-h3"><a href="#fasttext-和-word2vec">FastText 和 Word2Vec</a></li></ul></div><h1 id="投满分项目">投满分项目</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：NLP 实战的<strong>文本分类竞赛篇</strong>。从基线 RandomForest 到 FastText、BERT、LLM 的逐步升级，展示如何在真实竞赛场景中迭代优化模型，是 NLP 工程能力的综合检验。
+
+<strong>🔗 知识串联</strong>：← 上游：<a href="#rnn循环神经网络核心笔记" class="wikilink">RNN 基础</a>、<a href="#01机器学习概述与knn算法分类回归" class="wikilink">ML 基础</a> → 下游：<a href="#02-langchain基础知识" class="wikilink">LangChain</a>（LLM 应用层）→ 横向：<a href="#pytorch-张量与模型构建" class="wikilink">PyTorch</a>（模型训练框架）
+
+<strong>⚡ 难度标识</strong>：🔴 进阶 — 涉及 FastText、BERT 等深度 NLP 模型，建议先完成 NLP 基础学习
+
+<strong>🛠️ 落地实践</strong>：读完本文后，你应该能：① 用 FastText 训练文本分类模型 ② 使用 BERT 进行微调 ③ 理解从传统 ML 到深度学习再到 LLM 的技术演进路径 ④ 在真实项目中对比不同方案的优劣</blockquote>
+
+<hr>
+
+<h2 id="了解今日内容介绍">【了解】今日内容介绍</h2>
+
+<ul><li>Fasttext模型</li>
+<li>BERT预训练模型</li></ul>
+
+
+
+<h2 id="实现fasttext模型">【实现】Fasttext模型</h2>
+
+<h3 id="前言说明">前言说明</h3>
+
+<p>前面我们已经完成了基线模型RandomForest一个实现，但是当前场景对分类指标、泛化能力和处理复杂语义需求相对较高。RandomForest随机森林对于自然语言的处理能力有限。</p>
+
+<p>所以我们需要引入更为先进自然语言处理技术，包括FastText、BERT以及大语言模型LLM。</p>
+
+<p>因为这些模型在学术以及工业都有不错的性能表现，所以这里我们会进行整体技术实现以及评估，来最终获得符合当前场景需求的具体技术解决方案。</p>
+
+<p>这里我们先使用Fasttext模型来训练。后续再逐步使用BERT和LLM。</p>
+
+<h3 id="模型构建流程">模型构建流程</h3>
+
+<p>基于FastText分类建模思路：</p>
+
+<p>~~~shell</p>
+<p>#1.对数据train.txt等相关文件的文本进行分词处理，两种处理思路：字符级别和词级别。</p>
+
+<p>#2.利用fastext库进行建模、评估与保存。</p>
+<h1 id="default默认参数训练的">default：默认参数训练的</h1>
+<h1 id="auto自动调参">auto：自动调参</h1>
+<p>02-fasttext_char_1_default.py</p>
+<p>03-fasttext_char_2_auto.py</p>
+<p>04-fasttext_word_1_default.py</p>
+<p>05-fasttext_word_2_auto.py</p>
+
+<p>#3.模型预测</p>
+
+<p>#4.模型部署，提供api接口</p>
+
+<p>#5.前端预测实现</p>
+<p>~~~</p>
+
+<h3 id="回顾">回顾</h3>
+
+<h4 id="预测流程">预测流程</h4>
+
+<p>在具体实现之前，先回顾一下，使用Fasttext来预测的流程：</p>
+
+<p>!<a href="assets/1762769377786.png">1762769377786</a></p>
+
+<h4 id="常用参数">常用参数</h4>
+
+<p>Fasttext的参数非常多，这里罗列一些如下：</p>
+
+<p>~~~shell</p>
+<h1 id="lr-------------------------学习率-default-01">lr                         学习率 default 0.1</h1>
+<h1 id="dim------------------------词向量维度-default-100">dim                        词向量维度 default 100</h1>
+<h1 id="ws-------------------------上下文窗口大小-default-5">ws                         上下文窗口大小 default 5</h1>
+<h1 id="epoch----------------------epochs-数量-default-5">epoch                      epochs 数量 default 5</h1>
+<h1 id="mincount-------------------最低词频-default-5">minCount                   最低词频 default 5</h1>
+<h1 id="wordngrams-----------------n-gram设置-default-1">wordNgrams                 n-gram设置 default 1</h1>
+<h1 id="loss-----------------------损失函数-hssoftmax-default-softmaxova多标签多分类负采样">loss                       损失函数 {hs,softmax} default softmax，ova（多标签多分类），负采样</h1>
+<h1 id="minn-----------------------子词最小字符长度-default-0表示禁用子词">minn                       子词最小字符长度 default 0（表示禁用子词）</h1>
+<h1 id="maxn-----------------------子词最大字符长度-default-0表示禁用子词">maxn                       子词最大字符长度 default 0（表示禁用子词）</h1>
+<h1 id="bucket-哈希桶的数量默认是2000000">bucket					 哈希桶的数量，默认是2000000</h1>
+<h1 id="verbose-该参数决定日志打印级别-当设置为3-可以将当前正在尝试自动搜索的超参数打印出来我们设置verbose来观察超参数的值">verbose: 					该参数决定日志打印级别, 当设置为3, 可以将当前正在尝试自动搜索的超参数打印出来，我们设置verbose来观察超参数的值</h1>
+<p>~~~</p>
+
+
+
+<h3 id="代码实现">代码实现</h3>
+
+<h4 id="配置">配置</h4>
+
+<p>配置文件和之前类似，注意路径要和本地词频路径对应上就行。</p>
+
+<p>~~~python</p>
+<p>class Config:</p>
+<p>def __init__(self):</p>
+<p>self.root_path = r'D:\code\workspace7\toutiao/'</p>
+<h1 id="原始数据路径">原始数据路径</h1>
+<p>self.train_datapath = self.root_path + '01-data/train.txt'</p>
+<p>self.test_datapath = self.root_path + '01-data/test.txt'</p>
+<p>self.dev_datapath = self.root_path + '01-data/dev.txt'</p>
+<h1 id="类别文档">类别文档</h1>
+<p>self.class_doc_path = self.root_path + "01-data/class.txt"</p>
+
+<h1 id="数据处理保存路径">数据处理保存路径</h1>
+<h1 id="字符级别fasttext">字符级别fasttext</h1>
+<p>self.process_train_datapath_char = self.root_path + "03-fasttext/final_data/train_process_char.txt"</p>
+<p>self.process_test_datapath_char = self.root_path + "03-fasttext/final_data/test_process_char.txt"</p>
+<p>self.process_dev_datapath_char = self.root_path + "03-fasttext/final_data/dev_process_char.txt"</p>
+
+<h1 id="词级别fasttext">词级别fasttext</h1>
+<p>self.process_train_datapath_word = self.root_path + "03-fasttext/final_data/train_process_word.txt"</p>
+<p>self.process_test_datapath_word = self.root_path + "03-fasttext/final_data/test_process_word.txt"</p>
+<p>self.process_dev_datapath_word = self.root_path + "03-fasttext/final_data/dev_process_word.txt"</p>
+
+<h1 id="处理完的数据用于训练">处理完的数据（用于训练）</h1>
+<p>self.final_data = self.root_path + '03-fasttext/final_data'</p>
+
+<h1 id="模型路径">模型路径</h1>
+<p>self.ft_model_save_path = self.root_path + '03-fasttext/save_models'</p>
+
+<h1 id="类别字典-标签索引标签名称">类别字典 {标签索引:标签名称}</h1>
+<p>self.id2class_dict = {i: line.strip() for i, line in enumerate(open(self.class_doc_path))}</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>conf = Config()</p>
+<p>print('conf.train_datapath-->', conf.train_datapath)</p>
+<p>print('conf.test_datapath-->', conf.test_datapath)</p>
+<p>print('conf.dev_datapath-->', conf.dev_datapath)</p>
+<p>print('conf.id2class_dict-->', conf.id2class_dict)</p>
+<p>~~~</p>
+
+
+
+<h4 id="数据预处理">数据预处理</h4>
+
+<p>加载数据，进行分词处理。这里做了<code class="inline-code">字符级别</code>分词和<code class="inline-code">词语级别</code>分词，最后把分词后的数据组装成Fasttext模型识别的数据格式。</p>
+
+<p>~~~python</p>
+<p>import jieba</p>
+<p>from config import *</p>
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+
+<h1 id="定义函数读取指定文件数据并转为fasttext输入格式">定义函数读取指定文件数据，并转为fasttext输入格式</h1>
+<p>def process_data(datapath, processed_datapath, is_char=True):</p>
+<h1 id="读取原始文件">读取原始文件</h1>
+<p>with open(datapath, 'r', encoding='utf-8') as f:</p>
+<h1 id="处理后数据写入新文件">处理后数据写入新文件</h1>
+<p>with open(processed_datapath, 'w', encoding='utf-8') as fw:</p>
+<p>for line in f.readlines():  # 此处.readlines()可以省略</p>
+<h1 id="转换为fasttext格式__label__字符串标签-分词后文本">转换为fasttext格式:__label__字符串标签 分词后文本</h1>
+<h1 id="按行去除首尾多余字符">按行去除首尾多余字符</h1>
+<p>line = line.strip()</p>
+<h1 id="如果数据为空则结束本轮循环继续循环下一行">如果数据为空，则结束本轮循环,继续循环下一行</h1>
+<p>if not line:</p>
+<p>continue</p>
+<h1 id="获取标签和文本">获取标签和文本</h1>
+<p>text, label = line.split('\t')</p>
+<h1 id="标签转换为整数索引">标签转换为整数索引</h1>
+<p>label = int(label)</p>
+<h1 id="获取标签字符串">获取标签字符串</h1>
+<p>label_str = conf.id2class_dict[label]</p>
+<h1 id="进行分词">进行分词</h1>
+<p>if is_char:</p>
+<p>text_split = " ".join(list(text))</p>
+<p>else:</p>
+<p>text_split = " ".join(jieba.lcut(text))</p>
+<h1 id="打印测试结果">打印测试结果</h1>
+<h1 id="printtext_split">print(text_split)</h1>
+<h1 id="printlabel_str">print(label_str)</h1>
+<h1 id="构建fasttext格式">构建fasttext格式</h1>
+<p>ft_line = "__label__" + label_str + " " + text_split + "\n"</p>
+<h1 id="写入文件">写入文件</h1>
+<p>fw.write(ft_line)</p>
+
+
+<p>if __name__ == '__main__':</p>
+<h1 id="字符级别处理">字符级别处理</h1>
+<p>process_data(conf.train_datapath, conf.process_train_datapath_char, is_char=True)</p>
+<p>process_data(conf.test_datapath, conf.process_test_datapath_char, is_char=True)</p>
+<p>process_data(conf.dev_datapath, conf.process_dev_datapath_char, is_char=True)</p>
+
+<h1 id="分词级别处理">分词级别处理</h1>
+<p>process_data(conf.train_datapath, conf.process_train_datapath_word, is_char=False)</p>
+<p>process_data(conf.test_datapath, conf.process_test_datapath_word, is_char=False)</p>
+<p>process_data(conf.dev_datapath, conf.process_dev_datapath_word, is_char=False)</p>
+
+<p>~~~</p>
+
+
+
+<h4 id="模型训练">模型训练</h4>
+
+<h5 id="字符级别默认参数">字符级别，默认参数</h5>
+
+<p>~~~python</p>
+<h1 id="导入工具包">导入工具包</h1>
+<p>import fasttext</p>
+<p>from config import Config</p>
+<p>import datetime</p>
+<p>import os</p>
+
+<h1 id="获取时间">获取时间</h1>
+<p>current_time = datetime.datetime.now().date().today().strftime("%Y%m%d")</p>
+<p>print("current_time-->", current_time)</p>
+
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+<h1 id="1模型训练">1、模型训练</h1>
+<p>model = fasttext.train_supervised(input=conf.process_train_datapath_char,</p>
+<p>dim=10,  # 词向量的维度  默认100</p>
+<p>minn=1,  # 子词最小长度  默认0</p>
+<p>maxn=4,  # 子词最大长度  默认0</p>
+<p>)</p>
+<h1 id="模型训练后信息词向量信息标签信息词频信息和预测能力子词信息等">模型训练后信息:词向量信息,标签信息,词频信息和预测能力,子词信息等</h1>
+<p>print(model.get_word_vector("日"))</p>
+<p>print(model.labels)</p>
+<p>print(len(model.labels))</p>
+<h1 id="s句子结束标记sentence-end所以它的词频是样本数"></s>:句子结束标记（sentence end）所以它的词频是样本数</h1>
+<p>print(model.get_words(include_freq=True))</p>
+<p>print(list(zip(*model.get_words(include_freq=True))))</p>
+<p>print(len(list(zip(*model.get_words(include_freq=True)))))</p>
+<p>print('-----------------------------------------------------')</p>
+
+<h1 id="2模型保存">2、模型保存</h1>
+<h1 id="model_path--configft_model_save_path--model_char_1_defaultbin">model_path = config.ft_model_save_path + "/model_char_1_default.bin"</h1>
+<p>model_path = os.path.join(conf.ft_model_save_path, "model_char_1_default1.bin")</p>
+<p>model.save_model(model_path)</p>
+
+<h1 id="3模型预测">3、模型预测</h1>
+<p>print(model.predict("日 本 地 震 ： 金 吉 列 关 注 在 日 学 子 系 列 报 道"))</p>
+
+<h1 id="4模型词表的查看">4、模型词表的查看</h1>
+<p>print(model.words[:10])</p>
+
+<h1 id="5模型子词查看注意上述训练未开启子词">5、模型子词查看,注意:上述训练未开启子词</h1>
+<h1 id="-和--子词模式中用于包裹词的边界符号">< 和 > :子词模式中用于包裹词的边界符号</h1>
+<p>print(model.get_subwords("日本地震!"))</p>
+<h1 id="输出模型维度">输出模型维度</h1>
+<p>print(model.get_dimension())</p>
+
+<h1 id="6模型评估">6、模型评估</h1>
+<h1 id="结果10000-08634-08634">结果(10000, 0.8634, 0.8634)</h1>
+<h1 id="说明样本数精确率召回率">说明:(样本数,精确率,召回率)</h1>
+<p>print(model.test(conf.process_test_datapath_char))</p>
+
+<p>~~~</p>
+
+<h5 id="字符级别自动调参">字符级别，自动调参</h5>
+
+<p>~~~python</p>
+<h1 id="导入工具包">导入工具包</h1>
+<p>import fasttext</p>
+<p>from config import Config</p>
+<p>import datetime</p>
+
+<p>"""</p>
+<p>fastText 自从 v0.9.0 版本起，支持了内置的 自动调参（Auto Tuning） 功能，</p>
+<p>通过设置 autotuneValidationFile 参数，可以让模型在训练时根据你提供的验证集自动调整以下超参数：</p>
+<p>学习率（lr）</p>
+<p>epoch 数量（epoch）</p>
+<p>词向量维度（dim）</p>
+<p>字符 n-gram 长度范围（minn, maxn）</p>
+<p>单词 n-gram 数量（wordNgrams）</p>
+<p>损失函数类型（loss）</p>
+<p>注意: 若你没有设置 autotuneValidationFile，fastText 将不会进行自动调参!!!</p>
+<p>"""</p>
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+<h1 id="获取时间">获取时间</h1>
+<p>current_time = datetime.datetime.now().date().today().strftime("%Y%m%d")</p>
+
+<h1 id="自动调参学习">自动调参学习</h1>
+<h1 id="1模型训练">1、模型训练</h1>
+<p>model = fasttext.train_supervised(input=conf.process_train_datapath_char,</p>
+<p>autotuneValidationFile=conf.process_dev_datapath_char,</p>
+<p>autotuneDuration=300,  # 自动调参时长</p>
+<p>thread=1, verbose=3,  # 可设置0,1,2,3,其中3输出更详细的调试信息，包括自动调参过程、每个 epoch 的 loss等</p>
+<p>seed=42  # 设置随机数生成器的种子值，确保实验的可重复性</p>
+<p>)</p>
+<h1 id="2模型保存">2、模型保存</h1>
+<h1 id="保存路径">保存路径</h1>
+<p>model_path = conf.ft_model_save_path + f"/model_char_2_auto_{current_time}.bin"</p>
+<p>model.save_model(model_path)</p>
+
+<h1 id="3模型预测">3、模型预测</h1>
+<p>print(model.predict("日 本 地 震 ： 金 吉 列 关 注 在 日 学 子 系 列 报 道"))</p>
+
+<h1 id="4模型词表的查看">4、模型词表的查看</h1>
+<p>print(model.words[:10])</p>
+
+<h1 id="5模型子词查看">5、模型子词查看</h1>
+<p>print(model.get_subwords("日"))</p>
+<h1 id="打印向量维度">打印向量维度</h1>
+<p>print(model.get_dimension())</p>
+
+<h1 id="6模型评估">6、模型评估</h1>
+<p>print(model.test(conf.process_test_datapath_char))</p>
+
+<p>~~~</p>
+
+<h5 id="词语级别默认参数">词语级别，默认参数</h5>
+
+<p>~~~python</p>
+<h1 id="导入工具包">导入工具包</h1>
+<p>import fasttext</p>
+<p>from config import Config</p>
+
+
+<h1 id="获取时间">获取时间</h1>
+<p>conf = Config()</p>
+
+<h1 id="1模型训练">1、模型训练</h1>
+<p>model = fasttext.train_supervised(input=conf.process_train_datapath_word, seed=42)</p>
+
+<h1 id="2模型保存">2、模型保存</h1>
+<p>model_path = conf.ft_model_save_path + "/model_word_1_default.bin"</p>
+<p>model.save_model(model_path)</p>
+
+<h1 id="3模型预测">3、模型预测</h1>
+<p>print(model.predict("日本 地震 ： 金吉列 关注 在 日 学子 系列报道"))</p>
+
+<h1 id="4模型词表的查看">4、模型词表的查看</h1>
+<p>print(model.words[:10])</p>
+
+<h1 id="5模型子词查看">5、模型子词查看</h1>
+<p>print(model.get_subwords("日本"))</p>
+<h1 id="输出模型维度">输出模型维度</h1>
+<p>print(model.get_dimension())</p>
+
+<h1 id="6模型评估">6、模型评估</h1>
+<p>print(model.test(conf.process_test_datapath_word))</p>
+
+<p>~~~</p>
+
+
+
+<h5 id="词语级别自动调参">词语级别，自动调参</h5>
+
+<p>~~~python</p>
+<h1 id="导入工具包">导入工具包</h1>
+<p>import fasttext</p>
+<p>from config import Config</p>
+<p>import datetime</p>
+
+<p>conf = Config()</p>
+
+<h1 id="获取时间">获取时间</h1>
+<p>current_time = datetime.datetime.now().date().today().strftime("%Y%m%d")</p>
+
+<h1 id="自动调参学习">自动调参学习</h1>
+<h1 id="1模型训练">1、模型训练</h1>
+<p>model = fasttext.train_supervised(input=conf.process_train_datapath_word,</p>
+<p>autotuneValidationFile=conf.process_dev_datapath_word,</p>
+<p>seed=42,</p>
+<p>verbose=3</p>
+<p>)</p>
+<h1 id="2模型保存">2、模型保存</h1>
+<h1 id="保存路径">保存路径</h1>
+<p>model_path = conf.ft_model_save_path + f"/model_word_2_auto_{current_time}.bin"</p>
+<p>model.save_model(model_path)</p>
+
+<h1 id="3模型预测">3、模型预测</h1>
+<p>print(model.predict("日本 地震 ： 金吉列 关注 在 日 学子 系列报道"))</p>
+
+<h1 id="4模型词表的查看">4、模型词表的查看</h1>
+<p>print(model.words[:10])</p>
+
+<h1 id="5模型子词查看">5、模型子词查看</h1>
+<p>print(model.get_subwords("日本"))</p>
+<h1 id="打印向量维度">打印向量维度</h1>
+<p>print(model.get_dimension())</p>
+
+<h1 id="6模型评估">6、模型评估</h1>
+<p>print(model.test(conf.process_test_datapath_word))</p>
+
+<p>~~~</p>
+
+
+
+<h4 id="模型预测评估">模型预测（评估）</h4>
+
+<p>一行代码，已经嵌入在模型训练中了。</p>
+
+<p>~~~python</p>
+<p>print(model.test(conf.process_test_datapath_word))</p>
+<p>~~~</p>
+
+<blockquote>Fasttext模型准确率：91%左右。</blockquote>
+
+
+
+<h4 id="模型部署">模型部署</h4>
+
+<h5 id="服务端">服务端</h5>
+
+<p>首先，准备一个预测函数。用于对输入的文本进行预测。</p>
+
+<p>~~~python</p>
+<p>import jieba</p>
+<p>import pickle</p>
+<p>from config import Config</p>
+<p>import warnings</p>
+<p>warnings.filterwarnings('ignore')</p>
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+<h1 id="忽略警告信息">忽略警告信息</h1>
+
+<h1 id="加载模型">加载模型</h1>
+<p>with open(conf.rf_model_save_path, 'rb') as f:</p>
+<p>model = pickle.load(f)</p>
+<h1 id="加载向量化器">加载向量化器</h1>
+<p>with open(conf.tfidf_model_save_path, 'rb') as f:</p>
+<p>tfidf = pickle.load(f)</p>
+
+
+<p>def predict_fun(data):</p>
+<h1 id="jieba分词">jieba分词</h1>
+<p>words = " ".join(jieba.lcut(data['text'])[:30])</p>
+<h1 id="向量化">向量化</h1>
+<p>features = tfidf.transform([words])</p>
+<h1 id="预测">预测</h1>
+<p>y_pred_id = model.predict(features)[0]</p>
+
+<h1 id="设置标签索引和名称对应关系">设置标签索引和名称对应关系</h1>
+<p>id2class = {i: line.strip() for i, line in enumerate(open(conf.class_doc_path, encoding='utf-8'))}</p>
+<h1 id="获取预测类别名称">获取预测类别名称</h1>
+<p>y_pred = id2class[y_pred_id]</p>
+<p>data["pred_class"] = y_pred</p>
+<p>return data</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>data = {"text": "体验2D巅峰 倚天屠龙记十大创新概览"}</p>
+<p>result = predict_fun(data)</p>
+<p>print(result)</p>
+
+<p>~~~</p>
+
+<p>其次，把这个预测函数使用Flask封装成API接口的形式，使其可以通过requests库远程请求访问。</p>
+
+<p>~~~python</p>
+<p>from flask import Flask, request, jsonify</p>
+<p>from rf_predict_func import predict_fun</p>
+<p>import warnings</p>
+<p>warnings.filterwarnings('ignore')</p>
+
+<h1 id="创建app">创建app</h1>
+<p>app = Flask(__name__)</p>
+
+
+<h1 id="创建预测接口">创建预测接口</h1>
+<h1 id="用户访问url-http1270018008predict">用户访问url: http://127.0.0.1:8008/predict</h1>
+<p>@app.route('/predict', methods=['POST'])</p>
+<p>def predict():</p>
+<h1 id="获取post请求携带的用户数据">获取post请求携带的用户数据</h1>
+<p>data = request.get_json()</p>
+<p>print('data-->', data)</p>
+<p>print('type(data)-->', type(data))</p>
+<h1 id="根据用户请求数据进行预测">根据用户请求数据进行预测</h1>
+<p>result = predict_fun(data)</p>
+<p>print("result-->", result)</p>
+<h1 id="返回结果给用户">返回结果给用户</h1>
+<p>print("Response-->", jsonify(result))</p>
+<p>return jsonify(result)</p>
+
+
+<h1 id="启动服务测试">启动服务，测试</h1>
+<p>if __name__ == '__main__':</p>
+<p>app.run(host='0.0.0.0', port=8008, debug=True)</p>
+
+<p>~~~</p>
+
+<p>到此，分段的代码就实现了。</p>
+
+
+
+<h5 id="客户端">客户端</h5>
+
+<p>首先，先写个测试代码，看看能不能通过requests请求服务端的API接口。</p>
+
+<p>~~~python</p>
+<p>import requests</p>
+<h1 id="定义接口地址">定义接口地址</h1>
+<p>url = 'http://127.0.0.1:8008/predict'</p>
+
+<p>try:</p>
+<h1 id="测试调用api接口">测试调用api接口</h1>
+<h1 id="获取用户录入的新闻标题">获取用户录入的新闻标题</h1>
+<p>text = input("请输入新闻标题：")</p>
+<p>response = requests.post(url, json={'text': text})</p>
+<p>print('response-->', response.json())</p>
+
+<p>except Exception as e:</p>
+<p>print("Error occurred:", e)</p>
+
+<p>~~~</p>
+
+<p>上述代码运行OK后，下面使用Streamlit编写HTML页面。让客户通过web可视化的方式访问。</p>
+
+<p>~~~python</p>
+<p>import streamlit as st</p>
+<p>import requests</p>
+<p>import time</p>
+
+<h1 id="streamlit创建页面">streamlit创建页面</h1>
+<h1 id="设置标题">设置标题</h1>
+<p>st.title("投满分分类项目")</p>
+<p>st.write("这是一个投满分分类项目")</p>
+<h1 id="获取用户输入的文本">获取用户输入的文本</h1>
+<p>text = st.text_input("请输入要查询分类的文本:")</p>
+
+<h1 id="后台发送请求">后台发送请求</h1>
+<h1 id="准备url">准备url</h1>
+<p>url = 'http://127.0.0.1:8008/predict'</p>
+<p>if st.button("基于随机森林模型获取分类！"):</p>
+<p>start_time = time.time()</p>
+<p>try:</p>
+<h1 id="发送请求">发送请求</h1>
+<p>response = requests.post(url, json={'text': text})</p>
+<p>print('response-->', response.json())</p>
+<h1 id="计算耗时">计算耗时</h1>
+<p>estimated_time = (time.time() - start_time) * 1000</p>
+<p>st.write("耗时：", estimated_time, "ms")</p>
+<h1 id="显示结果到页面">显示结果到页面</h1>
+<p>st.write("预测结果", response.json()["pred_class"])</p>
+<p>except Exception as e:</p>
+<p>print("Error occurred:", e)</p>
+
+<p>~~~</p>
+
+<p>最后，Streamlit不能直接运行，需要使用命令运行，命令如下：</p>
+
+<p>~~~python</p>
+<p>import os</p>
+
+<h1 id="执行指令">执行指令</h1>
+<p>os.system('streamlit run D:/code/workspace7/toutiao/02-rf/app_streamlit.py')</p>
+
+<p>~~~</p>
+
+
+
+<h2 id="实现bert模型">【实现】BERT模型</h2>
+
+<p>发散：91%能不能用？</p>
+
+<p>公司里有一些准确率要求。最低测试集上不能低于81%。</p>
+
+<p>训练集：96%</p>
+
+<p>测试集：83% 81 82。</p>
+
+
+
+<h3 id="模型构建流程">模型构建流程</h3>
+
+<p>预训练模型任务分类：</p>
+
+<p>带头任务：它是一个完整的任务，可以直接通过BERT模型得出最终预测的结果。</p>
+
+<p><strong>不带头任务</strong>：特征提取。只是提取数据特征，不做具体的任务。换句话说，我们可以基于BERT模型得到数据特征，然后自己做微调（下游任务分类，接线性层即可）</p>
+
+<p>~~~shell</p>
+<p>#1.下载bert预训练模型</p>
+<p>目前bert的版本脚本，本次使用中文版的bert，即bert-base-chinese</p>
+
+<p>#2.构建数据处理脚本 对数据train.txt等相关样本文件进行处理，构建符合模型输入要求的训练数据</p>
+
+<p>#3.构建 “bert+线性层” 的分类模型</p>
+<p>Bert是一个预训练模型，所以我们可以基于bert模型本身加上一个线性分类层来构建我们的下游任务</p>
+
+<p>#4.模型训练</p>
+
+<p>#5.模型预测</p>
+
+<p>#6.模型部署</p>
+<p>~~~</p>
+
+
+
+<h3 id="gpu跑模型事项">GPU跑模型事项</h3>
+
+<p>问：什么时候需要to(device)？</p>
+
+<p>我们需要在GPU上训练模型，那么，需要数据，模型。</p>
+
+<p>因此，我们只需要把数据和模型放到GPU上来运行即可。</p>
+
+<p>~~~shell</p>
+<p>#1.数据放到GPU上</p>
+<p>加载的时候</p>
+<p>for变量迭代的时候</p>
+
+<p>#2.模型放到GPU上</p>
+<p>创建的时候</p>
+<p>~~~</p>
+
+
+
+<h3 id="代码实现">代码实现</h3>
+
+<h4 id="配置">配置</h4>
+
+<p>~~~python</p>
+<p>import torch</p>
+<p>import datetime</p>
+<p>from transformers import BertModel, BertTokenizer, BertConfig</p>
+
+<h1 id="获取当前日期字符串">获取当前日期字符串</h1>
+<p>current_date = datetime.datetime.now().date().strftime("%Y%m%d")</p>
+
+
+<h1 id="配置类">配置类</h1>
+<p>class Config(object):</p>
+<p>def __init__(self):</p>
+<p>"""</p>
+<p>配置类，包含模型和训练所需的各种参数。</p>
+<p>"""</p>
+<p>self.model_name = "bert"  # 模型名称</p>
+<h1 id="路径">路径</h1>
+<h1 id="根目录">根目录</h1>
+<p>self.root_path = r'D:\code\workspace7\toutiao/'</p>
+<h1 id="原始数据路径">原始数据路径</h1>
+<p>self.train_datapath = self.root_path + '01-data/train.txt'</p>
+<p>self.test_datapath = self.root_path + '01-data/test.txt'</p>
+<p>self.dev_datapath = self.root_path + '01-data/dev.txt'</p>
+<h1 id="类别文档">类别文档</h1>
+<p>self.class_path = self.root_path + "01-data/class.txt"</p>
+<h1 id="类别名列表">类别名列表</h1>
+<p>self.class_list = [line.strip() for line in open(self.class_path, encoding="utf-8")]  # 类别名单</p>
+
+<h1 id="模型训练保存路径">模型训练保存路径</h1>
+<p>self.model_save_path = self.root_path + "04-bert/save_models/bert_classifer_model.pt"  # 模型训练结果保存路径</p>
+
+<h1 id="模型训练预测的时候--训练设备如果gpu可用则为cuda否则为cpu">模型训练+预测的时候  训练设备，如果GPU可用，则为cuda，否则为cpu</h1>
+<p>self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")</p>
+
+<p>self.bert_path = self.root_path + "/04-bert/bert-base-chinese"  # 预训练BERT模型的路径</p>
+<p>self.bert_model = BertModel.from_pretrained(self.bert_path)  # 加载预训练BERT模型</p>
+<p>self.tokenizer = BertTokenizer.from_pretrained(self.bert_path)  # BERT模型的分词器</p>
+<p>self.bert_config = BertConfig.from_pretrained(self.bert_path)  # BERT模型的配置</p>
+
+<h1 id="参数">参数</h1>
+<p>self.num_classes = len(self.class_list)  # 类别数</p>
+<p>self.num_epochs = 1  # epoch数</p>
+<p>self.batch_size = 64  # mini-batch大小</p>
+<p>self.pad_size = 32  # 每句话处理成的长度(短填长切)</p>
+<p>self.learning_rate = 5e-5  # 学习率</p>
+
+<h1 id="量化模型存放地址">量化模型存放地址</h1>
+<h1 id="注意-量化的时候模型需要的设备首选是cpu">注意: 量化的时候模型需要的设备首选是cpu</h1>
+<p>self.bert_model_quantization_model_path = self.root_path + "04-bert/save_models/bert_classifer_quantization_model.pt"  # 模型训练结果保存路径</p>
+
+
+<p>if __name__ == '__main__':</p>
+<h1 id="测试">测试</h1>
+<p>conf = Config()</p>
+<p>print('conf.device-->', conf.device)</p>
+<p>print('conf.class_list-->', conf.class_list)</p>
+<p>print('conf.tokenizer-->', conf.tokenizer)</p>
+<p>input_size = conf.tokenizer.convert_tokens_to_ids(["你", "好", "中", "人"])</p>
+<p>print('input_size-->', input_size)</p>
+<h1 id="printconfbert_model---confbert_model">print('conf.bert_model-->', conf.bert_model)</h1>
+<h1 id="printconfbert_config---confbert_config">print('conf.bert_config-->', conf.bert_config)</h1>
+
+<p>~~~</p>
+
+
+
+<h4 id="数据预处理">数据预处理</h4>
+
+<p>BERT模型的数据预处理，需要先加载数据，然后把数据转换为Dataset，最后再转换为DataLoader。</p>
+
+<p>~~~python</p>
+<h1 id="加载数据工具类">加载数据工具类</h1>
+<p>from tqdm import tqdm</p>
+<p>import torch</p>
+<p>from torch.utils.data import Dataset, DataLoader</p>
+<p>from config import Config</p>
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+
+<h1 id="1加载并处理原始数据">1.加载并处理原始数据</h1>
+<p>def load_raw_data(file_path):</p>
+<p>"""</p>
+<p>从指定文件中加载原始数据。处理文本文件，返回(文本, 标签类别索引)元组列表</p>
+<p>参数:file_path: 原始文本文件路径</p>
+<p>返回:list: 包含(文本, 标签类别索引)的元组列表，类别为int类型</p>
+<p>[('体验2D巅峰 倚天屠龙记十大创新概览', 8), ('60年铁树开花形状似玉米芯(组图)', 5)]</p>
+<p>"""</p>
+<p>result = []</p>
+<h1 id="打印指定文件">打印指定文件</h1>
+<p>with open(file_path, 'r', encoding='utf-8') as f:</p>
+<h1 id="使用tqdm包装文件读取迭代器以便显示加载数据的进度条">使用tqdm包装文件读取迭代器，以便显示加载数据的进度条</h1>
+<p>for line in tqdm(f, desc=f"加载原始数据{file_path}"):</p>
+<h1 id="移除行两端的空白字符">移除行两端的空白字符</h1>
+<p>line = line.strip()</p>
+<h1 id="跳过空行">跳过空行</h1>
+<p>if not line:</p>
+<p>continue</p>
+<h1 id="将行分割成文本和标签两部分">将行分割成文本和标签两部分</h1>
+<p>text, label = line.split("\t")</p>
+<h1 id="将标签转为int作为类别">将标签转为int作为类别</h1>
+<p>label = int(label)</p>
+<h1 id="将文本和转换为整数的标签作为元组添加到数据列表中">将文本和转换为整数的标签作为元组添加到数据列表中</h1>
+<p>result.append((text, label))</p>
+<h1 id="返回处理后的列表">返回处理后的列表</h1>
+<p>return result</p>
+
+
+<p>def test_load_raw_data():</p>
+<h1 id="测试load_raw_data方法">测试load_raw_data方法</h1>
+<p>data_list = load_raw_data(conf.dev_datapath)</p>
+<h1 id="printdata_list---data_list">print("data_list-->", data_list)</h1>
+<p>print(data_list[0])</p>
+<p>print(data_list[1])</p>
+<h1 id="printdata_list10---体验2d巅峰-倚天屠龙记十大创新概览-8-60年铁树开花形状似玉米芯组图-5">print(data_list[:10])  # [('体验2D巅峰 倚天屠龙记十大创新概览', 8), ('60年铁树开花形状似玉米芯(组图)', 5)]</h1>
+
+
+<h1 id="2自定义数据集">2.自定义数据集</h1>
+<p>class TextDataset(Dataset):</p>
+<h1 id="初始化数据">初始化数据</h1>
+<p>def __init__(self, data_list):</p>
+<p>self.data_list = data_list</p>
+
+<h1 id="返回数据集长度">返回数据集长度</h1>
+<p>def __len__(self):</p>
+<p>return len(self.data_list)</p>
+
+<h1 id="根据样本索引返回对应的特征和标签">根据样本索引,返回对应的特征和标签</h1>
+<p>def __getitem__(self, idx):</p>
+<p>text, label = self.data_list[idx]</p>
+<p>return text, label</p>
+
+
+<p>def test_text_dataset():</p>
+<h1 id="测试textdataset类">测试TextDataset类</h1>
+<p>data_list = load_raw_data(conf.dev_datapath)</p>
+<p>dataset = TextDataset(data_list)</p>
+<p>print(dataset[0])</p>
+<p>print(dataset[1])</p>
+
+
+<h1 id="3批量处理数据">3.批量处理数据</h1>
+<p>"""</p>
+<p>每当 DataLoader 从 Dataset 中取出一批batch 的原始数据后，</p>
+<p>就会调用 collate_fn 来对这个 batch 进行统一处理（如填充、转换为张量等）。</p>
+<p>"""</p>
+<p>def collate_fn(batch):</p>
+<p>"""</p>
+<p>对batch数据进行padding处理</p>
+<p>参数: batch: 包含(文本, 标签)元组的batch数据</p>
+<p>返回: tuple: 包含处理后的input_ids, attention_mask和labels的元组</p>
+<p>"""</p>
+<h1 id="使用zip将一批batch数据中的text-label元组拆分成两个独立的元组">使用zip()将一批batch数据中的(text, label)元组拆分成两个独立的元组</h1>
+<h1 id="texts--item0-for-item-in-batch">texts = [item[0] for item in batch]</h1>
+<h1 id="labels--item1-for-item-in-batch">labels = [item[1] for item in batch]</h1>
+<p>texts, labels = zip(*batch)</p>
+<h1 id="对文本进行padding">对文本进行padding</h1>
+<p>text_tokens = conf.tokenizer.batch_encode_plus(</p>
+<p>texts,</p>
+<p>add_special_tokens=True,  # 默认True,自动添加 [CLS] 和 [SEP]</p>
+<h1 id="paddingtrue自动填充到数据中的最大长度-------paddingmax_length填充到指定的固定长度">padding=True,自动填充到数据中的最大长度       padding='max_length':填充到指定的固定长度</h1>
+<p>padding='max_length',</p>
+<p>max_length=conf.pad_size,  # 设定目标长度</p>
+<p>truncation=True,  # 开启截断，防止超出模型限制</p>
+<p>return_attention_mask=True  # 请求返回注意力掩码，以区分输入中的有效信息和填充信息</p>
+<p>)</p>
+<h1 id="printtext_tokens---text_tokens">print("text_tokens-->", text_tokens)</h1>
+<h1 id="从文本令牌中提取输入id">从文本令牌中提取输入ID</h1>
+<p>input_ids = text_tokens['input_ids']</p>
+<h1 id="从文本令牌中提取注意力掩码">从文本令牌中提取注意力掩码</h1>
+<p>attention_mask = text_tokens['attention_mask']</p>
+<h1 id="将输入的token-id列表转换为张量">将输入的token ID列表转换为张量</h1>
+<p>input_ids = torch.tensor(input_ids)</p>
+<h1 id="将注意力掩码列表转换为张量">将注意力掩码列表转换为张量</h1>
+<p>attention_mask = torch.tensor(attention_mask)</p>
+<h1 id="将标签列表转换为张量">将标签列表转换为张量</h1>
+<p>labels = torch.tensor(labels)</p>
+<h1 id="返回转换后的张量元组">返回转换后的张量元组</h1>
+<p>return input_ids, attention_mask, labels</p>
+
+
+<h1 id="4构建dataloader">4.构建dataloader</h1>
+<p>def build_dataloader():</p>
+<h1 id="加载原始数据">加载原始数据</h1>
+<p>train_data_list = load_raw_data(conf.train_datapath)</p>
+<p>dev_data_list = load_raw_data(conf.dev_datapath)</p>
+<p>test_data_list = load_raw_data(conf.test_datapath)</p>
+
+<h1 id="构建训练集">构建训练集</h1>
+<p>train_dataset = TextDataset(train_data_list)</p>
+<p>dev_dataset = TextDataset(dev_data_list)</p>
+<p>test_dataset = TextDataset(test_data_list)</p>
+
+<h1 id="构建dataloader">构建DataLoader</h1>
+<p>train_dataloader = DataLoader(train_dataset, batch_size=conf.batch_size, shuffle=False, collate_fn=collate_fn, drop_last=True)</p>
+<p>dev_dataloader = DataLoader(dev_dataset, batch_size=conf.batch_size, shuffle=False, collate_fn=collate_fn, drop_last=True)</p>
+<p>test_dataloader = DataLoader(test_dataset, batch_size=conf.batch_size, shuffle=False, collate_fn=collate_fn, drop_last=True)</p>
+
+<p>return train_dataloader, dev_dataloader, test_dataloader</p>
+
+
+<p>def test_build_dataloader():</p>
+<h1 id="测试build_dataloader方法">测试build_dataloader方法</h1>
+<p>train_dataloader, dev_dataloader, test_dataloader = build_dataloader()</p>
+<p>print('len(train_dataloader)-->', len(train_dataloader)) # ceil(180000/64) = 2813</p>
+<p>print('len(dev_dataloader)-->', len(dev_dataloader)) # ceil(10000/64) = 157</p>
+<p>print('len(test_dataloader)-->', len(test_dataloader)) # ceil(10000/64) = 157</p>
+
+<h1 id="测试collate_fn方法">测试collate_fn方法</h1>
+<p>"""</p>
+<p>for i, batch in enumerate(train_dataloader)流程如下:</p>
+<p>1.DataLoader 从你的 Dataset 中取出一组索引；</p>
+<p>2.使用这些索引调用 Dataset.__getitem__ 获取原始样本；</p>
+<p>3.将这一组样本组成一个 batch（通常是 (text, label) 元组的列表）；</p>
+<p>4.自动调用你传入的 collate_fn 函数来处理这个 batch 数据；</p>
+<p>5.返回处理后的 batch（如 input_ids, attention_mask, labels）供模型使用。</p>
+<p>"""</p>
+<p>for i, batch in enumerate(train_dataloader):</p>
+<p>input_ids, attention_mask, labels = batch</p>
+<p>print("input_ids: ", input_ids.tolist())</p>
+<p>print("input_ids形状: ", input_ids.shape)</p>
+<p>print("attention_mask: ", attention_mask.tolist())</p>
+<p>print("attention_mask形状: ", attention_mask.shape)</p>
+<p>print("labels: ", labels.tolist())</p>
+<p>print("labels形状: ", labels.shape)</p>
+<p>break</p>
+
+
+<p>if __name__ == '__main__':</p>
+<h1 id="test_load_raw_data">test_load_raw_data()</h1>
+<h1 id="test_text_dataset">test_text_dataset()</h1>
+<p>test_build_dataloader()</p>
+<p>~~~</p>
+
+
+
+<h4 id="模型训练">模型训练</h4>
+
+<p>模型训练分为两步：先自定义模型，其次再进行模型训练。</p>
+
+<p>如下代码是自定义模型。</p>
+
+<p>~~~python</p>
+<p>import torch</p>
+<p>import torch.nn as nn</p>
+<p>from transformers import BertModel, BertTokenizer</p>
+<p>from config import Config</p>
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+
+<h1 id="定义bert模型">定义bert模型</h1>
+<p>class BertClassifier(nn.Module):</p>
+<p>def __init__(self):</p>
+<h1 id="初始化父类类的构造函数">初始化父类类的构造函数</h1>
+<p>super().__init__()</p>
+<h1 id="下面的bertmodel是从transformers库中加载的预训练模型">下面的BertModel是从transformers库中加载的预训练模型</h1>
+<h1 id="configbert_path是预训练模型的路径">config.bert_path是预训练模型的路径</h1>
+<p>self.bert = BertModel.from_pretrained(conf.bert_path)</p>
+<h1 id="定义全连接层fc用于分类任务">定义全连接层（fc），用于分类任务</h1>
+<h1 id="输入尺寸是bert模型隐藏层的大小即768对于base模型">输入尺寸是Bert模型隐藏层的大小，即768（对于Base模型）</h1>
+<h1 id="输出尺寸是类别数量10由confignum_classes指定">输出尺寸是类别数量10，由config.num_classes指定</h1>
+<p>self.fc = nn.Linear(conf.bert_config.hidden_size, conf.num_classes)</p>
+
+<p>def forward(self, input_ids, attention_mask):</p>
+<h1 id="使用bert模型处理输入的token-id和注意力掩码获取bert模型的输出">使用BERT模型处理输入的token ID和注意力掩码，获取BERT模型的输出</h1>
+<h1 id="outputs拆包是-_pooled池化">outputs拆包是: _,pooled池化</h1>
+<p>with torch.no_grad():</p>
+<p>outputs = self.bert(</p>
+<p>input_ids=input_ids,  # 输入的token ID</p>
+<p>attention_mask=attention_mask  # 注意力掩码用于区分有效token和填充token</p>
+<p>)</p>
+<h1 id="printoutputs--outputs---观察结果">print('outputs-->',outputs)  # 观察结果</h1>
+<h1 id="通过全连接层对bert模型的输出进行分类">通过全连接层对BERT模型的输出进行分类</h1>
+<p>logits = self.fc(outputs.pooler_output)</p>
+<h1 id="返回分类的logits未归一化的预测分数">返回分类的logits（未归一化的预测分数）</h1>
+<p>return logits</p>
+
+
+<h1 id="测试以上模型">测试以上模型</h1>
+<p>def test_bert_classifier():</p>
+<h1 id="加载tokenizer">加载tokenizer</h1>
+<p>tokenizer = BertTokenizer.from_pretrained(conf.bert_path)</p>
+
+<h1 id="示例文本">示例文本</h1>
+<p>texts = ["王者荣耀", "今天天气真好"]</p>
+
+<h1 id="编码文本">编码文本</h1>
+<p>encoded_inputs = tokenizer(</p>
+<p>texts,</p>
+<h1 id="paddingtrue----所有的填充到文本最大长度">padding=True,  #  所有的填充到文本最大长度</h1>
+<p>padding="max_length",  # 所有的填充到指定的max_length长度</p>
+<p>max_length=9,</p>
+<p>truncation=True,  # 如果超出指定的max_length长度，则截断</p>
+<p>return_tensors="pt"  # 返回 pytorch 张量,"pt" 时，分词器会将输入文本转换为模型可接受的格式</p>
+<p>)</p>
+
+<h1 id="获取-input_ids-和-attention_mask">获取 input_ids 和 attention_mask</h1>
+<p>input_ids = encoded_inputs["input_ids"]</p>
+<p>attention_mask = encoded_inputs["attention_mask"]</p>
+<p>print('input_ids-->', input_ids)</p>
+<p>print('attention_mask-->', attention_mask)</p>
+
+<h1 id="创建自定义的bert模型">创建自定义的bert模型</h1>
+<p>model = BertClassifier()  # __init__()执行了</p>
+
+<h1 id="预测">预测</h1>
+<p>logits = model(input_ids=input_ids, attention_mask=attention_mask)  # forward()执行了</p>
+<p>print('logits-->', logits)  # 每一行对应一个样本，每个数字表示该样本属于某一类别的“得分”（logit），没有经过 softmax 归一化。</p>
+
+<h1 id="获取预测概率">获取预测概率</h1>
+<p>probs = torch.softmax(logits, dim=-1)</p>
+<p>print('probs-->', probs)  # 归一化后该样本属于某类的概率（范围在 0~1 之间）,概率最高的就是预测结果</p>
+
+<h1 id="获取预测结果">获取预测结果</h1>
+<p>preds = torch.argmax(logits, dim=-1)</p>
+<p>print('preds-->', preds)  # 得到每个样本的预测类别。表示两个输入文本被模型预测为类别 6（从 0 开始计数）。</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>test_bert_classifier()</p>
+<p>~~~</p>
+
+<p>接下来是模型训练。</p>
+
+<p>这里模型训练的套路和之前的不一样。</p>
+
+<p>之前的流程：先训练，训练完后保存模型，再使用保存的模型来预测。</p>
+
+<p>现在的流程：一边训练，一边验证。如果模型效果比上一个好就保存，最后使用最优的模型来预测。</p>
+
+<p>如下图所示：</p>
+
+<p>!<a href="assets/1762768471890.png">1762768471890</a></p>
+
+<p>代码如下：</p>
+
+<p>~~~python</p>
+<p>import torch</p>
+<p>import torch.nn as nn</p>
+<p>from torch.optim import AdamW</p>
+<p>from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, classification_report</p>
+<p>from tqdm import tqdm</p>
+<p>from model2dev_utils import model2dev</p>
+<p>from config import Config</p>
+<p>import warnings</p>
+<h1 id="导入数据处理工具类">导入数据处理工具类</h1>
+<p>from a1_dataloader_utils import build_dataloader</p>
+<h1 id="导入bert模型">导入bert模型</h1>
+<p>from a2_bert_classifer_model import BertClassifier</p>
+
+<p>warnings.filterwarnings("ignore")</p>
+
+<h1 id="加载配置对象包含模型参数路径等">加载配置对象，包含模型参数、路径等</h1>
+<p>conf = Config()</p>
+
+
+<p>def model2train():</p>
+<p>"""</p>
+<p>训练 BERT 分类模型并在验证集上评估，保存最佳模型。</p>
+<p>参数：无显式参数，所有配置通过全局 conf 对象获取。</p>
+<p>返回：无返回值，训练过程中保存最佳模型到指定路径。</p>
+<p>"""</p>
+<h1 id="准备数据">准备数据</h1>
+<p>train_dataloader, dev_dataloader, test_dataloader = build_dataloader()</p>
+
+<h1 id="准备模型">准备模型</h1>
+<h1 id="初始化bert分类模型">初始化bert分类模型</h1>
+<p>model = BertClassifier()</p>
+<h1 id="将模型移动到指定的设备">将模型移动到指定的设备</h1>
+<p>model.to(conf.device)</p>
+
+<h1 id="准备损失函数">准备损失函数</h1>
+<p>loss_fn = nn.CrossEntropyLoss()</p>
+
+<h1 id="准备优化器">准备优化器</h1>
+<p>optimizer = AdamW(model.parameters(), lr=conf.learning_rate)</p>
+
+<h1 id="开始训练模型">开始训练模型</h1>
+<h1 id="初始化f1分数用于保存最好的模型">初始化F1分数，用于保存最好的模型</h1>
+<p>best_f1 = 0.0</p>
+<h1 id="外层循环遍历每个训练轮次">外层循环遍历每个训练轮次</h1>
+<h1 id="每次需要设置训练模式累计损失预存训练集测试和真实标签">（每次需要设置训练模式，累计损失，预存训练集测试和真实标签）</h1>
+<p>for epoch in range(conf.num_epochs):</p>
+<h1 id="设置模型为训练模式">设置模型为训练模式</h1>
+<p>model.train()</p>
+<h1 id="初始化累计损失初始化训练集预测和真实标签">初始化累计损失，初始化训练集预测和真实标签</h1>
+<p>total_loss = 0.0</p>
+<p>train_preds, train_labels = [], []</p>
+<h1 id="内层循环遍历训练dataloader每个批次">内层循环遍历训练DataLoader每个批次</h1>
+<p>for i, batch in enumerate(tqdm(train_dataloader, desc="训练集训练中...")):</p>
+<h1 id="提取批次数据并移动到设备">提取批次数据并移动到设备</h1>
+<p>input_ids, attention_mask, labels = batch</p>
+<p>input_ids = input_ids.to(conf.device)</p>
+<p>attention_mask = attention_mask.to(conf.device)</p>
+<p>labels = labels.to(conf.device)</p>
+
+<h1 id="前向传播模型预测">前向传播：模型预测</h1>
+<p>logits = model(input_ids, attention_mask)</p>
+<h1 id="计算损失">计算损失</h1>
+<p>loss = loss_fn(logits, labels)</p>
+<h1 id="累计损失">累计损失</h1>
+<p>total_loss += loss.item()</p>
+<h1 id="获取预测结果最大logits对应的类别">获取预测结果（最大logits对应的类别）</h1>
+<p>y_pred_list = torch.argmax(logits, dim=1)</p>
+<h1 id="存储预测和真实标签用于计算训练集指标">存储预测和真实标签，用于计算训练集指标</h1>
+<p>train_preds.extend(y_pred_list.cpu().tolist())</p>
+<p>train_labels.extend(labels.cpu().tolist())</p>
+
+<h1 id="梯度清零">梯度清零</h1>
+<p>optimizer.zero_grad()</p>
+<h1 id="反向传播计算梯度">反向传播：计算梯度</h1>
+<p>loss.backward()</p>
+<h1 id="参数更新根据梯度更新模型参数">参数更新：根据梯度更新模型参数</h1>
+<p>optimizer.step()</p>
+
+<h1 id="每10个批次或一个轮次结束计算训练集指标">每10个批次或一个轮次结束，计算训练集指标</h1>
+<p>if (i + 1) % 10 == 0 or i == len(train_dataloader) - 1:</p>
+<h1 id="计算准确率和f1值">计算准确率和f1值</h1>
+<p>acc = accuracy_score(train_labels, train_preds)</p>
+<p>f1 = f1_score(train_labels, train_preds, average='macro')</p>
+<h1 id="获取batch_count并计算平均损失">获取batch_count，并计算平均损失</h1>
+<p>batch_count = i % 10 + 1</p>
+<p>avg_loss = total_loss / batch_count</p>
+<h1 id="打印训练信息">打印训练信息</h1>
+<p>print(f"\n轮次: {epoch + 1}, 批次: {i + 1}, 损失: {avg_loss:.4f}, acc准确率:{acc:.4f}, f1分数:{f1:.4f}")</p>
+<h1 id="清空累计损失和预测和真实标签">清空累计损失和预测和真实标签</h1>
+<p>total_loss = 0.0</p>
+<p>train_preds, train_labels = [], []</p>
+
+<h1 id="每100个批次或一个轮次结束计算验证集指标打印保存模型">每100个批次或一个轮次结束，计算验证集指标，打印，保存模型</h1>
+<p>if (i + 1) % 100 == 0 or i == len(train_dataloader) - 1:</p>
+<h1 id="计算在测试集的评估报告准确率精确率召回率f1值">计算在测试集的评估报告，准确率，精确率，召回率，f1值</h1>
+<p>report, f1score, accuracy, precision, recall = model2dev(model, dev_dataloader, conf.device)</p>
+<p>print("验证集评估报告：\n", report)</p>
+<p>print(f"验证集的f1: {f1score:.4f}, accuracy:{accuracy:.4f}, precision:{precision:.4f}, recall:{recall:.4f}")</p>
+<h1 id="将模型再设置为训练模式">将模型再设置为训练模式</h1>
+<p>model.train()</p>
+<h1 id="如果验证f1分数优于历史最佳保存模型">如果验证F1分数优于历史最佳，保存模型</h1>
+<p>if f1score > best_f1:</p>
+<h1 id="更新历史最佳f1分数">更新历史最佳F1分数</h1>
+<p>best_f1 = f1score</p>
+<h1 id="保存模型">保存模型</h1>
+<p>torch.save(model.state_dict(), conf.model_save_path)</p>
+<p>print("保存模型成功, 当前f1分数:", best_f1)</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>model2train()</p>
+
+<p>~~~</p>
+
+
+
+<h4 id="模型预测评估">模型预测（评估）</h4>
+
+<p>使用保存好的模型来预测，和模型验证差不多。</p>
+
+<p>~~~python</p>
+<p>import torch</p>
+<p>from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score, classification_report</p>
+<p>from tqdm import tqdm</p>
+<p>from config import Config</p>
+<p>import warnings</p>
+<h1 id="导入数据处理工具类">导入数据处理工具类</h1>
+<p>from a1_dataloader_utils import build_dataloader</p>
+<h1 id="导入bert模型">导入bert模型</h1>
+<p>from a2_bert_classifer_model import BertClassifier</p>
+
+<p>warnings.filterwarnings("ignore")</p>
+
+<h1 id="加载配置对象包含模型参数路径等">加载配置对象，包含模型参数、路径等</h1>
+<p>conf = Config()</p>
+
+
+<p>def model2predict():</p>
+<h1 id="准备数据">准备数据</h1>
+<p>train_dataloader, dev_dataloader, test_dataloader = build_dataloader()</p>
+<h1 id="准备模型">准备模型</h1>
+<h1 id="初始化bert分类模型">初始化bert分类模型</h1>
+<p>model = BertClassifier()</p>
+<p>model.load_state_dict(torch.load(conf.model_save_path))</p>
+<h1 id="将模型移动到指定的设备">将模型移动到指定的设备</h1>
+<p>model.to(conf.device)</p>
+<h1 id="设置模型为评估模式禁用-dropout并改变batch_norm行为">设置模型为评估模式（禁用 dropout,并改变batch_norm行为）</h1>
+<p>model.eval()</p>
+<h1 id="初始化列表存储预测结果和真实标签">初始化列表，存储预测结果和真实标签</h1>
+<p>all_preds, all_labels = [], []</p>
+<h1 id="torchno_grad禁用梯度计算以提高效率并减少内存占用">torch.no_grad()禁用梯度计算以提高效率并减少内存占用</h1>
+<p>with torch.no_grad():</p>
+<h1 id="4-遍历数据加载器逐批次进行预测">4. 遍历数据加载器，逐批次进行预测</h1>
+<p>for i, batch in enumerate(tqdm(test_dataloader, desc="测试集测试中...")):</p>
+<h1 id="提取批次数据并移动到设备">提取批次数据并移动到设备</h1>
+<p>input_ids, attention_mask, labels = batch</p>
+<p>input_ids = input_ids.to(conf.device)</p>
+<p>attention_mask = attention_mask.to(conf.device)</p>
+<p>labels = labels.to(conf.device)</p>
+<h1 id="前向传播模型预测">前向传播：模型预测</h1>
+<p>outputs = model(input_ids, attention_mask=attention_mask)</p>
+<h1 id="printoutput---outputs-outputsshape">print("output-->", outputs, outputs.shape)</h1>
+
+<h1 id="获取预测结果最大-logits分数-对应的类别">获取预测结果（最大 logits分数 对应的类别）</h1>
+<p>y_pred_list = torch.argmax(outputs, dim=-1)</p>
+
+<h1 id="存储预测和真实标签">存储预测和真实标签</h1>
+<p>all_preds.extend(y_pred_list.cpu().tolist())</p>
+<p>all_labels.extend(labels.cpu().tolist())</p>
+<p>accuracy = accuracy_score(all_labels, all_preds)</p>
+<p>precision = precision_score(all_labels, all_preds, average='macro')</p>
+<p>f1score = f1_score(all_labels, all_preds, average='macro')</p>
+<p>recall = recall_score(all_labels, all_preds, average='macro')</p>
+<p>report = classification_report(all_labels, all_preds)</p>
+
+<p>print("accuracy-->", accuracy)</p>
+<p>print("precision-->", precision)</p>
+<p>print("f1score-->", f1score)</p>
+<p>print("recall-->", recall)</p>
+<p>print("report-->", report)</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>model2predict()</p>
+<p>~~~</p>
+
+<blockquote>BERT模型准确率：训练一轮的情况下75%左右。如果训练多次，效果要优于Fasttext，可以到达93%左右。</blockquote>
+
+
+
+<h4 id="模型部署">模型部署</h4>
+
+<h5 id="服务端">服务端</h5>
+
+<p>服务端使用Flask来部署。先提供一个预测函数，然后把该函数使用Flask封装为在线的API，最终以url的形式供外界访问。</p>
+
+<p>这里是一个预测函数：</p>
+
+<p>~~~python</p>
+<p>import torch</p>
+<p>from a2_bert_classifer_model import BertClassifier</p>
+<p>from config import Config</p>
+<p>from a1_dataloader_utils import build_dataloader</p>
+
+<h1 id="加载配置">加载配置</h1>
+<p>conf = Config()</p>
+
+<h1 id="准备模型">准备模型</h1>
+<p>model = BertClassifier()</p>
+<h1 id="加载模型参数">加载模型参数</h1>
+<p>model.load_state_dict(torch.load(conf.model_save_path))</p>
+<h1 id="添加模型到指定设备">添加模型到指定设备</h1>
+<p>model.to(conf.device)</p>
+<h1 id="设置模型为评估模式">设置模型为评估模式</h1>
+<p>model.eval()</p>
+
+
+<h1 id="定义predict_fun函数预测函数">定义predict_fun函数预测函数</h1>
+<p>def predict_func(data_dict):</p>
+<p>"""</p>
+<p>根据用户录入数据,返回分类信息</p>
+<p>:param 参数 data_dict: {"text":"状元心经：考前一周重点是回顾和整理"}</p>
+<p>:return: 返回 data_dict: {"text":"状元心经：考前一周重点是回顾和整理", "pred_class":"education"}</p>
+<p>"""</p>
+<h1 id="获取文本">获取文本</h1>
+<p>text = data_dict['text']</p>
+<h1 id="将文本转为id">将文本转为id</h1>
+<p>text_tokens = conf.tokenizer.batch_encode_plus([text],</p>
+<p>padding="max_length",</p>
+<p>max_length=conf.pad_size)</p>
+<h1 id="printtext_tokens---text_tokens">print("text_tokens-->", text_tokens)</h1>
+<h1 id="获取input_ids和attention_mask">获取input_ids和attention_mask</h1>
+<p>input_ids = text_tokens['input_ids']</p>
+<p>attention_mask = text_tokens['attention_mask']</p>
+<h1 id="将input_ids和attention_mask转为tensor-并指定到设备">将input_ids和attention_mask转为tensor, 并指定到设备</h1>
+<p>input_ids = torch.tensor(input_ids).to(conf.device)</p>
+<p>attention_mask = torch.tensor(attention_mask).to(conf.device)</p>
+
+<h1 id="设置不进行梯度计算在该上下文中禁用梯度计算提升推理速度并减少内存占用">设置不进行梯度计算(在该上下文中禁用梯度计算，提升推理速度并减少内存占用)</h1>
+<p>with torch.no_grad():</p>
+<h1 id="前向传播模型预测">前向传播(模型预测)</h1>
+<p>logits = model(input_ids, attention_mask)</p>
+<h1 id="printlogits---logits-logitsshape">print("logits-->", logits, logits.shape)</h1>
+<h1 id="获取预测类别索引张量">获取预测类别索引张量</h1>
+<p>preds = torch.argmax(logits, dim=-1)</p>
+<h1 id="printpreds---preds">print("preds-->", preds)</h1>
+<h1 id="获取预测类别索引标量">获取预测类别索引标量</h1>
+<p>pred_idx = preds.item()</p>
+<h1 id="获取类别名称">获取类别名称</h1>
+<p>pred_class = conf.class_list[pred_idx]</p>
+<h1 id="printpred_class---pred_class">print('pred_class-->', pred_class)</h1>
+<h1 id="将预测结果添加到data_dict中">将预测结果添加到data_dict中</h1>
+<p>data_dict['pred_class'] = pred_class</p>
+<h1 id="返回data_dict">返回data_dict</h1>
+<p>return data_dict</p>
+
+
+<p>if __name__ == '__main__':</p>
+<p>data_dict = {'text': '状元心经：考前一周重点是回顾和整理'}</p>
+<p>result = predict_func(data_dict)</p>
+<p>print("result-->", result)</p>
+
+<p>~~~</p>
+
+<p>这里是把预测函数封装为Flask的API：</p>
+
+<p>~~~python</p>
+<p>from flask import Flask, request, jsonify</p>
+<p>from bert_predict_func import predict_func</p>
+<p>import warnings</p>
+
+<p>warnings.filterwarnings('ignore')</p>
+
+<h1 id="创建flask对象">创建flask对象</h1>
+<p>app = Flask(__name__)</p>
+
+<p>#</p>
+<h1 id="用户访问url-http主机ip8010predict">用户访问url: http://主机ip:8010/predict</h1>
+<p>@app.route('/predict', methods=['POST'])</p>
+<p>def predict():</p>
+<h1 id="获取json数据">获取json数据</h1>
+<p>data = request.get_json()</p>
+<p>print(type(data))</p>
+<p>print(data)</p>
+<h1 id="调用预测函数">调用预测函数</h1>
+<p>result = predict_func(data)</p>
+<h1 id="返回结果">返回结果</h1>
+<p>return jsonify(result)</p>
+
+
+<p>if __name__ == '__main__':</p>
+<h1 id="启动服务">启动服务</h1>
+<p>app.run(host='0.0.0.0', port=8010, debug=False)</p>
+
+<p>~~~</p>
+
+<p>到此，服务端的代码就结束了。</p>
+
+<h5 id="客户端">客户端</h5>
+
+<p>客户端的目的，就是要去访问服务端提供的URL链接。</p>
+
+<p>所以，需要使用requests库。</p>
+
+<p>我们首先使用requests库写一个demo，测试一下服务端的API接口是否可以访问。</p>
+
+<p>~~~python</p>
+<h1 id="测试调用api接口">测试调用api接口</h1>
+<p>import requests</p>
+
+<h1 id="准备url">准备url</h1>
+<p>url = 'http://127.0.0.1:8010/predict'</p>
+
+<p>try:</p>
+<h1 id="获取用户问题">获取用户问题</h1>
+<p>text = input("请输入文本内容：")</p>
+<h1 id="发送post请求">发送POST请求</h1>
+<p>r = requests.post(url, json={'text': text})</p>
+<p>print(r.json())</p>
+
+<p>except Exception as e:</p>
+<p>print("Error occurred:", e)</p>
+
+<p>~~~</p>
+
+<p>上述代码如果运行OK，表示服务端的API接口可以正常访问。</p>
+
+<p>接下来，就是提供一个可视化web的方式，让客户进行友好访问。</p>
+
+<p>~~~python</p>
+<p>import streamlit as st</p>
+<p>import requests</p>
+<p>import time</p>
+
+<h1 id="streamlit准备页面">streamlit准备页面</h1>
+<p>st.title("投满分分类项目")</p>
+<p>st.write("这是一个投满分分类项目")</p>
+<h1 id="获取用户输入">获取用户输入</h1>
+<p>text = st.text_input("请输入文本")</p>
+<h1 id="发送请求">发送请求</h1>
+<p>url = 'http://127.0.0.1:8010/predict'</p>
+<p>if st.button("基于bert原生模型获取分类！"):</p>
+<p>start_time = time.time()</p>
+<p>try:</p>
+<h1 id="发送post请求">发送post请求</h1>
+<p>r = requests.post(url, json={'text': text})</p>
+<p>print(r.json())</p>
+
+<h1 id="显示结果到页面">显示结果到页面</h1>
+<p>st.write("预测结果：", r.json()["pred_class"])</p>
+
+<h1 id="计算耗时">计算耗时</h1>
+<p>estimated_time = (time.time() - start_time) * 1000</p>
+<p>st.write("耗时：", estimated_time, "ms")</p>
+
+<p>except Exception as e:</p>
+<p>print("Error occurred:", e)</p>
+
+<p>~~~</p>
+
+<p>这个可视化的web是Streamlit框架写的。这个框架仅做了解。</p>
+
+<p>最后把这个可视化web运行，通过如下的命令：</p>
+
+<p>~~~python</p>
+<p>import os</p>
+
+<h1 id="执行指令">执行指令</h1>
+<p>os.system('streamlit run D:/code/workspace7/toutiao/04-bert/app_streamlit.py')</p>
+
+<p>~~~</p>
+
+<p>到此，客户端的代码就全部结束了。</p>
+
+
+
+<h2 id="扩展fasttext子词与wordngrams">【扩展】FastText子词与wordNgrams</h2>
+
+<h3 id="数据准备与分词">数据准备与分词</h3>
+
+<p>文本：这是一个很好的产品</p>
+
+<p>训练这条文本，使用jieba分词，词间以空格分隔，保存为FastText格式：</p>
+
+<p>~~~shell</p>
+<p>train_data = [</p>
+<p>"__label__positive 这是一个很好的产品",</p>
+<p>"__label__positive 质量非常好，推荐购买",</p>
+<p>"__label__positive 传智黑马程序员，推荐加入",</p>
+<p>"__label__negative 产品不好用，失望",</p>
+<p>"__label__negative 质量差，很快就坏了"</p>
+<p>]</p>
+<p>~~~</p>
+
+
+
+<h3 id="子词生成与ngrams">子词生成与Ngrams</h3>
+
+<p>FastText⽀持两种n-gram机制：</p>
+
+<ul><li>字符级n-gram：分解词为子词（如<产、产品），添加<strong><和>标记词边界</strong>，捕捉词内部结构，<strong><code class="inline-code">解决OOV（out of vocabulary）问题</code></strong>。</li>
+<li>词级n-gram（wordNgrams）：组合相邻词为短语（如这个_产品），增强上下文建模。</li></ul>
+
+<h4 id="字符级n-gramminn2maxn4">字符级n-gram（minn=2，maxn=4）</h4>
+
+<p>文本：“这个 产品 很棒”，以产品为例，启动子词：</p>
+
+<p>~~~shell</p>
+<p>'产品', '<产', '<产品', '<产品>', '产品>', '品>'</p>
+<p>~~~</p>
+
+<h4 id="词级n-gramwordngrams2-示例">词级n-gram（wordNgrams=2 示例）</h4>
+
+<p>⽂本：“这个 产品 很棒”，启用wordNgrams=2：</p>
+<p>~~~shell</p>
+<p>1-gram：这个、产品、很棒</p>
+<p>2-gram：这个、产品、很棒，这个_产品、产品_很棒</p>
+<p>~~~</p>
+
+
+
+<h3 id="模型训练">模型训练</h3>
+
+<p>使用以下参数训练有监督模型，生成词表和子词表示：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">shell</span></div><pre><code class="language-shell">import fasttext
+
+
+def dm01():
+    # 禁用子词：
+    # minn=0：子词最小长度，文本分类任务下，默认就是0，表示禁用
+    # maxn=0：子词最大长度，文本分类任务下，默认就是0，表示禁用
+    # bucket：子词哈希桶数量，一个平衡模型性能与内存开销的参数，默认就是2000000
+    model = fasttext.train_supervised(input=&#x27;&#x27;, dim=10, minn=0, maxn=0, bucket=2000000)
+    print(&quot;model--&gt;&quot;, model)
+    all_words = model.get_words()
+    print(&quot;all_words--&gt;&quot;, all_words)
+    result = model.get_subwords(&quot;产品棒&quot;)
+    print(&quot;result--&gt;&quot;, result)
+    result = model.get_word_vector(&quot;产品棒&quot;)
+    print(&quot;result--&gt;&quot;, result)
+
+    # 开启子词：
+    # minn=2：子词最小长度
+    # maxn=4：子词最大长度
+    # bucket：子词哈希桶数量
+    model = fasttext.train_supervised(input=&#x27;./a.txt&#x27;, dim=10, minn=2, maxn=4, bucket=2000000)
+    print(&quot;model--&gt;&quot;, model)
+    all_words = model.get_words()
+    print(&quot;all_words--&gt;&quot;, all_words)
+    result = model.get_subwords(&quot;产品棒&quot;)
+    print(&quot;result--&gt;&quot;, result)
+    result = model.get_word_vector(&quot;产品棒&quot;)
+    print(&quot;result--&gt;&quot;, result)
+
+
+if __name__ == &#x27;__main__&#x27;:
+    dm01()</code></pre></div>
+
+<p>哈希桶说明：</p>
+
+<p>!<a href="assets/1763090372844.png">1763090372844</a></p>
+
+
+
+<h3 id="fasttext-和-word2vec">FastText 和 Word2Vec</h3>
+
+<ul><li>FastText：字符级n-gram（⼦词）+ 词级n-gram（wordNgrams），灵活处理OOV和上下⽂。</li>
+<li>Word2Vec：仅支持词级n-gram（需预处理，如New_York），无法处理OOV词。</li></ul>
+
+<p>这两者并不冲突，恰恰相反，子词和Ngrams结合使用：</p>
+
+<p>~~~shell</p>
+<p>model = fasttext.train_supervised(input='./a.txt', dim=10, minn=2, maxn=4, bucket=2000000, wordNgrams=2)</p>
+<p>~~~</p>
+
+
+
+
+
+</div><div class="section-card" id="1文本分类项目从0到1实施纲领"><h2><span class="badge badge-advanced">高级</span> 1、文本分类项目从0到1实施纲领</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#项目概述">项目概述</a></li><li><a href="#阶段一项目初始化与环境搭建预计时间1-2天">阶段一：项目初始化与环境搭建（预计时间：1-2天）</a></li><li class="toc-h3"><a href="#11-项目架构设计">1.1 项目架构设计</a></li><li class="toc-h3"><a href="#12-开发环境配置">1.2 开发环境配置</a></li><li><a href="#阶段二数据探索与预处理预计时间2-3天">阶段二：数据探索与预处理（预计时间：2-3天）</a></li><li class="toc-h3"><a href="#21-数据加载与分析">2.1 数据加载与分析</a></li><li class="toc-h3"><a href="#22-数据预处理流水线">2.2 数据预处理流水线</a></li><li><a href="#阶段三模型开发与训练预计时间5-7天">阶段三：模型开发与训练（预计时间：5-7天）</a></li><li class="toc-h3"><a href="#31-随机森林实现">3.1 随机森林实现</a></li><li class="toc-h3"><a href="#32-fasttext模型">3.2 FastText模型</a></li><li class="toc-h3"><a href="#33-bert模型">3.3 BERT模型</a></li><li class="toc-h3"><a href="#34-llm集成">3.4 LLM集成</a></li><li><a href="#阶段四模型评估与比较预计时间2天">阶段四：模型评估与比较（预计时间：2天）</a></li><li class="toc-h3"><a href="#41-统一评估框架">4.1 统一评估框架</a></li><li class="toc-h3"><a href="#42-模型对比报告">4.2 模型对比报告</a></li><li><a href="#阶段五后端api开发预计时间3-4天">阶段五：后端API开发（预计时间：3-4天）</a></li><li class="toc-h3"><a href="#51-api接口设计">5.1 API接口设计</a></li><li class="toc-h3"><a href="#52-服务架构">5.2 服务架构</a></li><li><a href="#阶段六前端streamlit开发预计时间2-3天">阶段六：前端Streamlit开发（预计时间：2-3天）</a></li><li class="toc-h3"><a href="#61-页面结构">6.1 页面结构</a></li><li class="toc-h3"><a href="#62-核心功能">6.2 核心功能</a></li><li><a href="#阶段七系统集成与测试预计时间2天">阶段七：系统集成与测试（预计时间：2天）</a></li><li class="toc-h3"><a href="#71-端到端测试">7.1 端到端测试</a></li><li class="toc-h3"><a href="#72-跨平台验证">7.2 跨平台验证</a></li><li><a href="#阶段八部署与监控预计时间2天">阶段八：部署与监控（预计时间：2天）</a></li><li class="toc-h3"><a href="#81-linux服务器部署">8.1 Linux服务器部署</a></li><li class="toc-h3"><a href="#82-监控与日志">8.2 监控与日志</a></li><li><a href="#进度记录系统设计">进度记录系统设计</a></li><li class="toc-h3"><a href="#接口文档规范">接口文档规范</a></li><li><a href="#进度记录接口">进度记录接口</a></li><li><a href="#实验追踪接口">实验追踪接口</a></li><li><a href="#需要澄清的关键问题">需要澄清的关键问题</a></li></ul></div><blockquote><strong>🎯 全局定位</strong>：NLP 项目实践的<strong>端到端实战篇</strong>。从数据获取→预处理→特征工程→模型训练→部署上线，完整走通一个文本分类项目，是理论到工程的桥梁。
+
+<strong>🔗 知识串联</strong>：← 上游：<a href="#06逻辑回归学习笔记" class="wikilink">逻辑回归</a>、<a href="#05-rnn循环神经网络" class="wikilink">RNN</a>、<a href="#transformer" class="wikilink">Transformer</a> → 横向：<a href="#docker-部署-mysql" class="wikilink">Docker 部署</a>
+
+<strong>⚡ 难度标识</strong>：🔴 进阶 — 需具备 ML/NLP 基础，重点在工程落地能力
+
+<strong>🛠️ 落地实践</strong>：读完本文后，你应该能：① 独立完成文本分类项目全流程 ② 对比 TF-IDF/Word2Vec/BERT 特征效果 ③ 用 FastAPI+Streamlit 部署模型服务</blockquote>
+
+<h2 id="项目概述">项目概述</h2>
+
+<p><strong>目标</strong>：基于zeroshot/twitter-financial-news-sentiment数据集，构建多方法文本分类系统，实现金融推文情感分析。</p>
+
+<p><strong>技术栈</strong>：</p>
+
+<ul><li>后端：Python + FastAPI/Flask</li></ul>
+
+<ul><li>前端：Streamlit</li></ul>
+
+<ul><li>机器学习：scikit-learn（随机森林）、fasttext、transformers（BERT）、LLM集成</li></ul>
+
+<ul><li>部署：Linux服务器（考虑Docker容器化）</li></ul>
+
+<ul><li>开发：Windows环境，Git版本控制</li></ul>
+
+
+<h2 id="阶段一项目初始化与环境搭建预计时间1-2天">阶段一：项目初始化与环境搭建（预计时间：1-2天）</h2>
+
+<h3 id="11-项目架构设计">1.1 项目架构设计</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">twitter-sentiment-analysis/
+├── data/                   # 数据管理
+│   ├── raw/               # 原始数据
+│   ├── processed/         # 处理后的数据
+│   └── splits/            # 训练/验证/测试集
+├── models/                # 模型管理
+│   ├── random_forest/
+│   ├── fasttext/
+│   ├── bert/
+│   └── llm/
+├── training/              # 训练模块
+│   ├── base_trainer.py   # 基础训练类
+│   ├── rf_trainer.py     # 随机森林训练
+│   ├── fasttext_trainer.py
+│   ├── bert_trainer.py
+│   └── llm_trainer.py
+├── inference/            # 推理模块
+│   ├── model_loader.py   # 模型加载
+│   └── predictor.py      # 统一预测接口
+├── api/                  # 后端API
+│   ├── app.py           # FastAPI应用
+│   ├── routes/          # API路由
+│   └── schemas/         # 数据模式
+├── frontend/            # Streamlit前端
+│   ├── app.py          # 主应用
+│   ├── components/     # 可复用组件
+│   └── pages/          # 多页面
+├── config/             # 配置管理
+│   ├── base.yaml      # 基础配置
+│   ├── development.yaml
+│   └── production.yaml
+├── utils/              # 工具函数
+├── tests/              # 测试用例
+├── docs/               # 文档
+├── requirements.txt    # Python依赖
+├── Dockerfile         # 容器化配置
+└── README.md</code></pre></div>
+
+<h3 id="12-开发环境配置">1.2 开发环境配置</h3>
+
+<ul><li>Python 3.8+环境设置</li></ul>
+
+<ul><li>创建虚拟环境：<code class="inline-code">python -m venv sentiment_env</code></li></ul>
+
+<ul><li>安装基础依赖：pandas, numpy, scikit-learn, fasttext, transformers, torch, streamlit, fastapi</li></ul>
+
+<ul><li>Git初始化，建立开发分支策略</li></ul>
+
+
+<h2 id="阶段二数据探索与预处理预计时间2-3天">阶段二：数据探索与预处理（预计时间：2-3天）</h2>
+
+<h3 id="21-数据加载与分析">2.1 数据加载与分析</h3>
+
+<ul><li>加载zeroshot/twitter-financial-news-sentiment数据集</li></ul>
+
+<ul><li>探索性数据分析（EDA）：</li></ul>
+
+<ul><li>数据规模与分布</li></ul>
+
+<ul><li>标签分布分析</li></ul>
+
+<ul><li>文本长度统计</li></ul>
+
+<ul><li>缺失值处理</li></ul>
+
+
+<h3 id="22-数据预处理流水线">2.2 数据预处理流水线</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 设计统一的数据预处理接口
+class DataPreprocessor:
+    def clean_text(self, text):  # 文本清洗
+    def tokenize(self, text):    # 分词
+    def vectorize(self, tokens): # 向量化（TF-IDF、词嵌入等）</code></pre></div>
+
+<h2 id="阶段三模型开发与训练预计时间5-7天">阶段三：模型开发与训练（预计时间：5-7天）</h2>
+
+<h3 id="31-随机森林实现">3.1 随机森林实现</h3>
+
+<ul><li>特征工程：TF-IDF、n-gram特征</li></ul>
+
+<ul><li>超参数调优：网格搜索/随机搜索</li></ul>
+
+<ul><li>交叉验证评估</li></ul>
+
+
+<h3 id="32-fasttext模型">3.2 FastText模型</h3>
+
+<ul><li>词嵌入训练</li></ul>
+
+<ul><li>超参数优化</li></ul>
+
+<ul><li>迁移学习考虑</li></ul>
+
+
+<h3 id="33-bert模型">3.3 BERT模型</h3>
+
+<ul><li>预训练模型选择（BERT-base, FinBERT等）</li></ul>
+
+<ul><li>微调策略</li></ul>
+
+<ul><li>序列分类头设计</li></ul>
+
+
+<h3 id="34-llm集成">3.4 LLM集成</h3>
+
+<ul><li>API集成（OpenAI GPT、Claude等）或本地LLM部署</li></ul>
+
+<ul><li>Prompt工程设计</li></ul>
+
+<ul><li>少样本学习配置</li></ul>
+
+
+<h2 id="阶段四模型评估与比较预计时间2天">阶段四：模型评估与比较（预计时间：2天）</h2>
+
+<h3 id="41-统一评估框架">4.1 统一评估框架</h3>
+
+<ul><li>准确率、精确率、召回率、F1分数</li></ul>
+
+<ul><li>混淆矩阵分析</li></ul>
+
+<ul><li>推理速度测试</li></ul>
+
+
+<h3 id="42-模型对比报告">4.2 模型对比报告</h3>
+
+<ul><li>性能对比表格</li></ul>
+
+<ul><li>资源消耗分析</li></ul>
+
+<ul><li>推荐生产模型选择</li></ul>
+
+
+<h2 id="阶段五后端api开发预计时间3-4天">阶段五：后端API开发（预计时间：3-4天）</h2>
+
+<h3 id="51-api接口设计">5.1 API接口设计</h3>
+
+<p>python</p>
+
+<h1 id="主要接口覆盖">主要接口覆盖：</h1>
+<ul><li>POST /api/v1/train        # 模型训练</li>
+<li>POST /api/v1/predict      # 情感预测</li>
+<li>GET /api/v1/models        # 可用模型列表</li>
+<li>GET /api/v1/status/{job_id}  # 训练状态</li>
+<li>POST /api/v1/evaluate     # 模型评估</li>
+<li>GET /api/v1/health        # 健康检查</li></ul>
+
+<h3 id="52-服务架构">5.2 服务架构</h3>
+
+<ul><li>FastAPI异步框架</li></ul>
+
+<ul><li>背景任务处理（Celery + Redis）</li></ul>
+
+<ul><li>模型缓存管理</li></ul>
+
+<ul><li>请求限流与认证</li></ul>
+
+
+<h2 id="阶段六前端streamlit开发预计时间2-3天">阶段六：前端Streamlit开发（预计时间：2-3天）</h2>
+
+<h3 id="61-页面结构">6.1 页面结构</h3>
+
+<ul><li>主页：项目介绍和快速预测</li></ul>
+
+<ul><li>训练页面：模型训练配置和监控</li></ul>
+
+<ul><li>比较页面：模型性能可视化</li></ul>
+
+<ul><li>历史页面：预测记录查询</li></ul>
+
+
+<h3 id="62-核心功能">6.2 核心功能</h3>
+
+<ul><li>实时文本情感分析</li></ul>
+
+<ul><li>训练进度可视化</li></ul>
+
+<ul><li>模型对比图表</li></ul>
+
+<ul><li>批量预测上传</li></ul>
+
+
+<h2 id="阶段七系统集成与测试预计时间2天">阶段七：系统集成与测试（预计时间：2天）</h2>
+
+<h3 id="71-端到端测试">7.1 端到端测试</h3>
+
+<ul><li>API测试（ pytest + requests）</li></ul>
+
+<ul><li>前端集成测试</li></ul>
+
+<ul><li>负载测试</li></ul>
+
+
+<h3 id="72-跨平台验证">7.2 跨平台验证</h3>
+
+<ul><li>Windows开发环境测试</li></ul>
+
+<ul><li>Linux部署环境预验证</li></ul>
+
+
+<h2 id="阶段八部署与监控预计时间2天">阶段八：部署与监控（预计时间：2天）</h2>
+
+<h3 id="81-linux服务器部署">8.1 Linux服务器部署</h3>
+
+<ul><li>Docker容器化部署</li></ul>
+
+<ul><li>Nginx反向代理配置</li></ul>
+
+<ul><li>环境变量管理</li></ul>
+
+
+<h3 id="82-监控与日志">8.2 监控与日志</h3>
+
+<ul><li>应用日志记录</li></ul>
+
+<ul><li>性能监控（Prometheus + Grafana）</li></ul>
+
+<ul><li>错误追踪</li></ul>
+
+
+<h2 id="进度记录系统设计">进度记录系统设计</h2>
+
+<h3 id="接口文档规范">接口文档规范</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">markdown</span></div><pre><code class="language-markdown">## 进度记录接口
+- POST /api/v1/progress : 记录项目里程碑
+- GET /api/v1/progress : 查询项目进度
+- PUT /api/v1/progress/{id} : 更新任务状态
+
+## 实验追踪接口  
+- POST /api/v1/experiments : 记录模型实验
+- GET /api/v1/experiments : 查询实验历史
+- GET /api/v1/experiments/{id}/results : 获取实验结果</code></pre></div>
+
+
+<h2 id="需要澄清的关键问题">需要澄清的关键问题</h2>
+
+<ol><li><strong>LLM方法具体实现</strong>：您希望如何使用LLM？</li></ol>
+
+<ul><li>选项A：调用现成API（如OpenAI、Anthropic）</li></ul>
+
+<ul><li>选项B：部署开源LLM本地推理（如Llama、ChatGLM）</li></ul>
+
+<ul><li>选项C：微调领域特定LLM</li></ul>
+
+<ol><li><strong>部署环境细节</strong>：</li></ol>
+
+<ul><li>Linux服务器的具体配置（CPU、内存、GPU）？</li></ul>
+
+<ul><li>是否需要Docker容器化部署？</li></ul>
+
+<ul><li>预计的并发用户量？</li></ul>
+
+<ol><li><strong>进度记录偏好</strong>：</li></ol>
+
+<ul><li>偏向技术文档形式还是项目管理工具集成？</li></ul>
+
+<ul><li>需要自动化的进度跟踪还是手动更新？</li></ul>
+
+<ol><li><strong>接口覆盖范围</strong>：</li></ol>
+
+<ul><li>除了基础预测，是否需要模型再训练接口？</li></ul>
+
+<ul><li>是否需要用户管理和权限控制？</li></ul></div><div class="section-card" id="2调整后的项目实施方案"><h2><span class="badge badge-beginner">入门</span> 2、调整后的项目实施方案</h2><div class="toc"><h3>本节目录</h3><ul><li class="toc-h3"><a href="#环境适配优化针对2核2gib服务器">环境适配优化（针对2核2GiB服务器）</a></li><li class="toc-h3"><a href="#部署架构优化">部署架构优化</a></li><li class="toc-h3"><a href="#自动化进度跟踪系统设计">自动化进度跟踪系统设计</a></li><li class="toc-h3"><a href="#实施优先级调整">实施优先级调整</a></li><li class="toc-h3"><a href="#资源监控保障">资源监控保障</a></li></ul></div><blockquote>🧭 全局定位
+<strong>知识领域</strong>：NLP项目实战 → 项目规划 → 资源优化
+<strong>在AI知识图谱中的位置</strong>：资源受限下的工程决策能力，实际工作最常见场景
+<strong>上下游关系</strong>：上接 <a href="#1文本分类项目从0到1实施纲领" class="wikilink">项目纲领</a>，下启 <a href="#3bert模型开发经验总结" class="wikilink">模型开发</a></blockquote>
+
+<blockquote>🔗 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 项目纲领 | <a href="#1文本分类项目从0到1实施纲领" class="wikilink">NLP项目实践/1、文本分类项目从0到1实施纲领</a> | 原始方案 |
+| BERT开发 | <a href="#3bert模型开发经验总结" class="wikilink">NLP项目实践/3、BERT模型开发经验总结</a> | 模型实现 |
+| Docker部署 | <a href="#docker-部署-anaconda-环境" class="wikilink">Docker/Docker 部署 Anaconda 环境</a> | 环境部署 |</blockquote>
+
+<blockquote>💡 落地实践
+- 资源受限(2核2GiB)策略=轻量模型(随机森林/FastText)、数据采样
+- 先用轻量方案验证业务价值，再决定是否升级硬件</blockquote>
+
+
+<h3 id="环境适配优化针对2核2gib服务器">环境适配优化（针对2核2GiB服务器）</h3>
+
+<p><strong>模型选择调整</strong>：</p>
+
+<ul><li>随机森林：保持原计划，内存友好</li></ul>
+
+<ul><li>FastText：保持原计划，资源消耗低</li></ul>
+
+<ul><li>BERT：改用<strong>DistilBERT</strong>或<strong>TinyBERT</strong>等轻量级变体</li></ul>
+
+<ul><li>LLM：暂缓实施，记录需求</li></ul>
+
+
+<p><strong>内存管理策略</strong>：</p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 设计模型懒加载机制
+class ModelManager:
+    def __init__(self):
+        self.loaded_models = {}
+    
+    def get_model(self, model_name):
+        if model_name not in self.loaded_models:
+            self._load_model(model_name)
+        return self.loaded_models[model_name]
+    
+    def _load_model(self, model_name):
+        # 实现内存检查，必要时卸载不常用模型
+        if self._memory_usage_high():
+            self._unload_least_used_model()
+</code></pre></div>
+<h3 id="部署架构优化">部署架构优化</h3>
+
+<p><strong>服务配置</strong>：</p>
+
+<ul><li>Web服务器：Gunicorn + FastAPI（worker数量限制为2-3个）</li></ul>
+
+<ul><li>进程管理：Supervisor（确保服务稳定性）</li></ul>
+
+<ul><li>缓存：使用内存缓存（LRU策略）减少重复计算</li></ul>
+
+
+<p><strong>并发处理</strong>（50并发）：</p>
+
+
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 实现请求队列和限流
+from fastapi import FastAPI, Request
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+@app.middleware(&quot;http&quot;)
+async def add_process_time_header(request: Request, call_next):
+    # 实现请求排队机制
+    if request.url.path == &quot;/predict&quot;:
+        await check_system_load()  # 系统负载检查
+    response = await call_next(request)
+    return response</code></pre></div>
+
+<h3 id="自动化进度跟踪系统设计">自动化进度跟踪系统设计</h3>
+
+<p><strong>数据库设计</strong>：</p>
+
+
+
+<div class="code-block"><div class="code-header"><span class="code-lang">sql</span></div><pre><code class="language-sql">-- 项目进度表
+CREATE TABLE project_milestones (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    phase_name TEXT NOT NULL,
+    task_name TEXT NOT NULL,
+    status TEXT DEFAULT &#x27;pending&#x27;, -- pending, in_progress, completed, blocked
+    start_date TIMESTAMP,
+    end_date TIMESTAMP,
+    assignee TEXT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 实验记录表
+CREATE TABLE model_experiments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    model_type TEXT NOT NULL,
+    experiment_name TEXT NOT NULL,
+    parameters JSON,
+    metrics JSON,
+    status TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+</code></pre></div>
+<p><strong>进度管理API</strong>：</p>
+
+
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># 自动进度更新接口
+@app.post(&quot;/api/v1/progress/milestone&quot;)
+async def update_milestone(milestone: MilestoneUpdate):
+    # 自动检测任务完成状态
+    # 更新依赖任务
+    # 发送通知（可选）
+    pass
+
+@app.get(&quot;/api/v1/progress/dashboard&quot;)
+async def get_progress_dashboard():
+    # 返回整体进度统计
+    # 生成可视化数据
+    pass
+</code></pre></div>
+<h3 id="实施优先级调整">实施优先级调整</h3>
+
+<p><strong>第一阶段优先</strong>（核心功能）：</p>
+
+<ol><li>项目基础架构搭建 ✅</li></ol>
+
+<ol><li>数据加载和探索分析</li></ol>
+
+<ol><li>随机森林模型实现（资源需求最低）</li></ol>
+
+<ol><li>FastText模型实现</li></ol>
+
+<ol><li>基础预测API开发</li></ol>
+
+
+<p><strong>第二阶段</strong>（扩展功能）：</p>
+
+<ol><li>DistilBERT模型适配和优化</li></ol>
+
+<ol><li>Streamlit前端开发</li></ol>
+
+<ol><li>进度跟踪系统集成</li></ol>
+
+<ol><li>系统集成测试</li></ol>
+
+
+<p><strong>第三阶段</strong>（优化部署）：</p>
+
+<ol><li>性能调优和压力测试</li></ol>
+
+<ol><li>Linux服务器部署</li></ol>
+
+<ol><li>监控和日志系统</li></ol>
+
+
+<h3 id="资源监控保障">资源监控保障</h3>
+
+<p><strong>内存使用监控</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">import psutil
+import resource
+
+def check_memory_usage():
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    return memory_info.rss / 1024 / 1024  # MB
+
+def enforce_memory_limits():
+    # 设置内存使用软限制
+    soft, hard = resource.getrlimit(resource.RLIMIT_AS)
+    new_soft = 1500 * 1024 * 1024  # 1.5GB
+    resource.setrlimit(resource.RLIMIT_AS, (new_soft, hard))</code></pre></div></div><div class="section-card" id="3bert模型开发经验总结"><h2><span class="badge badge-beginner">入门</span> 3、BERT模型开发经验总结</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#遇到的问题及解决方案">遇到的问题及解决方案</a></li><li class="toc-h3"><a href="#1-版本兼容性问题">1. 版本兼容性问题</a></li><li class="toc-h3"><a href="#2-配置管理混乱">2. 配置管理混乱</a></li><li class="toc-h3"><a href="#3-路径管理问题">3. 路径管理问题</a></li><li class="toc-h3"><a href="#4-导入依赖问题">4. 导入依赖问题</a></li><li class="toc-h3"><a href="#5-错误处理不完善">5. 错误处理不完善</a></li><li><a href="#核心经验教训">核心经验教训</a></li></ul></div><h2 id="遇到的问题及解决方案">遇到的问题及解决方案</h2>
+
+<blockquote>## 🧭 全局定位
+<strong>知识领域</strong>：NLP项目实践 → BERT模型开发 → 微调工程经验
+<strong>在AI知识图谱中的位置</strong>：BERT微调的实战踩坑总结，是从理论到工程的关键桥梁
+<strong>上下游关系</strong>：上接 <a href="#transformer" class="wikilink">面试常问问题/Transformer</a>（Transformer原理），下启 <a href="#lora原理与实践" class="wikilink">LoRA微调</a>、<a href="#llama-factory使用指南" class="wikilink">LLaMA-Factory</a></blockquote>
+
+<blockquote>## 🔗 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| Transformer原理 | <a href="#transformer" class="wikilink">面试常问问题/Transformer</a> | BERT底层架构 |
+| 微调概述 | <a href="#微调方式总览" class="wikilink">AI大模型/07-模型微调/01-微调概述/微调方式总览</a> | 微调方式选择 |
+| LoRA微调 | <a href="#lora原理与实践" class="wikilink">AI大模型/07-模型微调/02-LoRA与QLoRA/LoRA原理与实践</a> | 参数高效微调 |
+| QLoRA微调 | <a href="#qlora原理与实践" class="wikilink">AI大模型/07-模型微调/02-LoRA与QLoRA/QLoRA原理与实践</a> | 量化+LoRA |
+| LLaMA-Factory | <a href="#llama-factory使用指南" class="wikilink">AI大模型/07-模型微调/02-LoRA与QLoRA/LLaMA-Factory使用指南</a> | 微调工具链 |
+| 训练技巧 | <a href="#03-训练技巧与超参数调优" class="wikilink">AI大模型/07-模型微调/03-训练技巧与超参数调优</a> | 超参调优 |
+| 文本分类 | <a href="#1文本分类项目从0到1实施纲领" class="wikilink">NLP项目实践/1、文本分类项目从0到1实施纲领</a> | 项目背景 |
+| API调试 | <a href="#5api调试过程问题总结" class="wikilink">NLP项目实践/5、API调试过程问题总结</a> | 部署阶段 |
+| NLP基础 | <a href="#nlp基础" class="wikilink">NLP/NLP基础</a> | NLP理论基础 |</blockquote>
+
+<blockquote>## 💡 落地实践
+- <strong>核心教训</strong>：版本兼容(Transformers库API变化)、配置管理(dataclass集中管理)、路径管理(统一配置)、错误恢复(分层异常处理)
+- <strong>工程最佳实践</strong>：配置驱动开发 + 渐进式重构 + 版本锁定 + 文档同步
+- <strong>面试展示</strong>：展示「从踩坑到最佳实践」的工程能力，说明如何避免常见微调陷阱</blockquote>
+
+<blockquote>## 📊 难度标识
+- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)
+- <strong>前置要求</strong>：Python工程化、Transformers库使用、BERT模型理解
+- <strong>面试频率</strong>：🔥🔥🔥🔥☆ — NLP岗面试必问项目经验</blockquote>
+
+<blockquote><strong>相关链接</strong>：<a href="#nlp基础" class="wikilink">NLP基础</a> | <a href="#transformer" class="wikilink">Transformer</a> | <a href="#微调方式总览" class="wikilink">模型微调</a> | <a href="#llama-factory使用指南" class="wikilink">LLaMA-Factory</a> | <a href="#lora原理与实践" class="wikilink">LoRA</a></blockquote>
+
+<h3 id="1-版本兼容性问题">1. 版本兼容性问题</h3>
+<p><strong>问题</strong>: Transformers库版本更新导致API变化</p>
+<ul><li><code class="inline-code">evaluation_strategy</code> → <code class="inline-code">eval_strategy</code></li>
+<li><code class="inline-code">AdamW</code>导入位置变化</li></ul>
+
+<p><strong>教训</strong>:</p>
+<ul><li>明确依赖版本范围</li>
+<li>使用版本检测和兼容性处理</li>
+<li>定期更新依赖和测试</li></ul>
+
+<h3 id="2-配置管理混乱">2. 配置管理混乱</h3>
+<p><strong>问题</strong>: 配置参数分散在多个文件中</p>
+<ul><li>路径配置、模型参数、训练参数分离</li>
+<li>缺乏统一的配置管理</li></ul>
+
+<p><strong>解决方案</strong>:</p>
+<ul><li>创建集中的配置文件</li>
+<li>使用dataclass进行类型安全配置</li>
+<li>支持配置预设和自定义</li></ul>
+
+<h3 id="3-路径管理问题">3. 路径管理问题</h3>
+<p><strong>问题</strong>: 硬编码路径导致维护困难</p>
+<ul><li>不同环境路径不一致</li>
+<li>新目录创建逻辑分散</li></ul>
+
+<p><strong>改进</strong>:</p>
+<ul><li>统一的路径配置文件</li>
+<li>自动目录创建机制</li>
+<li>路径验证和错误处理</li></ul>
+
+<h3 id="4-导入依赖问题">4. 导入依赖问题</h3>
+<p><strong>问题</strong>: 模块重构导致导入失败</p>
+<ul><li>配置类结构调整</li>
+<li>循环导入依赖</li></ul>
+
+<p><strong>解决方案</strong>:</p>
+<ul><li>清晰的模块边界</li>
+<li>异常导入的回退机制</li>
+<li>逐步重构和充分测试</li></ul>
+
+<h3 id="5-错误处理不完善">5. 错误处理不完善</h3>
+<p><strong>问题</strong>: 错误信息不够详细</p>
+<ul><li>训练中断难以定位问题</li>
+<li>缺少恢复机制</li></ul>
+
+<p><strong>改进</strong>:</p>
+<ul><li>分层异常处理</li>
+<li>详细的日志记录</li>
+<li>状态保存和恢复</li></ul>
+
+<h2 id="核心经验教训">核心经验教训</h2>
+
+<ol><li><strong>配置驱动开发</strong>: 所有可配置参数集中管理</li>
+<li><strong>版本兼容性</strong>: 明确依赖版本，提供兼容层</li>
+<li><strong>渐进式重构</strong>: 小步修改，充分测试</li>
+<li><strong>错误恢复</strong>: 设计容错和恢复机制</li>
+<li><strong>文档同步</strong>: 代码修改及时更新文档</li></ol></div><div class="section-card" id="4第三阶段-模型开发与训练问题总结"><h2><span class="badge badge-beginner">入门</span> 4、第三阶段-模型开发与训练问题总结</h2><div class="toc"><h3>本节目录</h3><ul><li class="toc-h3"><a href="#遇到的问题及解决方案">遇到的问题及解决方案</a></li><li class="toc-h3"><a href="#核心经验教训">核心经验教训</a></li></ul></div><blockquote>🧭 全局定位
+<strong>知识领域</strong>：NLP项目实战 → 模型开发 → 问题排查
+<strong>在AI知识图谱中的位置</strong>：模型开发问题是NLP项目落地的关键经验积累
+<strong>上下游关系</strong>：上接 <a href="#3bert模型开发经验总结" class="wikilink">BERT开发</a>，下启 <a href="#5api调试过程问题总结" class="wikilink">API调试</a></blockquote>
+
+<blockquote>🔗 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| BERT开发 | <a href="#3bert模型开发经验总结" class="wikilink">NLP项目实践/3、BERT模型开发经验总结</a> | 模型基础 |
+| LoRA微调 | <a href="#lora原理与实践" class="wikilink">AI大模型/07-模型微调/02-LoRA与QLoRA/LoRA原理与实践</a> | 参数高效微调 |
+| API调试 | <a href="#5api调试过程问题总结" class="wikilink">NLP项目实践/5、API调试过程问题总结</a> | 下一阶段 |</blockquote>
+
+<blockquote>💡 落地实践
+- 常见坑=版本冲突、显存不足、数据格式不匹配
+- 先跑通baseline再优化，小数据集验证pipeline再扩大规模</blockquote>
+
+
+<h3 id="遇到的问题及解决方案">遇到的问题及解决方案</h3>
+
+<blockquote><strong>相关链接</strong>：<a href="#transformer" class="wikilink">Transformer</a> | <a href="#lora原理与实践" class="wikilink">LoRA微调</a> | <a href="#3bert模型开发经验总结" class="wikilink">BERT开发经验</a> | <a href="#1文本分类项目从0到1实施纲领" class="wikilink">文本分类项目</a></blockquote>
+
+<p><strong>1. 版本兼容性问题</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">问题: Transformers库API变化导致代码失效
+- evaluation_strategy → eval_strategy (参数名变更)
+- AdamW导入位置变化 (torch.optim替代transformers)
+
+解决方案:
+- 添加版本检测和兼容性处理
+- 使用try-except回退机制
+- 明确依赖版本范围</code></pre></div>
+
+<p><strong>2. 配置管理混乱</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">问题: 参数分散在多个文件，维护困难
+- 路径配置、模型参数、训练参数分离
+- 硬编码值难以修改
+
+解决方案:
+- 创建集中式配置文件 (bert_config.py, llm_config.py)
+- 使用dataclass进行类型安全配置
+- 支持配置预设和自定义覆盖</code></pre></div>
+
+<p><strong>3. 路径和依赖问题</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">问题: 模块导入失败，路径错误
+- 重构导致导入循环
+- 日志文件保存位置错误
+- 缓存目录未正确创建
+
+解决方案:
+- 统一的路径管理 (config/path.py)
+- 自动目录创建机制
+- 异常导入的回退处理
+- 路径验证和错误提示</code></pre></div>
+
+<p><strong>4. 设备兼容性问题</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">问题: 不同环境设备选择不灵活
+- GPU/CPU选择硬编码
+- 缺少Apple Silicon (MPS) 支持
+
+解决方案:
+- 设备优先级配置系统
+- 自动设备检测和选择
+- 针对不同硬件的优化预设</code></pre></div>
+
+<p><strong>5. LLM集成复杂性</strong></p>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">问题: 简单的API调用需要大量工程化代码
+- 错误处理不完善
+- 缺少缓存和性能优化
+- 与项目架构不一致
+
+解决方案:
+- 完整的错误处理和重试机制
+- 智能缓存系统减少API调用
+- 继承BaseTrainer保持接口一致性
+- 生产级的监控和日志</code></pre></div>
+
+<h3 id="核心经验教训">核心经验教训</h3>
+
+<ol><li><strong>配置驱动开发</strong>: 所有可调参数集中管理</li></ol>
+
+<ol><li><strong>渐进式重构</strong>: 小步修改，充分测试</li></ol>
+
+<ol><li><strong>错误恢复设计</strong>: 从异常中优雅恢复</li></ol>
+
+<ol><li><strong>版本兼容性</strong>: 明确依赖，提供兼容层</li></ol>
+
+<ol><li><strong>工程化思维</strong>: 简单功能也需要生产级质量</li></ol></div><div class="section-card" id="5api调试过程问题总结"><h2><span class="badge badge-beginner">入门</span> 5、API调试过程问题总结</h2><div class="toc"><h3>本节目录</h3><ul><li class="toc-h3"><a href="#调试过程中遇到的主要问题">调试过程中遇到的主要问题</a></li><li class="toc-h3"><a href="#调试成果验证">调试成果验证</a></li></ul></div><blockquote>🧭 全局定位
+<strong>知识领域</strong>：NLP项目实战 → API开发 → 问题排查
+<strong>在AI知识图谱中的位置</strong>：API调试是NLP项目工程化的关键环节
+<strong>上下游关系</strong>：上接 <a href="#4第三阶段-模型开发与训练问题总结" class="wikilink">模型开发</a>，下启 <a href="#readme" class="wikilink">项目总览</a></blockquote>
+
+<blockquote>🔗 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 模型开发 | <a href="#4第三阶段-模型开发与训练问题总结" class="wikilink">NLP项目实践/4、第三阶段-模型开发与训练问题总结</a> | 上游训练 |
+| Python基础 | <a href="#python基础" class="wikilink">小工具/Python基础</a> | 代码语言 |
+| Docker部署 | <a href="#docker-部署-anaconda-环境" class="wikilink">Docker/Docker 部署 Anaconda 环境</a> | 部署环境 |</blockquote>
+
+<blockquote>💡 落地实践
+- API调试常见问题=相对导入错误、路径问题、依赖缺失
+- Flask/FastAPI封装模型API，先本地测试再容器化部署</blockquote>
+
+
+
+
+<h3 id="调试过程中遇到的主要问题">调试过程中遇到的主要问题</h3>
+
+<ol><li><strong>相对导入超出顶级包</strong></li></ol>
+
+<ul><li>问题：多个文件中使用 <code class="inline-code">...</code> 相对导入超出了Python包的边界</li></ul>
+
+<ul><li>影响：导致模块无法正确导入，测试无法运行</li></ul>
+
+<ul><li>解决：使用批量扫描脚本找出所有问题，改为绝对导入</li></ul>
+
+<ol><li><strong>类型注解不完整</strong></li></ol>
+
+<ul><li>问题：<code class="inline-code">Dict</code>、<code class="inline-code">List</code> 等类型未从 <code class="inline-code">typing</code> 模块导入</li></ul>
+
+<ul><li>影响：运行时类型注解错误</li></ul>
+
+<ul><li>解决：添加缺失的类型导入</li></ul>
+
+<ol><li><strong>依赖缺失</strong></li></ol>
+
+<ul><li>问题：缺少 <code class="inline-code">python-multipart</code> 依赖</li></ul>
+
+<ul><li>影响：文件上传功能无法正常工作</li></ul>
+
+<ul><li>解决：安装缺失的依赖包</li></ul>
+
+<ol><li><strong>CORS中间件配置冲突</strong></li></ol>
+
+<ul><li>问题：自定义CORS中间件与FastAPI内置中间件冲突</li></ul>
+
+<ul><li>影响：应用启动失败</li></ul>
+
+<ul><li>解决：移除自定义CORS中间件，使用FastAPI内置的</li></ul>
+
+<ol><li><strong>响应模型不匹配</strong></li></ol>
+
+<ul><li>问题：<code class="inline-code">BaseResponse</code> 模型缺少 <code class="inline-code">details</code> 字段</li></ul>
+
+<ul><li>影响：健康检查返回400错误</li></ul>
+
+<ul><li>解决：简化响应格式或扩展数据模型</li></ul>
+
+<ol><li><strong>中间件顺序问题</strong></li></ol>
+
+<ul><li>问题：中间件添加顺序不当，<code class="inline-code">RateLimitMiddleware</code> 重复添加</li></ul>
+
+<ul><li>影响：请求处理异常</li></ul>
+
+<ul><li>解决：调整中间件顺序，移除重复添加</li></ul>
+
+<ol><li><strong>Redis连接失败</strong></li></ol>
+
+<ul><li>问题：本地Redis服务未运行</li></ul>
+
+<ul><li>影响：缓存服务回退到内存模式</li></ul>
+
+<ul><li>解决：提供内存回退机制，不影响核心功能</li></ul>
+
+
+<h3 id="调试成果验证">调试成果验证</h3>
+
+<p>通过系统性的问题修复，最终：</p>
+
+<ul><li>✅ <strong>所有导入问题解决</strong> - 代码架构完整性得到验证</li></ul>
+
+<ul><li>✅ <strong>API模块正常加载</strong> - 应用启动无错误</li></ul>
+
+<ul><li>✅ <strong>测试框架有效运行</strong> - 58个测试用例能够执行</li></ul>
+
+<ul><li>✅ <strong>业务逻辑验证</strong> - 测试覆盖了核心API功能</li></ul></div><div class="section-card" id="readme"><h2><span class="badge badge-beginner">入门</span> README</h2><div class="toc"><h3>本节目录</h3><ul><li><a href="#-table-of-contents">📋 Table of Contents</a></li><li><a href="#-overview">🚀 Overview</a></li><li><a href="#-features">✨ Features</a></li><li><a href="#-model-architecture">🏗️ Model Architecture</a></li><li class="toc-h3"><a href="#model-stack">Model Stack</a></li><li class="toc-h3"><a href="#workflow">Workflow</a></li><li><a href="#-installation">📥 Installation</a></li><li class="toc-h3"><a href="#prerequisites">Prerequisites</a></li><li class="toc-h3"><a href="#step-1-clone-repository">Step 1: Clone Repository</a></li><li class="toc-h3"><a href="#step-2-install-dependencies">Step 2: Install Dependencies</a></li><li class="toc-h3"><a href="#core-dependencies">Core Dependencies</a></li><li><a href="#-quick-start">🎯 Quick Start</a></li><li class="toc-h3"><a href="#1-data-preparation">1. Data Preparation</a></li><li class="toc-h3"><a href="#2-basic-training">2. Basic Training</a></li><li class="toc-h3"><a href="#3-make-predictions">3. Make Predictions</a></li><li><a href="#-model-details">🔧 Model Details</a></li><li class="toc-h3"><a href="#1-random-forest">1. Random Forest</a></li><li class="toc-h3"><a href="#2-fasttext">2. FastText</a></li><li class="toc-h3"><a href="#3-bert">3. BERT</a></li><li class="toc-h3"><a href="#4-llm-large-language-model">4. LLM (Large Language Model)</a></li><li><a href="#-configuration">⚙️ Configuration</a></li><li class="toc-h3"><a href="#model-presets">Model Presets</a></li><li class="toc-h3"><a href="#llm-provider-configuration">LLM Provider Configuration</a></li><li><a href="#-training">🏋️ Training</a></li><li class="toc-h3"><a href="#individual-model-training">Individual Model Training</a></li><li class="toc-h3"><a href="#full-pipeline-training">Full Pipeline Training</a></li><li><a href="#-prediction">🔮 Prediction</a></li><li class="toc-h3"><a href="#single-model-prediction">Single Model Prediction</a></li><li class="toc-h3"><a href="#ensemble-prediction">Ensemble Prediction</a></li><li><a href="#-results">📊 Results</a></li><li class="toc-h3"><a href="#performance-metrics">Performance Metrics</a></li><li class="toc-h3"><a href="#evaluation">Evaluation</a></li><li><a href="#-project-structure">📁 Project Structure</a></li><li><a href="#-troubleshooting">🛠️ Troubleshooting</a></li><li class="toc-h3"><a href="#common-issues">Common Issues</a></li><li class="toc-h3"><a href="#performance-optimization">Performance Optimization</a></li><li><a href="#-license">📄 License</a></li><li><a href="#-contributing">🤝 Contributing</a></li><li><a href="#-support">📞 Support</a></li></ul></div><blockquote>🧭 全局定位
+<strong>知识领域</strong>：NLP项目实战 → 文本分类 → 项目总览
+<strong>在AI知识图谱中的位置</strong>：NLP项目导航中心，串联RF/LLM/FastText/BERT四模型方案
+<strong>上下游关系</strong>：上接 <a href="#transformer" class="wikilink">Transformer</a>，下启各阶段实施文档</blockquote>
+
+<blockquote>🔗 知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| Transformer | <a href="#transformer" class="wikilink">面试常问问题/Transformer</a> | 架构基础 |
+| BERT开发 | <a href="#3bert模型开发经验总结" class="wikilink">NLP项目实践/3、BERT模型开发经验总结</a> | BERT实践 |
+| 项目纲领 | <a href="#1文本分类项目从0到1实施纲领" class="wikilink">NLP项目实践/1、文本分类项目从0到1实施纲领</a> | 项目规划 |
+| 模型开发 | <a href="#4第三阶段-模型开发与训练问题总结" class="wikilink">NLP项目实践/4、第三阶段-模型开发与训练问题总结</a> | 训练问题 |</blockquote>
+
+<blockquote>💡 落地实践
+- 多模型对比=RF(基线)+FastText(轻量)+BERT(高精度)+LLM(零样本)
+- 金融文本情感分类，先跑baseline再逐步升级模型复杂度</blockquote>
+
+
+<h1 id="twitter-financial-data-sentiment-classification-system">Twitter Financial Data Sentiment Classification System</h1>
+
+<blockquote><strong>相关链接</strong>：<a href="#transformer" class="wikilink">Transformer</a> | <a href="#transformer架构原理" class="wikilink">Transformer架构原理</a> | <a href="#3bert模型开发经验总结" class="wikilink">BERT开发经验</a> | <a href="#1文本分类项目从0到1实施纲领" class="wikilink">文本分类项目</a></blockquote>
+
+<p>A comprehensive text classification framework that integrates four powerful models: Random Forest, LLM (Large Language Model), FastText, and BERT for robust and accurate text analysis.</p>
+
+<h2 id="-table-of-contents">📋 Table of Contents</h2>
+
+<ul><li>Overview</li></ul>
+
+<ul><li>Features</li></ul>
+
+<ul><li>Model Architecture</li></ul>
+
+<ul><li>Installation</li></ul>
+
+<ul><li>Quick Start</li></ul>
+
+<ul><li>Model Details</li></ul>
+
+<ul><li>Configuration</li></ul>
+
+<ul><li>Training</li></ul>
+
+<ul><li>Prediction</li></ul>
+
+<ul><li>Results</li></ul>
+
+<ul><li>Project Structure</li></ul>
+
+<ul><li>Troubleshooting</li></ul>
+
+<ul><li>License</li></ul>
+
+
+<h2 id="-overview">🚀 Overview</h2>
+
+<p>This project implements a multi-model approach to text classification, combining traditional machine learning (Random Forest), efficient embeddings (FastText), transformer-based models (BERT), and large language models (LLM) to achieve state-of-the-art performance in text classification tasks, particularly sentiment analysis.</p>
+
+<h2 id="-features">✨ Features</h2>
+
+<ul><li><strong>Four Model Integration</strong>: Seamlessly combines Random Forest, LLM, FastText, and BERT</li></ul>
+
+<ul><li><strong>Unified Interface</strong>: Consistent API across all models</li></ul>
+
+<ul><li><strong>Flexible Configuration</strong>: Easy model configuration through preset system</li></ul>
+
+<ul><li><strong>Comprehensive Evaluation</strong>: Detailed metrics and performance analysis</li></ul>
+
+<ul><li><strong>Caching System</strong>: Optimized performance with intelligent caching</li></ul>
+
+<ul><li><strong>Multi-Provider Support</strong>: Multiple LLM providers (DeepSeek, OpenAI, Local)</li></ul>
+
+<ul><li><strong>Device Optimization</strong>: Automatic device selection (GPU > MPS > CPU)</li></ul>
+
+
+<h2 id="-model-architecture">🏗️ Model Architecture</h2>
+
+<h3 id="model-stack">Model Stack</h3>
+
+<ol><li><strong>Random Forest</strong>: Traditional ML with TF-IDF features</li></ol>
+
+<ol><li><strong>FastText</strong>: Efficient text classification with subword embeddings</li></ol>
+
+<ol><li><strong>BERT</strong>: Transformer-based contextual embeddings</li></ol>
+
+<ol><li><strong>LLM</strong>: Large language model with prompt engineering</li></ol>
+
+
+<h3 id="workflow">Workflow</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">Data → Preprocessing → Multi-Model Training → Ensemble/Individual Prediction → Evaluation</code></pre></div>
+
+<h2 id="-installation">📥 Installation</h2>
+
+<h3 id="prerequisites">Prerequisites</h3>
+
+<ul><li>Python 3.8+</li></ul>
+
+<ul><li>pip package manager</li></ul>
+
+
+<h3 id="step-1-clone-repository">Step 1: Clone Repository</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash">git clone &lt;your-repository-url&gt;
+cd &lt;project-directory&gt;</code></pre></div>
+
+<h3 id="step-2-install-dependencies">Step 2: Install Dependencies</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash">pip install -r requirements.txt</code></pre></div>
+
+<h3 id="core-dependencies">Core Dependencies</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">torch&gt;=1.9.0
+transformers&gt;=4.20.0
+scikit-learn&gt;=1.0.0
+pandas&gt;=1.3.0
+numpy&gt;=1.21.0
+requests&gt;=2.25.0
+fasttext&gt;=0.9.0
+tqdm&gt;=4.60.0</code></pre></div>
+
+<h2 id="-quick-start">🎯 Quick Start</h2>
+
+<h3 id="1-data-preparation">1. Data Preparation</h3>
+
+<p>Place your dataset in the <code class="inline-code">data/raw/</code> directory. Supported formats: CSV, JSON, PARQUET.</p>
+
+<h3 id="2-basic-training">2. Basic Training</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash">
+# Train specific model
+python scripts/train_llm.py
+python scripts/train_bert.py
+python scripts/train_fasttext.py
+python scripts/train_random_forest.py
+</code></pre></div>
+<h3 id="3-make-predictions">3. Make Predictions</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from prediction import predict_text
+# Single prediction
+result = predict_text(&quot;This product is amazing!&quot;)
+print(f&quot;Sentiment: {result}&quot;)
+
+# Batch prediction
+texts = [&quot;Great service!&quot;, &quot;Poor quality&quot;, &quot;Average experience&quot;]
+results = batch_predict(texts)</code></pre></div>
+
+
+<h2 id="-model-details">🔧 Model Details</h2>
+
+<h3 id="1-random-forest">1. Random Forest</h3>
+
+<ul><li><strong>Type</strong>: Traditional Machine Learning</li></ul>
+
+<ul><li><strong>Features</strong>: TF-IDF vectorization</li></ul>
+
+<ul><li><strong>Best For</strong>: Small to medium datasets, interpretability</li></ul>
+
+<ul><li><strong>Config</strong>: <code class="inline-code">config/rf_config.py</code></li></ul>
+
+
+<h3 id="2-fasttext">2. FastText</h3>
+
+<ul><li><strong>Type</strong>: Neural Network with subword embeddings</li></ul>
+
+<ul><li><strong>Features</strong>: Character n-grams, efficient training</li></ul>
+
+<ul><li><strong>Best For</strong>: Large datasets, multilingual support</li></ul>
+
+<ul><li><strong>Config</strong>: <code class="inline-code">config/fasttext_config.py</code></li></ul>
+
+
+<h3 id="3-bert">3. BERT</h3>
+
+<ul><li><strong>Type</strong>: Transformer-based deep learning</li></ul>
+
+<ul><li><strong>Features</strong>: Contextual embeddings, transfer learning</li></ul>
+
+<ul><li><strong>Best For</strong>: High accuracy requirements, complex language understanding</li></ul>
+
+<ul><li><strong>Config</strong>: <code class="inline-code">config/bert_config.py</code></li></ul>
+
+
+<h3 id="4-llm-large-language-model">4. LLM (Large Language Model)</h3>
+
+<ul><li><strong>Type</strong>: Prompt-based classification</li></ul>
+
+<ul><li><strong>Features</strong>: Zero-shot capability, reasoning ability</li></ul>
+
+<ul><li><strong>Best For</strong>: Few-shot learning, complex reasoning tasks</li></ul>
+
+<ul><li><strong>Config</strong>: <code class="inline-code">config/llm_config.py</code></li></ul>
+
+
+<h2 id="-configuration">⚙️ Configuration</h2>
+
+<h3 id="model-presets">Model Presets</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from config.model_config import get_model_preset
+
+# Available presets
+presets = [&quot;balanced&quot;, &quot;fast_inference&quot;, &quot;high_accuracy&quot;, &quot;conservative&quot;]
+config = get_model_preset(&quot;balanced&quot;)
+</code></pre></div>
+<h3 id="llm-provider-configuration">LLM Provider Configuration</h3>
+
+
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># DeepSeek API
+provider: &quot;deepseek&quot;
+api_key: &quot;your-api-key&quot;
+model: &quot;deepseek-chat&quot;
+
+# Local Model
+provider: &quot;local&quot;
+model_path: &quot;path/to/local/model&quot;</code></pre></div>
+
+<h2 id="-training">🏋️ Training</h2>
+
+<h3 id="individual-model-training">Individual Model Training</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from training.llm_trainer import LLMTrainer
+from training.bert_trainer import BERTTrainer
+
+# LLM Training
+llm_trainer = LLMTrainer(config=llm_config)
+llm_trainer.train(X_train, y_train, X_val, y_val)
+
+# BERT Training
+bert_trainer = BERTTrainer(config=bert_config)
+bert_trainer.train(X_train, y_train, X_val, y_val)</code></pre></div>
+
+<h3 id="full-pipeline-training">Full Pipeline Training</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from training.pipeline import TrainingPipeline
+
+pipeline = TrainingPipeline()
+results = pipeline.train_all_models()</code></pre></div>
+
+<h2 id="-prediction">🔮 Prediction</h2>
+
+<h3 id="single-model-prediction">Single Model Prediction</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python"># LLM Prediction
+from llm_predict_func import llm_predict_func
+
+result = llm_predict_func({&quot;text&quot;: &quot;Your text here&quot;})
+# Returns: &quot;0&quot; (negative), &quot;1&quot; (neutral), &quot;2&quot; (positive)</code></pre></div>
+
+<h3 id="ensemble-prediction">Ensemble Prediction</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">from ensemble import EnsemblePredictor
+
+ensemble = EnsemblePredictor()
+result = ensemble.predict(&quot;Your text here&quot;, method=&quot;weighted_average&quot;)</code></pre></div>
+
+<h2 id="-results">📊 Results</h2>
+
+<h3 id="performance-metrics">Performance Metrics</h3>
+
+<div class="table-wrapper"><table>
+<thead><tr>
+<th>Model</th>
+<th>Accuracy</th>
+<th>Precision</th>
+<th>Recall</th>
+<th>F1-Score</th>
+<th>Training Time</th>
+</tr></thead><tbody>
+<tr>
+<td>Random Forest</td>
+<td>0.85</td>
+<td>0.84</td>
+<td>0.85</td>
+<td>0.84</td>
+<td>2min</td>
+</tr>
+<tr class="alt-row">
+<td>FastText</td>
+<td>0.88</td>
+<td>0.87</td>
+<td>0.88</td>
+<td>0.87</td>
+<td>5min</td>
+</tr>
+<tr>
+<td>BERT</td>
+<td>0.92</td>
+<td>0.91</td>
+<td>0.92</td>
+<td>0.91</td>
+<td>30min</td>
+</tr>
+<tr class="alt-row">
+<td>LLM</td>
+<td>0.89</td>
+<td>0.88</td>
+<td>0.89</td>
+<td>0.88</td>
+<td>1min*</td>
+</tr>
+</tbody></table></div>
+
+<p>*LLM inference time depends on API latency</p>
+
+<h3 id="evaluation">Evaluation</h3>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash"># Generate evaluation report
+python scripts/evaluate_models.py
+
+# Compare model performance
+python scripts/compare_models.py</code></pre></div>
+
+<h2 id="-project-structure">📁 Project Structure</h2>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">text</span></div><pre><code class="language-text">project/
+├── config/                 # Configuration files
+│   ├── llm_config.py      # LLM configuration
+│   ├── bert_config.py     # BERT configuration
+│   ├── fasttext_config.py # FastText configuration
+│   └── rf_config.py       # Random Forest configuration
+├── data/                  # Data directories
+│   ├── raw/              # Raw data
+│   ├── processed/        # Processed data
+│   └── splits/           # Train/validation/test splits
+├── models/               # Trained models
+│   ├── llm/             # LLM models
+│   ├── bert/            # BERT models
+│   ├── fasttext/        # FastText models
+│   └── random_forest/   # Random Forest models
+├── training/            # Training modules
+│   ├── base_trainer.py  # Base trainer class
+│   ├── llm_trainer.py   # LLM trainer
+│   ├── bert_trainer.py  # BERT trainer
+│   ├── fasttext_trainer.py # FastText trainer
+│   └── rf_trainer.py    # Random Forest trainer
+├── scripts/             # Execution scripts
+│   ├── train_all.py     # Train all models
+│   ├── train_llm.py     # Train LLM only
+│   └── evaluate_models.py # Model evaluation
+├── utils/               # Utility functions
+│   ├── data_preprocessor.py # Data preprocessing
+│   └── logger.py        # Logging utilities
+└── cache/               # Cache directory
+    └── llm/             # LLM API cache</code></pre></div>
+
+<h2 id="-troubleshooting">🛠️ Troubleshooting</h2>
+
+<h3 id="common-issues">Common Issues</h3>
+
+<ol><li><strong>LLM API Errors</strong></li></ol>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash">    # Check API configuration
+    Verify config/llm_config.py has correct API keys and endpoints</code></pre></div>
+
+<ol><li><strong>GPU Memory Issues</strong></li></ol>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">python</span></div><pre><code class="language-python">    # Reduce batch size in config
+    config.training_config.per_device_train_batch_size = 2</code></pre></div>
+
+<ol><li><strong>Import Errors</strong></li></ol>
+
+<div class="code-block"><div class="code-header"><span class="code-lang">bash</span></div><pre><code class="language-bash">    # Add project root to Python path
+    export PYTHONPATH=&quot;${PYTHONPATH}:$(pwd)&quot;</code></pre></div>
+
+
+<h3 id="performance-optimization">Performance Optimization</h3>
+
+<ul><li>Use <code class="inline-code">config_preset = "fast_inference"</code> for faster predictions</li></ul>
+
+<ul><li>Enable caching in LLM configuration</li></ul>
+
+<ul><li>Use GPU when available for BERT training</li></ul>
+
+<ul><li>Adjust batch sizes based on available memory</li></ul>
+
+
+<h2 id="-license">📄 License</h2>
+
+<p>This project is licensed under the MIT License - see the LICENSE file for details.</p>
+
+<h2 id="-contributing">🤝 Contributing</h2>
+
+<ol><li>Fork the repository</li></ol>
+
+<ol><li>Create a feature branch (<code class="inline-code">git checkout -b feature/amazing-feature</code>)</li></ol>
+
+<ol><li>Commit your changes (<code class="inline-code">git commit -m 'Add amazing feature'</code>)</li></ol>
+
+<ol><li>Push to the branch (<code class="inline-code">git push origin feature/amazing-feature</code>)</li></ol>
+
+<ol><li>Open a Pull Request</li></ol>
+
+
+<h2 id="-support">📞 Support</h2>
+
+<p>For support and questions:</p>
+
+<ul><li>Open an issue on GitHub</li></ul>
+
+<ul><li>Check the documentation in <code class="inline-code">/docs/</code></li></ul>
+
+<ul><li>Review configuration examples in <code class="inline-code">/config/examples/</code></li></ul></div>
+<div class="page-footer">AI 知识库 - Foundation</div>
+</main>
+</body>
+</html>

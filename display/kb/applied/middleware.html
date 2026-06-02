@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git中间件 — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>Git中间件</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
+<li><a href="startup.html">创业</a></li>
+<li><a href="finance.html">金融</a></li>
+<li><a href="docker.html">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html" class="active">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>Git版本控制</h1>
+<p style="color:#6b7280;margin-bottom:24px">从原理到实战的Git完整指南 · 4篇文档</p>
+<span class="badge badge-green">难度 1-2/5</span>
+
+<h2>文档列表</h2>
+<div class="doc-card">
+<h3>Git学习笔记</h3>
+<div class="meta">中间件git/ · 入门 · 72行</div>
+<div class="excerpt">
+<p>Git工作原理核心知识：四大核心区域（工作区 - 暂存区 - 本地仓库 - 远程仓库）、文件状态流转（未跟踪 - 已暂存 - 已提交 - 已修改）、快照式存储机制、轻量分支、分布式架构。</p>
+<p><strong>核心流程</strong>：<code>工作区修改 -> git add -> 暂存区 -> git commit -> 本地仓库 -> git push -> 远程仓库</code></p>
+</div>
+</div>
+
+<div class="doc-card">
+<h3>Git核心代码速查</h3>
+<div class="meta">中间件git/ · 入门 · 97行</div>
+<div class="excerpt">
+<p>按功能分类的Git常用命令速查卡片：初始化(clone/init)、提交(add/commit)、分支(branch/checkout/merge)、远程(push/pull/remote)、撤销(reset/checkout--)、暂存(stash)、标签(tag)。</p>
+<pre><code># 常用命令
+git add . && git commit -m "msg" && git push origin main
+git checkout -b feature/new-feature
+git stash / git stash pop</code></pre>
+</div>
+</div>
+
+<div class="doc-card">
+<h3>开发环境操作</h3>
+<div class="meta">中间件git/ · 入门 · 46行</div>
+<div class="excerpt">以PyCharm + Gitee为例的IDE集成Git操作指南：插件安装、账号登录、仓库创建、提交推送、分支管理的图形化操作流程。</div>
+</div>
+
+<div class="doc-card">
+<h3>Git代码命令学习</h3>
+<div class="meta">中间件git/ · 中等 · 138行</div>
+<div class="excerpt">Git命令详解：从git init到分支管理，逐条讲解命令用法和参数。适合需要深入理解每个命令的开发者。涵盖添加文件、提交版本、发布版本、取回更新、删除、分支管理等。</div>
+</div>
+</div>
+
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

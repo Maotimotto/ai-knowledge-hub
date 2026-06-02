@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>创业 — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>创业</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
+<li><a href="startup.html" class="active">创业</a></li>
+<li><a href="finance.html">金融</a></li>
+<li><a href="docker.html">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>创业知识库</h1>
+<p style="color:#6b7280;margin-bottom:24px">将AI技术栈转化为商业产品的创业实践中心 · 25篇文档</p>
+<span class="badge badge-yellow">难度 4/5</span>
+<span class="badge badge-blue">面试高频</span>
+
+<h2 id="overview">概览</h2>
+<div class="doc-card">
+<h3>创业知识体系总览</h3>
+<div class="meta">核心项目 · comment-ai-tool (评论AI自动化工具)</div>
+<div class="excerpt">
+<p><strong>项目状态</strong>：v0.3.2，B站全链路跑通（评论监控 - 意图分析 - 智能回复 - 私域转化）</p>
+<p><strong>技术栈</strong>：Python + FastAPI + MySQL + Playwright + LLM</p>
+<p><strong>核心模块</strong>：Monitor（评论监控） - IntentAnalyzer（意图分析） - ReplyGenerator（智能回复） - Executor（执行器）</p>
+<p><strong>商业模式</strong>：评论引流 x 知识付费组合拳（内容生产 - 短视频分发 - 评论区获客 - 私域变现）</p>
+</div>
+</div>
+
+<h2 id="canvas">商业模式画布</h2>
+<div class="svg-wrap">
+<svg viewBox="0 0 820 480" xmlns="http://www.w3.org/2000/svg">
+<rect x="0" y="0" width="820" height="480" fill="#fafafa" rx="12"/>
+<!-- Title -->
+<text x="410" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#37352f">评论引流 x 知识付费 商业模式画布</text>
+<!-- Grid -->
+<rect x="10" y="50" width="160" height="190" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="90" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">关键合作伙伴</text>
+<text x="20" y="96" font-size="11" fill="#4b5563">B站/抖音平台</text>
+<text x="20" y="114" font-size="11" fill="#4b5563">LLM API提供商</text>
+<text x="20" y="132" font-size="11" fill="#4b5563">云服务商</text>
+<text x="20" y="150" font-size="11" fill="#4b5563">知识付费平台</text>
+<text x="20" y="168" font-size="11" fill="#4b5563">内容创作者KOL</text>
+
+<rect x="175" y="50" width="160" height="90" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="255" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">关键活动</text>
+<text x="186" y="96" font-size="11" fill="#4b5563">评论监控与分析</text>
+<text x="186" y="114" font-size="11" fill="#4b5563">AI内容生产</text>
+<text x="186" y="132" font-size="11" fill="#4b5563">私域转化运营</text>
+
+<rect x="175" y="150" width="160" height="90" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="255" y="172" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">关键资源</text>
+<text x="186" y="196" font-size="11" fill="#4b5563">LLM + RAG引擎</text>
+<text x="186" y="214" font-size="11" fill="#4b5563">Playwright爬虫</text>
+<text x="186" y="232" font-size="11" fill="#4b5563">用户行为数据</text>
+
+<rect x="340" y="50" width="160" height="190" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="420" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">价值主张</text>
+<text x="351" y="96" font-size="11" fill="#4b5563">全自动评论区获客</text>
+<text x="351" y="114" font-size="11" fill="#4b5563">AI智能回复提升互动</text>
+<text x="351" y="132" font-size="11" fill="#4b5563">知识付费内容变现</text>
+<text x="351" y="150" font-size="11" fill="#4b5563">数据驱动精准营销</text>
+<text x="351" y="168" font-size="11" fill="#4b5563">降本增效10倍</text>
+
+<rect x="505" y="50" width="160" height="90" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="585" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">客户关系</text>
+<text x="516" y="96" font-size="11" fill="#4b5563">自动化服务 + 社群</text>
+<text x="516" y="114" font-size="11" fill="#4b5563">个性化内容推荐</text>
+<text x="516" y="132" font-size="11" fill="#4b5563">一对一咨询转化</text>
+
+<rect x="505" y="150" width="160" height="90" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="585" y="172" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">渠道通路</text>
+<text x="516" y="196" font-size="11" fill="#4b5563">B站/抖音评论区</text>
+<text x="516" y="214" font-size="11" fill="#4b5563">短视频平台</text>
+<text x="516" y="232" font-size="11" fill="#4b5563">微信私域社群</text>
+
+<rect x="670" y="50" width="140" height="190" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="740" y="72" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">客户细分</text>
+<text x="681" y="96" font-size="11" fill="#4b5563">知识付费消费者</text>
+<text x="681" y="114" font-size="11" fill="#4b5563">AI学习者</text>
+<text x="681" y="132" font-size="11" fill="#4b5563">技术创业者</text>
+<text x="681" y="150" font-size="11" fill="#4b5563">转行求职者</text>
+<text x="681" y="168" font-size="11" fill="#4b5563">企业培训需求</text>
+
+<!-- Bottom: Cost & Revenue -->
+<rect x="10" y="260" width="400" height="100" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="210" y="282" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">成本结构</text>
+<text x="20" y="306" font-size="11" fill="#4b5563">LLM API调用费 | 服务器托管 | 内容制作成本 | 人力成本 | 平台推广费</text>
+
+<rect x="420" y="260" width="390" height="100" rx="6" fill="#fff" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="615" y="282" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">收入来源</text>
+<text x="430" y="306" font-size="11" fill="#4b5563">知识付费课程销售 | 社群会员订阅 | 企业定制服务 | 工具SaaS授权</text>
+
+<!-- Footer -->
+<rect x="10" y="380" width="800" height="90" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+<text x="410" y="405" text-anchor="middle" font-size="12" font-weight="600" fill="#37352f">飞轮模型：内容生产 -> 短视频分发 -> 评论区获客 -> 私域转化 -> 收入再投入内容</text>
+<text x="410" y="430" text-anchor="middle" font-size="11" fill="#6b7280">核心指标：日均监控评论数 / 意图识别准确率 / 智能回复采纳率 / 私域转化率 / 客单价</text>
+</svg>
+</div>
+
+<h2 id="race">赛道研究</h2>
+<div class="doc-card">
+<h3>赛道深度调研 — 评论引流 x 知识付费</h3>
+<div class="meta">创业/00-赛道研究</div>
+<div class="excerpt">深度分析短视频评论区引流与知识付费结合的商业赛道，研究市场规模、增长趋势、竞争格局和进入策略。</div>
+</div>
+
+<h2 id="product">产品设计</h2>
+<div class="doc-card">
+<h3>评论AI工具 — 产品设计</h3>
+<div class="meta">创业/01-产品设计 · 核心产品文档</div>
+<div class="excerpt">评论AI自动化工具的产品功能设计：评论监控、意图分析、智能回复、私域转化四大核心模块的功能定义、用户流程和交互设计。</div>
+</div>
+<div class="doc-card">
+<h3>评论AI工具 — 产品策略与商业模式</h3>
+<div class="meta">创业/01-产品设计</div>
+<div class="excerpt">产品定价策略、用户增长模型、商业化路径：从免费工具引流到付费服务变现的完整商业闭环设计。</div>
+</div>
+<div class="doc-card">
+<h3>知识付费 — 产品规划</h3>
+<div class="meta">创业/01-产品设计</div>
+<div class="excerpt">知识付费产品线规划：AI课程内容体系、交付形式、定价阶梯、用户生命周期管理。依赖MoneyPrinterTurbo和MarkItDown工具链。</div>
+</div>
+
+<h2 id="tech">技术架构</h2>
+<div class="doc-card">
+<h3>README — 技术架构</h3>
+<div class="meta">创业/02-技术架构 · 架构总览</div>
+<div class="excerpt">创业项目技术架构总览，涵盖微服务设计模式、安全设计模式、全栈技术图谱等核心文档索引。</div>
+</div>
+<div class="doc-card">
+<h3>评论AI工具 — 技术架构</h3>
+<div class="meta">创业/02-技术架构 · 核心技术方案</div>
+<div class="excerpt">Monitor - IntentAnalyzer - ReplyGenerator - Executor 四大模块的技术实现方案，Python + FastAPI + MySQL + Playwright + LLM 技术栈选型与架构设计。</div>
+</div>
+<div class="doc-card">
+<h3>全栈技术图谱</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">创业项目全栈技术能力图谱：前端、后端、AI、数据、运维五大维度的技术选型与能力矩阵。</div>
+</div>
+<div class="doc-card">
+<h3>微服务设计模式</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">创业项目中的微服务架构设计模式：服务拆分策略、API网关、服务注册发现、熔断降级等核心模式。</div>
+</div>
+<div class="doc-card">
+<h3>安全设计模式</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">创业项目安全架构设计：认证授权、数据加密、API安全、日志审计等安全设计模式与最佳实践。</div>
+</div>
+<div class="doc-card">
+<h3>技术能力矩阵</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">团队技术能力评估矩阵：Python、前端、AI/ML、数据库、运维五大技术维度的能力等级与提升路径。</div>
+</div>
+<div class="doc-card">
+<h3>工具链偏好</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">创业项目工具链选型偏好：IDE、版本控制、CI/CD、监控、协作等开发工具链的选型决策与理由。</div>
+</div>
+<div class="doc-card">
+<h3>可复用技术解决方案库</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">积累的可复用技术解决方案：通用组件、最佳实践、代码模板、架构模式等技术资产库。</div>
+</div>
+<div class="doc-card">
+<h3>Starcomic数据中台 — 功能矩阵全景</h3>
+<div class="meta">创业/02-技术架构</div>
+<div class="excerpt">Starcomic数据中台功能矩阵全景图：数据采集、存储、处理、分析、可视化全链路功能设计。</div>
+</div>
+<div class="doc-card">
+<h3>项目卡片 — data-center / crawlers-feishu / copyright / auth_bot</h3>
+<div class="meta">创业/02-技术架构 · 4个项目卡片</div>
+<div class="excerpt">四个子项目的技术卡片：数据中心、飞书爬虫、版权管理、认证机器人，每个项目包含技术栈、功能描述和状态。</div>
+</div>
+
+<h2 id="compete">竞品分析</h2>
+<div class="doc-card">
+<h3>评论管理赛道竞品矩阵</h3>
+<div class="meta">创业/03-竞品分析</div>
+<div class="excerpt">评论管理赛道竞品全面分析：功能对比、定价策略、市场份额、差异化定位，为产品策略提供决策依据。</div>
+</div>
+<div class="doc-card">
+<h3>MoneyPrinterTurbo 项目分析</h3>
+<div class="meta">创业/03-竞品分析</div>
+<div class="excerpt">开源视频生成工具MoneyPrinterTurbo的技术分析：架构设计、核心能力、可借鉴之处与局限性。</div>
+</div>
+
+<h2 id="user">用户洞察</h2>
+<div class="doc-card">
+<h3>用户痛点分析</h3>
+<div class="meta">创业/04-用户洞察</div>
+<div class="excerpt">目标用户群体痛点深度分析：短视频运营者、知识付费创作者、AI学习者的具体需求与未被满足的痛点。</div>
+</div>
+
+<h2 id="ops">运营策略</h2>
+<div class="doc-card">
+<h3>组合拳飞轮模型</h3>
+<div class="meta">创业/05-运营策略</div>
+<div class="excerpt">增长飞轮模型设计：内容生产 -> 短视频分发 -> 评论区获客 -> 私域转化 -> 收入再投入内容，形成自循环增长引擎。</div>
+</div>
+
+<h2 id="finance">财务模型</h2>
+<div class="doc-card">
+<h3>收入预测与成本预算</h3>
+<div class="meta">创业/06-财务模型</div>
+<div class="excerpt">创业项目财务模型：收入预测（课程销售/会员/定制服务）、成本预算（API/服务器/人力/推广）、盈亏平衡分析、现金流规划。</div>
+</div>
+</div>
+<div class="toc"><h4>目录</h4>
+<a href="#overview">概览</a>
+<a href="#canvas">商业模式画布</a>
+<a href="#race">赛道研究</a>
+<a href="#product">产品设计</a>
+<a href="#tech">技术架构</a>
+<a href="#compete">竞品分析</a>
+<a href="#user">用户洞察</a>
+<a href="#ops">运营策略</a>
+<a href="#finance">财务模型</a></div>
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

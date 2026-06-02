@@ -3,866 +3,1734 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 知识吸收仪表盘</title>
+<title>Knowledge Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#ffffff;--bg2:#f6f5f4;--bg3:#ffffff;--bg4:#f6f5f4;
-  --fg:rgba(0,0,0,.95);--fg2:rgba(0,0,0,.5);--fg3:rgba(0,0,0,.35);
-  --accent:#0075de;--accent-light:rgba(0,117,222,.08);--accent-border:rgba(0,117,222,.2);
-  --green:#2d9d4e;--yellow:#c2900a;--red:#d44;--cyan:#0989a6;
-  --radius:8px;--radius-sm:6px;
-  --border:1px solid rgba(0,0,0,.1);
-  --shadow:0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 2px 8px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.04);
-  --transition:all .2s ease;
+
+:root {
+  /* Apple-inspired warm neutrals */
+  --bg: #ffffff;
+  --bg-elevated: #fbfbfd;
+  --bg-secondary: #f5f5f7;
+  --bg-tertiary: #e8e8ed;
+  
+  /* Text - warm blacks for readability */
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --text-quaternary: #aeaeb2;
+  
+  /* Single accent - Apple Blue */
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-active: #006edb;
+  --accent-subtle: rgba(0, 113, 227, 0.08);
+  --accent-border: rgba(0, 113, 227, 0.2);
+  
+  /* Semantic colors - muted for focus */
+  --success: #34c759;
+  --warning: #ff9f0a;
+  --error: #ff3b30;
+  --info: #5ac8fa;
+  
+  /* Surfaces */
+  --surface-card: #ffffff;
+  --surface-hover: rgba(0, 0, 0, 0.02);
+  --surface-active: rgba(0, 0, 0, 0.04);
+  
+  /* Borders - whisper weight */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  
+  /* Shadows - Apple-style soft */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  
+  /* Radii - Apple standard */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  
+  /* Spacing - 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  
+  /* Transitions - Apple easing */
+  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
 }
-html{scroll-behavior:smooth}
-body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:var(--bg);color:var(--fg);line-height:1.6;font-size:16px;min-height:100vh;overflow-x:hidden}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg2)}
-::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25)}
 
-/* === NAV === */
-.nav{position:sticky;top:0;z-index:100;background:#fff;border-bottom:var(--border);padding:0 32px}
-.nav-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;height:52px}
-.nav-logo{font-size:16px;font-weight:700;color:var(--fg);white-space:nowrap;letter-spacing:-.3px}
-.nav-logo-mark{color:var(--accent);font-weight:800}
-.nav-tabs{display:flex;gap:2px;margin-left:24px;overflow-x:auto;flex:1}
-.nav-tab{padding:6px 14px;border-radius:var(--radius-sm);cursor:pointer;font-size:13px;font-weight:500;color:var(--fg2);transition:var(--transition);white-space:nowrap;border:none;background:none;font-family:inherit}
-.nav-tab:hover{color:var(--fg);background:rgba(0,0,0,.04)}
-.nav-tab.active{color:var(--accent);background:var(--accent-light)}
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 
-/* === LAYOUT === */
-.container{max-width:1400px;margin:0 auto;padding:32px}
-.section{display:none;animation:fadeIn .3s ease}
-.section.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.section-title{font-size:44px;font-weight:800;margin-bottom:8px;color:var(--fg);letter-spacing:-.5px;line-height:1.2}
-.section-desc{color:var(--fg2);margin-bottom:32px;font-size:16px;line-height:1.6}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  color: var(--text-primary);
+  background: var(--bg);
+  line-height: 1.47;
+  font-size: 17px;
+  font-weight: 400;
+  letter-spacing: -0.022em;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-/* === KNOWLEDGE GRAPH === */
-.graph-container{position:relative;background:var(--bg2);border-radius:var(--radius);border:var(--border);overflow:hidden;min-height:600px}
-.graph-container svg{width:100%;height:600px}
-.graph-node{cursor:pointer;transition:var(--transition)}
-.graph-node:hover .node-circle{filter:drop-shadow(0 0 8px rgba(0,117,222,.2))}
-.node-circle{transition:var(--transition)}
-.node-label{font-size:11px;fill:var(--fg);text-anchor:middle;pointer-events:none;font-family:'Inter','Noto Sans SC',system-ui,sans-serif;font-weight:600}
-.graph-edge{stroke:rgba(0,0,0,.08);stroke-width:1.5;fill:none}
-.graph-tooltip{position:absolute;background:#fff;border:var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:10;max-width:260px;box-shadow:var(--shadow-md)}
-.graph-tooltip.show{opacity:1}
+/* Scrollbar - minimal */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.25); }
 
-/* === CONCEPT CARDS === */
-.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.card{perspective:800px;height:220px;cursor:pointer}
-.card-inner{position:relative;width:100%;height:100%;transition:transform .6s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d}
-.card:hover .card-inner{transform:rotateY(180deg)}
-.card-front,.card-back{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;padding:24px;display:flex;flex-direction:column}
-.card-front{background:#fff;border:var(--border);box-shadow:var(--shadow)}
-.card-back{background:var(--accent);transform:rotateY(180deg);color:#fff;border-radius:var(--radius)}
-.card-num{font-size:11px;color:var(--accent);font-weight:700;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase}
-.card-name{font-size:18px;font-weight:700;margin-bottom:12px;color:var(--fg)}
-.card-diff{display:inline-flex;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;width:fit-content}
-.diff-easy{background:rgba(45,157,78,.08);color:var(--green)}
-.diff-medium{background:rgba(194,144,10,.08);color:var(--yellow)}
-.diff-hard{background:rgba(221,68,68,.08);color:var(--red)}
-.card-topics{color:var(--fg2);font-size:12px;margin-top:auto;line-height:1.8}
-.card-back-title{font-size:15px;font-weight:700;margin-bottom:12px;opacity:.9}
-.card-back ul{list-style:none;font-size:13px;line-height:2}
-.card-back li::before{content:"— ";opacity:.7}
+/* Selection */
+::selection { background: rgba(0, 113, 227, 0.15); }
 
-/* === QUICK REF === */
-.ref-tabs{display:flex;gap:6px;margin-bottom:20px;flex-wrap:wrap}
-.ref-tab{padding:6px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--fg2);border:var(--border);transition:var(--transition);font-family:inherit}
-.ref-tab:hover{background:rgba(0,0,0,.03)}
-.ref-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-.ref-content{display:none}
-.ref-content.active{display:block}
-.ref-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:var(--border)}
-.ref-table th{background:var(--bg2);padding:12px 16px;text-align:left;font-size:13px;color:var(--fg2);font-weight:600;border-bottom:var(--border);letter-spacing:.3px}
-.ref-table td{padding:10px 16px;font-size:14px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--fg)}
-.ref-table tr:nth-child(even) td{background:var(--bg2)}
-.ref-table tr:hover td{background:rgba(0,117,222,.04)}
-.ref-table code{background:var(--bg2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent);font-family:'SF Mono','Fira Code',monospace}
+/* ═══ NAV - Mac toolbar style ═══ */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(251, 251, 253, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-8);
+}
 
-/* === LEARNING PATHS === */
-.path-selector{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap}
-.path-btn{padding:10px 20px;border-radius:var(--radius);cursor:pointer;background:#fff;color:var(--fg2);border:var(--border);transition:var(--transition);font-family:inherit;font-size:14px;font-weight:600}
-.path-btn.active{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
-.path-btn:hover{border-color:rgba(0,0,0,.2)}
-.path-flow{display:none}
-.path-flow.active{display:block}
-.path-steps{position:relative;padding-left:40px}
-.path-step{position:relative;padding:16px 0 32px 24px;border-left:2px solid rgba(0,0,0,.08)}
-.path-step:last-child{border-left-color:transparent}
-.path-step::before{content:'';position:absolute;left:-7px;top:20px;width:12px;height:12px;border-radius:50%;background:#fff;border:2px solid rgba(0,0,0,.15);transition:var(--transition)}
-.path-step.done::before{background:var(--accent);border-color:var(--accent)}
-.path-step-title{font-size:16px;font-weight:700;margin-bottom:4px}
-.path-step-desc{font-size:14px;color:var(--fg2)}
-.path-step-tags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.path-tag{padding:2px 10px;border-radius:12px;font-size:11px;font-weight:500;background:var(--accent-light);color:var(--accent)}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: 52px;
+}
 
-/* === PROGRESS === */
-.progress-bar-wrap{background:rgba(0,0,0,.06);border-radius:20px;height:8px;overflow:hidden;margin-bottom:8px}
-.progress-bar{height:100%;background:var(--accent);border-radius:20px;transition:width .6s cubic-bezier(.4,0,.2,1)}
-.progress-stats{display:flex;gap:16px;margin-bottom:32px;flex-wrap:wrap}
-.stat{background:#fff;border:var(--border);border-radius:var(--radius);padding:20px 24px;min-width:160px;box-shadow:var(--shadow)}
-.stat-val{font-size:32px;font-weight:800;color:var(--fg);letter-spacing:-.5px}
-.stat-label{font-size:13px;color:var(--fg2);margin-top:4px}
-.progress-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
-.prog-item{display:flex;align-items:center;gap:12px;padding:12px 16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);transition:var(--transition)}
-.prog-item:hover{box-shadow:var(--shadow)}
-.prog-check{width:18px;height:18px;border-radius:4px;border:1.5px solid rgba(0,0,0,.2);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition);flex-shrink:0}
-.prog-check.checked{background:var(--accent);border-color:var(--accent)}
-.prog-check.checked::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
-.prog-name{font-size:14px;font-weight:600}
-.prog-cat{font-size:12px;color:var(--fg2)}
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  user-select: none;
+}
 
-/* === ANALOGY CARDS === */
-.analogy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-.analogy-card{background:#fff;border:var(--border);border-radius:var(--radius);overflow:hidden;transition:var(--transition)}
-.analogy-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
-.analogy-header{padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(0,0,0,.06)}
-.analogy-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg2)}
-.analogy-concept{font-size:15px;font-weight:700}
-.analogy-title{font-size:12px;color:var(--accent);font-weight:500}
-.analogy-body{padding:16px 20px}
-.analogy-text{font-size:14px;color:var(--fg2);line-height:1.7}
-.analogy-diagram{background:var(--bg2);border-radius:var(--radius-sm);padding:12px;text-align:center;overflow-x:auto}
-.analogy-diagram svg{max-width:100%;height:auto}
+.nav-brand svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
 
-/* === COMPARISON TABLES === */
-.comp-section{margin-bottom:40px}
-.comp-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
-.comp-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;border:var(--border)}
-.comp-table th{background:var(--bg2);padding:10px 14px;text-align:left;font-size:12px;color:var(--fg2);font-weight:600;border-bottom:var(--border);white-space:nowrap;letter-spacing:.3px}
-.comp-table td{padding:10px 14px;font-size:13px;border-bottom:1px solid rgba(0,0,0,.04);color:var(--fg);vertical-align:top}
-.comp-table tr:nth-child(even) td{background:var(--bg2)}
-.comp-table tr:hover td{background:rgba(0,117,222,.04)}
-.comp-table .dim-label{color:var(--accent);font-weight:600;white-space:nowrap}
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  margin-left: var(--space-6);
+  overflow-x: auto;
+  flex: 1;
+  scrollbar-width: none;
+}
 
-/* === RELATIONSHIP MAP === */
-.rel-container{background:var(--bg2);border-radius:var(--radius);border:var(--border);overflow:hidden;position:relative}
-.rel-container svg{width:100%;height:500px}
-.rel-info{position:absolute;bottom:16px;left:16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);padding:12px 16px;font-size:13px;max-width:320px;box-shadow:var(--shadow-md);display:none;line-height:1.7}
-.rel-info.show{display:block}
-.rel-legend{display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;font-size:12px;color:var(--fg2)}
-.rel-legend span{display:flex;align-items:center;gap:6px}
-.rel-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
-.rel-edge{stroke:rgba(0,0,0,.06);stroke-width:1.5;transition:var(--transition)}
-.rel-edge.active{stroke:var(--accent);stroke-width:2}
-.rel-node{cursor:pointer}
+.nav-tabs::-webkit-scrollbar { display: none; }
 
-/* === ONE-LINE SUMMARIES === */
-.oneline-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:8px}
-.oneline-card{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:#fff;border:var(--border);border-radius:var(--radius-sm);transition:var(--transition);cursor:default}
-.oneline-card:hover{box-shadow:var(--shadow)}
-.compare-block{margin-bottom:32px}
-.compare-title{font-size:18px;font-weight:700;margin-bottom:16px;color:var(--fg)}
-.compare-scroll{overflow-x:auto}
-.oneline-name{font-size:14px;font-weight:700;white-space:nowrap;flex-shrink:0;min-width:80px}
-.oneline-text{font-size:14px;color:var(--fg2);line-height:1.5}
+.nav-tab {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all var(--duration-fast) var(--ease-out);
+  white-space: nowrap;
+  border: none;
+  background: none;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
 
-@media(max-width:768px){
-  .nav-inner{gap:8px}
-  .nav-logo{font-size:14px}
-  .nav-tab{padding:6px 10px;font-size:12px}
-  .container{padding:16px}
-  .section-title{font-size:28px}
-  .cards-grid{grid-template-columns:1fr}
-  .progress-list{grid-template-columns:1fr}
-  .analogy-grid{grid-template-columns:1fr}
-  .oneline-grid{grid-template-columns:1fr}
-  .comp-table{font-size:11px}
-  .comp-table th,.comp-table td{padding:8px 10px}
-  .rel-container svg{height:350px}
-  .rel-info{max-width:260px;font-size:12px}
+.nav-tab:hover {
+  color: var(--text-primary);
+  background: var(--surface-active);
+}
+
+.nav-tab.active {
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+/* ═══ LAYOUT ═══ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-10) var(--space-8);
+}
+
+.section {
+  display: none;
+  animation: fadeIn var(--duration-slow) var(--ease-out);
+}
+
+.section.active { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.section-header {
+  margin-bottom: var(--space-10);
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.024em;
+  line-height: 1.12;
+  margin-bottom: var(--space-2);
+}
+
+.section-subtitle {
+  font-size: 17px;
+  color: var(--text-secondary);
+  line-height: 1.47;
+  max-width: 600px;
+}
+
+/* ═══ KNOWLEDGE GRAPH ═══ */
+.graph-container {
+  position: relative;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.graph-container svg {
+  width: 100%;
+  height: 500px;
+  display: block;
+}
+
+.graph-node {
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.graph-node:hover .node-bg {
+  fill: var(--accent-subtle);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.node-bg {
+  fill: var(--bg-elevated);
+  stroke: var(--border-strong);
+  stroke-width: 1;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.node-label {
+  font-size: 12px;
+  fill: var(--text-primary);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+}
+
+.graph-edge {
+  stroke: var(--border);
+  stroke-width: 1;
+  fill: none;
+}
+
+.graph-tooltip {
+  position: absolute;
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: 13px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-fast) var(--ease-out);
+  z-index: 10;
+  max-width: 240px;
+  box-shadow: var(--shadow-lg);
+  line-height: 1.4;
+}
+
+.graph-tooltip.show { opacity: 1; }
+
+.tooltip-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.tooltip-desc {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+/* ═══ CONCEPT CARDS ═══ */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+
+.card {
+  perspective: 800px;
+  height: 200px;
+  cursor: pointer;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s var(--ease-in-out);
+  transform-style: preserve-3d;
+}
+
+.card:hover .card-inner { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-lg);
+  backface-visibility: hidden;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+.card-front {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xs);
+}
+
+.card-back {
+  background: var(--accent);
+  transform: rotateY(180deg);
+  color: #fff;
+}
+
+.card-id {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+.card-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.01em;
+}
+
+.card-badge {
+  display: inline-flex;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 500;
+  width: fit-content;
+  margin-bottom: var(--space-3);
+}
+
+.badge-easy {
+  background: rgba(52, 199, 89, 0.1);
+  color: var(--success);
+}
+
+.badge-medium {
+  background: rgba(255, 159, 10, 0.1);
+  color: var(--warning);
+}
+
+.badge-hard {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--error);
+}
+
+.card-topics {
+  color: var(--text-tertiary);
+  font-size: 12px;
+  margin-top: auto;
+  line-height: 1.6;
+}
+
+.card-back-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: var(--space-3);
+  opacity: 0.9;
+}
+
+.card-back ul {
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.card-back li::before {
+  content: "— ";
+  opacity: 0.7;
+}
+
+/* ═══ QUICK REFERENCE ═══ */
+.ref-tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.ref-tab {
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: inherit;
+}
+
+.ref-tab:hover {
+  background: var(--surface-active);
+  border-color: var(--border-strong);
+}
+
+.ref-tab.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.ref-content {
+  display: none;
+}
+
+.ref-content.active { display: block; }
+
+.ref-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.ref-table th {
+  background: var(--bg-secondary);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  letter-spacing: 0.02em;
+}
+
+.ref-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+}
+
+.ref-table tr:last-child td { border-bottom: none; }
+
+.ref-table tr:hover td { background: var(--surface-hover); }
+
+.ref-table code {
+  background: var(--bg-secondary);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  font-size: 12px;
+  color: var(--accent);
+  font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+/* ═══ LEARNING PATHS ═══ */
+.path-selector {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.path-btn {
+  padding: var(--space-2) var(--space-5);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  background: var(--surface-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: all var(--duration-fast) var(--ease-out);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.path-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+
+.path-btn.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+
+.path-flow { display: none; }
+.path-flow.active { display: block; }
+
+.path-steps {
+  position: relative;
+  padding-left: var(--space-10);
+}
+
+.path-step {
+  position: relative;
+  padding: var(--space-4) 0 var(--space-8) var(--space-6);
+  border-left: 2px solid var(--border);
+}
+
+.path-step:last-child {
+  border-left-color: transparent;
+  padding-bottom: 0;
+}
+
+.path-step::before {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 2px solid var(--border-strong);
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.path-step.done::before {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.path-step-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.path-step-desc {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.path-step-tags {
+  display: flex;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.path-tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--accent-subtle);
+  color: var(--accent);
+}
+
+/* ═══ PROGRESS TRACKER ═══ */
+.progress-bar-wrap {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-full);
+  height: 6px;
+  overflow: hidden;
+  margin-bottom: var(--space-2);
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-out);
+}
+
+.progress-stats {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.stat {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  min-width: 140px;
+  box-shadow: var(--shadow-xs);
+}
+
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.024em;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.progress-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-2);
+}
+
+.prog-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.prog-item:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.prog-check {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-xs);
+  border: 1.5px solid var(--border-strong);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+}
+
+.prog-check.checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.prog-check.checked::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.prog-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.prog-cat {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+/* ═══ ANALOGY CARDS ═══ */
+.analogy-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-4);
+}
+
+.analogy-card {
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.analogy-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.analogy-header {
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.analogy-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--bg-secondary);
+}
+
+.analogy-icon svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+}
+
+.analogy-concept {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.analogy-title {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.analogy-body {
+  padding: var(--space-4) var(--space-5);
+}
+
+.analogy-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ═══ COMPARISON TABLES ═══ */
+.comp-section {
+  margin-bottom: var(--space-10);
+}
+
+.comp-title {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.comp-table th {
+  background: var(--bg-secondary);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.comp-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  vertical-align: top;
+}
+
+.comp-table tr:last-child td { border-bottom: none; }
+.comp-table tr:hover td { background: var(--surface-hover); }
+
+.comp-table .dim-label {
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ═══ RELATIONSHIP MAP ═══ */
+.rel-container {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  position: relative;
+}
+
+.rel-container svg {
+  width: 100%;
+  height: 450px;
+  display: block;
+}
+
+.rel-info {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: 13px;
+  max-width: 280px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  line-height: 1.5;
+}
+
+.rel-legend {
+  display: flex;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+/* ═══ ONE-LINE SUMMARY ═══ */
+.oneline-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+}
+
+.oneline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.oneline-item:hover {
+  box-shadow: var(--shadow-sm);
+  border-color: var(--border-strong);
+}
+
+.oneline-marker {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.oneline-text {
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+/* ═══ FOCUS MODE ═══ */
+.focus-toggle {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-normal) var(--ease-out);
+  z-index: 50;
+}
+
+.focus-toggle:hover {
+  box-shadow: var(--shadow-lg);
+  transform: scale(1.05);
+}
+
+.focus-toggle svg {
+  width: 20px;
+  height: 20px;
+  color: var(--text-secondary);
+}
+
+.focus-mode .nav { opacity: 0.3; }
+.focus-mode .nav:hover { opacity: 1; }
+.focus-mode .section-header { opacity: 0.5; }
+.focus-mode .section-header:hover { opacity: 1; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .nav { padding: 0 var(--space-4); }
+  .nav-inner { height: 48px; }
+  .nav-brand { font-size: 14px; }
+  .nav-tabs { margin-left: var(--space-3); }
+  .nav-tab { padding: 4px 10px; font-size: 12px; }
+  
+  .container { padding: var(--space-6) var(--space-4); }
+  .section-title { font-size: 24px; }
+  .section-subtitle { font-size: 15px; }
+  
+  .cards-grid { grid-template-columns: 1fr; }
+  .analogy-grid { grid-template-columns: 1fr; }
+  .oneline-grid { grid-template-columns: 1fr; }
+  .progress-list { grid-template-columns: 1fr; }
+  
+  .path-selector { gap: var(--space-1); }
+  .path-btn { padding: 6px 12px; font-size: 13px; }
+  
+  .ref-table { font-size: 13px; }
+  .ref-table th, .ref-table td { padding: var(--space-2) var(--space-3); }
+}
+
+@media (max-width: 480px) {
+  .nav-tabs { display: none; }
+  .section-title { font-size: 20px; }
+  .stat-value { font-size: 24px; }
+}
+
+/* ═══ PRINT ═══ */
+@media print {
+  .nav, .focus-toggle { display: none; }
+  .section { display: block !important; page-break-inside: avoid; }
+  .card-inner { transform: none !important; }
+  .card-back { display: none; }
+}
+
+/* ═══ REDUCED MOTION ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 </style>
 </head>
 <body>
 
+<!-- Navigation -->
 <nav class="nav">
   <div class="nav-inner">
-    <div class="nav-logo"><span class="nav-logo-mark">//</span> AI 知识仪表盘</div>
-    <div class="nav-tabs">
-      <button class="nav-tab active" data-tab="graph">知识图谱</button>
-      <button class="nav-tab" data-tab="cards">概念卡片</button>
-      <button class="nav-tab" data-tab="ref">速查表</button>
-      <button class="nav-tab" data-tab="paths">学习路径</button>
-      <button class="nav-tab" data-tab="progress">进度追踪</button>
-      <button class="nav-tab" data-tab="analogy">类比解释</button>
-      <button class="nav-tab" data-tab="compare">对比表</button>
-      <button class="nav-tab" data-tab="relmap">关系图</button>
-      <button class="nav-tab" data-tab="oneline">一句话</button>
+    <div class="nav-brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      Knowledge Hub
+    </div>
+    <div class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-section="graph">Graph</button>
+      <button class="nav-tab" data-section="cards">Cards</button>
+      <button class="nav-tab" data-section="reference">Reference</button>
+      <button class="nav-tab" data-section="paths">Paths</button>
+      <button class="nav-tab" data-section="progress">Progress</button>
+      <button class="nav-tab" data-section="analogy">Analogy</button>
+      <button class="nav-tab" data-section="compare">Compare</button>
+      <button class="nav-tab" data-section="relations">Relations</button>
+      <button class="nav-tab" data-section="summary">Summary</button>
     </div>
   </div>
 </nav>
 
+<!-- Main Content -->
 <div class="container">
 
-<!-- KNOWLEDGE GRAPH -->
-<section class="section active" id="sec-graph">
-  <h2 class="section-title">知识图谱</h2>
-  <p class="section-desc">点击节点查看详情，拖拽可平移视图。线条表示知识依赖关系。</p>
-  <div class="graph-container" id="graphBox">
-    <svg id="graphSvg"></svg>
-    <div class="graph-tooltip" id="tooltip"></div>
-  </div>
-</section>
+  <!-- Knowledge Graph -->
+  <section class="section active" id="sec-graph">
+    <div class="section-header">
+      <h1 class="section-title">Knowledge Graph</h1>
+      <p class="section-subtitle">Visualize concept relationships and dependencies across your learning journey.</p>
+    </div>
+    <div class="graph-container" id="graphBox">
+      <svg id="graphSvg"></svg>
+      <div class="graph-tooltip" id="tooltip">
+        <div class="tooltip-title" id="tooltipTitle"></div>
+        <div class="tooltip-desc" id="tooltipDesc"></div>
+      </div>
+    </div>
+  </section>
 
-<!-- CONCEPT CARDS -->
-<section class="section" id="sec-cards">
-  <h2 class="section-title">概念卡片</h2>
-  <p class="section-desc">悬停翻转卡片，查看每个领域的核心知识点速览。</p>
-  <div class="cards-grid" id="cardsGrid"></div>
-</section>
+  <!-- Concept Cards -->
+  <section class="section" id="sec-cards">
+    <div class="section-header">
+      <h1 class="section-title">Concept Cards</h1>
+      <p class="section-subtitle">Hover to flip and explore key concepts for each domain.</p>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </section>
 
-<!-- QUICK REF -->
-<section class="section" id="sec-ref">
-  <h2 class="section-title">速查表</h2>
-  <p class="section-desc">常用公式、API模式、架构模式快速参考。</p>
-  <div class="ref-tabs" id="refTabs"></div>
-  <div id="refContents"></div>
-</section>
+  <!-- Quick Reference -->
+  <section class="section" id="sec-reference">
+    <div class="section-header">
+      <h1 class="section-title">Quick Reference</h1>
+      <p class="section-subtitle">Essential patterns and formulas at your fingertips.</p>
+    </div>
+    <div class="ref-tabs" id="refTabs"></div>
+    <div id="refContents"></div>
+  </section>
 
-<!-- LEARNING PATHS -->
-<section class="section" id="sec-paths">
-  <h2 class="section-title">学习路径</h2>
-  <p class="section-desc">选择你的职业方向，按照推荐顺序学习。</p>
-  <div class="path-selector" id="pathSelector"></div>
-  <div id="pathFlows"></div>
-</section>
+  <!-- Learning Paths -->
+  <section class="section" id="sec-paths">
+    <div class="section-header">
+      <h1 class="section-title">Learning Paths</h1>
+      <p class="section-subtitle">Structured routes through the knowledge landscape.</p>
+    </div>
+    <div class="path-selector" id="pathSelector"></div>
+    <div id="pathFlows"></div>
+  </section>
 
-<!-- PROGRESS -->
-<section class="section" id="sec-progress">
-  <h2 class="section-title">进度追踪</h2>
-  <p class="section-desc">勾选已掌握的知识点，进度自动保存到本地。</p>
-  <div class="progress-stats" id="progStats"></div>
-  <div class="progress-list" id="progList"></div>
-</section>
+  <!-- Progress Tracker -->
+  <section class="section" id="sec-progress">
+    <div class="section-header">
+      <h1 class="section-title">Progress Tracker</h1>
+      <p class="section-subtitle">Track your learning journey across all domains.</p>
+    </div>
+    <div class="progress-stats" id="progStats"></div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progBar"></div>
+    </div>
+    <div class="progress-list" id="progList"></div>
+  </section>
 
-<!-- ANALOGY EXPLANATIONS -->
-<section class="section" id="sec-analogy">
-  <h2 class="section-title">类比解释</h2>
-  <p class="section-desc">用生活中的类比来理解复杂概念，让抽象变具体。</p>
-  <div class="analogy-grid" id="analogyGrid"></div>
-</section>
+  <!-- Analogy Cards -->
+  <section class="section" id="sec-analogy">
+    <div class="section-header">
+      <h1 class="section-title">Analogy Cards</h1>
+      <p class="section-subtitle">Complex concepts explained through familiar comparisons.</p>
+    </div>
+    <div class="analogy-grid" id="analogyGrid"></div>
+  </section>
 
-<!-- COMPARISON TABLES -->
-<section class="section" id="sec-compare">
-  <h2 class="section-title">对比表</h2>
-  <p class="section-desc">技术选型一目了然，多维度对比帮助决策。</p>
-  <div id="compareContent"></div>
-</section>
+  <!-- Comparison Tables -->
+  <section class="section" id="sec-compare">
+    <div class="section-header">
+      <h1 class="section-title">Comparison Tables</h1>
+      <p class="section-subtitle">Side-by-side analysis of related technologies and approaches.</p>
+    </div>
+    <div id="compareContent"></div>
+  </section>
 
-<!-- CONCEPT RELATIONSHIP MAP -->
-<section class="section" id="sec-relmap">
-  <h2 class="section-title">概念关系图</h2>
-  <p class="section-desc">点击概念查看前置知识和关联概念，规划学习路径。</p>
-  <div class="rel-legend">
-    <span><span class="rel-dot" style="background:var(--accent)"></span>当前选中</span>
-    <span><span class="rel-dot" style="background:var(--green)"></span>前置知识</span>
-    <span><span class="rel-dot" style="background:var(--cyan)"></span>关联概念</span>
-    <span><span class="rel-dot" style="background:rgba(0,0,0,.2)"></span>其他</span>
-  </div>
-  <div class="rel-container" id="relBox">
-    <svg id="relSvg"></svg>
-    <div class="rel-info" id="relInfo"></div>
-  </div>
-</section>
+  <!-- Relationship Map -->
+  <section class="section" id="sec-relations">
+    <div class="section-header">
+      <h1 class="section-title">Relationship Map</h1>
+      <p class="section-subtitle">Explore how concepts connect and influence each other.</p>
+    </div>
+    <div class="rel-legend">
+      <span class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span> Selected</span>
+      <span class="legend-item"><span class="legend-dot" style="background: var(--success)"></span> Dependencies</span>
+      <span class="legend-item"><span class="legend-dot" style="background: var(--warning)"></span> Related</span>
+    </div>
+    <div class="rel-container">
+      <svg id="relSvg"></svg>
+      <div class="rel-info" id="relInfo"></div>
+    </div>
+  </section>
 
-<!-- ONE-LINE SUMMARIES -->
-<section class="section" id="sec-oneline">
-  <h2 class="section-title">一句话总结</h2>
-  <p class="section-desc">每个概念用一句话记住核心要点，快速回顾利器。</p>
-  <div class="oneline-grid" id="onelineGrid"></div>
-</section>
+  <!-- One-Line Summary -->
+  <section class="section" id="sec-summary">
+    <div class="section-header">
+      <h1 class="section-title">One-Line Summary</h1>
+      <p class="section-subtitle">Quick reference for core concepts in each domain.</p>
+    </div>
+    <div class="oneline-grid" id="onelineGrid"></div>
+  </section>
 
 </div>
 
+<!-- Focus Mode Toggle -->
+<button class="focus-toggle" id="focusToggle" title="Toggle Focus Mode">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M12 16v-4"/>
+    <path d="M12 8h.01"/>
+  </svg>
+</button>
+
 <script>
-// ===== DATA =====
+// ═══ DATA ═══
 const DOMAINS = [
-  {id:"nlp",name:"NLP基础",num:"01",diff:"easy",cat:"基础",color:"#2d9d4e",
-    topics:["分词与词向量","语言模型(N-gram→NN)","序列标注(NER/POS)","文本分类与情感分析","Attention机制基础"],
-    desc:"自然语言处理基础，是一切大模型技术的前置知识。"},
-  {id:"transformer",name:"Transformer架构",num:"02",diff:"medium",cat:"核心",color:"#0075de",
-    topics:["Self-Attention计算","Multi-Head Attention","位置编码(正弦/旋转)","Encoder-Decoder结构","层归一化(Pre-LN/Post-LN)"],
-    desc:"现代大模型的核心架构，理解Transformer是理解一切LLM的关键。"},
-  {id:"llm-stack",name:"大模型技术栈",num:"03",diff:"hard",cat:"核心",color:"#d44",
-    topics:["预训练(Pre-training)","Scaling Laws","RLHF/DPO对齐","Tokenization(BPE/SentencePiece)","分布式训练(FSDP/DeepSpeed)"],
-    desc:"大模型从训练到部署的完整技术栈。"},
-  {id:"rag",name:"RAG技术",num:"04",diff:"medium",cat:"应用",color:"#c2900a",
-    topics:["检索-增强生成原理","文档切分策略","Embedding模型选择","Reranking策略","评估(忠实度/相关性)"],
-    desc:"检索增强生成，让大模型利用外部知识库回答问题。"},
-  {id:"agent",name:"Agent开发",num:"05",diff:"hard",cat:"应用",color:"#d44",
-    topics:["ReAct模式","工具调用(Function Calling)","规划与推理","多Agent协作","记忆机制(短期/长期)"],
-    desc:"AI Agent是LLM应用的高级形态，能自主规划和执行任务。"},
-  {id:"langgraph",name:"LangGraph",num:"06",diff:"medium",cat:"框架",color:"#0989a6",
-    topics:["状态图(StateGraph)","条件路由","人机交互节点","持久化与检查点","流式输出"],
-    desc:"基于图的Agent编排框架，适合构建复杂的有状态工作流。"},
-  {id:"finetune",name:"模型微调",num:"07",diff:"hard",cat:"训练",color:"#d44",
-    topics:["全量微调 vs LoRA/QLoRA","数据准备与清洗","超参数调优","评估指标(BLEU/ROUGE)","合并与导出模型"],
-    desc:"用特定数据微调模型以提升任务表现。"},
-  {id:"cv",name:"计算机视觉基础",num:"08",diff:"medium",cat:"基础",color:"#c2900a",
-    topics:["CNN经典架构","目标检测(YOLO/RCNN)","图像分割","ViT视觉Transformer","CLIP多模态对齐"],
-    desc:"计算机视觉基础，多模态开发的前置知识。"},
-  {id:"interview",name:"面试宝典",num:"09",diff:"medium",cat:"综合",color:"#b45309",
-    topics:["机器学习八股","深度学习核心概念","大模型常见面试题","系统设计题","手撕代码题"],
-    desc:"AI/ML岗位面试高频知识点汇总。"},
-  {id:"project",name:"项目实战",num:"10",diff:"hard",cat:"实战",color:"#d44",
-    topics:["智能客服系统","文档问答系统","代码助手","AI搜索","数据分析Agent"],
-    desc:"真实项目案例，从需求到上线的完整流程。"},
-  {id:"multimodal",name:"多模态开发",num:"11",diff:"hard",cat:"前沿",color:"#7c3aed",
-    topics:["图文理解(GPT-4V)","语音识别(TTS/STT)","视频理解","多模态Embedding","统一多模态架构"],
-    desc:"融合文本、图像、语音的多模态AI开发。"},
-  {id:"inference",name:"LLM推理部署",num:"12",diff:"hard",cat:"工程",color:"#d44",
-    topics:["量化(GPTQ/AWQ/GGUF)","KV Cache优化","vLLM/TGI推理引擎","批处理与流式","TensorRT-LLM"],
-    desc:"大模型推理加速与高效部署技术。"},
-  {id:"vectordb",name:"向量数据库",num:"13",diff:"medium",cat:"基础设施",color:"#0989a6",
-    topics:["向量检索算法(HNSW/IVF)","Milvus/Pinecone/Weaviate","索引优化","混合检索","维度与距离选择"],
-    desc:"存储和检索高维向量的专用数据库，RAG的核心组件。"},
-  {id:"observability",name:"LLM可观测性",num:"14",diff:"medium",cat:"工程",color:"#c2900a",
-    topics:["Tracing链路追踪","Token消耗监控","质量评估自动化","LangSmith/Phoenix","日志与告警"],
-    desc:"监控和调试LLM应用的性能与质量。"},
-  {id:"safety",name:"AI安全与护栏",num:"15",diff:"medium",cat:"安全",color:"#b45309",
-    topics:["Prompt注入防御","内容过滤与审核","输出格式约束","越狱攻击防护","Guardrails框架"],
-    desc:"保护LLM应用免受恶意输入和不当输出。"},
-  {id:"serving",name:"模型服务与部署",num:"16",diff:"hard",cat:"工程",color:"#d44",
-    topics:["API设计(OpenAI兼容)","负载均衡与扩缩容","A/B测试","CI/CD流水线","GPU集群管理"],
-    desc:"将模型包装为生产级API服务。"},
-  {id:"docker",name:"Docker",num:"+",diff:"easy",cat:"工程",color:"#2d9d4e",
-    topics:["容器基础概念","Dockerfile编写","Docker Compose","镜像优化","网络与存储"],
-    desc:"容器化技术，AI应用部署的基础设施。"},
-  {id:"database",name:"数据库",num:"+",diff:"easy",cat:"基础",color:"#2d9d4e",
-    topics:["SQL基础","PostgreSQL","Redis缓存","MongoDB文档存储","数据库设计范式"],
-    desc:"数据存储基础，所有应用的底层支撑。"},
-  {id:"ml",name:"机器学习",num:"+",diff:"medium",cat:"基础",color:"#c2900a",
-    topics:["监督/无监督/强化学习","特征工程","模型评估(交叉验证)","经典算法(SVM/RF/XGBoost)","过拟合与正则化"],
-    desc:"机器学习理论基础，深度学习的前置知识。"},
-  {id:"dl",name:"深度学习",num:"+",diff:"medium",cat:"基础",color:"#c2900a",
-    topics:["反向传播算法","CNN/RNN/LSTM","优化器(Adam等)","正则化(Dropout/BatchNorm)","PyTorch实战"],
-    desc:"深度学习核心理论与实践。"},
-  {id:"rag-adv",name:"RAG高级模式",num:"+",diff:"hard",cat:"高级",color:"#d44",
-    topics:["GraphRAG(知识图谱)","Agentic RAG","多路检索融合","Self-RAG自适应","Corrective RAG纠错"],
-    desc:"RAG的高级架构模式，提升复杂场景下的表现。"},
-  {id:"startup",name:"创业",num:"+",diff:"medium",cat:"商业",color:"#7c3aed",
-    topics:["AI产品设计方法论","MVP快速验证","商业模式画布","融资与团队","市场定位与增长"],
-    desc:"AI领域的创业方法论与商业思维。"},
-  {id:"finance",name:"金融",num:"+",diff:"medium",cat:"领域",color:"#b45309",
-    topics:["量化交易基础","金融风控模型","NLP在金融中的应用","合规与监管","金融知识图谱"],
-    desc:"AI在金融领域的应用与实践。"},
+  {id:"transformer",name:"Transformer",num:"01",diff:"medium",cat:"Core",topics:["Self-Attention","Multi-Head","Positional Encoding","Encoder-Decoder","Layer Norm"],desc:"The foundation of modern LLMs"},
+  {id:"llm",name:"Large Language Models",num:"02",diff:"hard",cat:"Core",topics:["Pre-training","Fine-tuning","RLHF","Scaling Laws","Emergent Abilities"],desc:"Understanding GPT, Claude, and beyond"},
+  {id:"rag",name:"RAG",num:"03",diff:"medium",cat:"Application",topics:["Retrieval","Chunking","Embedding","Vector DB","Reranking"],desc:"Retrieval-Augmented Generation patterns"},
+  {id:"agents",name:"AI Agents",num:"04",diff:"hard",cat:"Application",topics:["Tool Use","Planning","Memory","Reflection","Multi-Agent"],desc:"Autonomous AI systems"},
+  {id:"prompt",name:"Prompt Engineering",num:"05",diff:"easy",cat:"Skill",topics:["Zero-shot","Few-shot","Chain-of-Thought","Role-playing","Constraints"],desc:"Crafting effective instructions"},
+  {id:"finetuning",name:"Fine-tuning",num:"06",diff:"hard",cat:"Training",topics:["LoRA","QLoRA","PEFT","SFT","DPO"],desc:"Customizing models for specific tasks"},
+  {id:"embeddings",name:"Embeddings",num:"07",diff:"medium",cat:"Foundation",topics:["Word2Vec","Sentence","Multimodal","Dimensionality","Similarity"],desc:"Vector representations of meaning"},
+  {id:"vectordb",name:"Vector Databases",num:"08",diff:"medium",cat:"Infrastructure",topics:["FAISS","Pinecone","Weaviate","Milvus","Qdrant"],desc:"Storing and querying embeddings"},
+  {id:"langchain",name:"LangChain",num:"09",diff:"medium",cat:"Framework",topics:["Chains","Agents","Memory","Callbacks","LCEL"],desc:"Building LLM applications"},
+  {id:"llamaindex",name:"LlamaIndex",num:"10",diff:"medium",cat:"Framework",topics:["Data Connectors","Indexing","Query Engines","Response Synthesis"],desc:"Data framework for LLM apps"},
+  {id:"mlops",name:"MLOps",num:"11",diff:"hard",cat:"Operations",topics:["Experiment Tracking","Model Registry","Deployment","Monitoring","CI/CD"],desc:"Production ML systems"},
+  {id:"multimodal",name:"Multimodal AI",num:"12",diff:"hard",cat:"Advanced",topics:["Vision-Language","Audio","Video","Cross-modal","CLIP"],desc:"Models that see, hear, and speak"},
 ];
 
 const EDGES = [
-  ["nlp","transformer"],["transformer","llm-stack"],["transformer","rag"],
-  ["llm-stack","finetune"],["llm-stack","inference"],["llm-stack","serving"],
-  ["rag","vectordb"],["rag","rag-adv"],["rag","agent"],
-  ["agent","langgraph"],["agent","project"],
-  ["cv","multimodal"],["multimodal","llm-stack"],
-  ["ml","dl"],["ml","nlp"],["dl","transformer"],["dl","cv"],
-  ["finetune","project"],["inference","serving"],
-  ["safety","agent"],["safety","rag"],
-  ["observability","serving"],["observability","agent"],
-  ["database","vectordb"],["database","project"],
-  ["docker","serving"],["docker","inference"],
-  ["interview","nlp"],["interview","transformer"],
-  ["llm-stack","multimodal"],["rag-adv","agent"],
-  ["startup","project"],["finance","project"],
+  ["transformer","llm"],["transformer","embeddings"],["llm","rag"],["llm","agents"],
+  ["llm","finetuning"],["rag","vectordb"],["rag","langchain"],["rag","llamaindex"],
+  ["agents","langchain"],["prompt","agents"],["embeddings","vectordb"],
+  ["finetuning","mlops"],["langchain","agents"],["llamaindex","rag"],
+  ["mlops","finetuning"],["multimodal","llm"],["multimodal","embeddings"],
 ];
 
 const REFS = [
-  {name:"核心公式",id:"formulas",rows:[
-    ["Self-Attention","<code>Attention(Q,K,V) = softmax(QKᵀ/√dₖ)V</code>"],
-    ["位置编码(正弦)","<code>PE(pos,2i) = sin(pos/10000^(2i/d))</code>"],
-    ["RoPE旋转位置编码","<code>q·e^(iθm), k·e^(iθn)</code> — 旋转矩阵编码相对位置"],
-    ["LoRA低秩分解","<code>W' = W + BA</code>, B∈ℝ^(d×r), A∈ℝ^(r×d), r≪d"],
-    ["交叉熵损失","<code>L = -Σ yᵢlog(ŷᵢ)</code>"],
-    ["余弦相似度","<code>sim(a,b) = a·b / (||a||·||b||)</code>"],
-    ["F1 Score","<code>F1 = 2·P·R / (P+R)</code>"],
-    ["Scaling Law","<code>L(N,D,C) ∝ N^(-α) + D^(-β) + C^(-γ)</code>"],
+  {id:"formulas",name:"Key Formulas",rows:[
+    ["Attention","Q·Kᵀ/√dₖ → softmax → ·V"],
+    ["Positional","PE(pos,2i) = sin(pos/10000^(2i/d))"],
+    ["Cosine Sim","cos(θ) = A·B / (||A||·||B||)"],
+    ["Perplexity","PPL = exp(-1/N Σ log P(xᵢ))"],
+    ["LoRA","W = W₀ + BA (rank r << d)"],
   ]},
-  {name:"API模式",id:"api",rows:[
-    ["OpenAI Chat","<code>POST /v1/chat/completions</code> — messages=[{role,content}]"],
-    ["Function Calling","<code>tools=[{type:'function',function:{name,parameters}}]</code>"],
-    ["流式输出","<code>stream:true</code> → SSE (Server-Sent Events)"],
-    ["Embedding","<code>POST /v1/embeddings</code> — input:text → float[]"],
-    ["LangChain LCEL","<code>chain = prompt | llm | parser</code>"],
-    ["LangGraph State","<code>StateGraph(State).add_node().add_edge().compile()</code>"],
-    ["RAG Pipeline","<code>load → split → embed → store → retrieve → generate</code>"],
-    ["vLLM部署","<code>python -m vllm.entrypoints.openai.api_server --model</code>"],
+  {id:"patterns",name:"Common Patterns",rows:[
+    ["RAG Pipeline","Query → Retrieve → Rerank → Generate"],
+    ["Agent Loop","Observe → Think → Act → Repeat"],
+    ["Fine-tune","Base Model + Data → Training → Adapter"],
+    ["Embedding","Text → Tokenize → Model → Vector"],
+    ["Chunking","Document → Split → Overlap → Store"],
   ]},
-  {name:"架构模式",id:"arch",rows:[
-    ["ReAct","思考(Thought) → 行动(Action) → 观察(Observation) 循环"],
-    ["RAG基本流","问题 → 检索 → 拼接上下文 → LLM生成 → 返回"],
-    ["Agentic RAG","Agent判断是否需要检索 → 多轮检索 → 自我修正"],
-    ["Multi-Agent","Supervisor分配任务 → Worker执行 → 聚合结果"],
-    ["Guardrails","输入过滤 → Prompt注入检测 → 输出格式校验 → 内容审核"],
-    ["微调流程","数据准备 → 训练(LoRA) → 评估 → 合并 → 导出 → 部署"],
-    ["部署架构","LB → API Gateway → 推理集群(vLLM) → 监控(可观测性)"],
-    ["知识图谱RAG","文档 → 实体抽取 → 图谱构建 → 子图检索 → LLM生成"],
-  ]},
-  {name:"常用命令",id:"cmd",rows:[
-    ["LoRA微调","<code>python train.py --lora_r 16 --lora_alpha 32 --epochs 3</code>"],
-    ["Docker运行","<code>docker run -d --gpus all -p 8000:8000 vllm/vllm-openai</code>"],
-    ["量化模型","<code>python -m awq.quantize --model_path model --w_bit 4</code>"],
-    ["LangSmith","<code>export LANGCHAIN_TRACING_V2=true LANGCHAIN_API_KEY=...</code>"],
-    ["Milvus","<code>docker compose up -d</code> → <code>pymilvus.connections.connect()</code>"],
-    ["FastAPI部署","<code>uvicorn app:app --host 0.0.0.0 --port 8000</code>"],
-    ["Ollama本地","<code>ollama pull llama3 && ollama serve</code>"],
-    ["Git大文件","<code>git lfs track '*.bin' '*.safetensors'</code>"],
+  {id:"configs",name:"Configuration",rows:[
+    ["LoRA Rank","r=8-64, higher = more capacity"],
+    ["Chunk Size","256-1024 tokens, domain dependent"],
+    ["Temperature","0.0 (deterministic) - 1.0 (creative)"],
+    ["Top-p","0.9-0.95 for balanced sampling"],
+    ["Max Tokens","Model limit: 4k/8k/32k/128k"],
   ]},
 ];
 
 const PATHS = [
-  {name:"AI工程师",id:"ai-eng",steps:[
-    {t:"数学与ML基础",d:"线性代数、概率论、机器学习基本算法",tags:["机器学习","深度学习"]},
-    {t:"NLP与Transformer",d:"分词、词向量、Attention机制、Transformer架构",tags:["NLP基础","Transformer架构"]},
-    {t:"大模型基础",d:"预训练、Tokenization、Scaling Laws、RLHF",tags:["大模型技术栈"]},
-    {t:"RAG应用开发",d:"文档处理、向量检索、Reranking、评估",tags:["RAG技术","向量数据库"]},
-    {t:"Agent与工作流",d:"Function Calling、ReAct、LangGraph编排",tags:["Agent开发","LangGraph"]},
-    {t:"部署与运维",d:"量化、推理引擎、API服务、监控",tags:["LLM推理部署","模型服务与部署","LLM可观测性"]},
-    {t:"项目实战",d:"端到端构建生产级AI应用",tags:["项目实战","Docker"]},
+  {name:"Foundation",id:"foundation",steps:[
+    {t:"Transformer Architecture",d:"Self-attention, positional encoding, layer normalization",tags:["transformer"]},
+    {t:"Embeddings & Vector Spaces",d:"Representing meaning numerically, similarity metrics",tags:["embeddings"]},
+    {t:"Large Language Models",d:"Pre-training, scaling laws, emergent abilities",tags:["llm"]},
+    {t:"Prompt Engineering",d:"Crafting effective instructions for LLMs",tags:["prompt"]},
   ]},
-  {name:"Agent专家",id:"agent-exp",steps:[
-    {t:"LLM基础",d:"理解大模型能力边界与API使用",tags:["大模型技术栈","Transformer架构"]},
-    {t:"工具调用",d:"Function Calling、工具设计、MCP协议",tags:["Agent开发"]},
-    {t:"规划与推理",d:"ReAct、CoT、ToT推理策略",tags:["Agent开发"]},
-    {t:"LangGraph精通",d:"状态图、条件路由、持久化、流式",tags:["LangGraph"]},
-    {t:"高级RAG",d:"Agentic RAG、GraphRAG、自适应检索",tags:["RAG技术","RAG高级模式","向量数据库"]},
-    {t:"多Agent系统",d:"协作模式、任务分配、冲突解决",tags:["Agent开发","LangGraph"]},
-    {t:"安全与生产",d:"Guardrails、可观测性、评估",tags:["AI安全与护栏","LLM可观测性"]},
+  {name:"Application",id:"application",steps:[
+    {t:"RAG Fundamentals",d:"Retrieval patterns, chunking strategies, reranking",tags:["rag"]},
+    {t:"Vector Databases",d:"FAISS, Pinecone, Weaviate for similarity search",tags:["vectordb"]},
+    {t:"LangChain & LlamaIndex",d:"Building LLM-powered applications",tags:["langchain","llamaindex"]},
+    {t:"AI Agents",d:"Tool use, planning, memory, and reflection",tags:["agents"]},
   ]},
-  {name:"微调工程师",id:"finetune-eng",steps:[
-    {t:"深度学习基础",d:"CNN/RNN、优化器、正则化",tags:["深度学习","机器学习"]},
-    {t:"Transformer精通",d:"架构细节、注意力变体、位置编码",tags:["Transformer架构"]},
-    {t:"大模型训练",d:"预训练、分布式训练、混合精度",tags:["大模型技术栈"]},
-    {t:"数据工程",d:"数据收集、清洗、格式化、质量评估",tags:["模型微调"]},
-    {t:"微调实战",d:"LoRA/QLoRA、超参调优、评估",tags:["模型微调"]},
-    {t:"量化与部署",d:"GPTQ/AWQ量化、推理优化",tags:["LLM推理部署","模型服务与部署"]},
-    {t:"评估体系",d:"自动化评估、A/B测试、持续迭代",tags:["LLM可观测性","项目实战"]},
-  ]},
-  {name:"创业技术栈",id:"startup-tech",steps:[
-    {t:"AI基础认知",d:"理解LLM能力与局限，能做技术选型",tags:["大模型技术栈","Transformer架构"]},
-    {t:"快速原型",d:"用LangChain/RAG快速搭建MVP",tags:["RAG技术","LangGraph","Agent开发"]},
-    {t:"产品设计",d:"AI产品方法论、用户体验、商业模式",tags:["创业"]},
-    {t:"领域深耕",d:"选择垂直领域(金融/医疗/教育等)",tags:["金融","面试宝典"]},
-    {t:"工程化",d:"安全、监控、部署、扩展",tags:["AI安全与护栏","LLM可观测性","模型服务与部署"]},
-    {t:"团队与融资",d:"技术团队搭建、融资策略",tags:["创业"]},
-    {t:"规模化",d:"成本优化、多模型管理、国际化",tags:["LLM推理部署","Docker"]},
+  {name:"Advanced",id:"advanced",steps:[
+    {t:"Fine-tuning Techniques",d:"LoRA, QLoRA, PEFT for efficient adaptation",tags:["finetuning"]},
+    {t:"MLOps & Deployment",d:"Production ML systems, monitoring, CI/CD",tags:["mlops"]},
+    {t:"Multimodal AI",d:"Vision-language models, audio, video understanding",tags:["multimodal"]},
+    {t:"System Design",d:"Architecting scalable AI systems",tags:["mlops","agents"]},
   ]},
 ];
 
-// ===== TAB NAVIGATION =====
-document.querySelectorAll('.nav-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
-  });
+const ANALOGIES = [
+  {icon:"lightning",concept:"Attention",title:"Spotlight on Stage",text:"Imagine a theater spotlight that automatically focuses on the most important actor at each moment. Self-attention does exactly this for words—each token 'looks at' all others and decides who deserves focus."},
+  {icon:"database",concept:"Embeddings",title:"GPS Coordinates for Meaning",text:"Just as GPS gives every location a unique coordinate, embeddings give every piece of text a unique 'meaning coordinate.' Similar meanings cluster together in this space."},
+  {icon:"search",concept:"RAG",title:"Open-Book Exam",text:"Instead of memorizing everything (fine-tuning), RAG is like taking an open-book exam—you look up relevant information from your notes before answering each question."},
+  {icon:"cpu",concept:"Agents",title:"Personal Assistant",text:"An AI agent is like a personal assistant: you give it a goal, it breaks it into tasks, uses tools (calculator, search, etc.), and reports back with results."},
+  {icon:"layers",concept:"LoRA",title:"Adding a Lens",text:"Fine-tuning with LoRA is like adding a special lens to a camera—you don't rebuild the whole camera, just attach a small adapter that changes how it focuses."},
+  {icon:"git-branch",concept:"Vector DB",title:"Library Index System",text:"A vector database is like a library's card catalog, but instead of organizing by title or author, it organizes by meaning—books about similar topics sit near each other."},
+];
+
+const COMPARISONS = [
+  {title:"Fine-tuning vs RAG vs Prompt Engineering",headers:["Approach","Best For","Cost","Data Needed","Latency"],rows:[
+    ["Prompt Engineering","Quick prototyping, simple tasks","None","None","Low"],
+    ["RAG","Knowledge-intensive, dynamic info","Low","Documents","Medium"],
+    ["Fine-tuning","Domain-specific, consistent style","High","Labeled pairs","Low"],
+  ]},
+  {title:"Vector Database Comparison",headers:["Database","Type","Scalability","Ease of Use","Cost"],rows:[
+    ["FAISS","Library","High","Medium","Free"],
+    ["Pinecone","Managed","Very High","Easy","Paid"],
+    ["Weaviate","Self-hosted","High","Medium","Free/Paid"],
+    ["Milvus","Distributed","Very High","Complex","Free"],
+    ["Qdrant","Self-hosted","High","Easy","Free/Paid"],
+  ]},
+  {title:"Agent Framework Comparison",headers:["Framework","Complexity","Flexibility","Community","Best For"],rows:[
+    ["LangChain","Medium","High","Large","General purpose"],
+    ["LlamaIndex","Low","Medium","Growing","RAG-focused"],
+    ["AutoGen","High","Very High","Medium","Multi-agent"],
+    ["CrewAI","Medium","High","Growing","Team workflows"],
+  ]},
+];
+
+const ONELINES = [
+  {text:"Transformer: Attention mechanism that revolutionized NLP by letting models focus on relevant parts of input."},
+  {text:"LLMs: Neural networks trained on vast text data that can generate, reason, and understand language."},
+  {text:"RAG: Combining retrieval with generation to answer questions using up-to-date external knowledge."},
+  {text:"AI Agents: Systems that can plan, use tools, and iterate to accomplish complex goals autonomously."},
+  {text:"Prompt Engineering: The art of crafting instructions that guide LLMs to produce desired outputs."},
+  {text:"Fine-tuning: Adapting pre-trained models to specific tasks with additional training data."},
+  {text:"Embeddings: Dense vector representations that capture semantic meaning in continuous space."},
+  {text:"Vector DB: Specialized databases optimized for storing and similarity-searching embeddings."},
+  {text:"LangChain: Framework for building applications powered by language models."},
+  {text:"LlamaIndex: Data framework for connecting custom data sources to LLMs."},
+  {text:"MLOps: Practices for deploying and maintaining ML models in production reliably."},
+  {text:"Multimodal AI: Models that process and generate across text, images, audio, and video."},
+];
+
+// ═══ STATE ═══
+let currentSection = 'graph';
+let progress = JSON.parse(localStorage.getItem('kh-progress') || '{}');
+let focusMode = false;
+
+// ═══ NAVIGATION ═══
+function switchSection(sectionId) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  
+  const section = document.getElementById('sec-' + sectionId);
+  const tab = document.querySelector(`[data-section="${sectionId}"]`);
+  
+  if (section) section.classList.add('active');
+  if (tab) tab.classList.add('active');
+  
+  currentSection = sectionId;
+  localStorage.setItem('kh-section', sectionId);
+}
+
+document.getElementById('navTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.nav-tab');
+  if (tab) switchSection(tab.dataset.section);
 });
 
-// ===== KNOWLEDGE GRAPH =====
-(function(){
+// ═══ KNOWLEDGE GRAPH ═══
+function renderGraph() {
   const svg = document.getElementById('graphSvg');
   const tooltip = document.getElementById('tooltip');
-  const W = 1400, H = 600;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-
-  const positions = {};
-  const cx = W/2, cy = H/2;
-  const layers = [
-    {ids:['ml','database','docker'],y:80},
-    {ids:['dl','nlp'],y:170},
-    {ids:['cv','transformer','vectordb'],y:270},
-    {ids:['llm-stack','rag','interview'],y:370},
-    {ids:['finetune','agent','inference','observability','multimodal','rag-adv'],y:460},
-    {ids:['langgraph','safety','serving','project'],y:550},
-    {ids:['startup','finance'],y:560},
-  ];
-  layers.forEach(layer => {
-    const n = layer.ids.length;
-    layer.ids.forEach((id, i) => {
-      const d = DOMAINS.find(d => d.id === id);
-      positions[id] = {x: (W/(n+1))*(i+1), y: layer.y, data: d};
+  const titleEl = document.getElementById('tooltipTitle');
+  const descEl = document.getElementById('tooltipDesc');
+  
+  const width = 800;
+  const height = 500;
+  const padding = 60;
+  
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  
+  // Force-directed layout simulation
+  const nodes = DOMAINS.map((d, i) => ({
+    ...d,
+    x: padding + (width - 2 * padding) * (i % 4) / 3,
+    y: padding + (height - 2 * padding) * Math.floor(i / 4) / 2,
+    vx: 0,
+    vy: 0
+  }));
+  
+  const nodeMap = {};
+  nodes.forEach(n => nodeMap[n.id] = n);
+  
+  // Simple force simulation
+  for (let iter = 0; iter < 100; iter++) {
+    // Repulsion
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[j].x - nodes[i].x;
+        const dy = nodes[j].y - nodes[i].y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const force = 500 / (dist * dist);
+        nodes[i].vx -= force * dx / dist;
+        nodes[i].vy -= force * dy / dist;
+        nodes[j].vx += force * dx / dist;
+        nodes[j].vy += force * dy / dist;
+      }
+    }
+    
+    // Attraction along edges
+    EDGES.forEach(([from, to]) => {
+      const a = nodeMap[from];
+      const b = nodeMap[to];
+      if (!a || !b) return;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+      const force = (dist - 150) * 0.01;
+      a.vx += force * dx / dist;
+      a.vy += force * dy / dist;
+      b.vx -= force * dx / dist;
+      b.vy -= force * dy / dist;
     });
-  });
-
-  const jitter = {rag:-40,agent:50,finetune:-60,inference:30,multimodal:-20,'rag-adv':60,safety:-30,serving:40,project:-10,startup:-50,finance:50};
-  Object.keys(jitter).forEach(k => { if(positions[k]) positions[k].x += jitter[k]; });
-
-  EDGES.forEach(([from, to]) => {
-    if(!positions[from] || !positions[to]) return;
-    const line = document.createElementNS('http://www.w3.org/2000/svg','path');
-    const x1=positions[from].x, y1=positions[from].y, x2=positions[to].x, y2=positions[to].y;
-    const mx = (x1+x2)/2, my = (y1+y2)/2 - 30;
-    line.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
-    line.setAttribute('class','graph-edge');
-    svg.appendChild(line);
-  });
-
-  DOMAINS.forEach(d => {
-    const p = positions[d.id];
-    if(!p) return;
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('class','graph-node');
-    g.setAttribute('transform',`translate(${p.x},${p.y})`);
-
-    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('r', d.num === '+' ? 20 : 26);
-    circle.setAttribute('class','node-circle');
-    circle.setAttribute('fill', d.color + '18');
-    circle.setAttribute('stroke', d.color);
-    circle.setAttribute('stroke-width','1.5');
-    g.appendChild(circle);
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
-    text.setAttribute('class','node-label');
-    text.setAttribute('dy','4');
-    text.textContent = d.name.length > 5 ? d.name.slice(0,5)+'…' : d.name;
-    g.appendChild(text);
-
-    g.addEventListener('mouseenter', e => {
-      tooltip.innerHTML = `<strong>${d.name}</strong><br><span style="color:${d.color}">${d.diff}</span> · ${d.cat}<br><br>${d.desc}`;
-      tooltip.classList.add('show');
+    
+    // Center gravity
+    nodes.forEach(n => {
+      n.vx += (width / 2 - n.x) * 0.001;
+      n.vy += (height / 2 - n.y) * 0.001;
     });
-    g.addEventListener('mousemove', e => {
-      const rect = document.getElementById('graphBox').getBoundingClientRect();
-      tooltip.style.left = (e.clientX - rect.left + 16) + 'px';
-      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
-    });
-    g.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
-
-    svg.appendChild(g);
-  });
-})();
-
-// ===== CONCEPT CARDS =====
-(function(){
-  const grid = document.getElementById('cardsGrid');
-  DOMAINS.forEach(d => {
-    const diffClass = d.diff === 'easy' ? 'diff-easy' : d.diff === 'medium' ? 'diff-medium' : 'diff-hard';
-    const diffLabel = {easy:'入门',medium:'进阶',hard:'高级'}[d.diff];
-    grid.innerHTML += `
-      <div class="card">
-        <div class="card-inner">
-          <div class="card-front">
-            <div class="card-num">${d.num === '+' ? 'EXTRA' : '#'+d.num}</div>
-            <div class="card-name">${d.name}</div>
-            <span class="card-diff ${diffClass}">${diffLabel} · ${d.cat}</span>
-            <div class="card-topics">${d.topics.slice(0,3).join(' · ')}</div>
-          </div>
-          <div class="card-back">
-            <div class="card-back-title">${d.name} 核心要点</div>
-            <ul>${d.topics.map(t => `<li>${t}</li>`).join('')}</ul>
-          </div>
-        </div>
-      </div>`;
-  });
-})();
-
-// ===== QUICK REF =====
-(function(){
-  const tabs = document.getElementById('refTabs');
-  const contents = document.getElementById('refContents');
-  REFS.forEach((ref, i) => {
-    tabs.innerHTML += `<button class="ref-tab ${i===0?'active':''}" data-ref="${ref.id}">${ref.name}</button>`;
-    contents.innerHTML += `<div class="ref-content ${i===0?'active':''}" id="ref-${ref.id}">
-      <table class="ref-table"><thead><tr><th style="width:180px">概念</th><th>说明 / 代码</th></tr></thead>
-      <tbody>${ref.rows.map(r => `<tr><td><strong>${r[0]}</strong></td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>`;
-  });
-  tabs.addEventListener('click', e => {
-    if(!e.target.classList.contains('ref-tab')) return;
-    tabs.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
-    contents.querySelectorAll('.ref-content').forEach(c => c.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById('ref-'+e.target.dataset.ref).classList.add('active');
-  });
-})();
-
-// ===== LEARNING PATHS =====
-(function(){
-  const sel = document.getElementById('pathSelector');
-  const flows = document.getElementById('pathFlows');
-  PATHS.forEach((p, i) => {
-    sel.innerHTML += `<button class="path-btn ${i===0?'active':''}" data-path="${p.id}">${p.name}</button>`;
-    flows.innerHTML += `<div class="path-flow ${i===0?'active':''}" id="path-${p.id}">
-      <div class="path-steps">${p.steps.map(s => `
-        <div class="path-step">
-          <div class="path-step-title">${s.t}</div>
-          <div class="path-step-desc">${s.d}</div>
-          <div class="path-step-tags">${s.tags.map(t=>`<span class="path-tag">${t}</span>`).join('')}</div>
-        </div>`).join('')}</div></div>`;
-  });
-  sel.addEventListener('click', e => {
-    if(!e.target.classList.contains('path-btn')) return;
-    sel.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
-    flows.querySelectorAll('.path-flow').forEach(f => f.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById('path-'+e.target.dataset.path).classList.add('active');
-  });
-})();
-
-// ===== PROGRESS TRACKER =====
-(function(){
-  const KEY = 'ai-kb-progress';
-  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
-  const stats = document.getElementById('progStats');
-  const list = document.getElementById('progList');
-
-  function render(){
-    const total = DOMAINS.length;
-    const done = DOMAINS.filter(d => saved[d.id]).length;
-    const pct = Math.round(done/total*100);
-    stats.innerHTML = `
-      <div><div class="stat"><div class="stat-val">${done}/${total}</div><div class="stat-label">已完成</div></div></div>
-      <div><div class="stat"><div class="stat-val">${pct}%</div><div class="stat-label">完成率</div></div></div>
-      <div style="flex:1"><div class="stat"><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div><div class="stat-label">总体进度</div></div></div>`;
-
-    list.innerHTML = '';
-    DOMAINS.forEach(d => {
-      list.innerHTML += `
-        <div class="prog-item">
-          <div class="prog-check ${saved[d.id]?'checked':''}" data-id="${d.id}"></div>
-          <div><div class="prog-name">${d.name}</div><div class="prog-cat">${d.cat} · ${d.diff === 'easy' ? '入门' : d.diff === 'medium' ? '进阶' : '高级'}</div></div>
-        </div>`;
-    });
-
-    list.querySelectorAll('.prog-check').forEach(el => {
-      el.addEventListener('click', () => {
-        const id = el.dataset.id;
-        if(saved[id]) delete saved[id]; else saved[id] = true;
-        localStorage.setItem(KEY, JSON.stringify(saved));
-        render();
-      });
+    
+    // Update positions
+    nodes.forEach(n => {
+      n.vx *= 0.9;
+      n.vy *= 0.9;
+      n.x = Math.max(padding, Math.min(width - padding, n.x + n.vx));
+      n.y = Math.max(padding, Math.min(height - padding, n.y + n.vy));
     });
   }
-  render();
-})();
-
-// ===== ANALOGY EXPLANATIONS =====
-(function(){
-  const grid = document.getElementById('analogyGrid');
-  const analogies = [
-    {c:"Transformer",a:"工厂流水线",e:"想象一条工厂流水线：每个工人(Attention Head)同时检查所有零件(输入token)，找出最重要的组合关系。Self-Attention就是让每个词去'看'所有其他词，决定该重点关注谁。",icon:"⚙"},
-    {c:"RAG",a:"开卷考试",e:"LLM是闭卷考生(只靠记忆)，RAG给它配了一本参考书(知识库)。答题前先翻书找相关内容(检索)，再结合自己的理解作答(生成)。书可以随时更新，不用重新培训考生。",icon:"◈"},
-    {c:"Agent",a:"项目经理",e:"Agent就像一个项目经理：接到任务后拆解子任务(规划)、分配给合适的工具执行(工具调用)、检查结果是否合格(反思)、不满意就重新做(迭代)。LLM是它的大脑，工具是它的手脚。",icon:"◆"},
-    {c:"Fine-tuning",a:"岗前培训",e:"通用LLM是大学毕业生(什么都会一点)，Fine-tuning是岗前培训——用特定领域的教材(训练数据)强化训练，让它成为某个领域的专家。LoRA就像只培训它的'副脑'，成本低见效快。",icon:"◇"},
-    {c:"向量数据库",a:"图书馆索引",e:"传统数据库按书名/ISBN查找(关键词匹配)，向量数据库按'内容相似度'查找——你说'关于勇气的故事'，它能找出《老人与海》，即使书名里没有'勇气'二字。Embedding就是给每本书生成一个'内容DNA'。",icon:"▦"},
-    {c:"LangGraph",a:"流程图执行器",e:"LangGraph就像一个智能流程图执行器：每个方框(节点)是一个任务，箭头(边)决定下一步去哪。支持条件分支('如果结果不好就重做')、并行('同时做A和B')、循环('反复优化直到满意')。",icon:"⬡"},
-    {c:"Embedding",a:"DNA序列",e:"Embedding是文本的'DNA'——把一段文字变成一串数字向量。意思相近的文字，DNA也相似('国王'和'女王'的DNA很接近)。有了DNA就能计算任意两段文字的'亲缘关系'。",icon:"◎"},
-    {c:"Attention",a:"聚光灯",e:"读一句话时，你的大脑会自动聚焦重要的词。Attention机制就是给模型装了聚光灯——处理'苹果发布了新手机'时，灯光会聚焦在'苹果'和'手机'上，而不是'了'和'新'。Multi-Head就是多盏灯从不同角度照。",icon:"◉"},
-    {c:"LoRA",a:"副驾驶",e:"大模型是一辆卡车(参数巨大)，LoRA是在卡车上加一个小小的'副驾驶方向盘'(低秩矩阵)。只需训练这个小方向盘就能改变卡车的行驶方向，而不用重新造一辆卡车。参数量从百亿降到百万级。",icon:"▸"},
-    {c:"Prompt Engineering",a:"下达指令",e:"同一个员工，你给他模糊指令('做个东西')和精确指令('用React做一个登录页，要求邮箱验证+记住密码')，产出天差地别。Prompt Engineering就是学会给AI下达精确指令的技巧。",icon:"✎"},
-    {c:"量化",a:"图片压缩",e:"模型量化就像把高清图(32位浮点)压缩成缩略图(4位整数)——文件小了很多，加载快了很多，画质略有损失但大多数场景够用。INT4量化能让7B模型从14GB缩小到4GB，一张消费级显卡就能跑。",icon:"⊞"},
-    {c:"RLHF",a:"师傅带徒弟",e:"RLHF训练分三步：1)徒弟先自学(预训练)；2)师傅给徒弟的作业打分(训练奖励模型)；3)徒弟根据师傅的偏好调整写法(强化学习)。就像学写作——先大量阅读，再让编辑给反馈，最后按编辑口味改稿。",icon:"◈"},
-    {c:"向量检索",a:"找相似照片",e:"你在手机相册搜'海滩'，它不是靠文件名找的——而是把每张照片编码成向量，计算和'海滩'这个词向量的距离。距离越近越相似。向量检索就是这个原理，只不过用在文本上。",icon:"◎"},
-    {c:"ReAct",a:"边想边做",e:"ReAct模式就像一个经验丰富的工人：先想(Thought:这个问题需要查资料)→再做(Action:搜索关键词)→看结果(Observation:找到了3条信息)→继续想(Thought:信息够了，可以回答了)。思考和行动交替进行。",icon:"⟳"},
-    {c:"Guardrails",a:"安检门",e:"AI Guardrails就像机场安检：用户输入要过'入口安检'(检测注入攻击/有害内容)，AI输出要过'出口安检'(检测泄露隐私/有害建议)。不合格的直接拦截，合格的放行。可配置不同严格级别。",icon:"⊟"},
-    {c:"多模态",a:"五感通才",e:"早期AI只处理文字(只会听)，多模态AI同时理解文字+图片+音频+视频(听+看+读)。就像一个全能翻译，能听懂对话、看懂图表、读懂文档，然后综合所有信息给出答案。GPT-4V就是典型代表。",icon:"⊡"},
-  ];
-  grid.innerHTML = analogies.map(a => `
-    <div class="analogy-card">
-      <div class="analogy-header">
-        <div class="analogy-icon">${a.icon}</div>
-        <div><div class="analogy-concept">${a.c}</div><div class="analogy-title">好比「${a.a}」</div></div>
-      </div>
-      <div class="analogy-body">
-        <div class="analogy-text">${a.e}</div>
-      </div>
-    </div>
-  `).join('');
-})();
-
-// ===== COMPARISON TABLES =====
-(function(){
-  const box = document.getElementById('compareContent');
-  const tables = [
-    {title:"RAG vs Fine-tuning：什么时候用哪个？",
-     cols:["维度","RAG","Fine-tuning"],
-     rows:[
-       ["核心思路","外挂知识库，检索+生成","修改模型权重，内化知识"],
-       ["适用场景","知识频繁更新、需要引用来源","特定风格/格式、领域术语"],
-       ["数据需求","文档集(无需标注)","标注数据(指令-回答对)"],
-       ["成本","低(只需向量库)","中高(需GPU训练)"],
-       ["更新方式","替换文档即可，即时生效","需重新训练，耗时数小时"],
-       ["幻觉控制","好(有明确来源)","中(可能编造)"],
-       ["推荐组合","先RAG验证效果 → 不够再Fine-tune","RAG+Fine-tune组合效果最佳"],
-     ]},
-    {title:"Agent架构模式对比",
-     cols:["模式","工作方式","适用场景","复杂度"],
-     rows:[
-       ["ReAct","思考→行动→观察，单步循环","简单问答、工具调用","中"],
-       ["Plan-and-Execute","先规划全部步骤，再逐步执行","复杂多步任务","中高"],
-       ["Reflexion","执行→自我反思→改进→重试","需要高质量输出","中高"],
-       ["Multi-Agent","多个专业Agent协作","大型复杂系统","高"],
-       ["Hierarchical","管理者Agent分配任务给工人Agent","团队协作场景","极高"],
-     ]},
-    {title:"向量数据库选型对比",
-     cols:["数据库","性能","易用性","部署方式","适合场景"],
-     rows:[
-       ["Chroma","中","高","嵌入式/Server","原型开发、小规模"],
-       ["Qdrant","高","中高","Docker/Cloud","中大规模生产"],
-       ["Milvus","极高","中","分布式集群","超大规模(亿级)"],
-       ["FAISS","极高","低","库(无服务)","纯检索、研究用"],
-       ["Pinecone","高","高","SaaS全托管","不想运维、快速上线"],
-       ["Weaviate","高","中高","Docker/Cloud","需要混合搜索"],
-     ]},
-    {title:"Fine-tuning方法对比",
-     cols:["方法","参数量","显存需求","训练速度","效果"],
-     rows:[
-       ["Full Fine-tuning","100%","极高(>80GB)","慢","最佳"],
-       ["LoRA","0.1-1%","中(16-24GB)","快","接近Full"],
-       ["QLoRA","0.1-1%","低(6-12GB)","快","接近LoRA"],
-       ["Prefix Tuning","<1%","低","极快","中等"],
-       ["Adapter","1-5%","中","中","接近Full"],
-     ]},
-  ];
-  box.innerHTML = tables.map(t => `
-    <div class="compare-block">
-      <h3 class="compare-title">${t.title}</h3>
-      <div class="compare-scroll"><table class="ref-table">
-        <thead><tr>${t.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
-        <tbody>${t.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
-      </table></div>
-    </div>
-  `).join('');
-})();
-
-// ===== CONCEPT RELATIONSHIP MAP =====
-(function(){
-  const svg = document.getElementById('relSvg');
-  const info = document.getElementById('relInfo');
-  const W=1200,H=500;
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-  const deps = {
-    nlp:{pre:["ml"],rel:["transformer","rag"]},
-    transformer:{pre:["nlp"],rel:["llm-stack","attention"]},
-    "llm-stack":{pre:["transformer"],rel:["finetune","inference","rlhf"]},
-    rag:{pre:["nlp","vectordb"],rel:["rag-adv","agent"]},
-    agent:{pre:["llm-stack"],rel:["langgraph","rag"]},
-    langgraph:{pre:["agent"],rel:["project"]},
-    finetune:{pre:["llm-stack"],rel:["inference","serving"]},
-    vectordb:{pre:["dl"],rel:["rag","rag-adv"]},
-    inference:{pre:["llm-stack"],rel:["serving","safety"]},
-    observability:{pre:["inference"],rel:["serving"]},
-    safety:{pre:["llm-stack"],rel:["observability"]},
-    serving:{pre:["inference"],rel:["observability"]},
-    multimodal:{pre:["transformer","cv"],rel:["llm-stack"]},
-    "rag-adv":{pre:["rag","agent"],rel:["langgraph"]},
-    cv:{pre:["dl"],rel:["multimodal"]},
-    dl:{pre:["ml"],rel:["nlp","cv"]},
-    ml:{pre:[],rel:["dl","nlp"]},
-    database:{pre:[],rel:["vectordb"]},
-    docker:{pre:[],rel:["serving","observability"]},
-    interview:{pre:["llm-stack"],rel:["project"]},
-    project:{pre:["rag","agent","langgraph"],rel:["startup"]},
-    startup:{pre:["project"],rel:["finance"]},
-    finance:{pre:["ml"],rel:["startup"]},
-  };
-  const keys = Object.keys(deps);
-  const pos = {};
-  keys.forEach((k,i) => {
-    const angle = (i/keys.length)*Math.PI*2 - Math.PI/2;
-    const r = 200;
-    pos[k] = {x: W/2 + r*Math.cos(angle), y: H/2 + r*Math.sin(angle)};
+  
+  // Render edges
+  EDGES.forEach(([from, to]) => {
+    const a = nodeMap[from];
+    const b = nodeMap[to];
+    if (!a || !b) return;
+    
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('class', 'graph-edge');
+    svg.appendChild(line);
   });
-  const drawn = new Set();
-  Object.entries(deps).forEach(([k,v])=>{
-    [...v.pre,...v.rel].forEach(t=>{
-      if(!pos[t]) return;
-      const key = [k,t].sort().join('-');
-      if(drawn.has(key)) return;
-      drawn.add(key);
-      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
-      line.setAttribute('x1',pos[k].x);line.setAttribute('y1',pos[k].y);
-      line.setAttribute('x2',pos[t].x);line.setAttribute('y2',pos[t].y);
-      line.setAttribute('class','rel-edge');
-      line.dataset.from=k;line.dataset.to=t;
-      svg.appendChild(line);
+  
+  // Render nodes
+  nodes.forEach(node => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'graph-node');
+    g.setAttribute('transform', `translate(${node.x},${node.y})`);
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', 28);
+    circle.setAttribute('class', 'node-bg');
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('class', 'node-label');
+    text.textContent = node.name.length > 10 ? node.name.slice(0, 9) + '…' : node.name;
+    
+    g.appendChild(circle);
+    g.appendChild(text);
+    
+    g.addEventListener('mouseenter', e => {
+      titleEl.textContent = node.name;
+      descEl.textContent = node.desc;
+      tooltip.classList.add('show');
     });
-  });
-  keys.forEach(k=>{
-    const d = DOMAINS.find(dd=>dd.id===k);
-    if(!d||!pos[k]) return;
-    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-    g.setAttribute('transform',`translate(${pos[k].x},${pos[k].y})`);
-    g.setAttribute('class','rel-node');
-    g.dataset.id=k;
-    const c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('r',18);c.setAttribute('fill',d.color+'22');c.setAttribute('stroke',d.color);c.setAttribute('stroke-width','1.5');
-    g.appendChild(c);
-    const t = document.createElementNS('http://www.w3.org/2000/svg','text');
-    t.setAttribute('class','node-label');t.setAttribute('dy','4');
-    t.textContent=d.name.length>4?d.name.slice(0,4)+'…':d.name;
-    g.appendChild(t);
-    g.addEventListener('click',()=>{
-      svg.querySelectorAll('.rel-node circle').forEach(c=>c.setAttribute('fill',c.getAttribute('stroke')+'22'));
-      svg.querySelectorAll('.rel-edge').forEach(e=>e.setAttribute('class','rel-edge'));
-      const dep=deps[k];
-      c.setAttribute('fill',d.color+'66');
-      dep.pre.forEach(p=>{
-        const pn=svg.querySelector(`.rel-node[data-id="${p}"] circle`);
-        if(pn)pn.setAttribute('fill','#2d9d4e66');
-      });
-      dep.rel.forEach(r=>{
-        const rn=svg.querySelector(`.rel-node[data-id="${r}"] circle`);
-        if(rn)rn.setAttribute('fill','#0989a666');
-      });
-      svg.querySelectorAll('.rel-edge').forEach(e=>{
-        if(e.dataset.from===k||e.dataset.to===k) e.setAttribute('class','rel-edge active');
-      });
-      const preNames=dep.pre.map(p=>DOMAINS.find(dd=>dd.id===p)?.name||p);
-      const relNames=dep.rel.map(r=>DOMAINS.find(dd=>dd.id===r)?.name||r);
-      info.style.display='block';
-      info.innerHTML=`<div style="margin-bottom:8px"><strong>${d.name}</strong></div>
-        <div style="margin-bottom:4px"><span style="color:var(--green)">● 前置知识：</span>${preNames.join('、')||'无'}</div>
-        <div><span style="color:var(--cyan)">● 关联概念：</span>${relNames.join('、')||'无'}</div>`;
+    
+    g.addEventListener('mousemove', e => {
+      const rect = document.getElementById('graphBox').getBoundingClientRect();
+      tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
+      tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
     });
+    
+    g.addEventListener('mouseleave', () => {
+      tooltip.classList.remove('show');
+    });
+    
     svg.appendChild(g);
   });
-})();
+}
 
-// ===== ONE-LINE SUMMARIES =====
-(function(){
-  const grid = document.getElementById('onelineGrid');
-  const lines = [
-    {n:"NLP基础",s:"让机器理解人类语言的桥梁",c:"#2d9d4e"},
-    {n:"Transformer",s:"注意力机制让模型学会'重点看哪里'",c:"#0075de"},
-    {n:"大模型技术栈",s:"从预训练到对齐，造出一个'通才'",c:"#d44"},
-    {n:"RAG",s:"给LLM配一个可随时更新的参考资料库",c:"#0989a6"},
-    {n:"Agent",s:"让LLM学会用工具、做计划、反思改进",c:"#b45309"},
-    {n:"LangGraph",s:"用状态图编排复杂的AI工作流",c:"#7c3aed"},
-    {n:"模型微调",s:"用少量数据把通才训练成领域专家",c:"#d44"},
-    {n:"计算机视觉",s:"让机器'看懂'图片和视频",c:"#0989a6"},
-    {n:"面试宝典",s:"大模型面试的核心考点速查",c:"#b45309"},
-    {n:"项目实战",s:"把知识变成可运行的产品",c:"#2d9d4e"},
-    {n:"多模态",s:"文字+图片+音频，AI的五感融合",c:"#7c3aed"},
-    {n:"推理部署",s:"让大模型跑得快、跑得省",c:"#d44"},
-    {n:"向量数据库",s:"按语义相似度查找，而非关键词匹配",c:"#0989a6"},
-    {n:"可观测性",s:"给AI系统装上仪表盘和黑匣子",c:"#c2900a"},
-    {n:"AI安全",s:"给AI装上安检门，防注入防泄露",c:"#b45309"},
-    {n:"模型服务",s:"把模型包装成API，稳定对外提供服务",c:"#d44"},
-    {n:"Docker",s:"把应用和环境打包，到处都能跑",c:"#2d9d4e"},
-    {n:"数据库",s:"数据的仓库管理系统",c:"#2d9d4e"},
-    {n:"机器学习",s:"从数据中自动发现规律的算法",c:"#c2900a"},
-    {n:"深度学习",s:"用多层神经网络学习复杂模式",c:"#c2900a"},
-    {n:"RAG高级",s:"从基础检索升级到智能检索",c:"#0989a6"},
-    {n:"创业",s:"把技术变成商业价值的路径",c:"#7c3aed"},
-    {n:"金融",s:"AI在金融领域的垂直应用",c:"#b45309"},
-  ];
-  grid.innerHTML = lines.map(l=>`
-    <div class="oneline-card" style="border-left:3px solid ${l.c}">
-      <div class="oneline-name" style="color:${l.c}">${l.n}</div>
-      <div class="oneline-text">${l.s}</div>
+// ═══ CONCEPT CARDS ═══
+function renderCards() {
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = DOMAINS.map(d => `
+    <div class="card">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="card-id">${d.num}</div>
+          <div class="card-name">${d.name}</div>
+          <span class="card-badge badge-${d.diff}">${d.diff}</span>
+          <div class="card-topics">${d.topics.slice(0, 3).join(' · ')}</div>
+        </div>
+        <div class="card-back">
+          <div class="card-back-title">${d.name}</div>
+          <ul>${d.topics.map(t => `<li>${t}</li>`).join('')}</ul>
+        </div>
+      </div>
     </div>
   `).join('');
-})();
+}
+
+// ═══ QUICK REFERENCE ═══
+function renderReference() {
+  const tabs = document.getElementById('refTabs');
+  const contents = document.getElementById('refContents');
+  
+  tabs.innerHTML = REFS.map((r, i) => `
+    <button class="ref-tab${i === 0 ? ' active' : ''}" data-ref="${r.id}">${r.name}</button>
+  `).join('');
+  
+  contents.innerHTML = REFS.map((r, i) => `
+    <div class="ref-content${i === 0 ? ' active' : ''}" id="ref-${r.id}">
+      <table class="ref-table">
+        <thead><tr><th>Concept</th><th>Details</th></tr></thead>
+        <tbody>${r.rows.map(([k, v]) => `
+          <tr><td><strong>${k}</strong></td><td><code>${v}</code></td></tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  `).join('');
+  
+  tabs.addEventListener('click', e => {
+    const tab = e.target.closest('.ref-tab');
+    if (!tab) return;
+    
+    tabs.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
+    contents.querySelectorAll('.ref-content').forEach(c => c.classList.remove('active'));
+    
+    tab.classList.add('active');
+    document.getElementById('ref-' + tab.dataset.ref).classList.add('active');
+  });
+}
+
+// ═══ LEARNING PATHS ═══
+function renderPaths() {
+  const selector = document.getElementById('pathSelector');
+  const flows = document.getElementById('pathFlows');
+  
+  selector.innerHTML = PATHS.map((p, i) => `
+    <button class="path-btn${i === 0 ? ' active' : ''}" data-path="${p.id}">${p.name}</button>
+  `).join('');
+  
+  flows.innerHTML = PATHS.map((p, i) => `
+    <div class="path-flow${i === 0 ? ' active' : ''}" id="path-${p.id}">
+      <div class="path-steps">
+        ${p.steps.map(s => `
+          <div class="path-step${progress[s.tags[0]] ? ' done' : ''}">
+            <div class="path-step-title">${s.t}</div>
+            <div class="path-step-desc">${s.d}</div>
+            <div class="path-step-tags">
+              ${s.tags.map(t => `<span class="path-tag">${t}</span>`).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  selector.addEventListener('click', e => {
+    const btn = e.target.closest('.path-btn');
+    if (!btn) return;
+    
+    selector.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
+    flows.querySelectorAll('.path-flow').forEach(f => f.classList.remove('active'));
+    
+    btn.classList.add('active');
+    document.getElementById('path-' + btn.dataset.path).classList.add('active');
+  });
+}
+
+// ═══ PROGRESS TRACKER ═══
+function renderProgress() {
+  const stats = document.getElementById('progStats');
+  const bar = document.getElementById('progBar');
+  const list = document.getElementById('progList');
+  
+  const total = DOMAINS.length;
+  const completed = Object.values(progress).filter(Boolean).length;
+  const pct = Math.round((completed / total) * 100);
+  
+  stats.innerHTML = `
+    <div class="stat">
+      <div class="stat-value">${completed}/${total}</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">${pct}%</div>
+      <div class="stat-label">Progress</div>
+    </div>
+  `;
+  
+  bar.style.width = pct + '%';
+  
+  list.innerHTML = DOMAINS.map(d => `
+    <div class="prog-item">
+      <div class="prog-check${progress[d.id] ? ' checked' : ''}" data-id="${d.id}"></div>
+      <div>
+        <div class="prog-name">${d.name}</div>
+        <div class="prog-cat">${d.cat} · ${d.diff}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  list.addEventListener('click', e => {
+    const check = e.target.closest('.prog-check');
+    if (!check) return;
+    
+    const id = check.dataset.id;
+    progress[id] = !progress[id];
+    localStorage.setItem('kh-progress', JSON.stringify(progress));
+    renderProgress();
+    renderPaths();
+  });
+}
+
+// ═══ ANALOGY CARDS ═══
+function renderAnalogies() {
+  const grid = document.getElementById('analogyGrid');
+  const iconMap = {
+    lightning: '<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>',
+    database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>',
+    cpu: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+    layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+    'git-branch': '<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
+  };
+  
+  grid.innerHTML = ANALOGIES.map(a => `
+    <div class="analogy-card">
+      <div class="analogy-header">
+        <div class="analogy-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            ${iconMap[a.icon] || iconMap.lightning}
+          </svg>
+        </div>
+        <div>
+          <div class="analogy-concept">${a.concept}</div>
+          <div class="analogy-title">${a.title}</div>
+        </div>
+      </div>
+      <div class="analogy-body">
+        <div class="analogy-text">${a.text}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ═══ COMPARISON TABLES ═══
+function renderComparisons() {
+  const container = document.getElementById('compareContent');
+  container.innerHTML = COMPARISONS.map(c => `
+    <div class="comp-section">
+      <h3 class="comp-title">${c.title}</h3>
+      <table class="comp-table">
+        <thead><tr>${c.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${c.rows.map(row => `
+          <tr>${row.map((cell, i) => `<td${i === 0 ? ' class="dim-label"' : ''}>${cell}</td>`).join('')}</tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  `).join('');
+}
+
+// ═══ RELATIONSHIP MAP ═══
+function renderRelations() {
+  const svg = document.getElementById('relSvg');
+  const info = document.getElementById('relInfo');
+  
+  const width = 800;
+  const height = 450;
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = 160;
+  
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  
+  const positions = {};
+  DOMAINS.forEach((d, i) => {
+    const angle = (i / DOMAINS.length) * Math.PI * 2 - Math.PI / 2;
+    positions[d.id] = {
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle)
+    };
+  });
+  
+  // Render edges
+  EDGES.forEach(([from, to]) => {
+    const a = positions[from];
+    const b = positions[to];
+    if (!a || !b) return;
+    
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('class', 'graph-edge');
+    line.dataset.from = from;
+    line.dataset.to = to;
+    svg.appendChild(line);
+  });
+  
+  // Render nodes
+  DOMAINS.forEach(d => {
+    const pos = positions[d.id];
+    if (!pos) return;
+    
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'graph-node');
+    g.setAttribute('transform', `translate(${pos.x},${pos.y})`);
+    g.dataset.id = d.id;
+    
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', 24);
+    circle.setAttribute('class', 'node-bg');
+    
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('class', 'node-label');
+    text.textContent = d.name.length > 8 ? d.name.slice(0, 7) + '…' : d.name;
+    
+    g.appendChild(circle);
+    g.appendChild(text);
+    
+    g.addEventListener('click', () => {
+      // Highlight connected nodes
+      svg.querySelectorAll('.node-bg').forEach(n => {
+        n.style.fill = '';
+        n.style.stroke = '';
+      });
+      
+      circle.style.fill = 'var(--accent-subtle)';
+      circle.style.stroke = 'var(--accent)';
+      circle.style.strokeWidth = '2';
+      
+      EDGES.forEach(([from, to]) => {
+        if (from === d.id || to === d.id) {
+          const other = from === d.id ? to : from;
+          const otherNode = svg.querySelector(`[data-id="${other}"] .node-bg`);
+          if (otherNode) {
+            otherNode.style.fill = 'rgba(52, 199, 89, 0.08)';
+            otherNode.style.stroke = 'var(--success)';
+            otherNode.style.strokeWidth = '2';
+          }
+        }
+      });
+      
+      // Show info
+      const deps = EDGES.filter(([f, t]) => f === d.id || t === d.id)
+        .map(([f, t]) => f === d.id ? t : f)
+        .map(id => DOMAINS.find(dd => dd.id === id)?.name)
+        .filter(Boolean);
+      
+      info.style.display = 'block';
+      info.innerHTML = `
+        <strong>${d.name}</strong><br>
+        <span style="color: var(--text-secondary); font-size: 12px;">
+          ${deps.length > 0 ? 'Connected: ' + deps.join(', ') : 'No direct connections'}
+        </span>
+      `;
+    });
+    
+    svg.appendChild(g);
+  });
+  
+  // Click background to reset
+  svg.addEventListener('click', e => {
+    if (e.target === svg) {
+      svg.querySelectorAll('.node-bg').forEach(n => {
+        n.style.fill = '';
+        n.style.stroke = '';
+        n.style.strokeWidth = '';
+      });
+      info.style.display = 'none';
+    }
+  });
+}
+
+// ═══ ONE-LINE SUMMARY ═══
+function renderOnelines() {
+  const grid = document.getElementById('onelineGrid');
+  grid.innerHTML = ONELINES.map(o => `
+    <div class="oneline-item">
+      <div class="oneline-marker"></div>
+      <div class="oneline-text">${o.text}</div>
+    </div>
+  `).join('');
+}
+
+// ═══ FOCUS MODE ═══
+document.getElementById('focusToggle').addEventListener('click', () => {
+  focusMode = !focusMode;
+  document.body.classList.toggle('focus-mode', focusMode);
+  localStorage.setItem('kh-focus', focusMode);
+});
+
+// ═══ INIT ═══
+function init() {
+  // Restore state
+  const savedSection = localStorage.getItem('kh-section');
+  if (savedSection) switchSection(savedSection);
+  
+  focusMode = localStorage.getItem('kh-focus') === 'true';
+  if (focusMode) document.body.classList.add('focus-mode');
+  
+  // Render all sections
+  renderGraph();
+  renderCards();
+  renderReference();
+  renderPaths();
+  renderProgress();
+  renderAnalogies();
+  renderComparisons();
+  renderRelations();
+  renderOnelines();
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && focusMode) {
+    focusMode = false;
+    document.body.classList.remove('focus-mode');
+  }
+});
+
+init();
 </script>
 </body>
 </html>

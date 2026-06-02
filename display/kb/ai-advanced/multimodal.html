@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>多模态开发 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link1">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link0">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>多模态开发</h1>
+
+<h1 id="多模态开发">多模态开发</h1>
+<blockquote><p><strong>🎯 全局定位</strong>：多模态 AI 开发的<strong>目录索引</strong>。收录多模态 AI 开发相关知识，包括 AI 绘画等内容。</p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>🔗 知识串联</strong>：→ 下游：<a href="#腾讯云AI绘画">腾讯云AI绘画</a> → 横向：<a href="#项目实战">项目实战</a></p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>⚡ 难度标识</strong>：🟢 入门 — 纯索引页</p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>🛠️ 落地实践</strong>：通过本索引快速定位多模态开发相关文档。</p></blockquote>
+<p>本目录收录多模态AI开发相关知识。</p>
+<h2 id="内容列表">内容列表</h2>
+<li style="margin-left:0px"><a href="01-腾讯云AI绘画.md">腾讯云AI绘画</a> - 腾讯云AI绘画API与应用开发（文生图、图生图、SaaS应用）</li><blockquote><p><strong>🎯 全局定位</strong>：多模态开发的<strong>腾讯云 AI 绘画实战</strong>。覆盖文生图、图生图 API 调用、SaaS 平台使用和小程序端集成，是多模态应用开发的入门实践。</p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>🔗 知识串联</strong>：← 上游：<a href="#多模态开发概述">多模态开发概述</a> → 下游：更多多模态项目 → 横向：<a href="#项目实战">项目实战</a></p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>⚡ 难度标识</strong>：🟡 中级 — 涉及 API 调用和小程序开发</p></blockquote>
+<blockquote><p></p></blockquote>
+<blockquote><p><strong>🛠️ 落地实践</strong>：读完本文后，你应该能：① 调用腾讯云 AI 绘画 API ② 理解文生图/图生图的工作流程 ③ 完成小程序端集成</p></blockquote>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-1">Slide 1</h3>
+<h2 id="腾讯云AI绘画">腾讯云AI绘画</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-2">Slide 2</h3>
+<h2 id="腾讯云AI绘画介绍">腾讯云AI绘画介绍</h2>
+<h2 id="服务形态-产品优势-应用场景">服务形态 产品优势 应用场景</h2>
+<h2 id="1">1</h2>
+<h2 id="">...................................................................</h2>
+<h2 id="API的使用">API的使用</h2>
+<h2 id="文生图API--图生图API">文生图API  图生图API</h2>
+<h2 id="2">2</h2>
+<h2 id="">...................................................................</h2>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="文生图-图生图">文生图 图生图</h2>
+<h2 id="3">3</h2>
+<h2 id="">...................................................................</h2>
+<h2 id="最佳实践">最佳实践</h2>
+<h2 id="API接口调用-任务管理-小程序开发">API接口调用 任务管理 小程序开发</h2>
+<h2 id="4">4</h2>
+<h2 id="">...................................................................</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-3">Slide 3</h3>
+<h2 id="腾讯云AI绘画介绍">腾讯云AI绘画介绍</h2>
+<p>服务形态 产品优势 应用场景</p>
+<h2 id="1">1</h2>
+<h2 id="">........................................................................</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-4">Slide 4</h3>
+<h2 id="腾讯云AI绘画">腾讯云AI绘画</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="腾讯云AI绘画是一款基于腾讯优图实验室自研的-AI-图像生成与编辑技术产品能够结合输入的文本或图片智能创作与输入相关的图">腾讯云AI绘画是一款基于腾讯优图实验室自研的 AI 图像生成与编辑技术产品，能够结合输入的文本或图片智能创作与输入相关的图像内容。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-5">Slide 5</h3>
+<h2 id="腾讯云AI绘画">腾讯云AI绘画</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="中文理解能力强可以根据输入的图片或文本创作与之相关的图像内容">中文理解能力强，可以根据输入的图片或文本创作与之相关的图像内容。</h2>
+<h2 id="风格选择多样化支持东方审美的绘画创作能力">风格选择多样化，支持东方审美的绘画创作能力。</h2>
+<h2 id="支持中文场景下的建筑风景生成古诗词理解水墨剪纸等中国元素风格生成">支持中文场景下的建筑风景生成、古诗词理解、水墨剪纸等中国元素风格生成。</h2>
+<h2 id="支持各种动漫游戏风格的高精度图像生成和风格转换">支持各种动漫、游戏风格的高精度图像生成和风格转换。</h2>
+<h2 id="为高质量的内容创作内容运营提供技术支持">为高质量的内容创作、内容运营提供技术支持。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-6">Slide 6</h3>
+<h2 id="服务形态">服务形态</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="API">API</h2>
+<h2 id="AI-绘画提供-API-技术服务需要调用-API-接口来使用适用于有代码编写基础对-HTTP-请求和-API-调用有一定">AI 绘画提供 API 技术服务，需要调用 API 接口来使用，适用于有代码编写基础、对 HTTP 请求和 API 调用有一定了解的开发者。</h2>
+<h2 id="SaaS">SaaS</h2>
+<h2 id="腾讯云智能图像创作平台Tencent-Cloud-TI-Image-Platform是一款基于AI算法通过输入文字或图片">腾讯云智能图像创作平台(Tencent Cloud TI-Image Platform)是一款基于AI算法，通过输入文字或图片即 可生成高质量图片的AI绘画在线创作工具。可以直接通过网页端输入文本或图像，调用腾讯云AI绘画完成图像生成任务，不需编程基础。</h2>
+<h2 id="腾讯云AI绘画提供-API和SaaS两种服务形态">腾讯云AI绘画提供 API和SaaS两种服务形态：</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-7">Slide 7</h3>
+<h2 id="产品优势">产品优势</h2>
+<h2 id="">.........................................................................</h2>
+<p>自研算法</p>
+<h2 id="标准化接口封装调用简单兼容性强">标准化接口封装，调用简单，兼容性强。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-8">Slide 8</h3>
+<h2 id="应用场景-文化传播">应用场景-文化传播</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="策划者可以将活动形式与潮流的-AIGC-创意玩法相结合打造生动有趣的艺术文化主题活动人人皆可参与互动自由尝试艺术创作体验">策划者可以将活动形式与潮流的 AIGC 创意玩法相结合，打造生动有趣的艺术文化主题活动，人人皆可参与互动，自由尝试艺术创作，体验文化多样魅力，提升互动氛围和活动影响力。</h2>
+<h2 id="典型场景新年活动诗意作画万物皆可剪纸等">典型场景：新年活动、诗意作画、万物皆可剪纸等。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-9">Slide 9</h3>
+<h2 id="应用场景-风格变换">应用场景-风格变换</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="为图片切换各种创意风格令图片具备独特的艺术特征呈现出丰富多彩的艺术灵感">为图片切换各种创意风格，令图片具备独特的艺术特征，呈现出丰富多彩的艺术灵感。</h2>
+<h2 id="典型场景头像风格化场景风格化">典型场景：头像风格化、场景风格化。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-10">Slide 10</h3>
+<h2 id="应用场景-文学配图">应用场景-文学配图</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="对描述型的文稿进行素材配图的创作输入的文稿可以引发读者的想象力和共情更适合网络文学非严肃报告非科学研究说明文等的文章配图">对描述型的文稿进行素材配图的创作，输入的文稿可以引发读者的想象力和共情，更适合网络文学、非严肃报告、非科学研究说明文等的文章配图。</h2>
+<h2 id="典型场景网络小说封面公众号推文插图等">典型场景：网络小说封面、公众号推文插图等。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-11">Slide 11</h3>
+<h2 id="应用场景-设计辅助">应用场景-设计辅助</h2>
+<h2 id="">............................................................................</h2>
+<h2 id="游戏漫画影视等场景的初始化设计和草图创作前期借助-AI-能力进行大量的实验作为初步的风格内容构图尝试积累从中选择出相对较">游戏、漫画、影视等场景的初始化设计和草图创作，前期借助 AI 能力进行大量的实验作为初步的风格、内容、构图尝试积累，从中选择出相对较好的效果参考进行进一步的高精度内容创作，帮助制作人从大量繁琐冗余的细节工作中抽身。</h2>
+<h2 id="典型场景游戏原画设计漫画草图创作影视分镜场景构建海报等物料设计等">典型场景：游戏原画设计、漫画草图创作、影视分镜场景构建、海报等物料设计等。</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-12">Slide 12</h3>
+<h2 id="API使用">API使用</h2>
+<p>文生图 图生图</p>
+<h2 id="2">2</h2>
+<h2 id="">........................................................................</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-13">Slide 13</h3>
+<h2 id="API使用-文生图">API使用-文生图</h2>
+<h2 id="">............................................................................</h2>
+<p>智能文生图接口将根据输入的描述文本，智能生成与之相关的结果图。</p>
+<p>输入：256个字符以内的描述性文本，推荐使用中文。</p>
+<p>输出：对应风格及分辨率的 AI 生成图。</p>
+<table>
+<thead><tr>
+<th>接口名称</th>
+<th>接口功能</th>
+<th>频率限制（次/秒）</th>
+</tr></thead><tbody>
+<tr>
+<td>TextToImage</td>
+<td>智能文生图</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-14">Slide 14</h3>
+<h2 id="API使用-文生图示例">API使用-文生图示例</h2>
+<h2 id="">.........................................................................</h2>
+<p>输入示例：</p>
+<p>输出示例：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-15">Slide 15</h3>
+<h2 id="API使用-文生图示例">API使用-文生图示例</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云AI绘画的API的调用方式可查看连接</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-16">Slide 16</h3>
+<h2 id="API使用-文生图示例">API使用-文生图示例</h2>
+<h2 id="">...........................................................................</h2>
+<p>生成的图片结果如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-17">Slide 17</h3>
+<h2 id="API使用-图生图">API使用-图生图</h2>
+<h2 id="">............................................................................</h2>
+<p>智能图生图接口将根据输入的图片及辅助描述文本，智能生成与之相关的结果图。</p>
+<p>输入：单边分辨率小于2000、转成 Base64 字符串后小于 5MB 的图片，建议同时输入描述文本。</p>
+<p>输出：对应风格及分辨率的 AI 生成图。</p>
+<table>
+<thead><tr>
+<th>接口名称</th>
+<th>接口功能</th>
+<th>频率限制（次/秒）</th>
+</tr></thead><tbody>
+<tr>
+<td>ImageToImage</td>
+<td>智能图生图</td>
+<td>-</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-18">Slide 18</h3>
+<h2 id="API使用-图生图示例">API使用-图生图示例</h2>
+<h2 id="">...........................................................................</h2>
+<p>输入示例：</p>
+<p>输出示例：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-19">Slide 19</h3>
+<h2 id="AI绘画图生图示例">AI绘画图生图示例</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云AI绘画图生图的API的调用方式可查看连接：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-20">Slide 20</h3>
+<h2 id="API使用-图生图示例">API使用-图生图示例</h2>
+<h2 id="">...........................................................................</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-21">Slide 21</h3>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="3">3</h2>
+<h2 id="">........................................................................</h2>
+<p>腾讯云智能图像创作平台</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-22">Slide 22</h3>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云智能图像创作平台(Tencent Cloud TI-Image Platform)是一款基于AI算法，通过输入文字或图片即 可生成高质量图片的AI绘画在线创作工具。</p>
+<p>核心功能：在线创作，提供文生图/图生图能力</p>
+<p>产品链接：https://ti-image.cloud.tencent.com/</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-23">Slide 23</h3>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="">.........................................................................</h2>
+<p>文生图:支持25种风格</p>
+<p>图生图:支持5种风格</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-24">Slide 24</h3>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="">.........................................................................</h2>
+<p>图像生成之后，满意的作品，可以下载也可手动【存至我的作品】，【存至我的作品】的画作，可在【我的作品】页面管理</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-25">Slide 25</h3>
+<h2 id="SaaS应用">SaaS应用</h2>
+<h2 id="">.........................................................................</h2>
+<p>在【我的作品】中，可进行单张下载或删除，也可进行批量下载或删除。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-26">Slide 26</h3>
+<h2 id="最佳实践">最佳实践</h2>
+<h2 id="4">4</h2>
+<h2 id="">........................................................................</h2>
+<h2 id="小程序端AI绘画实践">小程序端AI绘画实践</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-27">Slide 27</h3>
+<h2 id="实现思路">实现思路</h2>
+<h2 id="">.........................................................................</h2>
+<p>用腾讯云AI绘画实现小程序的AI绘画，主要思路如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-28">Slide 28</h3>
+<h2 id="代码结构">代码结构</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云AI绘画的小程序实践的代码结构：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-29">Slide 29</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云AI绘画文生图API调用方式：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-30">Slide 30</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>使用Golang调用腾讯云AI绘画接口，在draw.go文件中实现，具体如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-31">Slide 31</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>腾讯云接口调用之后</p>
+<p>一、用户把任务提交到cos上，绘画服务通过cos的内容来执行AI画画任务。</p>
+<p>二、通过执行shell命令，并将生成好的图片上传到cos,具体实现如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-32">Slide 32</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>通过cos来实现任务管理，实现生成随机字符串、生成任务ID、推送任务、拉取任务、查询任务结果等功能，用于任务的异步处理和结果的存储与查询，该部分代码在job.go文件中，具体实现如下所示： ：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-33">Slide 33</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>在main.go文件中，小程序要通过中转服务来异步处理消息，该服务主要包括：</p>
+<p>一、转发请求到AI绘画。</p>
+<p>二、查询AI绘画的结果，具体实现如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-34">Slide 34</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>在main.go文件中，main方法中实现了程序的主要逻辑，具体如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-35">Slide 35</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>小程序实现AI绘画，主要在index.js文件中，主要包括以下内容：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-36">Slide 36</h3>
+<h2 id="小程序的实现方式">小程序的实现方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>在index.wxml文件中实现了一个简单的图像生成应用界面。用户可以输入创意提示，点击按钮后，后台会生成图像。用户可以查看任务状态、完成数量以及处理和剩余时间。生成的图像会在页面上展示。整个应用通过与后台服务器的通信实现，具体实现如下所示：</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-37">Slide 37</h3>
+<h2 id="执行方式">执行方式</h2>
+<h2 id="">.........................................................................</h2>
+<p>1、切换当前工作目录 "drawserver"中</p>
+<p>cd drawserver</p>
+<p>2、在进入 "drawer" 目录之后，执行以下命令：</p>
+<p>go build .</p>
+<p>Go 编译器在当前目录中构建 Go 程序。点号（.）表示当前目录。go build 命令会编译当前目录中的 Go 源代码文件，并生成一个可执行的二进制文件。</p>
+<p>3、运行 "drawserver" 的可执行文件，启动小程序服务端和AI画画服务</p>
+<p>./drawserver -w=true</p>
+<h2 id="在终端执行以下过程">在终端执行以下过程：</h2>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h3 id="Slide-38">Slide 38</h3>
+<h2 id="执行结果">执行结果</h2>
+<h2 id="">.........................................................................</h2>
+<p>小程序调用腾讯云AI绘画的效果：</p>
+</main>
+</body>
+</html>

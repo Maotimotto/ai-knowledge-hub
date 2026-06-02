@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker — 应用实战 — AI知识库</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
+a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
+pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
+th{background:#f6f5f4;font-weight:600}
+h1{font-size:36px;font-weight:700;margin-bottom:8px}
+h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:20px;font-weight:600;margin:24px 0 12px}
+h4{font-size:17px;font-weight:600;margin:20px 0 8px}
+p{margin:8px 0}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+img{max-width:100%;border-radius:8px}
+.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
+.header .container{display:flex;align-items:center;gap:16px}
+.header .breadcrumb{font-size:14px;color:#6b7280}
+.header .breadcrumb a{color:#0075de}
+.breadcrumb span{margin:0 6px}
+.layout{display:flex;gap:32px;padding:32px 0}
+.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none;margin:0;padding:0}
+.sidebar li{margin:2px 0}
+.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
+.sidebar a:hover{background:#f6f5f4;text-decoration:none}
+.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
+.main{flex:1;min-width:0}
+.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
+.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
+.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
+.badge-green{background:#d1fae5;color:#065f46}
+.badge-yellow{background:#fef3c7;color:#92400e}
+.badge-red{background:#fee2e2;color:#991b1b}
+.badge-blue{background:#dbeafe;color:#1e40af}
+.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
+.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.doc-card h3{margin:0 0 8px;font-size:18px}
+.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
+.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
+.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
+.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
+.svg-wrap svg{width:100%;height:auto}
+footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
+@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
+</style>
+</head>
+<body>
+<div class="header"><div class="container">
+<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>Docker</div>
+</div></div>
+<div class="container">
+<div class="layout">
+<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
+<li><a href="startup.html">创业</a></li>
+<li><a href="finance.html">金融</a></li>
+<li><a href="docker.html" class="active">Docker</a></li>
+<li><a href="database.html">数据库</a></li>
+<li><a href="langchain.html">LangChain</a></li>
+<li><a href="tools.html">小工具</a></li>
+<li><a href="zheshang.html">浙商证券</a></li>
+<li><a href="middleware.html">Git中间件</a></li>
+<li><a href="hermes-agent.html">Hermes Agent</a></li>
+<li><a href="learning-paths.html">学习路径</a></li>
+<li><a href="interview.html">面试准备</a></li>
+</ul></nav>
+<div class="main">
+<h1>Docker容器化</h1>
+<p style="color:#6b7280;margin-bottom:24px">AI项目从开发到生产的必备基础设施 · 3篇文档</p>
+<span class="badge badge-green">难度 2/5</span>
+
+<h2 id="overview">概览</h2>
+<div class="doc-card">
+<h3>Docker在AI项目中的定位</h3>
+<div class="excerpt">
+<p><strong>核心价值</strong>：环境一致性与快速部署，实现"一次配置、到处运行"</p>
+<p><strong>AI应用场景</strong>：</p>
+<ul>
+<li>部署RAG服务：<code>docker run -p 8000:8000 rag-service</code></li>
+<li>部署向量数据库：<code>docker run -p 19530:19530 milvusdb/milvus</code></li>
+<li>部署LLM推理：<code>docker run --gpus all vllm/vllm-openai</code></li>
+</ul>
+</div>
+</div>
+
+<h2 id="arch">Docker架构层次图</h2>
+<div class="svg-wrap">
+<svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg">
+<text x="350" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#37352f">Docker 架构层次</text>
+<!-- App Layer -->
+<rect x="60" y="50" width="580" height="60" rx="8" fill="#dbeafe" stroke="#0075de" stroke-width="1.5"/>
+<text x="350" y="75" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">应用层 — Container (容器)</text>
+<text x="350" y="95" text-anchor="middle" font-size="11" fill="#3b82f6">RAG服务 | 向量数据库 | LLM推理 | Web API | 数据处理</text>
+<!-- Image Layer -->
+<rect x="60" y="125" width="580" height="60" rx="8" fill="#d1fae5" stroke="#065f46" stroke-width="1.5"/>
+<text x="350" y="150" text-anchor="middle" font-size="13" font-weight="600" fill="#065f46">镜像层 — Image (镜像)</text>
+<text x="350" y="170" text-anchor="middle" font-size="11" fill="#10b981">continuumio/anaconda3 | mysql:8.0 | python:3.10 | nginx</text>
+<!-- Dockerfile Layer -->
+<rect x="60" y="200" width="580" height="60" rx="8" fill="#fef3c7" stroke="#92400e" stroke-width="1.5"/>
+<text x="350" y="225" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">定义层 — Dockerfile / docker-compose.yml</text>
+<text x="350" y="245" text-anchor="middle" font-size="11" fill="#b45309">FROM python:3.10 | COPY . | RUN pip install | EXPOSE 8000 | CMD</text>
+<!-- Host Layer -->
+<rect x="60" y="275" width="580" height="60" rx="8" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1.5"/>
+<text x="350" y="300" text-anchor="middle" font-size="13" font-weight="600" fill="#37352f">宿主机层 — Host OS (Linux/WSL)</text>
+<text x="350" y="320" text-anchor="middle" font-size="11" fill="#6b7280">Docker Engine | 数据卷 (Volume) | 网络 (Network) | 端口映射</text>
+<!-- Arrows -->
+<line x1="350" y1="110" x2="350" y2="125" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="350" y1="185" x2="350" y2="200" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="350" y1="260" x2="350" y2="275" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arr)"/>
+<!-- Side labels -->
+<text x="665" y="85" font-size="10" fill="#9ca3af">运行实例</text>
+<text x="665" y="160" font-size="10" fill="#9ca3af">只读模板</text>
+<text x="665" y="235" font-size="10" fill="#9ca3af">构建指令</text>
+<text x="665" y="310" font-size="10" fill="#9ca3af">基础设施</text>
+</svg>
+</div>
+
+<h2 id="intro">Docker简介</h2>
+<div class="doc-card">
+<h3>Docker简介</h3>
+<div class="meta">Docker/Docker简介 · 难度 2/5</div>
+<div class="excerpt">
+<p>Docker可以理解为一个应用商店，允许你：用的时候让应用跑起来，不用的时候彻底关闭，同时可以下载同一应用的不同版本来使用，不会出现兼容性问题，各自有各自的房间，是隔离的。</p>
+<p><strong>核心概念</strong>：镜像(Image)=安装包，容器(Container)=运行实例，Dockerfile=安装说明书</p>
+</div>
+</div>
+
+<h2 id="anaconda">Anaconda容器部署</h2>
+<div class="doc-card">
+<h3>Docker部署Anaconda环境</h3>
+<div class="meta">Docker/ · 368行 · 难度 2/5</div>
+<div class="excerpt">
+<p>ML/DL项目环境标准化核心环节。包含完整的操作速查表：拉取镜像、创建容器、端口映射、数据挂载、Jupyter配置、环境固化、常见问题排查。</p>
+<pre><code># 一键启动Anaconda + Jupyter
+docker run --name anaconda_container \
+  -p 8888:8888 \
+  -v ~/data:/workspace \
+  -idt continuumio/anaconda3</code></pre>
+</div>
+</div>
+
+<h2 id="mysql">MySQL容器化部署</h2>
+<div class="doc-card">
+<h3>Docker部署MySQL</h3>
+<div class="meta">Docker/ · 540行 · 难度 2/5</div>
+<div class="excerpt">
+<p>数据库容器化完整指南：镜像拉取、容器创建、数据持久化、远程连接配置、备份恢复、常见问题排查。</p>
+<pre><code># 生产环境级启动命令
+docker run --name mysql8 --restart=always \
+  -e MYSQL_ROOT_PASSWORD=123456 \
+  -p 3306:3306 \
+  -v mysql-data:/var/lib/mysql \
+  -d mysql:8.0.36 \
+  --character-set-server=utf8mb4</code></pre>
+</div>
+</div>
+</div>
+<div class="toc"><h4>目录</h4>
+<a href="#overview">概览</a>
+<a href="#arch">架构图</a>
+<a href="#intro">Docker简介</a>
+<a href="#anaconda">Anaconda部署</a>
+<a href="#mysql">MySQL部署</a></div>
+</div>
+</div>
+<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
+</body>
+</html>

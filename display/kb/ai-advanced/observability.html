@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LLM可观测性 - AI Advanced</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;color:#1a1a1a;background:#fff;line-height:1.7;display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#f9f9f8;border-right:1px solid rgba(0,0,0,0.1);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar-title{font-size:18px;font-weight:700;margin-bottom:20px;color:#0075de}
+.sidebar-link{display:block;padding:8px 12px;border-radius:6px;color:#37352f;text-decoration:none;font-size:14px;margin-bottom:2px;transition:background .15s}
+.sidebar-link:hover{background:rgba(0,117,222,0.08)}
+.sidebar-link.active{background:rgba(0,117,222,0.12);color:#0075de;font-weight:600}
+.main{flex:1;padding:40px 60px 80px;max-width:900px;margin:0 auto}
+h1{font-size:44px;font-weight:700;margin-bottom:16px;color:#1a1a1a}
+h2{font-size:28px;font-weight:700;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
+h3{font-size:22px;font-weight:600;margin:24px 0 12px}
+h4{font-size:18px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:12px}
+ul,ol{margin:0 0 16px 24px}
+li{margin-bottom:4px}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:'SF Mono','Fira Code',monospace;background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px}
+pre{background:#f6f5f4;padding:20px;border-radius:8px;overflow-x:auto;margin-bottom:16px;border:1px solid rgba(0,0,0,0.06)}
+pre code{background:none;padding:0;font-size:13.5px;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14.5px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr:nth-child(even){background:#fafafa}
+blockquote{border-left:4px solid #0075de;padding:12px 16px;margin:0 0 16px;background:#f0f7ff;border-radius:0 8px 8px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-green{background:#dbeddb;color:#2d6a2e}
+.badge-yellow{background:#fdecc8;color:#8a6a00}
+.badge-orange{background:#fadec9;color:#935400}
+.badge-red{background:#ffe2dd;color:#c43b3b}
+.toc{background:#f9f9f8;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.toc-title{font-weight:600;margin-bottom:8px;font-size:15px}
+.toc a{font-size:14px;display:block;padding:3px 0;color:#37352f}
+.card{border:1px solid rgba(0,0,0,0.1);border-radius:12px;padding:24px;margin-bottom:16px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.card-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.card-desc{color:#6b7280;font-size:14px}
+.svg-diagram{margin:20px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid rgba(0,117,222,0.2);border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px}
+.cross-ref strong{color:#0075de}
+@media(max-width:900px){body{flex-direction:column}.sidebar{width:100%;min-width:auto;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+<div class="sidebar-title">AI Advanced</div>
+<a href="index.html" class="sidebar-link0">总览</a>
+<a href="cv.html" class="sidebar-link0">08 计算机视觉基础</a>
+<a href="interview.html" class="sidebar-link0">09 面试宝典</a>
+<a href="projects.html" class="sidebar-link0">10 项目实战</a>
+<a href="multimodal.html" class="sidebar-link0">11 多模态开发</a>
+<a href="inference.html" class="sidebar-link0">12 LLM推理部署</a>
+<a href="vectordb.html" class="sidebar-link0">13 向量数据库</a>
+<a href="observability.html" class="sidebar-link1">14 LLM可观测性</a>
+<a href="safety.html" class="sidebar-link0">15 AI安全与护栏</a>
+<a href="serving.html" class="sidebar-link0">16 模型服务与部署</a>
+</nav>
+
+<main class="main">
+<h1>LLM可观测性</h1>
+<div class="toc"><div class="toc-title">目录</div><a href="#LangSmith-追踪与评估">LangSmith追踪与评估</a><a href="#Langfuse-开源可观测性">Langfuse开源可观测性</a><a href="#OpenTelemetry-for-LLM">OpenTelemetry for LLM</a><a href="#LLM-监控最佳实践">LLM监控最佳实践</a></div>
+<div class="cross-ref"><strong>关联项目:</strong> <a href="../projects/observability-dashboard.html">observability-dashboard</a> -- LLM可观测性监控面板</div><div class="svg-diagram"><h3>可观测性技术栈</h3><svg viewBox="0 0 800 280" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+<rect x="10" y="10" width="780" height="50" rx="8" fill="#f0f7ff" stroke="#0075de"/>
+<text x="400" y="40" text-anchor="middle" font-size="14" fill="#1a1a1a">LLM Application (FastAPI / LangChain / Hermes Agent)</text>
+<rect x="10" y="80" width="780" height="40" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)"/>
+<text x="200" y="105" text-anchor="middle" font-size="12" fill="#1a1a1a">OpenTelemetry SDK</text>
+<text x="400" y="105" text-anchor="middle" font-size="12" fill="#6b7280">|</text>
+<text x="400" y="105" text-anchor="middle" font-size="12" fill="#1a1a1a">LangSmith / Langfuse</text>
+<text x="600" y="105" text-anchor="middle" font-size="12" fill="#6b7280">|</text>
+<text x="650" y="105" text-anchor="middle" font-size="12" fill="#1a1a1a">Prometheus</text>
+<line x1="400" y1="120" x2="400" y2="145" stroke="#0075de" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="100" y="145" width="600" height="40" rx="6" fill="#fdecc8" stroke="#8a6a00"/>
+<text x="400" y="170" text-anchor="middle" font-size="13" fill="#1a1a1a">OTel Collector / Langfuse Server / Prometheus Server</text>
+<line x1="200" y1="185" x2="130" y2="215" stroke="#0075de" marker-end="url(#ah)"/>
+<line x1="400" y1="185" x2="400" y2="215" stroke="#0075de" marker-end="url(#ah)"/>
+<line x1="600" y1="185" x2="670" y2="215" stroke="#0075de" marker-end="url(#ah)"/>
+<rect x="50" y="215" width="160" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="130" y="235" text-anchor="middle" font-size="12" fill="#1a1a1a">Grafana Tempo</text>
+<text x="130" y="253" text-anchor="middle" font-size="11" fill="#6b7280">Trace 可视化</text>
+<rect x="320" y="215" width="160" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="400" y="235" text-anchor="middle" font-size="12" fill="#1a1a1a">Langfuse Dashboard</text>
+<text x="400" y="253" text-anchor="middle" font-size="11" fill="#6b7280">成本/质量/评估</text>
+<rect x="590" y="215" width="160" height="50" rx="8" fill="#dbeddb" stroke="#2d6a2e"/>
+<text x="670" y="235" text-anchor="middle" font-size="12" fill="#1a1a1a">Grafana Dashboard</text>
+<text x="670" y="253" text-anchor="middle" font-size="11" fill="#6b7280">Metrics / 告警</text>
+</svg></div><h1 id="LangSmith-追踪与评估">LangSmith 追踪与评估</h1>
+<h2 id="1-LangSmith-概述">1. LangSmith 概述</h2>
+<p>LangSmith 是 LangChain 官方推出的 LLM 应用开发平台，提供追踪（Tracing）、评估（Evaluation）、</p>
+<p>提示管理（Prompt Hub）和调试（Debugging）等核心能力。</p>
+<h3 id="核心能力">核心能力</h3>
+<li style="margin-left:0px"><strong>Tracing</strong>：记录每一步 LLM 调用、Chain 执行、Tool 调用的完整链路</li>
+<li style="margin-left:0px"><strong>Evaluation</strong>：构建评估数据集，自动化评测 LLM 输出质量</li>
+<li style="margin-left:0px"><strong>Prompt Hub</strong>：团队协作管理、版本化 Prompt 模板</li>
+<li style="margin-left:0px"><strong>Monitoring</strong>：生产环境实时监控延迟、成本、错误率</li>
+<h3 id="架构总览">架构总览</h3>
+<pre><code>
+┌─────────────────────────────────────────────┐
+│              LangSmith Platform              │
+├──────────┬──────────┬──────────┬────────────┤
+│ Tracing  │Evaluation│Prompt Hub│ Monitoring │
+├──────────┴──────────┴──────────┴────────────┤
+│           LangSmith SDK / API                │
+├─────────────────────────────────────────────┤
+│  LangChain │ LlamaIndex │ OpenAI │ 自定义   │
+└─────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-安装与配置">2. 安装与配置</h2>
+<h3 id="21-安装-SDK">2.1 安装 SDK</h3>
+<pre><code class="language-bash">
+pip install langsmith
+
+# 如果使用 LangChain
+pip install langchain langchain-openai
+</code></pre>
+<h3 id="22-获取-API-Key">2.2 获取 API Key</h3>
+<li style="margin-left:0px">访问 https://smith.langchain.com 注册账号</li>
+<li style="margin-left:0px">进入 Settings → API Keys → Create API Key</li>
+<li style="margin-left:0px">设置环境变量：</li>
+<pre><code class="language-bash">
+export LANGCHAIN_API_KEY=&quot;lsv2_pt_xxxxxxxxxxxx&quot;
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_PROJECT=&quot;my-project&quot;  # 可选，默认项目
+</code></pre>
+<h3 id="23-Python-配置">2.3 Python 配置</h3>
+<pre><code class="language-python">
+import os
+os.environ[&quot;LANGCHAIN_API_KEY&quot;] = &quot;lsv2_pt_xxxxxxxxxxxx&quot;
+os.environ[&quot;LANGCHAIN_TRACING_V2&quot;] = &quot;true&quot;
+os.environ[&quot;LANGCHAIN_PROJECT&quot;] = &quot;customer-support-bot&quot;
+</code></pre>
+<h3 id="24-自托管-LangSmith企业版">2.4 自托管 LangSmith（企业版）</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml
+version: &#x27;3.8&#x27;
+services:
+  langsmith-backend:
+    image: langchain/langsmith-backend:latest
+    environment:
+      - LANGCHAIN_API_KEY=your-key
+      - DATABASE_URL=postgresql://user:pass@db:5432/langsmith
+    ports:
+      - &quot;1984:1984&quot;
+  langsmith-frontend:
+    image: langchain/langsmith-frontend:latest
+    ports:
+      - &quot;3000:3000&quot;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-追踪Tracing">3. 追踪（Tracing）</h2>
+<h3 id="31-自动追踪-LangChain-调用">3.1 自动追踪 LangChain 调用</h3>
+<pre><code class="language-python">
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+
+# 只要设置了环境变量，所有 LangChain 调用自动被追踪
+llm = ChatOpenAI(model=&quot;gpt-4&quot;, temperature=0)
+prompt = ChatPromptTemplate.from_template(
+    &quot;你是一个客服助手。用户问题：{question}\n请简洁回答。&quot;
+)
+chain = LLMChain(llm=llm, prompt=prompt)
+
+# 这次调用会自动出现在 LangSmith 中
+result = chain.invoke({&quot;question&quot;: &quot;如何重置密码？&quot;})
+print(result[&quot;text&quot;])
+</code></pre>
+<h3 id="32-手动追踪wraps-装饰器">3.2 手动追踪（wraps 装饰器）</h3>
+<pre><code class="language-python">
+from langsmith import traceable
+from openai import OpenAI
+
+client = OpenAI()
+
+@traceable(name=&quot;Chat Completion&quot;)
+def chat_completion(user_message: str) -&gt; str:
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_message}]
+    )
+    return response.choices[0].message.content
+
+@traceable(name=&quot;RAG Pipeline&quot;)
+def rag_pipeline(question: str) -&gt; str:
+    # 检索阶段
+    docs = retrieve_documents(question)  # 也会被追踪
+    
+    # 生成阶段
+    context = &quot;\n&quot;.join(docs)
+    prompt = f&quot;根据以下信息回答：\n{context}\n\n问题：{question}&quot;
+    return chat_completion(prompt)
+
+# 调用时自动创建 trace
+answer = rag_pipeline(&quot;LangSmith 的定价是什么？&quot;)
+</code></pre>
+<h3 id="33-追踪嵌套调用与元数据">3.3 追踪嵌套调用与元数据</h3>
+<pre><code class="language-python">
+from langsmith import traceable, Client
+
+client = Client()
+
+@traceable(
+    name=&quot;Document Retriever&quot;,
+    run_type=&quot;chain&quot;,
+    metadata={&quot;version&quot;: &quot;v2.1&quot;}
+)
+def retrieve_documents(query: str, top_k: int = 3) -&gt; list:
+    # 模拟向量检索
+    results = vector_store.similarity_search(query, k=top_k)
+    return [doc.page_content for doc in results]
+
+@traceable(
+    name=&quot;LLM Generator&quot;,
+    run_type=&quot;llm&quot;,
+    tags=[&quot;generation&quot;, &quot;gpt-4&quot;]
+)
+def generate_answer(context: str, question: str) -&gt; str:
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;基于上下文回答问题。&quot;},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: f&quot;上下文：{context}\n\n问题：{question}&quot;}
+        ],
+        temperature=0.1
+    )
+    return response.choices[0].message.content
+
+# 顶层调用会生成完整的 trace 树
+@traceable(name=&quot;RAG End-to-End&quot;)
+def rag_e2e(question: str) -&gt; str:
+    docs = retrieve_documents(question)
+    context = &quot;\n---\n&quot;.join(docs)
+    return generate_answer(context, question)
+</code></pre>
+<h3 id="34-Trace-结构示意">3.4 Trace 结构示意</h3>
+<pre><code>
+Trace: RAG End-to-End (总耗时 2.3s)
+├── Document Retriever (0.15s)
+│   ├── 向量搜索: 3 条结果
+│   └── 元数据: version=v2.1
+├── LLM Generator (2.1s)
+│   ├── 模型: gpt-4
+│   ├── 输入 tokens: 520
+│   ├── 输出 tokens: 85
+│   └── 标签: [generation, gpt-4]
+└── 输出: &quot;您可以点击登录页面...&quot;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-评估Evaluation">4. 评估（Evaluation）</h2>
+<h3 id="41-创建评估数据集">4.1 创建评估数据集</h3>
+<pre><code class="language-python">
+from langsmith import Client
+
+client = Client()
+
+# 创建数据集
+dataset = client.create_dataset(
+    dataset_name=&quot;Customer Support QA&quot;,
+    description=&quot;客服问答质量评估数据集&quot;
+)
+
+# 添加测试用例
+examples = [
+    {
+        &quot;inputs&quot;: {&quot;question&quot;: &quot;如何重置密码？&quot;},
+        &quot;outputs&quot;: {&quot;answer&quot;: &quot;点击登录页的&#x27;忘记密码&#x27;链接，输入邮箱获取重置链接。&quot;}
+    },
+    {
+        &quot;inputs&quot;: {&quot;question&quot;: &quot;退款流程是什么？&quot;},
+        &quot;outputs&quot;: {&quot;answer&quot;: &quot;在订单详情页点击&#x27;申请退款&#x27;，填写原因后提交，3-5个工作日处理。&quot;}
+    },
+    {
+        &quot;inputs&quot;: {&quot;question&quot;: &quot;如何联系人工客服？&quot;},
+        &quot;outputs&quot;: {&quot;answer&quot;: &quot;拨打 400-xxx-xxxx 或在 APP 内点击在线客服。&quot;}
+    },
+]
+
+for ex in examples:
+    client.create_example(
+        inputs=ex[&quot;inputs&quot;],
+        outputs=ex[&quot;outputs&quot;],
+        dataset_id=dataset.id
+    )
+
+print(f&quot;数据集已创建，共 {len(examples)} 条用例&quot;)
+</code></pre>
+<h3 id="42-运行评估">4.2 运行评估</h3>
+<pre><code class="language-python">
+from langsmith.evaluation import evaluate
+
+# 定义目标函数（你的 LLM 应用）
+def target_function(inputs: dict) -&gt; dict:
+    result = rag_pipeline(inputs[&quot;question&quot;])
+    return {&quot;answer&quot;: result}
+
+# 定义评估器
+def correctness_evaluator(run, example):
+    &quot;&quot;&quot;评估回答是否正确&quot;&quot;&quot;
+    from openai import OpenAI
+    client = OpenAI()
+    
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[{
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: f&quot;&quot;&quot;判断回答是否正确。
+            问题：{example.inputs[&#x27;question&#x27;]}
+            参考答案：{example.outputs[&#x27;answer&#x27;]}
+            实际回答：{run.outputs[&#x27;answer&#x27;]}
+            
+            回答 CORRECT 或 INCORRECT，并简述原因。&quot;&quot;&quot;
+        }]
+    )
+    
+    is_correct = &quot;CORRECT&quot; in response.choices[0].message.content.upper()
+    return {&quot;key&quot;: &quot;correctness&quot;, &quot;score&quot;: 1.0 if is_correct else 0.0}
+
+def conciseness_evaluator(run, example):
+    &quot;&quot;&quot;评估回答是否简洁&quot;&quot;&quot;
+    answer = run.outputs.get(&quot;answer&quot;, &quot;&quot;)
+    score = 1.0 if len(answer) &lt; 500 else 0.5 if len(answer) &lt; 1000 else 0.0
+    return {&quot;key&quot;: &quot;conciseness&quot;, &quot;score&quot;: score}
+
+# 运行评估
+results = evaluate(
+    target_function,
+    data=&quot;Customer Support QA&quot;,
+    evaluators=[correctness_evaluator, conciseness_evaluator],
+    experiment_prefix=&quot;v2.1-test&quot;
+)
+
+print(f&quot;评估完成：{results}&quot;)
+</code></pre>
+<h3 id="43-对比实验结果">4.3 对比实验结果</h3>
+<pre><code class="language-python">
+# 在 LangSmith UI 中可以对比不同实验的结果：
+# 1. 打开 https://smith.langchain.com
+# 2. 进入 Datasets → Customer Support QA → Experiments
+# 3. 选择两次实验进行对比
+#
+# 对比视图示例：
+# ┌──────────────┬────────────┬────────────┐
+# │   指标        │  v2.0-test │  v2.1-test │
+# ├──────────────┼────────────┼────────────┤
+# │ correctness  │   0.85     │   0.92     │
+# │ conciseness  │   0.90     │   0.88     │
+# └──────────────┴────────────┴────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Prompt-Hub">5. Prompt Hub</h2>
+<h3 id="51-推送-Prompt-到-Hub">5.1 推送 Prompt 到 Hub</h3>
+<pre><code class="language-python">
+from langsmith import Client
+
+client = Client()
+
+# 推送 Prompt 模板
+prompt = client.push_prompt(
+    &quot;customer-support-v2&quot;,
+    object=ChatPromptTemplate.from_messages([
+        (&quot;system&quot;, &quot;你是一个专业的客服助手。请用简洁友好的语气回答问题。如果不确定，请说明。&quot;),
+        (&quot;user&quot;, &quot;{question}&quot;)
+    ]),
+    description=&quot;客服助手 V2 - 优化了语气和简洁度&quot;,
+    tags=[&quot;production&quot;, &quot;customer-support&quot;]
+)
+</code></pre>
+<h3 id="52-拉取并使用-Prompt">5.2 拉取并使用 Prompt</h3>
+<pre><code class="language-python">
+from langsmith import Client
+
+client = Client()
+
+# 拉取最新版本
+prompt = client.pull_prompt(&quot;customer-support-v2&quot;)
+
+# 使用 Prompt
+chain = prompt | ChatOpenAI(model=&quot;gpt-4&quot;)
+result = chain.invoke({&quot;question&quot;: &quot;如何修改收货地址？&quot;})
+</code></pre>
+<h3 id="53-Prompt-版本管理">5.3 Prompt 版本管理</h3>
+<pre><code class="language-python">
+# 拉取特定版本
+prompt_v1 = client.pull_prompt(&quot;customer-support-v2&quot;, version=1)
+prompt_v2 = client.pull_prompt(&quot;customer-support-v2&quot;, version=2)
+
+# Prompt Hub 界面截图描述：
+# ┌─────────────────────────────────────────────────┐
+# │  Prompt Hub - customer-support-v2               │
+# │  ┌─────────────────────────────────────────┐    │
+# # │  Version 3 (Latest) - 2024-03-15         │    │
+# │  Tags: [production, v2]                    │    │
+# │  ──────────────────────────────────────    │    │
+# │  System: 你是一个专业的客服助手...         │    │
+# │  User:   {question}                        │    │
+# │  ──────────────────────────────────────    │    │
+# │  Commit Message: 优化拒绝回答的策略        │    │
+# │  [Compare] [Pull] [Edit]                   │    │
+# └─────────────────────────────────────────┘    │
+# └─────────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-调试与排错">6. 调试与排错</h2>
+<h3 id="61-查看详细-Trace">6.1 查看详细 Trace</h3>
+<pre><code class="language-python">
+# 在 LangSmith UI 中查看 Trace 详情：
+#
+# Trace 详情截图描述：
+# ┌─────────────────────────────────────────────────┐
+# │  Trace: rag_pipeline(&quot;如何退款&quot;)                 │
+# │  Status: ✅ Success | Duration: 2.34s           │
+# │  Input Tokens: 520 | Output Tokens: 85         │
+# │  Cost: $0.023                                   │
+# │                                                  │
+# │  Timeline:                                       │
+# │  ├─ 0.00s  [Chain] RAG Pipeline                 │
+# │  │  ├─ 0.01s  [Retriever] VectorSearch          │
+# │  │  │  Input: &quot;如何退款&quot;                         │
+# │  │  │  Output: 3 documents                       │
+# │  │  └─ 0.15s  [LLM] ChatGPT-4                   │
+# │  │     Input: [system, user]                     │
+# │  │     Output: &quot;您可以点击...&quot;                   │
+# │  │     Tokens: 520 in / 85 out                   │
+# │  └─ 2.34s  Output                               │
+# └─────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="62-添加反馈人工标注">6.2 添加反馈（人工标注）</h3>
+<pre><code class="language-python">
+from langsmith import Client
+
+client = Client()
+
+# 获取最近的 run
+runs = client.list_runs(project_name=&quot;customer-support-bot&quot;, limit=10)
+
+for run in runs:
+    # 添加人工反馈
+    client.create_feedback(
+        run_id=run.id,
+        key=&quot;user-rating&quot;,
+        score=1.0,  # 1 = 好, 0 = 差
+        comment=&quot;回答准确且简洁&quot;
+    )
+</code></pre>
+<h3 id="63-常见问题调试">6.3 常见问题调试</h3>
+<pre><code class="language-python">
+# 1. 追踪未出现：检查环境变量
+import os
+print(os.environ.get(&quot;LANGCHAIN_TRACING_V2&quot;))  # 应为 &quot;true&quot;
+print(os.environ.get(&quot;LANGCHAIN_API_KEY&quot;))      # 应有值
+
+# 2. 调试 token 用量异常
+runs = client.list_runs(
+    project_name=&quot;my-project&quot;,
+    filter=&#x27;gt(total_tokens, 1000)&#x27;,
+    start_time=&quot;2024-03-01&quot;
+)
+for run in runs:
+    print(f&quot;Run {run.id}: {run.total_tokens} tokens, &quot;
+          f&quot;input: {run.inputs}, output_preview: {str(run.outputs)[:100]}&quot;)
+
+# 3. 调试延迟问题
+runs = client.list_runs(
+    project_name=&quot;my-project&quot;,
+    filter=&#x27;gt(latency, 5000)&#x27;  # 超过5秒的调用
+)
+for run in runs:
+    print(f&quot;Slow run: {run.name}, latency: {run.latency}ms&quot;)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-生产环境集成">7. 生产环境集成</h2>
+<h3 id="71-FastAPI--LangSmith">7.1 FastAPI + LangSmith</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from langsmith import traceable, Client
+from langchain_openai import ChatOpenAI
+
+app = FastAPI()
+ls_client = Client()
+
+@traceable(name=&quot;API Chat Endpoint&quot;)
+async def process_message(user_msg: str) -&gt; str:
+    llm = ChatOpenAI(model=&quot;gpt-4&quot;)
+    response = await llm.ainvoke(user_msg)
+    return response.content
+
+@app.post(&quot;/chat&quot;)
+async def chat(message: str):
+    answer = await process_message(message)
+    return {&quot;response&quot;: answer}
+</code></pre>
+<h3 id="72-缓存与成本优化">7.2 缓存与成本优化</h3>
+<pre><code class="language-python">
+from langsmith import Client
+from langchain.globals import set_llm_cache
+from langchain_community.cache import SQLiteCache
+
+# 启用 LLM 缓存（减少重复调用）
+set_llm_cache(SQLiteCache(database_path=&quot;.langchain.db&quot;))
+
+# 在 LangSmith 中查看缓存命中率
+# Dashboard → Metrics → Cache Hit Rate
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-最佳实践">8. 最佳实践</h2>
+<li style="margin-left:0px"><strong>命名规范</strong>：为每个 trace 设置有意义的名称，便于筛选</li>
+<li style="margin-left:0px"><strong>标签管理</strong>：使用 tags 区分环境（dev/staging/prod）</li>
+<li style="margin-left:0px"><strong>数据集维护</strong>：定期更新评估数据集，覆盖新场景</li>
+<li style="margin-left:0px"><strong>版本化 Prompt</strong>：每次修改 Prompt 都提交到 Hub 并记录变更原因</li>
+<li style="margin-left:0px"><strong>成本监控</strong>：设置 token 用量告警阈值</li>
+<li style="margin-left:0px"><strong>隐私合规</strong>：敏感数据脱敏后再发送到 LangSmith</li>
+<h3 id="Dashboard-截图描述">Dashboard 截图描述</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────┐
+│  LangSmith Dashboard - Customer Support Bot         │
+│                                                      │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────┐ │
+│  │ Total    │ │ Avg      │ │ Error    │ │ Cost   │ │
+│  │ Requests │ │ Latency  │ │ Rate     │ │ Today  │ │
+│  │  12,453  │ │  1.8s    │ │  0.3%    │ │ $45.20 │ │
+│  └──────────┘ └──────────┘ └──────────┘ └────────┘ │
+│                                                      │
+│  Latency Distribution (P50/P95/P99):                │
+│  ████████████████████████  P50: 1.2s                │
+│  ████████████████████████████████████  P95: 3.8s    │
+│  ██████████████████████████████████████  P99: 6.2s  │
+│                                                      │
+│  Recent Errors:                                      │
+│  ├─ RateLimitError: 2 occurrences (0:00-0:05 UTC)   │
+│  └─ TimeoutError: 1 occurrence (14:22 UTC)          │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="9-参考资源">9. 参考资源</h2>
+<li style="margin-left:0px"><a href="https://docs.smith.langchain.com/">LangSmith 官方文档</a></li>
+<li style="margin-left:0px"><a href="https://github.com/langchain-ai/langsmith-sdk">LangSmith Python SDK</a></li>
+<li style="margin-left:0px"><a href="https://www.langchain.com/pricing">LangSmith Pricing</a></li>
+<li style="margin-left:0px"><a href="https://github.com/langchain-ai/langsmith-cookbook">LangSmith Cookbook</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>LangSmith 是 LangChain 生态的官方可观测性平台，提供从开发到生产的全链路追踪和评估能力。是 LangChain 用户进行 LLM 应用调试和质量保证的首选工具。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">开源替代：<a href="#Langfuse开源可观测性">Langfuse开源可观测性</a></li>
+<li style="margin-left:0px">标准化方案：<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">监控体系：<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<li style="margin-left:0px">配合使用：<a href="#LangChain应用开发">LangChain应用开发</a>、<a href="#RAG系统架构">RAG系统架构</a></li>
+<li style="margin-left:0px">评估方法：<a href="#LLM评估方法论">LLM评估方法论</a>、<a href="#评估数据集构建">评估数据集构建</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from langfuse import Langfuse
+from langfuse.decorators import observe
+
+langfuse = Langfuse(public_key=&quot;pk-...&quot;, secret_key=&quot;sk-...&quot;, host=&quot;http://langfuse:3000&quot;)
+app = FastAPI()
+
+@app.post(&quot;/v1/chat/completions&quot;)
+@observe(as_type=&quot;generation&quot;)
+async def chat(request: ChatRequest):
+    # langfuse 自动追踪输入/输出/延迟/token 用量
+    response = await call_llm(request)
+    langfuse.score(name=&quot;user-feedback&quot;, value=1.0)  # 记录用户反馈
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Langfuse 自托管
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports: [&quot;3000:3000&quot;]
+    environment:
+      - DATABASE_URL=postgresql://langfuse:langfuse@db:5432/langfuse
+      - NEXTAUTH_SECRET=your-secret
+  db:
+    image: postgres:15
+    volumes: [&quot;pgdata:/var/lib/postgresql/data&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中接入 Langfuse：通过设置环境变量 <code>LANGFUSE_PUBLIC_KEY</code> 和 <code>LANGFUSE_SECRET_KEY</code>，Agent 的所有 LLM 调用会自动上报到 Langfuse 面板，实现对 Agent 推理链路的可视化追踪和成本监控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="Langfuse-开源可观测性">Langfuse 开源可观测性</h1>
+<h2 id="1-Langfuse-概述">1. Langfuse 概述</h2>
+<p>Langfuse 是一个开源的 LLM 工程平台，提供追踪、评估、Prompt 管理和成本追踪等能力。</p>
+<p>支持自托管（Self-hosted）和云服务两种部署模式。</p>
+<h3 id="核心特性">核心特性</h3>
+<li style="margin-left:0px"><strong>Tracing</strong>：端到端追踪 LLM 调用链路，支持嵌套 span</li>
+<li style="margin-left:0px"><strong>Evaluation</strong>：模型评估、人工标注、自动评分</li>
+<li style="margin-left:0px"><strong>Prompt Management</strong>：版本化 Prompt，支持 A/B 测试</li>
+<li style="margin-left:0px"><strong>Cost Tracking</strong>：按模型、用户、功能维度追踪成本</li>
+<li style="margin-left:0px"><strong>User Management</strong>：按用户维度分析使用情况</li>
+<h3 id="与-LangSmith-对比">与 LangSmith 对比</h3>
+<table>
+<thead><tr>
+<th>特性</th>
+<th>Langfuse</th>
+<th>LangSmith</th>
+</tr></thead><tbody>
+<tr>
+<td>开源</td>
+<td>✅ Apache 2.0</td>
+<td>❌ 闭源</td>
+</tr>
+<tr>
+<td>自托管</td>
+<td>✅ Docker/K8s</td>
+<td>仅企业版</td>
+</tr>
+<tr>
+<td>SDK 语言</td>
+<td>Python, JS/TS</td>
+<td>Python, JS/TS</td>
+</tr>
+<tr>
+<td>LangChain 集成</td>
+<td>✅</td>
+<td>✅ 原生</td>
+</tr>
+<tr>
+<td>非 LangChain</td>
+<td>✅ 装饰器</td>
+<td>✅ 装饰器</td>
+</tr>
+<tr>
+<td>定价</td>
+<td>免费自托管 / Cloud 免费层</td>
+<td>付费</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-安装与部署">2. 安装与部署</h2>
+<h3 id="21-云服务最快上手">2.1 云服务（最快上手）</h3>
+<pre><code class="language-bash">
+# 1. 注册 https://cloud.langfuse.com
+# 2. 创建项目，获取 keys
+
+pip install langfuse
+
+export LANGFUSE_PUBLIC_KEY=&quot;pk-lf-xxxx&quot;
+export LANGFUSE_SECRET_KEY=&quot;sk-lf-xxxx&quot;
+export LANGFUSE_HOST=&quot;https://cloud.langfuse.com&quot;  # 默认
+</code></pre>
+<h3 id="22-Docker-自托管">2.2 Docker 自托管</h3>
+<pre><code class="language-bash">
+# 克隆仓库
+git clone https://github.com/langfuse/langfuse.git
+cd langfuse
+
+# 使用 Docker Compose 启动
+docker compose up -d
+
+# 服务将运行在 http://localhost:3000
+</code></pre>
+<pre><code class="language-yaml">
+# docker-compose.yml（简化版）
+version: &#x27;3.8&#x27;
+services:
+  langfuse-web:
+    image: langfuse/langfuse:latest
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/langfuse
+      - NEXTAUTH_SECRET=your-secret
+      - NEXTAUTH_URL=http://localhost:3000
+      - SALT=your-salt
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=langfuse
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+
+volumes:
+  pgdata:
+</code></pre>
+<h3 id="23-Kubernetes-部署">2.3 Kubernetes 部署</h3>
+<pre><code class="language-yaml">
+# langfuse-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: langfuse
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: langfuse
+  template:
+    metadata:
+      labels:
+        app: langfuse
+    spec:
+      containers:
+      - name: langfuse
+        image: langfuse/langfuse:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: database-url
+        - name: NEXTAUTH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: langfuse-secrets
+              key: nextauth-secret
+        resources:
+          requests:
+            memory: &quot;512Mi&quot;
+            cpu: &quot;250m&quot;
+          limits:
+            memory: &quot;1Gi&quot;
+            cpu: &quot;500m&quot;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-基本追踪">3. 基本追踪</h2>
+<h3 id="31-装饰器方式推荐">3.1 装饰器方式（推荐）</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+from langfuse.decorators import observe, langfuse_context
+
+langfuse = Langfuse()
+
+@observe(as_type=&quot;generation&quot;)
+def call_llm(prompt: str) -&gt; str:
+    from openai import OpenAI
+    client = OpenAI()
+    
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}]
+    )
+    
+    # 记录 token 用量和模型信息
+    langfuse_context.update_current_observation(
+        usage={
+            &quot;input&quot;: response.usage.prompt_tokens,
+            &quot;output&quot;: response.usage.completion_tokens,
+            &quot;total&quot;: response.usage.total_tokens
+        },
+        model=&quot;gpt-4&quot;,
+        metadata={&quot;finish_reason&quot;: response.choices[0].finish_reason}
+    )
+    
+    return response.choices[0].message.content
+
+@observe()
+def rag_pipeline(question: str) -&gt; str:
+    # 检索文档
+    docs = retrieve(question)
+    
+    # 生成回答
+    context = &quot;\n&quot;.join(docs)
+    answer = call_llm(f&quot;根据以下信息回答：\n{context}\n\n问题：{question}&quot;)
+    
+    return answer
+
+# 自动创建 trace，包含完整的 span 树
+result = rag_pipeline(&quot;什么是 RAG？&quot;)
+langfuse.flush()
+</code></pre>
+<h3 id="32-手动追踪">3.2 手动追踪</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+
+langfuse = Langfuse()
+
+# 创建 trace
+trace = langfuse.trace(
+    name=&quot;customer-support&quot;,
+    user_id=&quot;user-123&quot;,
+    session_id=&quot;session-456&quot;,
+    metadata={&quot;channel&quot;: &quot;web&quot;}
+)
+
+# 创建 span
+span = trace.span(
+    name=&quot;document-retrieval&quot;,
+    input={&quot;query&quot;: &quot;退款政策&quot;}
+)
+
+# 模拟检索
+docs = [&quot;退款需在7天内申请...&quot;, &quot;特殊商品不支持退款...&quot;]
+span.end(output={&quot;documents&quot;: docs})
+
+# 创建 generation
+generation = trace.generation(
+    name=&quot;answer-generation&quot;,
+    model=&quot;gpt-4&quot;,
+    input=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;你是客服助手&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;退款政策是什么？&quot;}
+    ]
+)
+
+answer = &quot;根据我们的退款政策...&quot;
+generation.end(
+    output=answer,
+    usage={&quot;input&quot;: 150, &quot;output&quot;: 80}
+)
+
+langfuse.flush()
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-评估Evaluations">4. 评估（Evaluations）</h2>
+<h3 id="41-LLM-as-Judge-自动评估">4.1 LLM-as-Judge 自动评估</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+from langfuse.decorators import observe
+
+langfuse = Langfuse()
+
+@observe(as_type=&quot;generation&quot;)
+def llm_judge(answer: str, question: str) -&gt; dict:
+    from openai import OpenAI
+    client = OpenAI()
+    
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[{
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: f&quot;&quot;&quot;评估以下回答的质量（1-5分）：
+            问题：{question}
+            回答：{answer}
+            
+            返回 JSON：{{&quot;score&quot;: &lt;1-5&gt;, &quot;reason&quot;: &quot;&lt;原因&gt;&quot;}}&quot;&quot;&quot;
+        }],
+        response_format={&quot;type&quot;: &quot;json_object&quot;}
+    )
+    
+    import json
+    return json.loads(response.choices[0].message.content)
+
+# 在 trace 上添加评分
+trace = langfuse.trace(name=&quot;eval-test&quot;)
+answer = &quot;退款需在7天内申请...&quot;
+judge_result = llm_judge(answer, &quot;退款政策是什么？&quot;)
+
+trace.score(
+    name=&quot;quality&quot;,
+    value=judge_result[&quot;score&quot;],
+    comment=judge_result[&quot;reason&quot;]
+)
+
+langfuse.flush()
+</code></pre>
+<h3 id="42-人工标注">4.2 人工标注</h3>
+<pre><code class="language-python">
+# 通过 API 添加人工评分
+trace = langfuse.trace(name=&quot;human-review-trace&quot;)
+
+# 评分类型：NUMERIC / CATEGORICAL / BOOLEAN
+trace.score(name=&quot;accuracy&quot;, value=4.5)  # 数值评分
+trace.score(name=&quot;sentiment&quot;, value=&quot;positive&quot;)  # 分类评分
+trace.score(name=&quot;is_harmful&quot;, value=0)  # 布尔评分
+
+# 在 Langfuse UI 中也可以直接标注
+</code></pre>
+<h3 id="43-评估仪表板截图描述">4.3 评估仪表板截图描述</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────┐
+│  Langfuse - Evaluations Dashboard                   │
+│                                                      │
+│  Scores Overview:                                    │
+│  ┌──────────┬──────────┬──────────┬──────────┐      │
+│  │ Quality  │Accuracy  │Harmful % │ Cost/run │      │
+│  │  4.2/5   │  89%     │  0.2%    │  $0.035  │      │
+│  └──────────┴──────────┴──────────┴──────────┘      │
+│                                                      │
+│  Quality Trend (7 days):                             │
+│  5 │        ╭──╮                                    │
+│  4 │  ──────╯  ╰──────                              │
+│  3 │                                                │
+│  2 │                                                │
+│    └──────────────────────                           │
+│    Mon Tue Wed Thu Fri Sat Sun                       │
+│                                                      │
+│  Top Issues:                                         │
+│  1. 幻觉事实 (12 instances)                         │
+│  2. 回答不完整 (8 instances)                        │
+│  3. 语气不当 (3 instances)                          │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-Prompt-管理">5. Prompt 管理</h2>
+<h3 id="51-创建与版本化-Prompt">5.1 创建与版本化 Prompt</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+
+langfuse = Langfuse()
+
+# 创建 Prompt（首次）
+langfuse.create_prompt(
+    name=&quot;customer-support&quot;,
+    prompt=&quot;你是客服助手。请简洁回答用户问题。\n\n用户问题：{{question}}&quot;,
+    config={
+        &quot;model&quot;: &quot;gpt-4&quot;,
+        &quot;temperature&quot;: 0.3,
+        &quot;max_tokens&quot;: 500
+    },
+    labels=[&quot;production&quot;],
+    tags=[&quot;customer-support&quot;, &quot;v2&quot;]
+)
+
+# 更新版本
+langfuse.create_prompt(
+    name=&quot;customer-support&quot;,
+    prompt=&quot;你是专业的客服助手。请用友好简洁的语气回答。如不确定请说明。\n\n用户问题：{{question}}&quot;,
+    config={
+        &quot;model&quot;: &quot;gpt-4&quot;,
+        &quot;temperature&quot;: 0.2,
+        &quot;max_tokens&quot;: 500
+    },
+    labels=[&quot;production&quot;],
+    tags=[&quot;customer-support&quot;, &quot;v3&quot;]
+)
+</code></pre>
+<h3 id="52-使用-Prompt">5.2 使用 Prompt</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+
+langfuse = Langfuse()
+
+# 获取最新 production 版本
+prompt = langfuse.get_prompt(&quot;customer-support&quot;)
+
+# 渲染模板
+rendered = prompt.compile(question=&quot;如何退款？&quot;)
+
+# 使用 config 中的模型参数
+from openai import OpenAI
+client = OpenAI()
+
+response = client.chat.completions.create(
+    model=prompt.config[&quot;model&quot;],
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: rendered}],
+    temperature=prompt.config[&quot;temperature&quot;],
+    max_tokens=prompt.config[&quot;max_tokens&quot;]
+)
+
+# 追踪 Prompt 版本使用情况
+trace = langfuse.trace(name=&quot;chat&quot;)
+trace.generation(
+    name=&quot;response&quot;,
+    prompt=prompt,  # 自动关联 Prompt 版本
+    model=prompt.config[&quot;model&quot;],
+    input=rendered,
+    output=response.choices[0].message.content
+)
+</code></pre>
+<h3 id="53-Prompt-AB-测试">5.3 Prompt A/B 测试</h3>
+<pre><code class="language-python">
+import random
+
+prompt_v2 = langfuse.get_prompt(&quot;customer-support&quot;, version=2)
+prompt_v3 = langfuse.get_prompt(&quot;customer-support&quot;, version=3)
+
+# 50/50 分流
+prompt = prompt_v3 if random.random() &gt; 0.5 else prompt_v2
+
+trace = langfuse.trace(
+    name=&quot;ab-test&quot;,
+    metadata={&quot;prompt_version&quot;: prompt.version}
+)
+# ... 使用 prompt 并追踪结果
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-成本追踪">6. 成本追踪</h2>
+<h3 id="61-按模型追踪成本">6.1 按模型追踪成本</h3>
+<pre><code class="language-python">
+from langfuse import Langfuse
+
+langfuse = Langfuse()
+
+# 自动追踪（usage 数据会自动计算成本）
+@observe(as_type=&quot;generation&quot;)
+def generate(prompt: str) -&gt; str:
+    from openai import OpenAI
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model=&quot;gpt-4&quot;,
+        messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}]
+    )
+    # Langfuse 自动根据模型和 token 数计算成本
+    langfuse_context.update_current_observation(
+        model=&quot;gpt-4&quot;,
+        usage={
+            &quot;input&quot;: response.usage.prompt_tokens,
+            &quot;output&quot;: response.usage.completion_tokens
+        }
+    )
+    return response.choices[0].message.content
+</code></pre>
+<h3 id="62-自定义模型价格">6.2 自定义模型价格</h3>
+<p>在 Langfuse Settings → Models 中配置：</p>
+<pre><code>
+模型: gpt-4
+输入价格: $0.03 / 1K tokens
+输出价格: $0.06 / 1K tokens
+
+模型: gpt-3.5-turbo
+输入价格: $0.0005 / 1K tokens
+输出价格: $0.0015 / 1K tokens
+</code></pre>
+<h3 id="63-成本仪表板截图描述">6.3 成本仪表板截图描述</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────┐
+│  Langfuse - Cost Dashboard                          │
+│                                                      │
+│  Total Cost (This Month): $1,234.56                 │
+│  ┌─────────────────────────────────────────┐        │
+│  │  Daily Cost Trend                       │        │
+│  │  $80│     ╭─╮                           │        │
+│  │  $60│ ────╯ ╰───╮                       │        │
+│  │  $40│            ╰────                   │        │
+│  │  $20│                                    │        │
+│  │     └────────────────────                │        │
+│  │     1  5  10  15  20  25  30            │        │
+│  └─────────────────────────────────────────┘        │
+│                                                      │
+│  Cost by Model:                                      │
+│  ├─ GPT-4:         $890.23 (72%)                   │
+│  ├─ GPT-3.5-turbo: $245.67 (20%)                   │
+│  ├─ Claude-3:       $98.66 (8%)                     │
+│                                                      │
+│  Cost by Feature:                                    │
+│  ├─ Customer Support: $650.00                       │
+│  ├─ Content Gen:      $380.00                       │
+│  └─ Summarization:    $204.56                       │
+│                                                      │
+│  Cost by User (Top 5):                              │
+│  ├─ user-001: $45.20                               │
+│  ├─ user-002: $38.15                               │
+│  └─ ...                                             │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-SDK-集成示例">7. SDK 集成示例</h2>
+<h3 id="71-LangChain-集成">7.1 LangChain 集成</h3>
+<pre><code class="language-python">
+from langfuse.callback import CallbackHandler
+
+# 创建回调处理器
+langfuse_handler = CallbackHandler(
+    public_key=&quot;pk-lf-xxxx&quot;,
+    secret_key=&quot;sk-lf-xxxx&quot;,
+    host=&quot;https://cloud.langfuse.com&quot;
+)
+
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain.chains import LLMChain
+
+llm = ChatOpenAI(model=&quot;gpt-4&quot;)
+prompt = ChatPromptTemplate.from_template(&quot;回答：{question}&quot;)
+chain = LLMChain(llm=llm, prompt=prompt)
+
+# 传入 callback handler，自动追踪
+result = chain.invoke(
+    {&quot;question&quot;: &quot;什么是可观测性？&quot;},
+    config={&quot;callbacks&quot;: [langfuse_handler]}
+)
+</code></pre>
+<h3 id="72-LlamaIndex-集成">7.2 LlamaIndex 集成</h3>
+<pre><code class="language-python">
+from llama_index.core import Settings
+from llama_index.core.callbacks import CallbackManager
+from langfuse.llama_index import LlamaIndexCallbackHandler
+
+# 设置 Langfuse 回调
+langfuse_handler = LlamaIndexCallbackHandler()
+Settings.callback_manager = CallbackManager([langfuse_handler])
+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+documents = SimpleDirectoryReader(&quot;./data&quot;).load_data()
+index = VectorStoreIndex.from_documents(documents)
+query_engine = index.as_query_engine()
+
+# 自动追踪
+response = query_engine.query(&quot;什么是 RAG？&quot;)
+</code></pre>
+<h3 id="73-OpenAI-SDK-直接集成">7.3 OpenAI SDK 直接集成</h3>
+<pre><code class="language-python">
+from langfuse.openai import openai  # 替换 import
+
+# 自动追踪所有 OpenAI 调用
+client = openai.OpenAI()
+
+response = client.chat.completions.create(
+    model=&quot;gpt-4&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello&quot;}],
+    # Langfuse 特有参数
+    langfuse_trace_id=&quot;trace-123&quot;,
+    langfuse_generation_name=&quot;greeting&quot;
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-自托管运维">8. 自托管运维</h2>
+<h3 id="81-备份策略">8.1 备份策略</h3>
+<pre><code class="language-bash">
+# PostgreSQL 备份
+pg_dump -h localhost -U postgres langfuse &gt; langfuse_backup.sql
+
+# 自动备份脚本
+#!/bin/bash
+DATE=$(date +%Y%m%d_%H%M%S)
+pg_dump -h localhost -U postgres langfuse | gzip &gt; /backups/langfuse_$DATE.sql.gz
+find /backups -name &quot;langfuse_*.sql.gz&quot; -mtime +30 -delete
+</code></pre>
+<h3 id="82-监控与告警">8.2 监控与告警</h3>
+<pre><code class="language-yaml">
+# Prometheus 健康检查
+# Langfuse 暴露 /api/public/health 端点
+- job_name: &#x27;langfuse&#x27;
+  metrics_path: &#x27;/api/public/health&#x27;
+  static_configs:
+    - targets: [&#x27;langfuse:3000&#x27;]
+</code></pre>
+<h3 id="83-数据保留策略">8.3 数据保留策略</h3>
+<pre><code class="language-python">
+# 通过 API 清理旧数据
+import requests
+
+response = requests.delete(
+    &quot;https://your-langfuse/api/public/traces&quot;,
+    headers={&quot;Authorization&quot;: &quot;Bearer sk-lf-xxxx&quot;},
+    params={&quot;before&quot;: &quot;2024-01-01&quot;}
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="9-最佳实践">9. 最佳实践</h2>
+<li style="margin-left:0px"><strong>环境隔离</strong>：使用不同的项目区分 dev/staging/prod</li>
+<li style="margin-left:0px"><strong>用户标识</strong>：始终传入 <code>user_id</code> 以便按用户分析</li>
+<li style="margin-left:0px"><strong>Session 追踪</strong>：多轮对话使用 <code>session_id</code> 关联</li>
+<li style="margin-left:0px"><strong>标签规范</strong>：统一使用 tags 标记功能模块和版本</li>
+<li style="margin-left:0px"><strong>成本预算</strong>：设置每日/每月成本告警</li>
+<li style="margin-left:0px"><strong>评估自动化</strong>：在 CI/CD 中运行评估脚本</li>
+<li style="margin-left:0px"><strong>隐私保护</strong>：敏感字段在发送前脱敏</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="10-参考资源">10. 参考资源</h2>
+<li style="margin-left:0px"><a href="https://langfuse.com/docs">Langfuse 官方文档</a></li>
+<li style="margin-left:0px"><a href="https://github.com/langfuse/langfuse">Langfuse GitHub</a></li>
+<li style="margin-left:0px"><a href="https://langfuse.com/docs/ask-questions">Langfuse 社区</a></li>
+<li style="margin-left:0px"><a href="https://langfuse.com/docs/deployment/self-host">Self-hosting Guide</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>Langfuse 是开源的 LLM 可观测性平台，支持自托管，数据完全掌控在自己手中。是 LangSmith 的开源替代方案，适合对数据隐私有要求的企业。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">商业方案：<a href="#LangSmith追踪与评估">LangSmith追踪与评估</a></li>
+<li style="margin-left:0px">标准化：<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">监控体系：<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<li style="margin-left:0px">自托管部署：<a href="#Docker部署实践">Docker部署实践</a>、<a href="#Hermes Agent插件开发">Hermes Agent插件开发</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from langfuse import Langfuse
+from langfuse.decorators import observe
+
+langfuse = Langfuse(public_key=&quot;pk-...&quot;, secret_key=&quot;sk-...&quot;, host=&quot;http://langfuse:3000&quot;)
+app = FastAPI()
+
+@app.post(&quot;/v1/chat/completions&quot;)
+@observe(as_type=&quot;generation&quot;)
+async def chat(request: ChatRequest):
+    # langfuse 自动追踪输入/输出/延迟/token 用量
+    response = await call_llm(request)
+    langfuse.score(name=&quot;user-feedback&quot;, value=1.0)  # 记录用户反馈
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Langfuse 自托管
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports: [&quot;3000:3000&quot;]
+    environment:
+      - DATABASE_URL=postgresql://langfuse:langfuse@db:5432/langfuse
+      - NEXTAUTH_SECRET=your-secret
+  db:
+    image: postgres:15
+    volumes: [&quot;pgdata:/var/lib/postgresql/data&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中接入 Langfuse：通过设置环境变量 <code>LANGFUSE_PUBLIC_KEY</code> 和 <code>LANGFUSE_SECRET_KEY</code>，Agent 的所有 LLM 调用会自动上报到 Langfuse 面板，实现对 Agent 推理链路的可视化追踪和成本监控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="OpenTelemetry-for-LLM">OpenTelemetry for LLM</h1>
+<h2 id="1-OpenTelemetry-概述">1. OpenTelemetry 概述</h2>
+<p>OpenTelemetry（OTel）是 CNCF 的可观测性标准框架，提供统一的追踪（Traces）、指标（Metrics）、</p>
+<p>日志（Logs）采集协议。将其应用于 LLM 应用，可以实现与现有可观测性基础设施的无缝集成。</p>
+<h3 id="为什么用-OTel-追踪-LLM">为什么用 OTel 追踪 LLM？</h3>
+<li style="margin-left:0px"><strong>标准化</strong>：厂商无关的通用协议，避免锁定</li>
+<li style="margin-left:0px"><strong>统一平台</strong>：LLM 追踪与后端服务追踪在同一平台展示</li>
+<li style="margin-left:0px"><strong>生态丰富</strong>：支持 Grafana、Jaeger、Datadog、New Relic 等</li>
+<li style="margin-left:0px"><strong>灵活控制</strong>：自定义采样、过滤、数据保留策略</li>
+<h3 id="架构">架构</h3>
+<pre><code>
+┌──────────────┐    ┌──────────────┐    ┌──────────────────┐
+│  LLM App     │    │  OTel SDK    │    │  OTel Collector  │
+│  (Python/JS) │───▶│  (Traces +   │───▶│  (Process +      │
+│              │    │   Metrics)   │    │   Export)        │
+└──────────────┘    └──────────────┘    └───────┬──────────┘
+                                                │
+                    ┌───────────────────────────┼──────────────┐
+                    │                           │              │
+              ┌─────▼─────┐  ┌─────────▼──────┐ ┌──────▼──────┐
+              │  Jaeger    │  │  Grafana Tempo │ │  Datadog    │
+              └───────────┘  └────────────────┘ └─────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-语义约定Semantic-Conventions">2. 语义约定（Semantic Conventions）</h2>
+<h3 id="21-Gen-AI-语义约定">2.1 Gen AI 语义约定</h3>
+<p>OpenTelemetry 社区定义了 Gen AI 相关的语义约定（Semantic Conventions），</p>
+<p>用于标准化 LLM 调用的 span 属性。</p>
+<pre><code>
+# Span 属性命名规范（Gen AI Semantic Conventions）
+
+# 基本属性
+gen_ai.system          # 模型提供商：openai, anthropic, cohere
+gen_ai.operation.name  # 操作类型：chat, completions, embeddings
+gen_ai.request.model   # 请求的模型名称
+gen_ai.response.model  # 实际响应的模型名称
+
+# 请求参数
+gen_ai.request.max_tokens      # 最大 token 数
+gen_ai.request.temperature     # 温度参数
+gen_ai.request.top_p           # top_p 参数
+
+# 响应属性
+gen_ai.response.finish_reasons  # 完成原因列表
+gen_ai.response.id              # 响应 ID
+
+# Token 用量（Metric）
+gen_ai.client.token.usage       # token 使用量
+  - gen_ai.token.type: input | output
+  - gen_ai.system: openai
+
+# 性能指标
+gen_ai.client.operation.duration  # 操作耗时
+</code></pre>
+<h3 id="22-Span-命名规范">2.2 Span 命名规范</h3>
+<pre><code>
+# 推荐的 span 命名格式
+{gen_ai.system}.{gen_ai.operation.name}
+
+# 示例
+openai.chat
+anthropic.completions
+cohere.embeddings
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-Python-SDK-集成">3. Python SDK 集成</h2>
+<h3 id="31-安装依赖">3.1 安装依赖</h3>
+<pre><code class="language-bash">
+pip install opentelemetry-api \
+            opentelemetry-sdk \
+            opentelemetry-exporter-otlp \
+            opentelemetry-instrumentation-openai
+</code></pre>
+<h3 id="32-手动创建-Spans">3.2 手动创建 Spans</h3>
+<pre><code class="language-python">
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from openai import OpenAI
+
+# 配置 OTel
+provider = TracerProvider()
+exporter = OTLPSpanExporter(endpoint=&quot;http://localhost:4317&quot;, insecure=True)
+provider.add_span_processor(BatchSpanProcessor(exporter))
+trace.set_tracer_provider(provider)
+
+tracer = trace.get_tracer(&quot;llm-app&quot;)
+client = OpenAI()
+
+def chat_with_tracing(user_message: str) -&gt; str:
+    with tracer.start_as_current_span(&quot;openai.chat&quot;) as span:
+        # 设置 Gen AI 语义约定属性
+        span.set_attribute(&quot;gen_ai.system&quot;, &quot;openai&quot;)
+        span.set_attribute(&quot;gen_ai.operation.name&quot;, &quot;chat&quot;)
+        span.set_attribute(&quot;gen_ai.request.model&quot;, &quot;gpt-4&quot;)
+        span.set_attribute(&quot;gen_ai.request.temperature&quot;, 0.7)
+        span.set_attribute(&quot;gen_ai.request.max_tokens&quot;, 500)
+        
+        # 调用 LLM
+        response = client.chat.completions.create(
+            model=&quot;gpt-4&quot;,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_message}],
+            temperature=0.7,
+            max_tokens=500
+        )
+        
+        # 记录响应信息
+        span.set_attribute(&quot;gen_ai.response.model&quot;, response.model)
+        span.set_attribute(&quot;gen_ai.response.finish_reasons&quot;, 
+                          [c.finish_reason.value for c in response.choices])
+        span.set_attribute(&quot;gen_ai.response.id&quot;, response.id)
+        
+        # 记录 token 用量
+        span.set_attribute(&quot;gen_ai.client.token.usage.input&quot;, 
+                          response.usage.prompt_tokens)
+        span.set_attribute(&quot;gen_ai.client.token.usage.output&quot;, 
+                          response.usage.completion_tokens)
+        
+        return response.choices[0].message.content
+
+result = chat_with_tracing(&quot;什么是可观测性？&quot;)
+</code></pre>
+<h3 id="33-自动追踪-OpenAI-调用">3.3 自动追踪 OpenAI 调用</h3>
+<pre><code class="language-python">
+from opentelemetry.instrumentation.openai import OpenAIInstrumentor
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+from opentelemetry import trace
+
+# 配置 exporter
+provider = TracerProvider()
+provider.add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint=&quot;http://localhost:4317&quot;))
+)
+trace.set_tracer_provider(provider)
+
+# 自动追踪所有 OpenAI 调用
+OpenAIInstrumentor().instrument()
+
+from openai import OpenAI
+client = OpenAI()
+
+# 这次调用会自动创建 span
+response = client.chat.completions.create(
+    model=&quot;gpt-4&quot;,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello!&quot;}]
+)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-LLM-应用端到端追踪">4. LLM 应用端到端追踪</h2>
+<h3 id="41-RAG-Pipeline-追踪">4.1 RAG Pipeline 追踪</h3>
+<pre><code class="language-python">
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+
+provider = TracerProvider()
+provider.add_span_processor(
+    BatchSpanProcessor(OTLPSpanExporter(endpoint=&quot;http://localhost:4317&quot;))
+)
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(&quot;rag-app&quot;)
+
+def rag_pipeline(question: str) -&gt; str:
+    with tracer.start_as_current_span(&quot;rag.pipeline&quot;) as root_span:
+        root_span.set_attribute(&quot;input.question&quot;, question)
+        
+        # Step 1: 文档检索
+        with tracer.start_as_current_span(&quot;rag.retrieve&quot;) as retrieve_span:
+            docs = retrieve_documents(question)
+            retrieve_span.set_attribute(&quot;retrieval.doc_count&quot;, len(docs))
+            retrieve_span.set_attribute(&quot;retrieval.method&quot;, &quot;vector_search&quot;)
+        
+        # Step 2: 上下文构建
+        with tracer.start_as_current_span(&quot;rag.context_build&quot;) as ctx_span:
+            context = build_context(docs)
+            ctx_span.set_attribute(&quot;context.token_count&quot;, count_tokens(context))
+        
+        # Step 3: LLM 生成
+        with tracer.start_as_current_span(&quot;rag.generate&quot;) as gen_span:
+            gen_span.set_attribute(&quot;gen_ai.system&quot;, &quot;openai&quot;)
+            gen_span.set_attribute(&quot;gen_ai.request.model&quot;, &quot;gpt-4&quot;)
+            
+            answer = generate_answer(context, question)
+            gen_span.set_attribute(&quot;output.answer_length&quot;, len(answer))
+        
+        root_span.set_attribute(&quot;output.answer&quot;, answer[:200])
+        return answer
+</code></pre>
+<h3 id="42-Agent-追踪">4.2 Agent 追踪</h3>
+<pre><code class="language-python">
+from opentelemetry import trace
+
+tracer = trace.get_tracer(&quot;agent-app&quot;)
+
+def agent_loop(user_input: str, max_iterations: int = 5) -&gt; str:
+    with tracer.start_as_current_span(&quot;agent.loop&quot;) as root:
+        root.set_attribute(&quot;agent.max_iterations&quot;, max_iterations)
+        messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_input}]
+        
+        for i in range(max_iterations):
+            with tracer.start_as_current_span(f&quot;agent.step.{i}&quot;) as step:
+                step.set_attribute(&quot;agent.iteration&quot;, i)
+                
+                # LLM 决策
+                response = llm_call(messages)
+                messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response})
+                
+                # 检查是否需要工具调用
+                if needs_tool_call(response):
+                    tool_name, tool_args = parse_tool_call(response)
+                    step.set_attribute(&quot;agent.tool.name&quot;, tool_name)
+                    
+                    with tracer.start_as_current_span(f&quot;agent.tool.{tool_name}&quot;) as tool:
+                        tool_result = execute_tool(tool_name, tool_args)
+                        tool.set_attribute(&quot;tool.result_length&quot;, len(str(tool_result)))
+                    
+                    messages.append({&quot;role&quot;: &quot;tool&quot;, &quot;content&quot;: str(tool_result)})
+                else:
+                    step.set_attribute(&quot;agent.finished&quot;, True)
+                    return response
+        
+        return &quot;达到最大迭代次数&quot;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-OTel-Collector-配置">5. OTel Collector 配置</h2>
+<h3 id="51-Collector-配置文件">5.1 Collector 配置文件</h3>
+<pre><code class="language-yaml">
+# otel-collector-config.yaml
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  # 批处理
+  batch:
+    timeout: 5s
+    send_batch_size: 1024
+  
+  # 资源属性添加
+  resource:
+    attributes:
+      - key: service.name
+        value: &quot;llm-app&quot;
+        action: upsert
+      - key: deployment.environment
+        value: &quot;production&quot;
+        action: upsert
+  
+  # 过滤敏感信息
+  filter/llm:
+    error_mode: ignore
+    traces:
+      span:
+        - &#x27;attributes[&quot;gen_ai.request.model&quot;] == nil&#x27;
+
+  # 尾部采样（控制成本）
+  tail_sampling:
+    decision_wait: 10s
+    policies:
+      - name: error-policy
+        type: status_code
+        status_code: {status_codes: [ERROR]}
+      - name: slow-traces
+        type: latency
+        latency: {threshold_ms: 5000}
+      - name: probabilistic
+        type: probabilistic
+        probabilistic: {sampling_percentage: 10}
+
+exporters:
+  # 导出到 Grafana Tempo
+  otlp/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+  
+  # 导出到 Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  
+  # 导出到 Prometheus（指标）
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    namespace: llm
+  
+  # 调试输出
+  debug:
+    verbosity: basic
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch, resource, tail_sampling]
+      exporters: [otlp/tempo, debug]
+    metrics:
+      receivers: [otlp]
+      processors: [batch, resource]
+      exporters: [prometheus]
+</code></pre>
+<h3 id="52-Docker-Compose-部署">5.2 Docker Compose 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose-otel.yaml
+version: &#x27;3.8&#x27;
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: [&quot;--config=/etc/otel-config.yaml&quot;]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-config.yaml
+    ports:
+      - &quot;4317:4317&quot;   # gRPC
+      - &quot;4318:4318&quot;   # HTTP
+      - &quot;8889:8889&quot;   # Prometheus metrics
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  tempo:
+    image: grafana/tempo:latest
+    command: [&quot;-config.file=/etc/tempo.yaml&quot;]
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+    ports:
+      - &quot;3200:3200&quot;
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - &quot;9090:9090&quot;
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-Grafana-仪表板">6. Grafana 仪表板</h2>
+<h3 id="61-LLM-追踪查询TraceQL">6.1 LLM 追踪查询（TraceQL）</h3>
+<pre><code>
+# 在 Grafana Tempo 中查询 LLM traces
+
+# 查找所有 OpenAI 调用
+{span.gen_ai.system = &quot;openai&quot;}
+
+# 查找慢调用（&gt;3s）
+{span.gen_ai.system = &quot;openai&quot;} | duration &gt; 3s
+
+# 查找特定模型
+{span.gen_ai.request.model = &quot;gpt-4&quot;}
+
+# 查找高 token 用量的调用
+{span.gen_ai.client.token.usage.input &gt; 1000}
+
+# 查找错误
+{status = error} &amp;&amp; {span.gen_ai.system = &quot;openai&quot;}
+</code></pre>
+<h3 id="62-Grafana-Dashboard-截图描述">6.2 Grafana Dashboard 截图描述</h3>
+<pre><code>
+┌──────────────────────────────────────────────────────────┐
+│  Grafana - LLM Observability Dashboard                   │
+│                                                           │
+│  Row 1: Overview Metrics                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌────────────┐ │
+│  │ Requests │ │ Avg      │ │ Error    │ │ Total Cost │ │
+│  │ /min     │ │ Latency  │ │ Rate     │ │ (Today)    │ │
+│  │   45     │ │  1.8s    │ │  0.5%    │ │  $123.45   │ │
+│  └──────────┘ └──────────┘ └──────────┘ └────────────┘ │
+│                                                           │
+│  Row 2: Latency &amp; Throughput                             │
+│  ┌────────────────────────┐ ┌────────────────────────┐  │
+│  │ Latency P50/P95/P99   │ │ Requests per minute    │  │
+│  │ [Time Series Chart]    │ │ [Time Series Chart]    │  │
+│  │ P50: ~1.2s             │ │ Trend: ↗ increasing    │  │
+│  │ P95: ~3.8s             │ │                        │  │
+│  │ P99: ~8.2s             │ │                        │  │
+│  └────────────────────────┘ └────────────────────────┘  │
+│                                                           │
+│  Row 3: Token Usage &amp; Cost                               │
+│  ┌────────────────────────┐ ┌────────────────────────┐  │
+│  │ Token Usage by Model   │ │ Cost Breakdown         │  │
+│  │ [Stacked Bar]          │ │ [Pie Chart]            │  │
+│  │ GPT-4: 2.3M tokens     │ │ GPT-4: 72%            │  │
+│  │ GPT-3.5: 5.1M tokens   │ │ GPT-3.5: 20%          │  │
+│  │ Claude: 0.8M tokens    │ │ Claude: 8%             │  │
+│  └────────────────────────┘ └────────────────────────┘  │
+│                                                           │
+│  Row 4: Trace Explorer                                   │
+│  ┌──────────────────────────────────────────────────┐   │
+│  │ Trace ID    │ Model  │ Latency │ Tokens │ Status │   │
+│  │ abc123...   │ GPT-4  │ 2.1s    │ 520    │ ✅     │   │
+│  │ def456...   │ GPT-4  │ 5.3s    │ 1200   │ ⚠️     │   │
+│  │ ghi789...   │ Claude │ 1.8s    │ 350    │ ✅     │   │
+│  │ jkl012...   │ GPT-4  │ -       │ -      │ ❌     │   │
+│  └──────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="63-Grafana-PromQL-查询">6.3 Grafana PromQL 查询</h3>
+<pre><code class="language-promql">
+# 请求速率
+rate(llm_gen_ai_client_operation_duration_count[5m])
+
+# 平均延迟
+rate(llm_gen_ai_client_operation_duration_sum[5m]) 
+/ rate(llm_gen_ai_client_operation_duration_count[5m])
+
+# P95 延迟
+histogram_quantile(0.95, 
+  rate(llm_gen_ai_client_operation_duration_bucket[5m])
+)
+
+# Token 使用速率
+rate(llm_gen_ai_client_token_usage_sum[5m])
+
+# 错误率
+rate(llm_gen_ai_client_operation_duration_count{http_status_code!~&quot;2..&quot;}[5m])
+/ rate(llm_gen_ai_client_operation_duration_count[5m])
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-多后端集成">7. 多后端集成</h2>
+<h3 id="71-导出到-Datadog">7.1 导出到 Datadog</h3>
+<pre><code class="language-yaml">
+# otel-collector-config.yaml
+exporters:
+  datadog:
+    api:
+      key: ${DD_API_KEY}
+    metrics:
+      resource_attributes_as_tags: true
+    traces:
+      span_name_as_resource_name: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [datadog]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [datadog]
+</code></pre>
+<h3 id="72-导出到-New-Relic">7.2 导出到 New Relic</h3>
+<pre><code class="language-yaml">
+exporters:
+  otlp/newrelic:
+    endpoint: otlp.nr-data.net:4317
+    headers:
+      api-key: ${NEW_RELIC_API_KEY}
+</code></pre>
+<h3 id="73-导出到自建系统">7.3 导出到自建系统</h3>
+<pre><code class="language-yaml">
+exporters:
+  # Elasticsearch
+  elasticsearch:
+    endpoints: [&quot;http://elasticsearch:9200&quot;]
+    traces_index: llm-traces
+    
+  # ClickHouse
+  clickhouse:
+    endpoint: tcp://clickhouse:9000
+    traces_table: otel_traces
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-自定义指标Metrics">8. 自定义指标（Metrics）</h2>
+<pre><code class="language-python">
+from opentelemetry import metrics
+from opentelemetry.sdk.metrics import MeterProvider
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter
+
+# 配置 Metrics
+reader = PeriodicExportingMetricReader(
+    OTLPMetricExporter(endpoint=&quot;http://localhost:4317&quot;),
+    export_interval_millis=10000
+)
+provider = MeterProvider(metric_readers=[reader])
+metrics.set_meter_provider(provider)
+
+meter = metrics.get_meter(&quot;llm-app&quot;)
+
+# 创建自定义指标
+token_counter = meter.create_counter(
+    name=&quot;llm.tokens.total&quot;,
+    description=&quot;Total tokens consumed&quot;,
+    unit=&quot;tokens&quot;
+)
+
+latency_histogram = meter.create_histogram(
+    name=&quot;llm.request.duration&quot;,
+    description=&quot;LLM request latency&quot;,
+    unit=&quot;ms&quot;
+)
+
+cost_counter = meter.create_counter(
+    name=&quot;llm.cost.total&quot;,
+    description=&quot;Total LLM cost in USD&quot;,
+    unit=&quot;USD&quot;
+)
+
+# 使用指标
+def track_llm_call(model: str, tokens_in: int, tokens_out: int, 
+                   duration_ms: float, cost: float):
+    labels = {&quot;model&quot;: model, &quot;provider&quot;: &quot;openai&quot;}
+    
+    token_counter.add(tokens_in, {**labels, &quot;type&quot;: &quot;input&quot;})
+    token_counter.add(tokens_out, {**labels, &quot;type&quot;: &quot;output&quot;})
+    latency_histogram.record(duration_ms, labels)
+    cost_counter.add(cost, labels)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="9-最佳实践">9. 最佳实践</h2>
+<li style="margin-left:0px"><strong>使用语义约定</strong>：遵循 Gen AI Semantic Conventions，确保数据可被标准工具解析</li>
+<li style="margin-left:0px"><strong>批量导出</strong>：使用 <code>BatchSpanProcessor</code> 而非 <code>SimpleSpanProcessor</code></li>
+<li style="margin-left:0px"><strong>采样策略</strong>：生产环境使用尾部采样，保留错误和慢请求的完整 trace</li>
+<li style="margin-left:0px"><strong>敏感数据</strong>：不要将完整 prompt/响应内容放入 span 属性，使用脱敏或摘要</li>
+<li style="margin-left:0px"><strong>资源属性</strong>：添加 <code>service.name</code>、<code>deployment.environment</code> 等标准属性</li>
+<li style="margin-left:0px"><strong>指标与追踪关联</strong>：确保 metrics 和 traces 使用相同的 resource attributes</li>
+<li style="margin-left:0px"><strong>Collector 部署</strong>：使用 OTel Collector 作为中间层，解耦 SDK 和后端</li>
+<li style="margin-left:0px"><strong>版本管理</strong>：跟踪 semantic conventions 版本更新</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="10-参考资源">10. 参考资源</h2>
+<li style="margin-left:0px"><a href="https://opentelemetry.io/docs/">OpenTelemetry 文档</a></li>
+<li style="margin-left:0px"><a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">Gen AI Semantic Conventions</a></li>
+<li style="margin-left:0px"><a href="https://opentelemetry.io/docs/collector/configuration/">OTel Collector 配置</a></li>
+<li style="margin-left:0px"><a href="https://opentelemetry-python.readthedocs.io/">OpenTelemetry Python SDK</a></li>
+<li style="margin-left:0px"><a href="https://grafana.com/docs/tempo/latest/getting-started/">Grafana + OTel 集成</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>OpenTelemetry 是可观测性的行业标准，将其应用于 LLM 调用链路追踪，可以实现跨框架、跨服务的统一监控。适合已有 OTel 基础设施的团队。</p>
+<p><strong>难度等级</strong>：🔴 ⭐⭐⭐⭐ 高级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">框架专用：<a href="#LangSmith追踪与评估">LangSmith追踪与评估</a>、<a href="#Langfuse开源可观测性">Langfuse开源可观测性</a></li>
+<li style="margin-left:0px">最佳实践：<a href="#LLM监控最佳实践">LLM监控最佳实践</a></li>
+<li style="margin-left:0px">基础设施：<a href="#Prometheus监控体系">Prometheus监控体系</a>、<a href="#Grafana可视化">Grafana可视化</a></li>
+<li style="margin-left:0px">应用场景：<a href="#微服务LLM架构">微服务LLM架构</a>、<a href="#多模型路由监控">多模型路由监控</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from langfuse import Langfuse
+from langfuse.decorators import observe
+
+langfuse = Langfuse(public_key=&quot;pk-...&quot;, secret_key=&quot;sk-...&quot;, host=&quot;http://langfuse:3000&quot;)
+app = FastAPI()
+
+@app.post(&quot;/v1/chat/completions&quot;)
+@observe(as_type=&quot;generation&quot;)
+async def chat(request: ChatRequest):
+    # langfuse 自动追踪输入/输出/延迟/token 用量
+    response = await call_llm(request)
+    langfuse.score(name=&quot;user-feedback&quot;, value=1.0)  # 记录用户反馈
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Langfuse 自托管
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports: [&quot;3000:3000&quot;]
+    environment:
+      - DATABASE_URL=postgresql://langfuse:langfuse@db:5432/langfuse
+      - NEXTAUTH_SECRET=your-secret
+  db:
+    image: postgres:15
+    volumes: [&quot;pgdata:/var/lib/postgresql/data&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中接入 Langfuse：通过设置环境变量 <code>LANGFUSE_PUBLIC_KEY</code> 和 <code>LANGFUSE_SECRET_KEY</code>，Agent 的所有 LLM 调用会自动上报到 Langfuse 面板，实现对 Agent 推理链路的可视化追踪和成本监控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote><h1 id="LLM-监控最佳实践">LLM 监控最佳实践</h1>
+<h2 id="1-LLM-监控的核心指标">1. LLM 监控的核心指标</h2>
+<p>LLM 应用的监控需要覆盖四个维度：性能（Performance）、成本（Cost）、</p>
+<p>质量（Quality）和可靠性（Reliability）。</p>
+<h3 id="指标全景图">指标全景图</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────────┐
+│                   LLM Monitoring                        │
+├──────────────┬──────────────┬────────────┬──────────────┤
+│  Performance │    Cost      │  Quality   │ Reliability  │
+├──────────────┼──────────────┼────────────┼──────────────┤
+│  Latency     │  $/request   │  Accuracy  │  Error Rate  │
+│  TTFT        │  $/token     │  Relevance │  Uptime      │
+│  Throughput  │  $/user/day  │  Safety    │  Timeout %   │
+│  Queue Time  │  Model cost  │  Coherence │  Rate Limit  │
+│  P50/P95/P99 │  Breakdown   │  Feedback  │  Fallback %  │
+└──────────────┴──────────────┴────────────┴──────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="2-关键指标详解">2. 关键指标详解</h2>
+<h3 id="21-延迟指标">2.1 延迟指标</h3>
+<pre><code class="language-python">
+# 延迟分解
+latency_breakdown = {
+    &quot;queue_time&quot;:      &quot;请求排队等待时间&quot;,
+    &quot;ttft&quot;:            &quot;Time to First Token（流式场景关键）&quot;,
+    &quot;generation_time&quot;: &quot;模型生成耗时&quot;,
+    &quot;total_latency&quot;:   &quot;端到端延迟&quot;,
+    &quot;p50&quot;:             &quot;中位数延迟&quot;,
+    &quot;p95&quot;:             &quot;95分位延迟&quot;,
+    &quot;p99&quot;:             &quot;99分位延迟&quot;,
+}
+
+# 监控实现
+import time
+from opentelemetry import metrics
+
+meter = metrics.get_meter(&quot;llm-monitor&quot;)
+
+latency_histogram = meter.create_histogram(
+    name=&quot;llm.latency&quot;,
+    description=&quot;LLM request latency breakdown&quot;,
+    unit=&quot;ms&quot;
+)
+
+def measure_latency(func):
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        duration_ms = (time.perf_counter() - start) * 1000
+        
+        latency_histogram.record(duration_ms, {
+            &quot;model&quot;: kwargs.get(&quot;model&quot;, &quot;unknown&quot;),
+            &quot;operation&quot;: func.__name__
+        })
+        return result
+    return wrapper
+
+# 延迟阈值建议
+LATENCY_SLA = {
+    &quot;chat&quot;: {&quot;p50&quot;: 1000, &quot;p95&quot;: 3000, &quot;p99&quot;: 5000},      # ms
+    &quot;completion&quot;: {&quot;p50&quot;: 2000, &quot;p95&quot;: 5000, &quot;p99&quot;: 10000},
+    &quot;embedding&quot;: {&quot;p50&quot;: 200, &quot;p95&quot;: 500, &quot;p99&quot;: 1000},
+    &quot;rag&quot;: {&quot;p50&quot;: 2000, &quot;p95&quot;: 5000, &quot;p99&quot;: 8000},
+}
+</code></pre>
+<h3 id="22-成本指标">2.2 成本指标</h3>
+<pre><code class="language-python">
+# 成本追踪
+cost_tracker = meter.create_counter(
+    name=&quot;llm.cost&quot;,
+    description=&quot;LLM API cost in USD&quot;,
+    unit=&quot;USD&quot;
+)
+
+# 模型定价表
+MODEL_PRICING = {
+    &quot;gpt-4&quot;: {&quot;input&quot;: 0.03, &quot;output&quot;: 0.06},       # per 1K tokens
+    &quot;gpt-4-turbo&quot;: {&quot;input&quot;: 0.01, &quot;output&quot;: 0.03},
+    &quot;gpt-3.5-turbo&quot;: {&quot;input&quot;: 0.0005, &quot;output&quot;: 0.0015},
+    &quot;claude-3-opus&quot;: {&quot;input&quot;: 0.015, &quot;output&quot;: 0.075},
+    &quot;claude-3-sonnet&quot;: {&quot;input&quot;: 0.003, &quot;output&quot;: 0.015},
+}
+
+def calculate_cost(model: str, input_tokens: int, output_tokens: int) -&gt; float:
+    pricing = MODEL_PRICING.get(model, {&quot;input&quot;: 0.01, &quot;output&quot;: 0.03})
+    input_cost = (input_tokens / 1000) * pricing[&quot;input&quot;]
+    output_cost = (output_tokens / 1000) * pricing[&quot;output&quot;]
+    return input_cost + output_cost
+
+def track_cost(model: str, input_tokens: int, output_tokens: int, 
+               user_id: str = None, feature: str = None):
+    cost = calculate_cost(model, input_tokens, output_tokens)
+    labels = {&quot;model&quot;: model}
+    if user_id:
+        labels[&quot;user_id&quot;] = user_id
+    if feature:
+        labels[&quot;feature&quot;] = feature
+    cost_tracker.add(cost, labels)
+    return cost
+
+# 成本告警阈值
+COST_ALERTS = {
+    &quot;per_request&quot;: 0.50,      # 单次请求超过 $0.50
+    &quot;per_user_daily&quot;: 10.00,  # 单用户每日超过 $10
+    &quot;project_daily&quot;: 500.00,  # 项目每日超过 $500
+    &quot;project_monthly&quot;: 10000  # 项目每月超过 $10,000
+}
+</code></pre>
+<h3 id="23-错误率指标">2.3 错误率指标</h3>
+<pre><code class="language-python">
+from enum import Enum
+
+class ErrorCategory(Enum):
+    RATE_LIMIT = &quot;rate_limit&quot;
+    TIMEOUT = &quot;timeout&quot;
+    INVALID_REQUEST = &quot;invalid_request&quot;
+    AUTH_ERROR = &quot;auth_error&quot;
+    MODEL_ERROR = &quot;model_error&quot;
+    CONTENT_FILTER = &quot;content_filter&quot;
+    UNKNOWN = &quot;unknown&quot;
+
+error_counter = meter.create_counter(
+    name=&quot;llm.errors&quot;,
+    description=&quot;LLM error count by category&quot;,
+    unit=&quot;errors&quot;
+)
+
+def track_error(error_type: ErrorCategory, model: str, details: str = &quot;&quot;):
+    error_counter.add(1, {
+        &quot;error_type&quot;: error_type.value,
+        &quot;model&quot;: model
+    })
+
+# 错误率计算
+# error_rate = error_count / total_requests
+# 告警阈值：error_rate &gt; 5% 持续 5 分钟
+</code></pre>
+<h3 id="24-用户满意度指标">2.4 用户满意度指标</h3>
+<pre><code class="language-python">
+# 显式反馈
+satisfaction_gauge = meter.create_gauge(
+    name=&quot;llm.satisfaction&quot;,
+    description=&quot;User satisfaction score&quot;,
+    unit=&quot;score&quot;
+)
+
+def record_feedback(trace_id: str, score: float, user_id: str):
+    &quot;&quot;&quot;score: -1 (negative) to 1 (positive)&quot;&quot;&quot;
+    satisfaction_gauge.set(score, {
+        &quot;trace_id&quot;: trace_id,
+        &quot;user_id&quot;: user_id
+    })
+
+# 隐式反馈信号
+implicit_signals = {
+    &quot;thumbs_up_down&quot;:    &quot;显式评分（最直接）&quot;,
+    &quot;copy_response&quot;:     &quot;用户复制回答（正面信号）&quot;,
+    &quot;regenerate&quot;:        &quot;用户重新生成（负面信号）&quot;,
+    &quot;continue_conversation&quot;: &quot;继续对话（中性正面）&quot;,
+    &quot;abandon&quot;:           &quot;用户离开（负面信号）&quot;,
+    &quot;edit_response&quot;:     &quot;用户编辑回答（部分负面）&quot;,
+}
+
+# 满意度评分公式
+def compute_satisfaction_score(signals: dict) -&gt; float:
+    weights = {
+        &quot;thumbs_up&quot;: 1.0,
+        &quot;thumbs_down&quot;: -1.0,
+        &quot;regenerate&quot;: -0.5,
+        &quot;copy&quot;: 0.3,
+        &quot;abandon&quot;: -0.3,
+    }
+    score = sum(weights.get(k, 0) * v for k, v in signals.items())
+    return max(-1.0, min(1.0, score))  # 归一化到 [-1, 1]
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="3-告警策略">3. 告警策略</h2>
+<h3 id="31-告警规则定义">3.1 告警规则定义</h3>
+<pre><code class="language-yaml">
+# alerting-rules.yaml (Prometheus AlertManager 格式)
+groups:
+  - name: llm-alerts
+    rules:
+      # 高延迟告警
+      - alert: LLMLatencyHigh
+        expr: histogram_quantile(0.95, rate(llm_latency_bucket[5m])) &gt; 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: &quot;LLM P95 latency exceeds 5s&quot;
+          description: &quot;P95 latency is {{ $value }}s for model {{ $labels.model }}&quot;
+      
+      # 高错误率告警
+      - alert: LLMErrorRateHigh
+        expr: rate(llm_errors_total[5m]) / rate(llm_requests_total[5m]) &gt; 0.05
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: &quot;LLM error rate exceeds 5%&quot;
+      
+      # 成本告警
+      - alert: LLMCostSpike
+        expr: increase(llm_cost_total[1h]) &gt; 50
+        labels:
+          severity: warning
+        annotations:
+          summary: &quot;LLM cost exceeded $50 in the last hour&quot;
+      
+      # Token 用量告警
+      - alert: LLMTokenUsageHigh
+        expr: rate(llm_tokens_total[1h]) &gt; 1000000
+        labels:
+          severity: warning
+        annotations:
+          summary: &quot;Token usage exceeds 1M/hour&quot;
+      
+      # 模型可用性告警
+      - alert: LLMProviderDown
+        expr: up{job=&quot;llm-provider&quot;} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: &quot;LLM provider appears to be down&quot;
+      
+      # 满意度下降告警
+      - alert: SatisfactionDrop
+        expr: avg_over_time(llm_satisfaction_score[1h]) &lt; 0.3
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: &quot;User satisfaction dropped below 0.3&quot;
+</code></pre>
+<h3 id="32-告警分级">3.2 告警分级</h3>
+<pre><code>
+┌──────────┬──────────────────────────────────────┬──────────────────┐
+│ 级别      │ 场景                                  │ 响应时间          │
+├──────────┼──────────────────────────────────────┼──────────────────┤
+│ Critical │ 模型服务不可用、错误率 &gt;20%            │ 5 分钟内响应      │
+│ Warning  │ P95 延迟 &gt;5s、错误率 &gt;5%、成本异常     │ 30 分钟内响应     │
+│ Info     │ Token 用量增长、满意度下降趋势          │ 下一工作日处理    │
+└──────────┴──────────────────────────────────────┴──────────────────┘
+</code></pre>
+<h3 id="33-自动降级策略">3.3 自动降级策略</h3>
+<pre><code class="language-python">
+class LLMFallbackManager:
+    &quot;&quot;&quot;自动降级管理器&quot;&quot;&quot;
+    
+    def __init__(self):
+        self.error_counts = {}
+        self.circuit_breaker = {}
+    
+    def call_with_fallback(self, prompt: str, user_id: str) -&gt; str:
+        models = [&quot;gpt-4&quot;, &quot;gpt-4-turbo&quot;, &quot;gpt-3.5-turbo&quot;]
+        
+        for model in models:
+            if self.is_circuit_open(model):
+                continue
+            
+            try:
+                result = self.call_model(model, prompt)
+                self.record_success(model)
+                return result
+            except RateLimitError:
+                self.record_failure(model)
+                continue
+            except TimeoutError:
+                self.record_failure(model)
+                if self.get_error_rate(model) &gt; 0.5:
+                    self.open_circuit(model)
+                continue
+            except Exception as e:
+                self.record_failure(model)
+                continue
+        
+        # 所有模型都失败，返回缓存或默认响应
+        return self.get_cached_or_default(prompt)
+    
+    def is_circuit_open(self, model: str) -&gt; bool:
+        &quot;&quot;&quot;断路器：连续失败过多时暂时跳过&quot;&quot;&quot;
+        return self.circuit_breaker.get(model, {}).get(&quot;open&quot;, False)
+    
+    def get_error_rate(self, model: str) -&gt; float:
+        counts = self.error_counts.get(model, {&quot;success&quot;: 0, &quot;fail&quot;: 0})
+        total = counts[&quot;success&quot;] + counts[&quot;fail&quot;]
+        if total &lt; 10:
+            return 0.0
+        return counts[&quot;fail&quot;] / total
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="4-监控仪表板设计">4. 监控仪表板设计</h2>
+<h3 id="41-运维仪表板">4.1 运维仪表板</h3>
+<pre><code>
+┌──────────────────────────────────────────────────────────────┐
+│  LLM Operations Dashboard - Production                      │
+│                                                               │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌───────┐│
+│  │ Status  │ │ Req/min │ │ P95     │ │ Error   │ │ Cost  ││
+│  │ 🟢 UP   │ │   45    │ │ 2.1s    │ │  0.3%   │ │ $45/h ││
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └───────┘│
+│                                                               │
+│  Latency Trend (24h)          Error Rate (24h)              │
+│  ┌──────────────────┐         ┌──────────────────┐          │
+│  │ 3s│    ╭╮        │         │ 5%│              │          │
+│  │ 2s│───╯╰──╭─╮   │         │ 3%│──╮  ╭──     │          │
+│  │ 1s│       ╰╯╰──│         │ 1%│──╯╰─╯  ╰─── │          │
+│  │   └───────────  │         │   └───────────  │          │
+│  └──────────────────┘         └──────────────────┘          │
+│                                                               │
+│  Model Distribution        Cost by Feature                   │
+│  ┌──────────────────┐      ┌──────────────────┐             │
+│  │ GPT-4    ████ 60%│      │ Chat     ████ 45%│             │
+│  │ GPT-3.5  ██   25%│      │ RAG      ███  30%│             │
+│  │ Claude   █    15%│      │ Code     ██   25%│             │
+│  └──────────────────┘      └──────────────────┘             │
+│                                                               │
+│  Active Alerts:                                               │
+│  ⚠️  [Warning] GPT-4 P95 latency 4.2s (threshold: 5s)       │
+│  ℹ️  [Info] Token usage up 15% vs yesterday                   │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="42-产品仪表板">4.2 产品仪表板</h3>
+<pre><code>
+┌──────────────────────────────────────────────────────────────┐
+│  LLM Product Dashboard - Business Metrics                   │
+│                                                               │
+│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐           │
+│  │ Daily   │ │ Active  │ │ Avg     │ │ NPS     │           │
+│  │ Queries │ │ Users   │ │ Rating  │ │ Score   │           │
+│  │  8,234  │ │  1,245  │ │  4.2/5  │ │  +42    │           │
+│  └─────────┘ └─────────┘ └─────────┘ └─────────┘           │
+│                                                               │
+│  User Satisfaction Trend        Cost per Query               │
+│  ┌──────────────────┐          ┌──────────────────┐         │
+│  │ 4.5│      ╭──    │          │$0.10│            │         │
+│  │ 4.0│──────╯  ╰──│          │$0.05│──────────  │         │
+│  │ 3.5│              │          │$0.01│            │         │
+│  │    └───────────  │          │    └───────────  │         │
+│  └──────────────────┘          └──────────────────┘         │
+│                                                               │
+│  Top Features by Usage:                                      │
+│  1. Customer Support Chat    (45%)  | Satisfaction: 4.3      │
+│  2. Document Summarization   (25%)  | Satisfaction: 4.1      │
+│  3. Code Generation          (20%)  | Satisfaction: 4.0      │
+│  4. Data Analysis            (10%)  | Satisfaction: 4.4      │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="5-生产环境监控模式">5. 生产环境监控模式</h2>
+<h3 id="51-多层监控架构">5.1 多层监控架构</h3>
+<pre><code>
+┌─────────────────────────────────────────────────────────┐
+│                    监控层次架构                           │
+├─────────────────────────────────────────────────────────┤
+│  Layer 4: Business Metrics                              │
+│  ├─ 用户满意度、转化率、留存率                            │
+│  └─ 工具：Mixpanel, Amplitude, 自建 BI                  │
+├─────────────────────────────────────────────────────────┤
+│  Layer 3: LLM Quality Metrics                           │
+│  ├─ 准确率、幻觉率、相关性、安全性                        │
+│  └─ 工具：Langfuse, LangSmith, Patronus                 │
+├─────────────────────────────────────────────────────────┤
+│  Layer 2: Application Metrics                           │
+│  ├─ 延迟、吞吐、错误率、缓存命中率                        │
+│  └─ 工具：Grafana, Datadog, New Relic                   │
+├─────────────────────────────────────────────────────────┤
+│  Layer 1: Infrastructure Metrics                        │
+│  ├─ CPU、内存、GPU、网络、队列深度                        │
+│  └─ 工具：Prometheus, CloudWatch, K8s Metrics           │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<h3 id="52-AB-测试监控">5.2 A/B 测试监控</h3>
+<pre><code class="language-python">
+import hashlib
+
+class ABTestMonitor:
+    &quot;&quot;&quot;A/B 测试监控&quot;&quot;&quot;
+    
+    def __init__(self):
+        self.variants = {
+            &quot;control&quot;: {&quot;model&quot;: &quot;gpt-4&quot;, &quot;prompt&quot;: &quot;v1&quot;},
+            &quot;treatment&quot;: {&quot;model&quot;: &quot;gpt-4-turbo&quot;, &quot;prompt&quot;: &quot;v2&quot;}
+        }
+    
+    def assign_variant(self, user_id: str) -&gt; str:
+        hash_val = hashlib.md5(user_id.encode()).hexdigest()
+        return &quot;treatment&quot; if int(hash_val, 16) % 2 == 0 else &quot;control&quot;
+    
+    def track_variant_metrics(self, user_id: str, variant: str,
+                              latency: float, tokens: int, 
+                              cost: float, satisfaction: float):
+        &quot;&quot;&quot;记录各变体的指标，用于后续分析&quot;&quot;&quot;
+        # 使用统一的指标名，通过 variant label 区分
+        metrics = {
+            &quot;ab_test.latency&quot;: latency,
+            &quot;ab_test.tokens&quot;: tokens,
+            &quot;ab_test.cost&quot;: cost,
+            &quot;ab_test.satisfaction&quot;: satisfaction,
+        }
+        for name, value in metrics.items():
+            record_metric(name, value, {&quot;variant&quot;: variant, &quot;user_id&quot;: user_id})
+</code></pre>
+<h3 id="53-异常检测">5.3 异常检测</h3>
+<pre><code class="language-python">
+import numpy as np
+from collections import deque
+
+class AnomalyDetector:
+    &quot;&quot;&quot;基于统计的异常检测&quot;&quot;&quot;
+    
+    def __init__(self, window_size: int = 100, threshold: float = 3.0):
+        self.window_size = window_size
+        self.threshold = threshold  # 标准差倍数
+        self.windows = {}
+    
+    def add_sample(self, metric_name: str, value: float) -&gt; bool:
+        if metric_name not in self.windows:
+            self.windows[metric_name] = deque(maxlen=self.window_size)
+        
+        window = self.windows[metric_name]
+        
+        # 检测异常
+        if len(window) &gt;= 10:
+            mean = np.mean(window)
+            std = np.std(window)
+            if std &gt; 0 and abs(value - mean) &gt; self.threshold * std:
+                return True  # 异常！
+        
+        window.append(value)
+        return False
+
+# 使用示例
+detector = AnomalyDetector(window_size=200, threshold=2.5)
+
+def on_latency_sample(latency_ms: float, model: str):
+    is_anomaly = detector.add_sample(f&quot;latency.{model}&quot;, latency_ms)
+    if is_anomaly:
+        send_alert(f&quot;异常延迟: {model} latency={latency_ms}ms&quot;)
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="6-数据保留与治理">6. 数据保留与治理</h2>
+<h3 id="61-分层存储策略">6.1 分层存储策略</h3>
+<pre><code>
+┌─────────────────────────────────────────────┐
+│           数据分层存储                        │
+├──────────┬──────────┬───────────┬───────────┤
+│  层级     │  保留期   │  存储      │  查询     │
+├──────────┼──────────┼───────────┼───────────┤
+│  Hot     │  7 天     │  SSD/内存  │  实时     │
+│  Warm    │  30 天    │  对象存储  │  分钟级   │
+│  Cold    │  90 天    │  归档存储  │  小时级   │
+│  Delete  │  &gt;90 天   │  删除      │  -       │
+└──────────┴──────────┴───────────┴───────────┘
+</code></pre>
+<h3 id="62-隐私合规">6.2 隐私合规</h3>
+<pre><code class="language-python">
+import re
+
+class DataSanitizer:
+    &quot;&quot;&quot;数据脱敏处理&quot;&quot;&quot;
+    
+    PATTERNS = {
+        &quot;email&quot;: r&#x27;\b[\w.-]+@[\w.-]+\.\w+\b&#x27;,
+        &quot;phone&quot;: r&#x27;\b1[3-9]\d{9}\b&#x27;,
+        &quot;id_card&quot;: r&#x27;\b\d{17}[\dXx]\b&#x27;,
+        &quot;credit_card&quot;: r&#x27;\b\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b&#x27;,
+    }
+    
+    @classmethod
+    def sanitize(cls, text: str) -&gt; str:
+        for name, pattern in cls.PATTERNS.items():
+            text = re.sub(pattern, f&quot;[{name.upper()}_REDACTED]&quot;, text)
+        return text
+
+# 在发送到监控系统前脱敏
+def safe_trace_data(prompt: str, response: str) -&gt; dict:
+    return {
+        &quot;prompt&quot;: DataSanitizer.sanitize(prompt),
+        &quot;response&quot;: DataSanitizer.sanitize(response),
+        &quot;prompt_length&quot;: len(prompt),
+        &quot;response_length&quot;: len(response),
+    }
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="7-工具选型建议">7. 工具选型建议</h2>
+<table>
+<thead><tr>
+<th>场景</th>
+<th>推荐工具</th>
+<th>优势</th>
+</tr></thead><tbody>
+<tr>
+<td>LangChain 生态</td>
+<td>LangSmith</td>
+<td>原生集成、Prompt Hub</td>
+</tr>
+<tr>
+<td>开源自托管</td>
+<td>Langfuse</td>
+<td>Apache 2.0、功能全面</td>
+</tr>
+<tr>
+<td>已有 Grafana 栈</td>
+<td>OpenTelemetry + Grafana</td>
+<td>标准化、复用基础设施</td>
+</tr>
+<tr>
+<td>企业级全栈</td>
+<td>Datadog LLM Observability</td>
+<td>开箱即用、AI 驱动分析</td>
+</tr>
+<tr>
+<td>质量评估专项</td>
+<td>Patronus / DeepEval</td>
+<td>专业评估指标</td>
+</tr>
+<tr>
+<td>成本优化专项</td>
+<td>LiteLLM Proxy</td>
+<td>统一 API、成本追踪</td>
+</tr>
+</tbody></table>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="8-实施路线图">8. 实施路线图</h2>
+<pre><code>
+Phase 1（第1-2周）：基础追踪
+├── 集成 Langfuse 或 LangSmith
+├── 追踪所有 LLM 调用的输入/输出/token
+└── 建立基础仪表板
+
+Phase 2（第3-4周）：成本与性能
+├── 实现成本追踪（按模型/用户/功能）
+├── 设置延迟 SLO 和告警
+├── 部署错误率监控
+└── 实现自动降级策略
+
+Phase 3（第5-8周）：质量与评估
+├── 建立评估数据集
+├── 实现自动评估流水线
+├── 接入用户反馈机制
+└── 建立 A/B 测试框架
+
+Phase 4（持续优化）：深度监控
+├── 异常检测模型
+├── 成本优化（模型路由、缓存）
+├── 满意度与业务指标关联
+└── 定期回顾与调优
+</code></pre>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="9-Checklist">9. Checklist</h2>
+<li style="margin-left:0px">[ ] 所有 LLM 调用都有 trace</li>
+<li style="margin-left:0px">[ ] 记录 token 用量和成本</li>
+<li style="margin-left:0px">[ ] 延迟 SLO 已定义并有告警</li>
+<li style="margin-left:0px">[ ] 错误率监控已配置</li>
+<li style="margin-left:0px">[ ] 自动降级策略已实现</li>
+<li style="margin-left:0px">[ ] 用户反馈机制已上线</li>
+<li style="margin-left:0px">[ ] 敏感数据已脱敏</li>
+<li style="margin-left:0px">[ ] 数据保留策略已执行</li>
+<li style="margin-left:0px">[ ] A/B 测试框架已就绪</li>
+<li style="margin-left:0px">[ ] 仪表板覆盖运维和产品视角</li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="10-参考资源">10. 参考资源</h2>
+<li style="margin-left:0px"><a href="https://sre.google/sre-book/practical-alerting/">Google SRE Book - Monitoring</a></li>
+<li style="margin-left:0px"><a href="https://www.oreilly.com/library/view/observability-engineering/9781492076438/">Observability Engineering (O'Reilly)</a></li>
+<li style="margin-left:0px"><a href="https://langfuse.com/blog">Langfuse Blog - LLM Monitoring</a></li>
+<li style="margin-left:0px"><a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/">OpenTelemetry Gen AI</a></li>
+<li style="margin-left:0px"><a href="https://www.datadoghq.com/product/llm-observability/">Datadog LLM Observability</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-全局定位">📌 全局定位</h2>
+<p>LLM 监控最佳实践涵盖了从指标定义、告警策略到持续优化的完整方法论。是将可观测性工具落地为实际运维能力的指导性文档。</p>
+<p><strong>难度等级</strong>：🟠 ⭐⭐⭐ 中级</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-知识串联">🔗 知识串联</h2>
+<li style="margin-left:0px">工具选型：<a href="#LangSmith追踪与评估">LangSmith追踪与评估</a>、<a href="#Langfuse开源可观测性">Langfuse开源可观测性</a>、<a href="#OpenTelemetry-for-LLM">OpenTelemetry-for-LLM</a></li>
+<li style="margin-left:0px">监控对象：<a href="#vLLM部署与配置">vLLM部署与配置</a>、<a href="#API服务封装">API服务封装</a></li>
+<li style="margin-left:0px">成本监控：<a href="#成本管理与优化">成本管理与优化</a></li>
+<li style="margin-left:0px">安全监控：<a href="#输出内容安全防护">输出内容安全防护</a>、<a href="#Prompt注入与越狱防护">Prompt注入与越狱防护</a></li>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<h2 id="-落地实践">🚀 落地实践</h2>
+<blockquote><p>以下示例基于你的技术栈：<strong>FastAPI + Docker + Hermes Agent</strong></p></blockquote>
+<h3 id="FastAPI-集成示例">FastAPI 集成示例</h3>
+<pre><code class="language-python">
+from fastapi import FastAPI
+from langfuse import Langfuse
+from langfuse.decorators import observe
+
+langfuse = Langfuse(public_key=&quot;pk-...&quot;, secret_key=&quot;sk-...&quot;, host=&quot;http://langfuse:3000&quot;)
+app = FastAPI()
+
+@app.post(&quot;/v1/chat/completions&quot;)
+@observe(as_type=&quot;generation&quot;)
+async def chat(request: ChatRequest):
+    # langfuse 自动追踪输入/输出/延迟/token 用量
+    response = await call_llm(request)
+    langfuse.score(name=&quot;user-feedback&quot;, value=1.0)  # 记录用户反馈
+    return response
+</code></pre>
+<h3 id="Docker-部署">Docker 部署</h3>
+<pre><code class="language-yaml">
+# docker-compose.yml - Langfuse 自托管
+services:
+  langfuse:
+    image: langfuse/langfuse:latest
+    ports: [&quot;3000:3000&quot;]
+    environment:
+      - DATABASE_URL=postgresql://langfuse:langfuse@db:5432/langfuse
+      - NEXTAUTH_SECRET=your-secret
+  db:
+    image: postgres:15
+    volumes: [&quot;pgdata:/var/lib/postgresql/data&quot;]
+</code></pre>
+<h3 id="Hermes-Agent-集成">Hermes Agent 集成</h3>
+<p>在 Hermes Agent 中接入 Langfuse：通过设置环境变量 <code>LANGFUSE_PUBLIC_KEY</code> 和 <code>LANGFUSE_SECRET_KEY</code>，Agent 的所有 LLM 调用会自动上报到 Langfuse 面板，实现对 Agent 推理链路的可视化追踪和成本监控。</p>
+<hr style="border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0">
+<blockquote><p>📅 最后更新：2026-05-31 | 🏷️ AI大模型知识体系</p></blockquote>
+</main>
+</body>
+</html>

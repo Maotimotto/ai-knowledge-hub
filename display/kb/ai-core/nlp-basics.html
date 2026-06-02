@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLP基础 - AI大模型知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.7;color:#333;background:#fff}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#fff;border-right:1px solid rgba(0,0,0,0.1);position:sticky;top:0;height:100vh;overflow-y:auto;padding:0}
+.sidebar-header{padding:20px;border-bottom:1px solid rgba(0,0,0,0.06)}
+.sidebar-logo{font-size:18px;font-weight:700;color:#0075de;text-decoration:none;display:block}
+.sidebar-subtitle{font-size:12px;color:#888;display:block;margin-top:2px}
+.sidebar-section{padding:12px 0}
+.sidebar-link{display:block;padding:6px 20px;color:#333;text-decoration:none;font-size:14px;border-left:3px solid transparent;transition:all 0.15s}
+.sidebar-link:hover{background:#f6f5f4}
+.sidebar-link.active{border-left-color:#0075de;color:#0075de;background:#f0f7ff;font-weight:500}
+.sidebar-link.root-link{font-weight:600;font-size:15px;padding:8px 20px}
+.sidebar-group .section-link{padding-left:28px;font-size:13px}
+.main{flex:1;padding:40px 60px;max-width:900px;min-width:0}
+.breadcrumb{font-size:13px;color:#888;margin-bottom:16px}
+.breadcrumb a{color:#0075de;text-decoration:none}
+.breadcrumb span{margin:0 6px}
+.page-title{font-size:44px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.2}
+.page-desc{font-size:16px;color:#666;margin-bottom:32px}
+h1{font-size:32px;font-weight:700;color:#1a1a1a;margin:32px 0 12px}
+h2{font-size:28px;font-weight:600;color:#1a1a1a;margin:28px 0 10px}
+h3{font-size:20px;font-weight:600;color:#333;margin:20px 0 8px}
+h4{font-size:17px;font-weight:600;color:#444;margin:16px 0 6px}
+h5,h6{font-size:15px;font-weight:600;color:#555;margin:12px 0 4px}
+p{margin:8px 0}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+.wikilink{color:#0075de;background:#f0f7ff;padding:1px 4px;border-radius:3px;font-size:inherit}
+pre{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:16px;margin:12px 0;overflow-x:auto;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;line-height:1.5}
+code.inline{background:#f6f5f4;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:14px}
+.kw{color:#7c3aed}
+.str{color:#059669}
+.cmt{color:#9ca3af;font-style:italic}
+.num{color:#d97706}
+.table-wrapper{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr.even td{background:#fff}
+tr.odd td{background:#fafafa}
+blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:12px 0;background:#f0f7ff;color:#444;font-size:14px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+.list-item{margin:3px 0;font-size:15px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:500;vertical-align:middle;margin-left:8px}
+.toc-box{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin:20px 0}
+.toc-box h3{font-size:15px;margin:0 0 8px;color:#333}
+.toc-box ul{list-style:none;padding:0}
+.toc-box li{margin:3px 0}
+.toc-box a{font-size:13px;color:#555}
+.toc-box a:hover{color:#0075de}
+.local-toc{background:#fafafa;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:12px 16px;margin:12px 0}
+.local-toc h3{font-size:13px;margin:0 0 6px;color:#666}
+.local-toc ul{list-style:none;padding:0}
+.local-toc li{margin:2px 0}
+.local-toc a{font-size:13px;color:#555}
+.file-section{margin:40px 0;padding-top:20px;border-top:1px solid rgba(0,0,0,0.06)}
+.file-section:first-of-type{border-top:none}
+.file-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.file-title{margin:0;font-size:22px}
+.related-box{background:#f0f7ff;border:1px solid #0075de22;border-radius:8px;padding:16px 20px;margin:20px 0}
+.related-box h3{font-size:14px;margin:0 0 8px;color:#0075de}
+.project-link{display:block;font-size:14px;margin:4px 0}
+.diagram{width:100%;max-width:700px;margin:16px 0;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff}
+.math{font-family:'Times New Roman',serif;font-style:italic;color:#444}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:relative}.main{padding:20px}}
+
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">
+<a href="index.html" class="sidebar-logo">AI知识库</a>
+<span class="sidebar-subtitle">AI大模型</span>
+</div>
+<div class="sidebar-section">
+<a href="index.html" class="sidebar-link root-link">AI大模型 知识体系</a>
+<div class="sidebar-group">
+<a href="nlp-basics.html" class="sidebar-link section-link">NLP基础</a>
+</div>
+<div class="sidebar-group">
+<a href="transformer.html" class="sidebar-link section-link">Transformer架构</a>
+</div>
+<div class="sidebar-group">
+<a href="tech-stack.html" class="sidebar-link section-link">大模型技术栈</a>
+</div>
+<div class="sidebar-group">
+<a href="rag.html" class="sidebar-link section-link">RAG技术</a>
+</div>
+<div class="sidebar-group">
+<a href="agent.html" class="sidebar-link section-link">Agent开发</a>
+</div>
+<div class="sidebar-group">
+<a href="langgraph.html" class="sidebar-link section-link">LangGraph</a>
+</div>
+<div class="sidebar-group">
+<a href="finetune.html" class="sidebar-link section-link">模型微调</a>
+</div>
+</div>
+</aside>
+<main class="main">
+<div class="breadcrumb">
+<a href="index.html">AI大模型</a> <span>/</span> <span>NLP基础</span>
+</div>
+<h1 class="page-title">NLP基础</h1>
+<p class="page-desc">自然语言处理基础理论与技术</p>
+
+<div class="toc-box"><h3>目录</h3><ul><li><a href="#21b4e77e">NLP概述与技术演进.md</a></li><li><a href="#7bf2f893">README-NLP基础.md</a></li><li><a href="#47de2d1a">传统序列模型RNN.md</a></li><li><a href="#f4fdbb26">分词与词表构建.md</a></li><li><a href="#cc3d9348">尚硅谷NLP课程-1.0.3.md</a></li><li><a href="#74952928">提示词工程核心技巧.md</a></li><li><a href="#d18e5b25">知识图谱基础.md</a></li><li><a href="#0bf87927">知识蒸馏.md</a></li><li><a href="#9ece7ce0">词向量与Word2Vec.md</a></li></ul></div>
+
+<section class="file-section" id="21b4e77e"><div class="file-header"><h2 class="file-title">NLP概述与技术演进</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#7a227a92">NLP概述与技术演进</a></li><li style="margin-left:0px"><a href="#bc54f380">全局定位</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#4e764b13">NLP常见任务</a></li><li style="margin-left:0px"><a href="#07bf2d1b">技术演进历史</a></li><li style="margin-left:16px"><a href="#847b3c5d">1. 规则系统阶段（50年代-80年代初）</a></li><li style="margin-left:16px"><a href="#5b770d4d">2. 统计方法阶段（90年代）</a></li><li style="margin-left:16px"><a href="#d4a28e6b">3. 机器学习阶段（21世纪初）</a></li><li style="margin-left:16px"><a href="#7825b073">4. 深度学习阶段（2010年代至今）</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="7a227a92">NLP概述与技术演进</h1>
+<blockquote>来源: 尚硅谷大模型技术之NLP教程 V1.0.3 / 黑马NLP课程
+整理时间: 2026-05-30</blockquote>
+<hr>
+<h2 id="bc54f380">全局定位</h2>
+<div class="list-item" style="padding-left:20px"><strong>所属知识域</strong>：<a class="wikilink" href="#AI大模型">AI大模型</a> > NLP基础</div>
+<div class="list-item" style="padding-left:20px"><strong>核心主题</strong>：NLP领域全景概述与技术演进路线</div>
+<div class="list-item" style="padding-left:20px"><strong>前置依赖</strong>：无（入门级）</div>
+<div class="list-item" style="padding-left:20px"><strong>关联技能</strong>：<a class="wikilink" href="#AI大模型/01-NLP基础/分词与词表构建">分词</a>、<a class="wikilink" href="#AI大模型/01-NLP基础/传统序列模型RNN">RNN</a>、<a class="wikilink" href="#AI大模型/02-Transformer架构/Transformer架构原理">Transformer</a></div>
+<div class="list-item" style="padding-left:20px"><strong>应用场景</strong>：NLP入门导览、技术栈全景认知</div>
+<hr>
+<h2 id="2af44481">核心概念</h2>
+<p>自然语言处理（Natural Language Processing, NLP）是人工智能的重要分支，目标是让计算机"理解"和"使用"人类日常语言。</p>
+<h2 id="4e764b13">NLP常见任务</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>任务类型</th><th>说明</th><th>典型应用</th></tr></thead>
+<tbody><tr class="even"><td><strong>文本分类</strong></td><td>对整段文本进行归类</td><td>情感分析、垃圾邮件识别、新闻分类</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>序列标注</strong></td><td>对每个词/字打标签</td><td>命名实体识别（NER）、词性标注</td></tr></tbody>
+<tbody><tr class="even"><td><strong>文本生成</strong></td><td>根据输入生成新文本</td><td>自动写作、摘要生成、对话系统</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>信息抽取</strong></td><td>从文本提取结构化信息</td><td>问答系统、知识图谱构建</td></tr></tbody>
+<tbody><tr class="even"><td><strong>文本转换</strong></td><td>将文本转换为另一种形式</td><td>机器翻译、文本摘要</td></tr></tbody>
+</table></div>
+<h2 id="07bf2d1b">技术演进历史</h2>
+<h3 id="847b3c5d">1. 规则系统阶段（50年代-80年代初）</h3>
+<div class="list-item" style="padding-left:20px">依赖人工编写的语言规则</div>
+<div class="list-item" style="padding-left:20px">代表：Georgetown-IBM实验（1954，俄英翻译）、ELIZA聊天机器人（1966）</div>
+<div class="list-item" style="padding-left:20px"><strong>局限</strong>：缺乏通用性，扩展性差</div>
+<h3 id="5b770d4d">2. 统计方法阶段（90年代）</h3>
+<div class="list-item" style="padding-left:20px">基于概率建模，从"专家经验"转向"数据驱动"</div>
+<div class="list-item" style="padding-left:20px">典型方法：N-gram模型、隐马尔可夫模型（HMM）、最大熵模型</div>
+<div class="list-item" style="padding-left:20px"><strong>N-gram模型</strong>：一个词出现的概率只取决于前面 N-1 个词</div>
+<div class="list-item" style="padding-left:36px">Bigram（2-gram）：只考虑前1个词</div>
+<div class="list-item" style="padding-left:36px">Trigram（3-gram）：考虑前2个词</div>
+<h3 id="d4a28e6b">3. 机器学习阶段（21世纪初）</h3>
+<div class="list-item" style="padding-left:20px">引入传统ML方法：逻辑回归、SVM、决策树、CRF</div>
+<div class="list-item" style="padding-left:20px"><strong>特征工程</strong>成为关键环节</div>
+<div class="list-item" style="padding-left:20px">词袋模型 + 逻辑回归的文本分类是典型范式</div>
+<h3 id="7825b073">4. 深度学习阶段（2010年代至今）</h3>
+<div class="list-item" style="padding-left:20px">神经网络取代手工特征工程</div>
+<div class="list-item" style="padding-left:20px">关键模型演进：RNN → LSTM/GRU → Transformer → 预训练模型（GPT/BERT）</div>
+<div class="list-item" style="padding-left:20px">推动了<a class="wikilink" href="#迁移学习">迁移学习</a>和预训练语言模型的发展</div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#分词与词表构建">分词与词表构建</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#Transformer架构原理">Transformer架构原理</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#机器学习概述">机器学习概述</a></div>
+</section><section class="file-section" id="7bf2f893"><div class="file-header"><h2 class="file-title">README-NLP基础</h2><span class="badge" style="background:#d4a017">基础</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#5845d322">NLP基础 索引</a></li><li style="margin-left:0px"><a href="#5e964687">本目录内容</a></li><li style="margin-left:16px"><a href="#938f3e41">NLP核心概念</a></li><li style="margin-left:16px"><a href="#66c1d842">序列模型</a></li><li style="margin-left:16px"><a href="#a95049d6">AI通用概念</a></li><li style="margin-left:16px"><a href="#bbca2718">Transformer</a></li><li style="margin-left:0px"><a href="#4ae84591">外部参考</a></li><li style="margin-left:0px"><a href="#f59e203f">关联目录</a></li></ul></div><h1 id="5845d322">NLP基础 索引</h1>
+<blockquote>##  全局定位
+<strong>知识领域</strong>：AI大模型 → NLP基础 → 目录索引
+<strong>在AI知识图谱中的位置</strong>：NLP基础是整个AI知识体系的根基，涵盖从分词到Transformer的完整技术栈
+<strong>上下游关系</strong>：下启 <a class="wikilink" href="#02-Transformer与注意力机制">02-Transformer与注意力机制</a>（Transformer）、<a class="wikilink" href="#03-预训练语言模型">03-预训练语言模型</a>（预训练模型）</blockquote>
+<blockquote>##  知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 分词 | <a class="wikilink" href="#分词与词表构建">分词与词表构建</a> | NLP第一步 |
+| 词向量 | <a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a> | 语义表示 |
+| RNN | <a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a> | 序列建模 |
+| 提示词工程 | <a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a> | LLM应用核心 |
+| 知识蒸馏 | <a class="wikilink" href="#知识蒸馏">知识蒸馏</a> | 模型压缩 |
+| 知识图谱 | <a class="wikilink" href="#知识图谱基础">知识图谱基础</a> | 结构化知识 |</blockquote>
+<blockquote>##  落地实践
+- <strong>核心概念</strong>：NLP基础模块构成AI应用的底层能力栈
+- <strong>AI项目应用</strong>：
+- 文本分类：分词→词向量→RNN/CNN→分类
+- 智能问答：Transformer→BERT→Fine-tune→RAG
+- 文本生成：GPT→Prompt→Agent
+- <strong>面试话术</strong>：「NLP技术栈从分词、词向量、RNN到Transformer，每一步都是后续技术的基础，理解这条演进路线是AI工程师的基本功」</blockquote>
+<blockquote>##  难度标识
+- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)
+- <strong>前置要求</strong>：Python基础、线性代数
+- <strong>面试频率</strong>： — AI岗必考</blockquote>
+<blockquote>最后更新: 2026-05-30</blockquote>
+<h2 id="5e964687">本目录内容</h2>
+<h3 id="938f3e41">NLP核心概念</h3>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a> — NLP定义、常见任务、技术演进四阶段</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#分词与词表构建">分词与词表构建</a> — 分词方法（词级/字符级/子词级）、jieba分词器</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a> — One-hot、Word2Vec（CBOW/Skip-gram）、上下文词表示</div>
+<h3 id="66c1d842">序列模型</h3>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a> — RNN结构、多层/双向RNN、LSTM/GRU</div>
+<h3 id="a95049d6">AI通用概念</h3>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a> — 角色设定、N-Shot Prompting、思维链（CoT）</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#知识蒸馏">知识蒸馏</a> — Teacher-Student架构、软标签、温度系数</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#知识图谱基础">知识图谱基础</a> — 三元组、多跳推理、LLM-based NER</div>
+<h3 id="bbca2718">Transformer</h3>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#Transformer架构原理">Transformer架构原理</a> — 自注意力、多头注意力、编码器-解码器</div>
+<h2 id="4ae84591">外部参考</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#尚硅谷NLP课程-1.0.3">尚硅谷NLP课程-1.0.3</a> — Transformer编码器自注意力详细笔记（另一位Agent整理）</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP基础">NLP基础</a> — RNN/LSTM/GRU详细笔记（黑马课程）</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#RNN循环神经网络核心笔记">RNN循环神经网络核心笔记</a> — RNN输入输出结构分类</div>
+<h2 id="f59e203f">关联目录</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#机器学习概述">机器学习概述</a> — ML基础术语、分类、建模流程</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#模型评估与正则化">模型评估与正则化</a> — 损失函数、过拟合、正则化、评价指标</div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#数学基础-高数与线代">数学基础-高数与线代</a> — 导数、梯度、矩阵、概率论</div>
+</section><section class="file-section" id="47de2d1a"><div class="file-header"><h2 class="file-title">传统序列模型RNN</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#3746485e">传统序列模型RNN</a></li><li style="margin-left:0px"><a href="#bc54f380">全局定位</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#f7d8654d">RNN基础结构</a></li><li style="margin-left:0px"><a href="#8e71e06e">RNN结构变体</a></li><li style="margin-left:16px"><a href="#4fbb15d3">1. 多层RNN</a></li><li style="margin-left:16px"><a href="#ec716729">2. 双向RNN</a></li><li style="margin-left:16px"><a href="#55855335">3. 多层+双向RNN</a></li><li style="margin-left:0px"><a href="#a4736a7e">PyTorch RNN API</a></li><li style="margin-left:0px"><a href="#1792307f">RNN的局限性</a></li><li style="margin-left:0px"><a href="#89930935">LSTM与GRU</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="3746485e">传统序列模型RNN</h1>
+<blockquote>来源: 尚硅谷大模型技术之NLP教程 V1.0.3
+整理时间: 2026-05-30</blockquote>
+<hr>
+<h2 id="bc54f380">全局定位</h2>
+<div class="list-item" style="padding-left:20px"><strong>所属知识域</strong>：<a class="wikilink" href="#AI大模型">AI大模型</a> > NLP基础</div>
+<div class="list-item" style="padding-left:20px"><strong>核心主题</strong>：RNN/LSTM/GRU等传统序列模型原理与演进</div>
+<div class="list-item" style="padding-left:20px"><strong>前置依赖</strong>：深度学习基础、<a class="wikilink" href="#AI大模型/01-NLP基础/NLP概述与技术演进">NLP概述</a></div>
+<div class="list-item" style="padding-left:20px"><strong>关联技能</strong>：<a class="wikilink" href="#AI大模型/02-Transformer架构/Transformer架构原理">Transformer</a>、序列建模</div>
+<div class="list-item" style="padding-left:20px"><strong>应用场景</strong>：理解Transformer前序知识、NLP面试</div>
+<hr>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>RNN（Recurrent Neural Network，循环神经网络）</strong>是处理序列数据的经典模型，通过循环连接逐个读取词语，在每步结合当前词和前面的上下文信息，持续建模上下文语义。</p>
+<blockquote>注意：RNN已逐渐被<a class="wikilink" href="#Transformer架构原理">Transformer</a>取代，但其"循环建模上下文"的思想是理解LSTM、GRU和Transformer的基础。</blockquote>
+<h2 id="f7d8654d">RNN基础结构</h2>
+<div class="list-item" style="padding-left:20px">以<strong>时间步（time step）</strong>为单位依次处理序列</div>
+<div class="list-item" style="padding-left:20px">每步接收：当前token向量 + 上一步隐藏状态 → 生成新隐藏状态 → 传递到下一步</div>
+<div class="list-item" style="padding-left:20px">隐藏层计算：<span class="math">h_t = \tanh(x_t W_x + h_{t-1} W_h + b)</span></div>
+<h2 id="8e71e06e">RNN结构变体</h2>
+<h3 id="4fbb15d3">1. 多层RNN</h3>
+<div class="list-item" style="padding-left:20px">多个RNN层堆叠，每层输出作为下层输入</div>
+<div class="list-item" style="padding-left:20px">底层捕捉局部模式（词组、短语），高层学习抽象语义（主题、语境）</div>
+<h3 id="ec716729">2. 双向RNN</h3>
+<div class="list-item" style="padding-left:20px">正向RNN（从前到后）+ 反向RNN（从后到前）</div>
+<div class="list-item" style="padding-left:20px">每步输出 = 正向和反向隐藏状态的拼接/求和</div>
+<div class="list-item" style="padding-left:20px">适用于需要完整上下文的任务（如序列标注、NER）</div>
+<h3 id="55855335">3. 多层+双向RNN</h3>
+<div class="list-item" style="padding-left:20px">每层都是双向RNN，组合使用</div>
+<h2 id="a4736a7e">PyTorch RNN API</h2>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>import</span> torch.nn <span class=<span class="str">"kw"</span>>as</span> nn
+
+rnn = nn.RNN(
+    input_size=<span class="num">100</span>,      <span class="cmt"># 词向量维度</span>
+    hidden_size=<span class="num">128</span>,     <span class="cmt"># 隐藏状态维度</span>
+    num_layers=<span class="num">2</span>,        <span class="cmt"># RNN层数</span>
+    batch_first=<span class=<span class="str">"kw"</span>>True</span>,    <span class="cmt"># 输入shape: (batch, seq, feature)</span>
+    bidirectional=<span class=<span class="str">"kw"</span>>True</span>,  <span class="cmt"># 双向RNN</span>
+    dropout=<span class="num">0.1</span>
+)
+
+output, h_n = rnn(input, h_0)
+<span class="cmt"># output: 每个时间步的隐藏状态</span>
+<span class="cmt"># h_n: 最后一个时间步的隐藏状态（每层每方向）</span></code></pre>
+<h2 id="1792307f">RNN的局限性</h2>
+<div class="list-item" style="padding-left:20px"><strong>梯度消失/爆炸</strong>：长序列中梯度难以有效传播</div>
+<div class="list-item" style="padding-left:20px"><strong>长距离依赖困难</strong>：难以捕捉序列中远距离的依赖关系</div>
+<div class="list-item" style="padding-left:20px"><strong>串行计算</strong>：无法并行处理，训练效率低</div>
+<p>这些局限催生了<a class="wikilink" href="#Transformer架构原理">Transformer</a>的诞生。</p>
+<h2 id="89930935">LSTM与GRU</h2>
+<div class="list-item" style="padding-left:20px"><strong>LSTM（Long Short-Term Memory）</strong>：引入遗忘门、输入门、输出门，有效解决长距离依赖</div>
+<div class="list-item" style="padding-left:20px"><strong>GRU（Gated Recurrent Unit）</strong>：简化版LSTM，参数更少，训练更快</div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#Transformer架构原理">Transformer架构原理</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#RNN循环神经网络核心笔记">RNN循环神经网络核心笔记</a></div>
+</section><section class="file-section" id="f4fdbb26"><div class="file-header"><h2 class="file-title">分词与词表构建</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#f2636fd1">分词与词表构建</a></li><li style="margin-left:0px"><a href="#bc54f380">全局定位</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#d207ff75">文本表示流程</a></li><li style="margin-left:0px"><a href="#22c34171">英文分词方法</a></li><li style="margin-left:16px"><a href="#52753eee">1. 词级分词（Word-Level）</a></li><li style="margin-left:16px"><a href="#6b030b0c">2. 字符级分词（Character-Level）</a></li><li style="margin-left:16px"><a href="#b0a8e9fc">3. 子词级分词（Subword-Level）⭐ 主流方法</a></li><li style="margin-left:0px"><a href="#5e94f111">中文分词方法</a></li><li style="margin-left:16px"><a href="#8508c852">1. 字符级分词</a></li><li style="margin-left:16px"><a href="#921f4bbd">2. 词级分词</a></li><li style="margin-left:16px"><a href="#2f9c3870">3. 子词级分词</a></li><li style="margin-left:0px"><a href="#1d2d1835">中文分词工具</a></li><li style="margin-left:16px"><a href="#5294b732">传统分词工具</a></li><li style="margin-left:16px"><a href="#00ff4886">子词分词工具</a></li><li style="margin-left:16px"><a href="#bc9b15c2">jieba分词器使用</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="f2636fd1">分词与词表构建</h1>
+<blockquote>来源: 尚硅谷大模型技术之NLP教程 V1.0.3
+整理时间: 2026-05-30</blockquote>
+<hr>
+<h2 id="bc54f380">全局定位</h2>
+<div class="list-item" style="padding-left:20px"><strong>所属知识域</strong>：<a class="wikilink" href="#AI大模型">AI大模型</a> > NLP基础</div>
+<div class="list-item" style="padding-left:20px"><strong>核心主题</strong>：中文分词算法与词表构建方法，NLP基础技能</div>
+<div class="list-item" style="padding-left:20px"><strong>前置依赖</strong>：Python基础、正则表达式</div>
+<div class="list-item" style="padding-left:20px"><strong>关联技能</strong>：<a class="wikilink" href="#AI大模型/01-NLP基础/NLP概述与技术演进">NLP概述</a>、Tokenizer、BPE</div>
+<div class="list-item" style="padding-left:20px"><strong>应用场景</strong>：NLP文本预处理、大模型Tokenizer理解</div>
+<hr>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>分词（Tokenization）</strong>是将原始文本切分为具有独立语义的最小单元（token）的过程，是所有NLP任务的起点。<strong>词表（Vocabulary）</strong>是模型可识别token的集合，每个token分配唯一ID。</p>
+<h2 id="d207ff75">文本表示流程</h2>
+<pre><code class="language-">原始文本 → 分词(Tokenization) → 词表映射(token→ID) → 嵌入层(Embedding) → 词向量</code></pre>
+<h2 id="22c34171">英文分词方法</h2>
+<h3 id="52753eee">1. 词级分词（Word-Level）</h3>
+<div class="list-item" style="padding-left:20px">按空格和标点天然分隔</div>
+<div class="list-item" style="padding-left:20px"><strong>优点</strong>：直观易理解</div>
+<div class="list-item" style="padding-left:20px"><strong>缺点</strong>：OOV（Out-of-Vocabulary）问题——未登录词被替换为 <code class="inline"><UNK></code>，丢失语义</div>
+<h3 id="6b030b0c">2. 字符级分词（Character-Level）</h3>
+<div class="list-item" style="padding-left:20px">每个字符为一个token</div>
+<div class="list-item" style="padding-left:20px"><strong>优点</strong>：词表极小，几乎无OOV</div>
+<div class="list-item" style="padding-left:20px"><strong>缺点</strong>：单字符语义弱，序列过长，建模难度大</div>
+<h3 id="b0a8e9fc">3. 子词级分词（Subword-Level）⭐ 主流方法</h3>
+<div class="list-item" style="padding-left:20px">将词切分为子词（词根、前缀、后缀等）</div>
+<div class="list-item" style="padding-left:20px">缓解OOV，保留语义结构</div>
+<div class="list-item" style="padding-left:20px"><strong>核心算法</strong>：</div>
+<div class="list-item" style="padding-left:36px"><strong>BPE（Byte Pair Encoding）</strong>：迭代合并频率最高的字符对</div>
+<div class="list-item" style="padding-left:36px"><strong>WordPiece</strong>：BERT使用的变体</div>
+<div class="list-item" style="padding-left:36px"><strong>Unigram Language Model</strong>：概率模型选择最优切分</div>
+<div class="list-item" style="padding-left:20px">BERT、GPT等模型均采用子词分词</div>
+<h2 id="5e94f111">中文分词方法</h2>
+<h3 id="8508c852">1. 字符级分词</h3>
+<div class="list-item" style="padding-left:20px">按单个汉字切分</div>
+<div class="list-item" style="padding-left:20px">中文汉字本身具有独立语义，比英文字符分词更"语义友好"</div>
+<div class="list-item" style="padding-left:20px">主流中文大模型（通义千问、DeepSeek）广泛采用</div>
+<h3 id="921f4bbd">2. 词级分词</h3>
+<div class="list-item" style="padding-left:20px">按完整词语切分，贴近阅读习惯</div>
+<div class="list-item" style="padding-left:20px">依赖词典/规则/模型识别词边界（中文无天然空格分隔）</div>
+<h3 id="2f9c3870">3. 子词级分词</h3>
+<div class="list-item" style="padding-left:20px">BPE算法直接应用于中文，以汉字为基本单位学习高频字组合</div>
+<div class="list-item" style="padding-left:20px">无需人工词典，适应能力强</div>
+<h2 id="1d2d1835">中文分词工具</h2>
+<h3 id="5294b732">传统分词工具</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>工具</th><th>特点</th></tr></thead>
+<tbody><tr class="even"><td><strong>jieba</strong></td><td>接口简洁、模式灵活、词典可扩展</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>HanLP</strong></td><td>功能全面、精度高</td></tr></tbody>
+</table></div>
+<h3 id="00ff4886">子词分词工具</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>工具</th><th>特点</th></tr></thead>
+<tbody><tr class="even"><td><strong>HuggingFace Tokenizers</strong></td><td>预训练模型标配</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>SentencePiece</strong></td><td>Google出品，语言无关</td></tr></tbody>
+<tbody><tr class="even"><td><strong>tiktoken</strong></td><td>OpenAI专用，高效</td></tr></tbody>
+</table></div>
+<h3 id="bc9b15c2">jieba分词器使用</h3>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>import</span> jieba
+
+text = <span class=<span class="str">"str"</span>>&quot;小明毕业于北京大学计算机系&quot;</span>
+
+<span class="cmt"># 精确模式（默认）：最精确切分</span>
+jieba.lcut(text)  <span class="cmt"># [<span class=<span class="str">"str"</span>>&#x27;小明&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;毕业&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;于&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;北京大学&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;计算机系&#x27;</span>]</span>
+
+<span class="cmt"># 全模式：扫描所有可能成词</span>
+jieba.lcut(text, cut_all=<span class=<span class="str">"kw"</span>>True</span>)  <span class="cmt"># [<span class=<span class="str">"str"</span>>&#x27;小&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;明&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;毕业&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;于&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;北京&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;北京大学&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;大学&#x27;</span>, ...]</span>
+
+<span class="cmt"># 搜索引擎模式：精确模式 + 长词再切</span>
+jieba.lcut_for_search(text)  <span class="cmt"># [<span class=<span class="str">"str"</span>>&#x27;小明&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;毕业&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;于&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;北京&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;大学&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;北京大学&#x27;</span>, ...]</span>
+
+<span class="cmt"># 自定义词典</span>
+jieba.load_userdict(<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;dict.txt&#x27;</span>)  # 格式：词语 词频 词性</span>
+jieba.add_word(<span class=<span class="str">"str"</span>>&quot;大模型&quot;</span>, freq=<span class="num">10</span>)</code></pre>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#Transformer架构原理">Transformer架构原理</a></div>
+</section><section class="file-section" id="cc3d9348"><div class="file-header"><h2 class="file-title">尚硅谷NLP课程-1.0.3</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#af950522">尚硅谷NLP课程-1.0.3</a></li><li style="margin-left:0px"><a href="#bc54f380">全局定位</a></li></ul></div><h1 id="af950522">尚硅谷NLP课程-1.0.3</h1>
+<blockquote>来源: <code class="inline">/mnt/c/Users/24961/Desktop/尚硅谷大模型技术之NLP1.0.3.pdf</code></blockquote>
+<hr>
+<h2 id="bc54f380">全局定位</h2>
+<div class="list-item" style="padding-left:20px"><strong>所属知识域</strong>：<a class="wikilink" href="#AI大模型">AI大模型</a> > NLP基础</div>
+<div class="list-item" style="padding-left:20px"><strong>核心主题</strong>：尚硅谷NLP课程笔记合集，涵盖NLP全栈基础知识</div>
+<div class="list-item" style="padding-left:20px"><strong>前置依赖</strong>：Python基础、线性代数基础</div>
+<div class="list-item" style="padding-left:20px"><strong>关联技能</strong>：<a class="wikilink" href="#AI大模型/01-NLP基础/NLP概述与技术演进">NLP概述</a>、<a class="wikilink" href="#AI大模型/01-NLP基础/分词与词表构建">分词</a>、<a class="wikilink" href="#AI大模型/01-NLP基础/传统序列模型RNN">RNN</a></div>
+<div class="list-item" style="padding-left:20px"><strong>应用场景</strong>：NLP系统学习、面试准备</div>
+<hr>
+<hr>
+<p>各层作用如下：</p>
+<p> Self-Attention</p>
+<p>用于捕捉序列中各位置之间的依赖关系。</p>
+<p> Feed-Forward</p>
+<p>用于对每个位置的表示进行非线性变换，从而提升模型的表达能力。</p>
+<p>7.2.3.2 自注意力层</p>
+<p>自注意力机制（Self-Attention）是 Transformer 编码器的核心结构之一，它的作用是在</p>
+<p>序列内部建立各位置之间的依赖关系，使模型能够为每个位置生成融合全局信息的表示。</p>
+<p>之所以被称为“自”注意力，是因为模型在计算每个位置的表示时，所参考的信息全部</p>
+<p>来自同一个输入序列本身，而不是来自另一个序列。</p>
+<p>1）自注意力计算过程</p>
+<p>自注意力的完整计算过程如下：</p>
+<p>（1）生成Query、Key、Value向量</p>
+<p>自注意力机制的第一步，是将输入序列中的每个位置表示映射为三个不同的向量，分别</p>
+<p>是 查询（Query）、键（Key） 和 值（Value）。</p>
+<p>这些向量的作用如下：</p>
+<p>Query：表示当前词的用于发起注意力匹配的向量；</p>
+<p>Key：表示序列中每个位置的内容标识，用于与 Query 进行匹配；</p>
+<p>Value：表示该位置携带的信息，用于加权汇总得到新的表示。</p>
+<p>自注意力的核心思想是：每个位置用自身的 Query 向量，与整个序列中所有位置的</p>
+<p>Key 向量进行相关性计算，从而得到注意力权重，并据此对对应的 Value 向量加权汇总，</p>
+<p>形成新的表示。</p>
+<p>三个向量的计算公式如下：</p>
+<p>其中 均为可学习的参数矩阵。</p>
+<p>（2）  计  ,算  位  ,  置  间相关性</p>
+<p>完成 Query、Key、Value 向量的生成后，模型会使用每个位置的 Query 向量与所有位</p>
+<p>置的 Key 向量进行相关性评分。</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>评分函数采用向量点积形式。由于在高维空间中，点积的数值可能过大，会影响</th><th>softmax</th></tr></thead>
+</table></div>
+<p>的稳定性，因此在实际计算中对结果进行了缩放。最终的评分函数为：</p>
+<p> ∙</p>
+<p>     (  ,  )=</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>其中 是key向量的维度，用于缩放点积的幅度</th><th>。这个分数越大，表示第</th><th>个位置越</th></tr></thead>
+<tbody><tr class="even"><td>i</td></tr></tbody>
+</table></div>
+<p>应该关注第   j 个位置的信息。</p>
+<p>对于整个序列，可以通过矩阵运算一次性计算所有位置之间的评分，计算公式如下图所</p>
+<p>示：</p>
+<p>（3）计算注意力权重</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>在得到每个位置与所有位置之间的相关性评分后，模型会使用</th><th>softmax 函数进行归一</th></tr></thead>
+<tbody><tr class="even"><td>化，确保每个位置对所有位置的关注程度之和为</td><td>1，从而形成一个有效的加权分布。</td></tr></tbody>
+</table></div>
+<p>对于整个序列，模型要做的是对之前得到的注意力评分矩阵的每一行进行softmax归一</p>
+<p>化。</p>
+<p>（4）加权汇总生成输出</p>
+<p>最后，模型会根据注意力权重对所有位置的 Value 向量进行加权求和，得到每个位置</p>
+<p>融合全局信息后的新表示。</p>
+<p>对于整个序列，同样可以通过矩阵运算一次性计算所有位置的输出，如下图所示</p>
+<p>综上所述，可得整个自注意力机制的完整的计算公式如下</p>
+<p>对应原始论文中的：</p>
+<div class="table-wrapper"><table>
+<thead><tr></tr></thead>
+<tbody><tr class="even"><td>(  ,  ,  )=</td><td>(</td><td>)</td></tr></tbody>
+</table></div>
+<p>2）多头自注意力计算过程</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>自注意力机制通过</th><th>Query、Key</th><th>和 Value</th><th>向量计算每个位置与其他位置之间的依赖关</th></tr></thead>
+</table></div>
+<p>系，使模型能够有效捕捉序列中的全局信息。</p>
+<p>然而，自然语言本身具有高度的语义复杂性，一个句子往往同时包含多种类型的语义关</p>
+<p>系。例如，句子“那只动物没有过马路，因为它太累了”中就涉及多个层面的语言关系：</p>
+<div class="table-wrapper"><table>
+<thead><tr><th> “它”指代“那只动物”，属于跨句的代指关系；</th></tr></thead>
+<tbody><tr class="even"><td> “因为”连接前后两个分句，体现语义上的因果逻辑；</td></tr></tbody>
+<tbody><tr class="odd"><td> “过马路”构成动词短语，属于固定的动宾结构。</td></tr></tbody>
+</table></div>
+<p>要准确理解这类句子，模型需要同时识别并建模多种层次和类型的依赖关系。但这些信</p>
+<p>息很难通过单一视角或一套注意力机制完整捕捉。</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>为此，Transformer</th><th>引入了多头注意力机制（Multi-HeadAttention）。其核心思想是通</th></tr></thead>
+<tbody><tr class="even"><td>过多组独立的</td><td>Query、Key、Value</td><td>投影，让不同注意力头分别专注于不同的语义关系，最</td></tr></tbody>
+</table></div>
+<p>后将各头的输出拼接融合。</p>
+<p>多头注意力的计算过程如下：</p>
+<p>（1）分别计算各头注意力</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>每个 Self-AttentionHead</th><th>独立计算一套注意力输出。</th></tr></thead>
+</table></div>
+<p>（2）合并多头注意力</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>多个输出矩阵按维度拼接，再乘以 得到最终多头注意力的输出。</th></tr></thead>
+</table></div>
+<p>7.2.3.3 前馈神经网络层</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>前馈神经网络（Feed-ForwardNetwork，简称</th><th>FFN）是 Transformer</th><th>编码器中每个子层</th></tr></thead>
+</table></div>
+<p>的重要组成部分，紧接在多头注意力子层之后。它通过对每个位置的表示进行逐位置、非线</p>
+<p>性的特征变换，进一步提升模型对复杂语义的建模能力。</p>
+</section><section class="file-section" id="74952928"><div class="file-header"><h2 class="file-title">提示词工程核心技巧</h2><span class="badge" style="background:#d4a017">基础</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#40f18aec">提示词工程核心技巧</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#5c9e1507">一、角色设定（Role Prompting）</a></li><li style="margin-left:16px"><a href="#34062b25">最佳实践</a></li><li style="margin-left:0px"><a href="#9823a0c2">二、N-Shot Prompting</a></li><li style="margin-left:16px"><a href="#4de2c05c">关键原理</a></li><li style="margin-left:0px"><a href="#fa496e22">三、思维链（Chain of Thought, CoT）</a></li><li style="margin-left:16px"><a href="#ae63679e">核心公式</a></li><li style="margin-left:16px"><a href="#ae6f1e09">Zero-shot CoT</a></li><li style="margin-left:16px"><a href="#62b37e99">适用场景</a></li><li style="margin-left:16px"><a href="#e26dd8ad">重要限制</a></li><li style="margin-left:0px"><a href="#3ed96a3b">面试要点</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="40f18aec">提示词工程核心技巧</h1>
+<blockquote>来源: 知识星球/AI基础的概念/prompt提示词工程
+整理时间: 2026-05-30</blockquote>
+<blockquote>##  全局定位
+<strong>知识领域</strong>：AI大模型 → NLP基础 → 提示词工程
+<strong>在AI知识图谱中的位置</strong>：提示词工程是LLM应用开发的核心技能，连接模型能力与实际业务需求
+<strong>上下游关系</strong>：上接 <a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a>（NLP基础），下启 <a class="wikilink" href="#个人知识库搭建方案汇总">个人知识库搭建方案汇总</a>（知识库应用）、<a class="wikilink" href="#Coze-Dify/1.1 Coze平台介绍">Coze-Dify/1.1 Coze平台介绍</a>（Agent平台）</blockquote>
+<blockquote>##  知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| NLP基础 | <a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a> | NLP技术演进背景 |
+| 词向量 | <a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a> | 语义理解基础 |
+| Agent开发 | <a class="wikilink" href="#Coze-Dify/1.1 Coze平台介绍">Coze-Dify/1.1 Coze平台介绍</a> | Prompt在Agent中的应用 |
+| RAG | <a class="wikilink" href="#05-Agent开发/03-RAG与向量检索实战">05-Agent开发/03-RAG与向量检索实战</a> | RAG中的提示词设计 |
+| 知识库 | <a class="wikilink" href="#个人知识库搭建方案汇总">个人知识库搭建方案汇总</a> | 知识库问答的Prompt设计 |</blockquote>
+<blockquote>##  落地实践
+- <strong>核心概念</strong>：通过精心设计输入提示引导LLM输出预期结果，不改变模型参数
+- <strong>AI项目应用</strong>：
+- 角色设定：指定AI身份+任务+约束，缩小概率搜索空间
+- N-Shot Prompting：用示例引导输出格式
+- 思维链（CoT）：让模型分步推理提升复杂任务准确率
+- <strong>面试话术</strong>：「提示词工程本质是缩小模型概率空间，通过角色设定、示例引导和思维链三种核心技术，让LLM在不改参数的情况下输出高质量结果」</blockquote>
+<blockquote>##  难度标识
+- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)
+- <strong>前置要求</strong>：了解LLM基本原理
+- <strong>面试频率</strong>：☆ — 所有AI岗位的基础能力</blockquote>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>提示词工程（Prompt Engineering）</strong>是通过精心设计输入提示，引导大语言模型输出符合预期结果的技术。不改变模型参数，通过调整输入控制输出。</p>
+<h2 id="5c9e1507">一、角色设定（Role Prompting）</h2>
+<p>通过在输入中明确指定AI的身份、背景和专业领域，约束输出风格与知识边界。</p>
+<p><strong>三要素</strong>：你是谁（身份）、你要做什么（任务）、你不能做什么（负面约束）</p>
+<p><strong>核心逻辑</strong>：缩小模型在概率空间中的搜索范围，从"大海捞针"变为"在专业书架上取书"。</p>
+<h3 id="34062b25">最佳实践</h3>
+<div class="list-item" style="padding-left:20px">角色设定遵循"关键约束原则"，只保留决定性影响的背景、技能和禁忌</div>
+<div class="list-item" style="padding-left:20px">在System Prompt中定义角色，User Prompt中通过指令加固</div>
+<div class="list-item" style="padding-left:20px">过长设定会占用Token并导致注意力分散</div>
+<h2 id="9823a0c2">二、N-Shot Prompting</h2>
+<p>通过展示0/1/多个示例，引导模型理解任务意图。</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>方法</th><th>说明</th><th>适用场景</th></tr></thead>
+<tbody><tr class="even"><td><strong>Zero-shot</strong></td><td>直接下指令，无示例</td><td>通用任务（"总结这篇文章"）</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>One-shot</strong></td><td>给1个示例定调子</td><td>特定格式/风格</td></tr></tbody>
+<tbody><tr class="even"><td><strong>Few-shot</strong></td><td>给3-8个示例</td><td>特定格式、冷门领域</td></tr></tbody>
+</table></div>
+<h3 id="4de2c05c">关键原理</h3>
+<div class="list-item" style="padding-left:20px"><strong>上下文学习（In-Context Learning）</strong>：LLM无需微调，仅通过Prompt中的示例即可学习</div>
+<div class="list-item" style="padding-left:20px">样本过多会导致"复读机"效应，通常3-8个最佳</div>
+<div class="list-item" style="padding-left:20px">与<a class="wikilink" href="#模型微调">模型微调</a>相比：N-Shot不改模型参数（省钱快），Fine-tuning改参数（贵慢强）</div>
+<h2 id="fa496e22">三、思维链（Chain of Thought, CoT）</h2>
+<p>在Few-shot示例中不仅给出"问题-答案"，还要写出<strong>中间推理过程</strong>，诱导模型进行逻辑推理。</p>
+<h3 id="ae63679e">核心公式</h3>
+<blockquote>CoT = Few-shot + 逻辑过程</blockquote>
+<h3 id="ae6f1e09">Zero-shot CoT</h3>
+<p>在Prompt末尾加一句魔法咒语：<strong>"Let's think step by step"</strong>，无需示例即可提升推理准确度。</p>
+<h3 id="62b37e99">适用场景</h3>
+<div class="list-item" style="padding-left:20px">复杂财务计算</div>
+<div class="list-item" style="padding-left:20px">代码纠错（分析Bug成因→修复方案）</div>
+<div class="list-item" style="padding-left:20px">多步决策（退货流程判断）</div>
+<h3 id="e26dd8ad">重要限制</h3>
+<div class="list-item" style="padding-left:20px">CoT是<strong>涌现能力</strong>，通常在70B+参数模型上才有效</div>
+<div class="list-item" style="padding-left:20px">小模型（7B）强行CoT可能废话连篇</div>
+<h2 id="3ed96a3b">面试要点</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>问题</th><th>回答思路</th></tr></thead>
+<tbody><tr class="even"><td>角色设定越详细越好？</td><td>过犹不及，遵循关键约束原则</td></tr></tbody>
+<tbody><tr class="odd"><td>Few-shot越多越好？</td><td>不是，边际效应递减，3-8个最佳</td></tr></tbody>
+<tbody><tr class="even"><td>CoT在小模型有效吗？</td><td>效果不佳，是涌现能力，需大模型</td></tr></tbody>
+</table></div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#知识蒸馏">知识蒸馏</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#RAG总体架构">RAG总体架构</a></div>
+</section><section class="file-section" id="d18e5b25"><div class="file-header"><h2 class="file-title">知识图谱基础</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#850f81a4">知识图谱基础</a></li><li style="margin-left:0px"><a href="#bc54f380">全局定位</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#e959bce3">知识图谱 vs 向量检索</a></li><li style="margin-left:0px"><a href="#57ae374e">核心价值</a></li><li style="margin-left:0px"><a href="#365a3583">LLM-based NER（实体关系联合抽取）</a></li><li style="margin-left:16px"><a href="#ebb48383">LLM自动抽取示例</a></li><li style="margin-left:0px"><a href="#3ed96a3b">面试要点</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="850f81a4">知识图谱基础</h1>
+<blockquote>来源: 知识星球/AI基础的概念/图数据库处理/知识图谱.md
+整理时间: 2026-05-30</blockquote>
+<hr>
+<h2 id="bc54f380">全局定位</h2>
+<div class="list-item" style="padding-left:20px"><strong>所属知识域</strong>：<a class="wikilink" href="#AI大模型">AI大模型</a> > NLP基础</div>
+<div class="list-item" style="padding-left:20px"><strong>核心主题</strong>：知识图谱基础概念、图数据库与KG构建流程</div>
+<div class="list-item" style="padding-left:20px"><strong>前置依赖</strong>：NLP基础、数据库基础</div>
+<div class="list-item" style="padding-left:20px"><strong>关联技能</strong>：<a class="wikilink" href="#AI大模型/04-RAG技术/RAG技术文档-1.0">RAG技术</a>、Neo4j、实体抽取</div>
+<div class="list-item" style="padding-left:20px"><strong>应用场景</strong>：知识图谱构建、RAG增强、智能问答</div>
+<hr>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>知识图谱（Knowledge Graph）</strong>将碎片化信息连接成"实体-关系-实体"的网络，让AI理解谁是谁的谁。基本单位是<strong>三元组 (Subject, Predicate, Object)</strong>。</p>
+<h2 id="e959bce3">知识图谱 vs 向量检索</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>特性</th><th>向量检索</th><th>知识图谱</th></tr></thead>
+<tbody><tr class="even"><td>匹配方式</td><td>模糊/语义相似</td><td>精确/逻辑推理</td></tr></tbody>
+<tbody><tr class="odd"><td>擅长</td><td>非结构化语义</td><td>结构化事实</td></tr></tbody>
+<tbody><tr class="even"><td>可解释性</td><td>黑盒</td><td>路径清晰可追溯</td></tr></tbody>
+<tbody><tr class="odd"><td>多跳推理</td><td>弱</td><td>强（顺藤摸瓜）</td></tr></tbody>
+</table></div>
+<h2 id="57ae374e">核心价值</h2>
+<div class="list-item ordered" style="padding-left:20px"><strong>多跳推理</strong>："周杰伦岳母的家乡在哪？" → 周杰伦→妻子→昆凌→母亲→某地</div>
+<div class="list-item ordered" style="padding-left:20px"><strong>消除幻觉</strong>：提供确定性事实，约束LLM输出</div>
+<div class="list-item ordered" style="padding-left:20px"><strong>可解释性</strong>：推理路径清晰可追溯</div>
+<h2 id="365a3583">LLM-based NER（实体关系联合抽取）</h2>
+<p>在GraphRAG中，NER从传统标注工具进化为"图谱建筑师"：</p>
+<div class="table-wrapper"><table>
+<thead><tr><th>子任务</th><th>说明</th></tr></thead>
+<tbody><tr class="even"><td><strong>节点识别</strong></td><td>从文本中挑出重要实体</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>动态消歧</strong></td><td>判断"老王"和"王局长"是否同一人</td></tr></tbody>
+<tbody><tr class="even"><td><strong>摘要总结</strong></td><td>将实体相关描述总结为属性</td></tr></tbody>
+</table></div>
+<h3 id="ebb48383">LLM自动抽取示例</h3>
+<pre><code class="language-python">prompt = <span class=<span class="str">"str"</span>>&quot;&quot;</span><span class=<span class="str">"str"</span>>&quot;
+从文本中提取实体和关系，输出JSON格式：
+[{&quot;</span>subject<span class=<span class="str">"str"</span>>&quot;: &quot;</span>实体1<span class=<span class="str">"str"</span>>&quot;, &quot;</span>subject_type<span class=<span class="str">"str"</span>>&quot;: &quot;</span>类型<span class=<span class="str">"str"</span>>&quot;, 
+  &quot;</span>relation<span class=<span class="str">"str"</span>>&quot;: &quot;</span>关系<span class=<span class="str">"str"</span>>&quot;, &quot;</span>object<span class=<span class="str">"str"</span>>&quot;: &quot;</span>实体2<span class=<span class="str">"str"</span>>&quot;, &quot;</span>object_type<span class=<span class="str">"str"</span>>&quot;: &quot;</span>类型<span class=<span class="str">"str"</span>>&quot;}]
+&quot;</span><span class=<span class="str">"str"</span>>&quot;&quot;</span></code></pre>
+<h2 id="3ed96a3b">面试要点</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>问题</th><th>回答思路</th></tr></thead>
+<tbody><tr class="even"><td>知识图谱 vs 数据库？</td><td>MySQL处理多层Join性能差，图数据库原生支持深度关联</td></tr></tbody>
+<tbody><tr class="odd"><td>有LLM还需知识图谱？</td><td>GraphRAG核心：LLM知识有保质期且易幻觉，图谱作为外部可信知识源</td></tr></tbody>
+</table></div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#RAG总体架构">RAG总体架构</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a></div>
+</section><section class="file-section" id="0bf87927"><div class="file-header"><h2 class="file-title">知识蒸馏</h2><span class="badge" style="background:#d4a017">基础</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#a39573c2">知识蒸馏</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#eb3cb7a2">核心机制</a></li><li style="margin-left:16px"><a href="#7eb370f6">教师-学生架构</a></li><li style="margin-left:16px"><a href="#3c5f7984">软标签与暗知识</a></li><li style="margin-left:16px"><a href="#e3c86bfb">温度系数（Temperature, T）</a></li><li style="margin-left:16px"><a href="#7162a4e0">损失函数</a></li><li style="margin-left:0px"><a href="#1411fd88">实战场景</a></li><li style="margin-left:0px"><a href="#38877f0c">对比其他压缩方法</a></li><li style="margin-left:0px"><a href="#3ed96a3b">面试要点</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="a39573c2">知识蒸馏</h1>
+<blockquote>来源: 知识星球/AI基础的概念/蒸馏.md
+整理时间: 2026-05-30</blockquote>
+<blockquote>##  全局定位
+<strong>知识领域</strong>：AI大模型 → 模型优化 → 知识蒸馏
+<strong>在AI知识图谱中的位置</strong>：知识蒸馏是模型压缩的核心技术，让大模型能力迁移到小模型，实现高效部署
+<strong>上下游关系</strong>：上接 <a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a>（模型基础），下启 Docker 部署（模型上线）、<a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a>（嵌入层压缩）</blockquote>
+<blockquote>##  知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 词向量 | <a class="wikilink" href="#词向量与Word2Vec">词向量与Word2Vec</a> | 嵌入层知识传递 |
+| NLP概述 | <a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a> | 模型压缩在技术演进中的位置 |
+| 提示词工程 | <a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a> | 蒸馏后模型的Prompt适配 |
+| 模型部署 | <a class="wikilink" href="#小工具/Python基础">小工具/Python基础</a> | 小模型部署优势 |
+| RNN | <a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a> | Teacher-Student架构应用 |</blockquote>
+<blockquote>##  落地实践
+- <strong>核心概念</strong>：Teacher大模型输出软标签(概率分布)→Student小模型学习软标签+硬标签→压缩模型
+- <strong>AI项目应用</strong>：
+- 温度系数T控制软标签平滑度，T越高知识传递越充分
+- BERT-base蒸馏为DistilBERT，参数减半性能保留97%
+- 边缘设备部署：将大模型蒸馏后部署到手机/IoT
+- <strong>面试话术</strong>：「知识蒸馏让小模型不只背答案，还学老师的思考逻辑。通过温度系数软化概率分布，Student同时学习软标签和真实标签，实现模型压缩」</blockquote>
+<blockquote>##  难度标识
+- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)
+- <strong>前置要求</strong>：深度学习基础、损失函数概念
+- <strong>面试频率</strong>：☆☆ — 模型优化岗高频，通用AI岗中频</blockquote>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>知识蒸馏（Knowledge Distillation）</strong>是模型压缩技术，让大模型（Teacher）手把手教小模型（Student），使小模型用更少参数达到接近大模型的水平。</p>
+<blockquote>一句话：学生不只是背答案，而是学会老师的思考逻辑。</blockquote>
+<h2 id="eb3cb7a2">核心机制</h2>
+<h3 id="7eb370f6">教师-学生架构</h3>
+<pre><code class="language-">Teacher Model (大) → 输出概率分布（软标签/Soft Target）
+                        ↓
+Student Model (小) → 学习软标签 + 真实标签 → 压缩模型</code></pre>
+<h3 id="3c5f7984">软标签与暗知识</h3>
+<div class="list-item" style="padding-left:20px"><strong>硬标签（Hard Target）</strong>：冷冰冰的0/1标签（"是猫"）</div>
+<div class="list-item" style="padding-left:20px"><strong>软标签（Soft Target）</strong>：各类别的概率分布（"80%猫，15%狗，5%兔"）</div>
+<div class="list-item" style="padding-left:20px"><strong>暗知识（Dark Knowledge）</strong>：软标签中包含的类间关系信息——"虽然答案是猫，但狗也很像"</div>
+<h3 id="e3c86bfb">温度系数（Temperature, T）</h3>
+<div class="list-item" style="padding-left:20px">用T平滑Softmax输出：<span class="math">p_i = \frac{e^{z_i/T}}{\sum e^{z_j/T}}</span></div>
+<div class="list-item" style="padding-left:20px">T越大，概率分布越平坦，学生学到更多暗知识</div>
+<div class="list-item" style="padding-left:20px">T=1即普通Softmax</div>
+<h3 id="7162a4e0">损失函数</h3>
+<p>蒸馏损失由两部分组成：</p>
+<p><span class="math">L = \alpha \cdot L_{hard} + (1-\alpha) \cdot T^2 \cdot L_{soft}</span></p>
+<div class="list-item" style="padding-left:20px"><span class="math">L_{hard}</span>：学生预测 vs 真实标签（交叉熵）</div>
+<div class="list-item" style="padding-left:20px"><span class="math">L_{soft}</span>：学生输出 vs 教师输出（KL散度）</div>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>import</span> torch.nn.functional <span class=<span class="str">"kw"</span>>as</span> F
+
+<span class=<span class="str">"kw"</span>>def</span> distillation_loss(student_out, teacher_out, labels, T=<span class="num">3.0</span>, alpha=<span class="num">0.5</span>):
+    soft_teacher = F.softmax(teacher_out / T, dim=<span class="num">1</span>)
+    soft_student = F.log_softmax(student_out / T, dim=<span class="num">1</span>)
+    loss_soft = F.kl_div(soft_student, soft_teacher, reduction=<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;batchmean&#x27;</span>) * (T ** <span class="num">2</span>)</span>
+    loss_hard = F.cross_entropy(student_out, labels)
+    <span class=<span class="str">"kw"</span>>return</span> alpha * loss_hard + (<span class="num">1</span> - alpha) * loss_soft</code></pre>
+<h2 id="1411fd88">实战场景</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>场景</th><th>说明</th></tr></thead>
+<tbody><tr class="even"><td>搜索推荐</td><td>复杂精排模型蒸馏为轻量模型，毫秒级响应</td></tr></tbody>
+<tbody><tr class="odd"><td>语音唤醒</td><td>"Hey Siri"——芯片级小模型学到大模型逻辑</td></tr></tbody>
+<tbody><tr class="even"><td>私有化部署</td><td>企业用大模型标注数据，蒸馏出行业专才小模型</td></tr></tbody>
+</table></div>
+<h2 id="38877f0c">对比其他压缩方法</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>方法</th><th>说明</th><th>特点</th></tr></thead>
+<tbody><tr class="even"><td><strong>蒸馏</strong></td><td>大模型教小模型</td><td>学生结构完整密集</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>剪枝</strong></td><td>删除不重要的参数/连接</td><td>结构变稀疏</td></tr></tbody>
+<tbody><tr class="even"><td><strong>量化</strong></td><td>降低参数精度（FP32→INT8）</td><td>不改变结构</td></tr></tbody>
+</table></div>
+<h2 id="3ed96a3b">面试要点</h2>
+<div class="table-wrapper"><table>
+<thead><tr><th>问题</th><th>回答思路</th></tr></thead>
+<tbody><tr class="even"><td>蒸馏损失函数怎么写？</td><td>两部分：Hard Loss + Soft Loss（KL散度）</td></tr></tbody>
+<tbody><tr class="odd"><td>温度T的作用？</td><td>平滑概率分布，暴露暗知识</td></tr></tbody>
+<tbody><tr class="even"><td>学生能超过老师吗？</td><td>理论上很难，特定小任务可能更稳健</td></tr></tbody>
+</table></div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#机器学习概述">机器学习概述</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#模型评估与正则化">模型评估与正则化</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#大模型核心技术栈">大模型核心技术栈</a></div>
+</section><section class="file-section" id="9ece7ce0"><div class="file-header"><h2 class="file-title">词向量与Word2Vec</h2><span class="badge" style="background:#2d9d3a">入门</span></div><div class="local-toc"><h3>本节目录</h3><ul><li style="margin-left:-16px"><a href="#c8aa8de1">词向量与Word2Vec</a></li><li style="margin-left:0px"><a href="#2af44481">核心概念</a></li><li style="margin-left:0px"><a href="#adb3f593">One-hot编码</a></li><li style="margin-left:0px"><a href="#f5ba3c6c">Word2Vec</a></li><li style="margin-left:16px"><a href="#0b7bd0cd">核心思想</a></li><li style="margin-left:16px"><a href="#a972778c">两种模型结构</a></li><li style="margin-left:16px"><a href="#54a83605">Skip-gram 前向传播</a></li><li style="margin-left:16px"><a href="#87e8d0c8">CBOW 前向传播</a></li><li style="margin-left:0px"><a href="#28d986bf">获取Word2Vec词向量</a></li><li style="margin-left:16px"><a href="#a2728280">使用Gensim加载公开词向量</a></li><li style="margin-left:16px"><a href="#dfae75ce">自行训练词向量</a></li><li style="margin-left:16px"><a href="#d08a3d85">应用：初始化Embedding层</a></li><li style="margin-left:0px"><a href="#f3cb46cb">上下文相关词表示</a></li><li style="margin-left:0px"><a href="#118e3c09">余弦相似度</a></li><li style="margin-left:0px"><a href="#2a543fec">关联笔记</a></li></ul></div><h1 id="c8aa8de1">词向量与Word2Vec</h1>
+<blockquote>来源: 尚硅谷大模型技术之NLP教程 V1.0.3
+整理时间: 2026-05-30</blockquote>
+<blockquote>##  全局定位
+<strong>知识领域</strong>：AI大模型 → NLP基础 → 词向量表示
+<strong>在AI知识图谱中的位置</strong>：词向量是NLP的基石，从离散符号到连续向量的跨越，为语义理解提供数学基础
+<strong>上下游关系</strong>：上接 <a class="wikilink" href="#分词与词表构建">分词与词表构建</a>（分词基础），下启 <a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a>（序列建模）、<a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a>（技术演进）</blockquote>
+<blockquote>##  知识串联
+| 关联主题 | 链接 | 关系 |
+|----------|------|------|
+| 分词基础 | <a class="wikilink" href="#分词与词表构建">分词与词表构建</a> | 词向量的输入依赖分词 |
+| RNN | <a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a> | 词向量作为RNN输入 |
+| NLP概述 | <a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a> | 词表示技术演进路线 |
+| 提示词工程 | <a class="wikilink" href="#提示词工程核心技巧">提示词工程核心技巧</a> | 语义理解基础 |
+| 知识蒸馏 | <a class="wikilink" href="#知识蒸馏">知识蒸馏</a> | 模型压缩中的词向量传递 |</blockquote>
+<blockquote>##  落地实践
+- <strong>核心概念</strong>：将token转换为稠密向量，One-hot→Word2Vec→ELMo/BERT演进
+- <strong>AI项目应用</strong>：
+- Word2Vec(CBOW/Skip-gram)：快速训练领域词向量
+- 余弦相似度：计算词与词的语义距离
+- 词向量迁移：预训练词向量加速下游任务收敛
+- <strong>面试话术</strong>：「词向量解决了one-hot编码无法表达语义关系的问题，Word2Vec通过上下文窗口学习分布式表示，使语义相近的词在向量空间中距离也相近」</blockquote>
+<blockquote>##  难度标识
+- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)
+- <strong>前置要求</strong>：线性代数基础、概率论基础
+- <strong>面试频率</strong>：☆ — NLP岗必考基础</blockquote>
+<h2 id="2af44481">核心概念</h2>
+<p><strong>词表示（Word Representation）</strong>是将token转换为计算机可处理的数值形式。发展路径：One-hot编码 → 语义化词向量（Word2Vec） → 上下文相关词表示（ELMo/BERT）。</p>
+<h2 id="adb3f593">One-hot编码</h2>
+<div class="list-item" style="padding-left:20px">每个词映射为长度等于词表大小的稀疏向量，该词位置为1，其余为0</div>
+<div class="list-item" style="padding-left:20px"><strong>缺点</strong>：无法体现词与词之间的语义关系；维度随词表膨胀</div>
+<h2 id="f5ba3c6c">Word2Vec</h2>
+<h3 id="0b7bd0cd">核心思想</h3>
+<p>基于<strong>分布假设</strong>——一个词的含义由它周围的词决定。</p>
+<h3 id="a972778c">两种模型结构</h3>
+<div class="table-wrapper"><table>
+<thead><tr><th>模型</th><th>输入</th><th>目标</th><th>特点</th></tr></thead>
+<tbody><tr class="even"><td><strong>CBOW</strong></td><td>上下文词（前后若干词）</td><td>预测中间目标词</td><td>训练快，适合高频词</td></tr></tbody>
+<tbody><tr class="odd"><td><strong>Skip-gram</strong></td><td>中心词</td><td>预测上下文词</td><td>适合低频词，语义更丰富</td></tr></tbody>
+</table></div>
+<h3 id="54a83605">Skip-gram 前向传播</h3>
+<div class="list-item ordered" style="padding-left:20px">输入中心词（one-hot）→ 与 <span class="math">W_{in}</span> 相乘 → 取出词向量</div>
+<div class="list-item ordered" style="padding-left:20px">词向量与 <span class="math">W_{out}</span> 相乘 → 得分</div>
+<div class="list-item ordered" style="padding-left:20px">Softmax → 概率分布</div>
+<div class="list-item ordered" style="padding-left:20px">与真实上下文比较 → 交叉熵损失</div>
+<div class="list-item ordered" style="padding-left:20px">反向传播更新 <span class="math">W_{in}</span> 中对应词向量</div>
+<h3 id="87e8d0c8">CBOW 前向传播</h3>
+<div class="list-item ordered" style="padding-left:20px">输入多个上下文词 → 分别与 <span class="math">W_{in}</span> 相乘 → 取出词向量</div>
+<div class="list-item ordered" style="padding-left:20px">上下文词向量取<strong>平均</strong></div>
+<div class="list-item ordered" style="padding-left:20px">平均向量与 <span class="math">W_{out}</span> 相乘 → Softmax → 预测中心词</div>
+<div class="list-item ordered" style="padding-left:20px">计算损失 → 反向传播</div>
+<h2 id="28d986bf">获取Word2Vec词向量</h2>
+<h3 id="a2728280">使用Gensim加载公开词向量</h3>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>from</span> gensim.models <span class=<span class="str">"kw"</span>>import</span> KeyedVectors
+
+model = KeyedVectors.load_word2vec_format(<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;sgns.weibo.word.bz2&#x27;</span>)</span>
+<span class=<span class="str">"kw"</span>>print</span>(model.vector_size)  <span class="cmt"># <span class="num">300</span></span>
+<span class=<span class="str">"kw"</span>>print</span>(model[<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;地铁&#x27;</span>])  # 查看词向量</span>
+
+<span class="cmt"># 余弦相似度</span>
+model.similarity(<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;地铁&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;公交&#x27;</span>)</span>
+
+<span class="cmt"># 最相似词</span>
+model.most_similar(positive=[<span class=<span class="str">"str"</span>>&quot;上班&quot;</span>], topn=<span class="num">5</span>)
+
+<span class="cmt"># 类比推理：爸爸 - 男性 + 女性 ≈ 妈妈</span>
+model.most_similar(positive=[<span class=<span class="str">"str"</span>>&quot;爸爸&quot;</span>, <span class=<span class="str">"str"</span>>&quot;女性&quot;</span>], negative=[<span class=<span class="str">"str"</span>>&quot;男性&quot;</span>], topn=<span class="num">3</span>)</code></pre>
+<h3 id="dfae75ce">自行训练词向量</h3>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>from</span> gensim.models <span class=<span class="str">"kw"</span>>import</span> Word2Vec
+
+sentences = [[<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;我&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;每天&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;乘坐&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;地铁&#x27;</span>, <span class=<span class="str">"str"</span>>&#x27;上班&#x27;</span>], ...]</span>
+
+model = Word2Vec(
+    sentences,
+    vector_size=<span class="num">100</span>,   <span class="cmt"># 词向量维度</span>
+    window=<span class="num">5</span>,          <span class="cmt"># 上下文窗口</span>
+    min_count=<span class="num">2</span>,       <span class="cmt"># 最小词频</span>
+    sg=<span class="num">1</span>,              <span class="cmt"># <span class="num">1</span>=Skip-Gram, <span class="num">0</span>=CBOW</span>
+    workers=<span class="num">4</span>
+)
+
+model.wv.save_word2vec_format(<span class=<span class="str">"str"</span>>&<span class="cmt">#x27;my_vectors.kv&#x27;</span>)</span></code></pre>
+<h3 id="d08a3d85">应用：初始化Embedding层</h3>
+<pre><code class="language-python"><span class=<span class="str">"kw"</span>>import</span> torch.nn <span class=<span class="str">"kw"</span>>as</span> nn
+
+embedding_layer = nn.Embedding.from_pretrained(
+    embedding_matrix,  <span class="cmt"># shape: (vocab_size, embedding_dim)</span>
+    freeze=<span class=<span class="str">"kw"</span>>False</span>       <span class="cmt"># 是否冻结词向量（不继续训练）</span>
+)</code></pre>
+<h2 id="f3cb46cb">上下文相关词表示</h2>
+<div class="list-item" style="padding-left:20px"><strong>问题</strong>：Word2Vec是<strong>静态词向量</strong>——"苹果"在不同语境中向量相同</div>
+<div class="list-item" style="padding-left:20px"><strong>解决方案</strong>：上下文相关词表示（Contextual Word Representations）</div>
+<div class="list-item" style="padding-left:20px"><strong>代表模型</strong>：ELMo（2018）——基于LSTM语言模型，动态生成每个词的表示</div>
+<div class="list-item" style="padding-left:20px">词向量由前文和后文共同决定，是首个广泛应用于下游任务的上下文词向量</div>
+<h2 id="118e3c09">余弦相似度</h2>
+<p><span class="math">similarity(w_1, w_2) = \cos(\theta) = \frac{\vec{w_1} \cdot \vec{w_2}}{||\vec{w_1}|| \cdot ||\vec{w_2}||}</span></p>
+<div class="list-item" style="padding-left:20px">接近1：高度相似</div>
+<div class="list-item" style="padding-left:20px">接近0：无明显相关</div>
+<div class="list-item" style="padding-left:20px">接近-1：极度不相似</div>
+<h2 id="2a543fec">关联笔记</h2>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#分词与词表构建">分词与词表构建</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#NLP概述与技术演进">NLP概述与技术演进</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#传统序列模型RNN">传统序列模型RNN</a></div>
+<div class="list-item" style="padding-left:20px"><a class="wikilink" href="#Transformer架构原理">Transformer架构原理</a></div>
+</section>
+</main>
+</div>
+<script>
+document.querySelectorAll('.sidebar-group').forEach(g => {
+    const link = g.querySelector('.section-link');
+    link.addEventListener('click', function(e) {
+        // Navigate normally
+    });
+});
+// Highlight current page in sidebar
+document.querySelectorAll('.sidebar-link').forEach(l => {
+    if(l.getAttribute('href') === 'nlp-basics.html') l.classList.add('active');
+});
+</script>
+</body>
+</html>
