@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>查询·检索·后处理 — RAG 技术</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--radius:6px}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fafafa;z-index:100}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 8px}
+.sidebar h3:first-child{margin-top:0}
+.sidebar a{display:block;padding:4px 8px;font-size:14px;color:var(--text);text-decoration:none;border-radius:var(--radius);margin:1px 0}
+.sidebar a:hover{background:#efefef}
+.sidebar a.active{background:var(--accent);color:#fff;font-weight:500}
+.main{margin-left:var(--sidebar-w);max-width:860px;padding:40px 60px 80px}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.subtitle{font-size:18px;color:#9b9a97;margin-bottom:32px}
+h2{font-size:28px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:#f0f7ff;border-radius:0 var(--radius) var(--radius) 0}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-left:8px}
+.badge-mid{background:#fff3e0;color:#e65100}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:10px 14px;text-align:left}
+th{background:var(--code-bg);font-weight:600}
+code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:13.5px;background:var(--code-bg);padding:2px 6px;border-radius:3px}
+pre{background:var(--code-bg);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:16px 0;border:1px solid var(--border)}
+pre code{background:none;padding:0}
+.toc{background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px}
+.toc a{font-size:14px;display:block;padding:3px 0}
+.diagram-container{margin:24px 0;padding:24px;background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.diagram-container svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid #b3d4fc;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.cross-ref .label{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+.info-box{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.info-box .label{font-size:12px;font-weight:600;color:#f57f17;text-transform:uppercase;letter-spacing:.5px}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:24px 20px 60px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h3>RAG 技术</h3>
+  <a href="rag-overview.html">RAG 概述与演进</a>
+  <a href="rag-indexing.html">知识库构建</a>
+  <a href="rag-retrieval.html" class="active">查询·检索·后处理</a>
+  <a href="rag-generation.html">生成·评估·实战</a>
+  <h3>查询处理</h3>
+  <a href="#query-rewrite">查询重写</a>
+  <a href="#hyde">HyDE</a>
+  <a href="#query2doc">Query2Doc</a>
+  <a href="#multi-query">多查询检索</a>
+  <a href="#anti-hallucination">查询扩展去幻觉</a>
+  <a href="#strategy-guide">策略选择指南</a>
+  <h3>检索策略</h3>
+  <a href="#dense">稠密检索</a>
+  <a href="#sparse">稀疏检索 BM25</a>
+  <a href="#hybrid">混合检索</a>
+  <a href="#inverted-index">倒排索引</a>
+  <a href="#vector-db">向量数据库选型</a>
+  <a href="#trie">前缀树快速匹配</a>
+  <h3>检索后处理</h3>
+  <a href="#rerank">Rerank 重排序</a>
+  <a href="#rrf">RRF 融合</a>
+  <a href="#parent-retrieval">父子文档检索</a>
+  <a href="#best-practice">最佳实践流程</a>
+  <h3>其他模块</h3>
+  <a href="rag-overview.html">📖 RAG 概述</a>
+  <a href="rag-indexing.html">📐 知识库构建</a>
+  <a href="rag-generation.html">🤖 生成与实战</a>
+</nav>
+
+<div class="main">
+
+<h1>查询 · 检索 · 后处理</h1>
+<p class="subtitle">查询改写 + 向量检索 + 重排序 — RAG 在线检索全链路</p>
+
+<div class="toc">
+  <h4>📑 目录</h4>
+  <a href="#query-rewrite">查询重写</a>
+  <a href="#hyde">HyDE 假设性文档嵌入</a>
+  <a href="#query2doc">Query2Doc 查询扩展</a>
+  <a href="#multi-query">多查询检索 Multi-Query</a>
+  <a href="#anti-hallucination">查询扩展去幻觉</a>
+  <a href="#dense">稠密检索 Dense Retrieval</a>
+  <a href="#sparse">稀疏检索 BM25</a>
+  <a href="#hybrid">混合检索 Hybrid Search</a>
+  <a href="#inverted-index">倒排索引 Elasticsearch</a>
+  <a href="#rerank">Rerank 重排序</a>
+  <a href="#rrf">RRF 互惠排名融合</a>
+  <a href="#parent-retrieval">父子文档检索</a>
+  <a href="#best-practice">最佳实践流程</a>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 1: 查询处理                           -->
+<!-- ============================================================ -->
+
+<h2 id="query-processing">一、查询处理（Query Processing）</h2>
+<p><span class="badge badge-mid">⭐⭐ 中级</span></p>
+
+<blockquote>RAG 中 80% 的检索失败不是向量库不行，而是用户"不会提问"。查询处理是连接用户模糊意图与知识库精确匹配的桥梁。</blockquote>
+
+<h3 id="query-rewrite">1. 查询重写（Query Rewriting）</h3>
+
+<p>将用户模糊的、不完整的提问转化为更适合检索系统的精确表达。</p>
+
+<p><strong>核心场景</strong>：</p>
+<ul>
+  <li>多轮对话消解：用户说"他老婆呢？" → 重写为"周杰伦的老婆是谁？"</li>
+  <li>口语化转换：用户搜"拉肚子" → 重写为"急性肠胃炎"</li>
+  <li>错别字修正</li>
+</ul>
+
+<pre><code class="language-python">def query_rewriter(history, current_query):
+    prompt = f"""根据对话历史，将最新提问重写为完整的独立搜索关键词。
+    要求：不要回答问题；包含代词请结合历史补充完整。
+    对话历史：{history}
+    最新提问：{current_query}
+    重写后的提问："""
+    return llm.invoke(prompt)</code></pre>
+
+<h3 id="hyde">2. HyDE（假设性文档嵌入）</h3>
+
+<p>不直接拿问题去搜，而是先让 LLM 编造一个"假答案"，用<strong>假答案的向量去匹配真答案</strong>。</p>
+
+<p>核心逻辑：由 "问题→答案" 检索，转变为 "答案→答案" 检索。</p>
+
+<table>
+  <thead><tr><th>维度</th><th>传统检索</th><th>HyDE</th></tr></thead>
+  <tbody>
+    <tr><td>语义对齐</td><td>疑问句 vs 陈述句，特征偏移</td><td>陈述句 vs 陈述句，高度重合</td></tr>
+    <tr><td>信息量</td><td>问题短，特征稀疏</td><td>假文档丰富，特征稠密</td></tr>
+    <tr><td>风险</td><td>低</td><td>LLM 理解错则检索南辕北辙</td></tr>
+  </tbody>
+</table>
+
+<p><strong>防幻觉措施</strong>：混合检索（HyDE + 原始 Query），字数限制 200-300 token。</p>
+
+<h3 id="query2doc">3. Query2Doc（查询扩展）</h3>
+
+<p>给原问题 + 一段 LLM 生成的"伪答案"，拼接后去搜。</p>
+
+<pre><code>原始：iPhone 15 为什么断连？
+扩展：iPhone 15 为什么断连？ 基带芯片、5G信号频率、移动通信天线</code></pre>
+
+<p><strong>vs HyDE</strong>：Query2Doc 保留原问题（更稳健），HyDE 替换原问题（更激进）。企业级通常选 Query2Doc。</p>
+
+<h3 id="multi-query">4. 多查询检索（Multi-Query）</h3>
+
+<p>将一个问题改写为 3-5 个语义相近的子问题，分别检索后用 RRF 融合。</p>
+
+<pre><code class="language-python">def generate_queries(original):
+    prompt = "请将以下问题改写为3个语义相关的短句"
+    return llm.invoke(prompt.format(q=original))
+
+# 并发检索 + RRF 融合
+all_results = [search(q) for q in sub_queries]
+final = rrf_fusion(all_results)</code></pre>
+
+<h3 id="anti-hallucination">5. 查询扩展去幻觉</h3>
+
+<p>防止 LLM 扩展内容将检索带偏的四大绝招：</p>
+<ol>
+  <li><strong>结构化 Prompt</strong>：要求只输出关键词，禁止解释性句子</li>
+  <li><strong>Few-shot 引导</strong>：给 LLM 好/坏扩展的示例</li>
+  <li><strong>拒绝触发</strong>：不懂就闭嘴，重复原始问题</li>
+  <li><strong>权重锚定</strong>：<code>Vector_final = α·Vector_original + (1-α)·Vector_pseudo</code>，α 通常 0.7+</li>
+</ol>
+
+<h3 id="strategy-guide">策略选择指南</h3>
+
+<table>
+  <thead><tr><th>场景</th><th>推荐策略</th></tr></thead>
+  <tbody>
+    <tr><td>QPS 极高的电商搜索</td><td>查询重写（轻量级）</td></tr>
+    <tr><td>专业领域（医疗/法律）</td><td>HyDE + 混合检索</td></tr>
+    <tr><td>长尾难题/首轮失败</td><td>Query2Doc</td></tr>
+    <tr><td>模糊语义搜索</td><td>Multi-Query + RRF</td></tr>
+    <tr><td>多轮对话</td><td>查询重写（上下文补全）</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 2: 检索策略                           -->
+<!-- ============================================================ -->
+
+<h2 id="retrieval">二、检索策略（Retrieval）</h2>
+
+<h3 id="dense">稠密检索（Dense Retrieval）</h3>
+
+<p>使用 Embedding 模型（如 BGE-M3）将文本转为稠密向量，通过余弦相似度/内积进行匹配。</p>
+
+<h4>BGE-M3 特点</h4>
+<ul>
+  <li>三路召回：稠密向量 + 稀疏向量 + 多向量</li>
+  <li>支持最长 8192 token</li>
+  <li>多语言支持（中英日韩等）</li>
+</ul>
+
+<h4>检索模式（以 Chroma/LangChain 为例）</h4>
+
+<pre><code class="language-python"># TopK 检索
+retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+
+# 相似度阈值检索
+retriever = vectorstore.as_retriever(
+    search_type="similarity_score_threshold",
+    search_kwargs={"score_threshold": 0.7}
+)
+
+# MMR 检索（多样性）
+retriever = vectorstore.as_retriever(search_type="mmr")</code></pre>
+
+<h3 id="sparse">稀疏检索（Sparse Retrieval）</h3>
+
+<p>基于 BM25 统计算法，通过关键词匹配进行检索。</p>
+
+<h4>BM25 核心原理</h4>
+<ul>
+  <li><strong>IDF</strong>：词在越少文档中出现，权重越高</li>
+  <li><strong>TF + 长度归一化</strong>：词频越高权重越高，但对长文档惩罚</li>
+</ul>
+
+<pre><code class="language-python">from langchain_community.retrievers import BM25Retriever
+import jieba
+
+def chinese_tokenizer(text):
+    return jieba.lcut(text)
+
+bm25_retriever = BM25Retriever.from_texts(
+    doc_list,
+    preprocess_func=chinese_tokenizer,
+)
+bm25_retriever.k = 5</code></pre>
+
+<h3 id="hybrid">混合检索（Hybrid Search）</h3>
+
+<p>结合稠密 + 稀疏检索，实现 1+1&gt;2 效果。</p>
+
+<table>
+  <thead><tr><th>检索方式</th><th>优势</th><th>劣势</th></tr></thead>
+  <tbody>
+    <tr><td>稠密检索</td><td>理解语义，解决词汇不匹配</td><td>对数字/代号不敏感</td></tr>
+    <tr><td>稀疏检索</td><td>精确匹配关键词/术语</td><td>遭遇同义词无能为力</td></tr>
+  </tbody>
+</table>
+
+<pre><code class="language-python">from langchain.retrievers import EnsembleRetriever
+
+ensemble_retriever = EnsembleRetriever(
+    retrievers=[bm25_retriever, dense_retriever],
+    weights=[0.5, 0.5]
+)</code></pre>
+
+<h3 id="inverted-index">倒排索引（Elasticsearch）</h3>
+
+<p>通过词条找到包含它的所有文档 ID 列表，类似书末索引。</p>
+
+<pre><code class="language-python">from elasticsearch import Elasticsearch
+
+# 创建索引
+mappings = {
+    "mappings": {"properties": {
+        "finance_name": {"type": "text"},
+        "hot_freq": {"type": "integer"}
+    }}
+}
+es.indices.create(index="finance_index", body=mappings)
+
+# 全文搜索
+query = {"query": {"match": {"finance_name": "平顶山"}}}
+response = es.search(index="finance_index", body=query)</code></pre>
+
+<h3 id="vector-db">向量数据库选型</h3>
+
+<table>
+  <thead><tr><th>数据库</th><th>特点</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Chroma</strong></td><td>轻量级，适合开发测试</td></tr>
+    <tr><td><strong>Milvus</strong></td><td>分布式，适合生产环境</td></tr>
+    <tr><td><strong>FAISS</strong></td><td>Meta 开源，适合本地大规模</td></tr>
+    <tr><td><strong>Elasticsearch</strong></td><td>倒排索引 + 向量搜索一体化</td></tr>
+  </tbody>
+</table>
+
+<h3 id="trie">前缀树快速匹配</h3>
+
+<p>用于输入联想/自动补全场景（如证券交易所名称匹配）：</p>
+
+<pre><code class="language-python">class Node(dict):
+    def __init__(self, key, is_leaf=False, weight=0):
+        self.key = key
+        self.is_leaf = is_leaf
+        self.weight = weight
+
+def search(node, prefix, limit=8):
+    top_node = node.get_top_node(prefix)
+    results = [(prefix + subkey, pnode) 
+               for subkey, pnode in depth_walk(top_node)]
+    results.sort(key=lambda x: x[1].weight, reverse=True)
+    return results[:limit]</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 3: 检索后处理                         -->
+<!-- ============================================================ -->
+
+<h2 id="post-retrieval">三、检索后处理（Post-Retrieval）</h2>
+
+<blockquote>向量检索是"海选"，检索后处理是"决赛圈精挑细选"。两个核心技术：<strong>Rerank</strong>（重排序）和 <strong>RRF</strong>（互惠排名融合）。</blockquote>
+
+<h3 id="rerank">Rerank（重排序）</h3>
+
+<p>让昂贵的 Cross-Encoder 深度模型对初筛结果进行精排。</p>
+
+<h4>为什么需要 Rerank</h4>
+<ul>
+  <li>向量检索擅长模糊匹配，但对精确数字、否定词经常翻车</li>
+  <li>Bi-Encoder（Embedding 模型）速度快但精度有限</li>
+  <li>Cross-Encoder 精度高但计算量 O(N)，只能用于精排</li>
+</ul>
+
+<h4>典型流程</h4>
+<pre><code>向量检索 Top-50 → Rerank 精排 → Top-5 送给 LLM</code></pre>
+
+<h4>BGE-Reranker 使用</h4>
+
+<pre><code class="language-python">from FlagEmbedding import FlagReranker
+
+reranker = FlagReranker('BAAI/bge-reranker-v2-m3', use_fp16=True)
+score = reranker.compute_score([query, passage])</code></pre>
+
+<h3 id="rrf">RRF（互惠排名融合）</h3>
+
+<p>一种不看"得分高低"，只看"排名先后"的公平投票机制。</p>
+
+<h4>核心公式</h4>
+<p><code>score(d) = Σ 1 / (k + r(d))</code></p>
+<ul>
+  <li><code>r(d)</code>：文档在排行榜里的排名</li>
+  <li><code>k</code>：平滑因子（通常 60），防止第一名权重过大</li>
+</ul>
+
+<h4>为什么不用加权评分</h4>
+
+<table>
+  <thead><tr><th>方案</th><th>特点</th></tr></thead>
+  <tbody>
+    <tr><td>加权评分</td><td><code>Score = 0.3×Vector + 0.7×Keyword</code>，需要手动调参，数据一变权重失效</td></tr>
+    <tr><td>RRF</td><td>无需调参，只需排名，鲁棒性极强</td></tr>
+  </tbody>
+</table>
+
+<h4>实现代码</h4>
+
+<pre><code class="language-python">def rrf_fusion(rank_lists, k=60):
+    rrf_score = {}
+    for rank_list in rank_lists:
+        for rank, doc_id in enumerate(rank_list):
+            score = 1.0 / (k + rank + 1)
+            rrf_score[doc_id] = rrf_score.get(doc_id, 0) + score
+    return sorted(rrf_score.items(), key=lambda x: x[1], reverse=True)
+
+# 向量检索和关键词检索结果融合
+final = rrf_fusion([vector_results, keyword_results], k=60)</code></pre>
+
+<h3 id="parent-retrieval">父子文档检索</h3>
+
+<p>在检索后处理阶段，将子块检索结果映射回父块：</p>
+
+<pre><code class="language-python">from langchain.retrievers import ParentDocumentRetriever
+from langchain.storage import InMemoryStore
+
+# 子块用于搜索，父块用于生成
+retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,  # 子块向量库
+    docstore=InMemoryStore(),  # 父块存储
+    child_splitter=child_splitter,
+    parent_splitter=parent_splitter,
+)</code></pre>
+
+<h3 id="best-practice">最佳实践流程</h3>
+
+<pre><code>1. 多路召回（Dense + BM25 + Summary）
+2. RRF 融合排序（子块级）
+3. Rerank 精排（Cross-Encoder）
+4. 按 parent_id 去重，召回父块
+5. Top-5 父块送给 LLM</code></pre>
+
+<div class="info-box">
+  <div class="label">🎯 总控原则</div>
+  <ol>
+    <li>所有检索、融合、Rerank 都在<strong>子块层</strong>完成</li>
+    <li>Summary 只负责"别找错地方"，不当证据</li>
+    <li>父块只在最后一步出现，用来"保证判断成立"</li>
+  </ol>
+</div>
+
+<!-- Knowledge links -->
+<h2 id="knowledge-links">知识串联</h2>
+
+<table>
+  <thead><tr><th>相关主题</th><th>关联说明</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td>切片策略</td><td>分块质量直接影响 Embedding 效果</td><td><a href="rag-indexing.html#chunking-overview">切片策略</a></td></tr>
+    <tr><td>RAG 评估与优化</td><td>查询质量直接影响 Context Recall</td><td><a href="rag-generation.html#evaluation">评估优化</a></td></tr>
+    <tr><td>RAG 完整架构</td><td>后处理在在线阶段的位置</td><td><a href="rag-generation.html#architecture">完整架构</a></td></tr>
+    <tr><td>高性能 RAG 实战</td><td>混合检索 + Rerank 的生产实现</td><td><a href="rag-generation.html#practice">项目实战</a></td></tr>
+  </tbody>
+</table>
+
+<div class="cross-ref">
+  <div class="label">🔗 项目实战</div>
+  <p><a href="rag-generation.html#practice">高性能 RAG 系统实战</a> — 使用 BGE-M3 做稠密检索 + jieba BM25 做稀疏检索，RRF 融合后 Rerank 精排。</p>
+</div>
+
+</div>
+</body>
+</html>

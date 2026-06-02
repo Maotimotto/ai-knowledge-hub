@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>知识库构建 — RAG 技术</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--radius:6px}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fafafa;z-index:100}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 8px}
+.sidebar h3:first-child{margin-top:0}
+.sidebar a{display:block;padding:4px 8px;font-size:14px;color:var(--text);text-decoration:none;border-radius:var(--radius);margin:1px 0}
+.sidebar a:hover{background:#efefef}
+.sidebar a.active{background:var(--accent);color:#fff;font-weight:500}
+.main{margin-left:var(--sidebar-w);max-width:860px;padding:40px 60px 80px}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.subtitle{font-size:18px;color:#9b9a97;margin-bottom:32px}
+h2{font-size:28px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:#f0f7ff;border-radius:0 var(--radius) var(--radius) 0}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-left:8px}
+.badge-junior{background:#e8f5e9;color:#2e7d32}
+.badge-mid{background:#fff3e0;color:#e65100}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:10px 14px;text-align:left}
+th{background:var(--code-bg);font-weight:600}
+code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:13.5px;background:var(--code-bg);padding:2px 6px;border-radius:3px}
+pre{background:var(--code-bg);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:16px 0;border:1px solid var(--border)}
+pre code{background:none;padding:0}
+.toc{background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px}
+.toc a{font-size:14px;display:block;padding:3px 0}
+.diagram-container{margin:24px 0;padding:24px;background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.diagram-container svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid #b3d4fc;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.cross-ref .label{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+.info-box{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.info-box .label{font-size:12px;font-weight:600;color:#f57f17;text-transform:uppercase;letter-spacing:.5px}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:24px 20px 60px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h3>RAG 技术</h3>
+  <a href="rag-overview.html">RAG 概述与演进</a>
+  <a href="rag-indexing.html" class="active">知识库构建</a>
+  <a href="rag-retrieval.html">查询·检索·后处理</a>
+  <a href="rag-generation.html">生成·评估·实战</a>
+  <h3>本页内容</h3>
+  <a href="#indexing-flow">索引流程图</a>
+  <a href="#data-types">数据类型与预处理</a>
+  <a href="#docling">多模态解析 Docling</a>
+  <a href="#table-strategy">表格处理策略</a>
+  <a href="#image-flow">图片处理流程</a>
+  <a href="#docling-code">Docling 代码示例</a>
+  <a href="#chunking-overview">切片策略总览</a>
+  <a href="#recursive">递归字符分块</a>
+  <a href="#semantic">向量语义分块</a>
+  <a href="#model-based">模型语义分块</a>
+  <a href="#parent-child">父子文档构建</a>
+  <a href="#hypothetical">假设问题构建</a>
+  <a href="#summary-index">摘要索引</a>
+  <h3>其他模块</h3>
+  <a href="rag-overview.html">📖 RAG 概述</a>
+  <a href="rag-retrieval.html">🔍 检索全链路</a>
+  <a href="rag-generation.html">🤖 生成与实战</a>
+</nav>
+
+<div class="main">
+
+<h1>知识库构建</h1>
+<p class="subtitle">数据预处理 + 切片策略 — RAG 离线建库的核心环节</p>
+
+<div class="toc">
+  <h4>📑 目录</h4>
+  <a href="#indexing-flow">索引流程图</a>
+  <a href="#data-types">数据类型与预处理</a>
+  <a href="#docling">多模态文档解析 — Docling</a>
+  <a href="#chunking-overview">切片策略总览</a>
+  <a href="#recursive">递归字符分块</a>
+  <a href="#semantic">向量语义分块</a>
+  <a href="#model-based">模型语义分块</a>
+  <a href="#parent-child">父子文档构建</a>
+  <a href="#hypothetical">假设问题构建</a>
+  <a href="#summary-index">摘要索引</a>
+  <a href="#engineering">工程要点</a>
+</div>
+
+<hr>
+
+<!-- Indexing Flow SVG -->
+<h2 id="indexing-flow">索引流程图</h2>
+
+<div class="diagram-container">
+  <p style="font-size:14px;color:#9b9a97;margin-bottom:16px">离线索引构建流程</p>
+  <svg viewBox="0 0 860 200" xmlns="http://www.w3.org/2000/svg" style="max-width:800px">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><path d="M0 0 L10 3.5 L0 7 z" fill="#0075de"/></marker>
+      <filter id="sh2"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>
+    </defs>
+    <rect x="10" y="60" width="130" height="70" rx="8" fill="#fff3e0" stroke="#ff9800" stroke-width="2" filter="url(#sh2)"/>
+    <text x="75" y="90" text-anchor="middle" fill="#e65100" font-size="14" font-weight="600">📄 原始文档</text>
+    <text x="75" y="108" text-anchor="middle" fill="#e65100" font-size="11">PDF/Word/HTML</text>
+
+    <line x1="140" y1="95" x2="180" y2="95" stroke="#0075de" stroke-width="2" marker-end="url(#arr2)"/>
+
+    <rect x="182" y="60" width="130" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#sh2)"/>
+    <text x="247" y="90" text-anchor="middle" fill="#37352f" font-size="14" font-weight="600">✂️ 切片</text>
+    <text x="247" y="108" text-anchor="middle" fill="#9b9a97" font-size="11">Chunking</text>
+
+    <line x1="312" y1="95" x2="352" y2="95" stroke="#0075de" stroke-width="2" marker-end="url(#arr2)"/>
+
+    <rect x="354" y="60" width="130" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#sh2)"/>
+    <text x="419" y="90" text-anchor="middle" fill="#37352f" font-size="14" font-weight="600">🧮 Embed</text>
+    <text x="419" y="108" text-anchor="middle" fill="#9b9a97" font-size="11">BGE-M3</text>
+
+    <line x1="484" y1="95" x2="524" y2="95" stroke="#0075de" stroke-width="2" marker-end="url(#arr2)"/>
+
+    <rect x="526" y="60" width="130" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#sh2)"/>
+    <text x="591" y="90" text-anchor="middle" fill="#37352f" font-size="14" font-weight="600">🗄️ 存储</text>
+    <text x="591" y="108" text-anchor="middle" fill="#9b9a97" font-size="11">Vector DB</text>
+
+    <line x1="656" y1="95" x2="696" y2="95" stroke="#0075de" stroke-width="2" marker-end="url(#arr2)"/>
+
+    <rect x="698" y="60" width="150" height="70" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" filter="url(#sh2)"/>
+    <text x="773" y="90" text-anchor="middle" fill="#2e7d32" font-size="14" font-weight="600">✅ 索引就绪</text>
+    <text x="773" y="108" text-anchor="middle" fill="#2e7d32" font-size="11">Chroma/Milvus</text>
+
+    <!-- Bottom: parallel paths -->
+    <rect x="182" y="155" width="130" height="35" rx="6" fill="#f0f7ff" stroke="#0075de" stroke-width="1"/>
+    <text x="247" y="178" text-anchor="middle" fill="#0075de" font-size="11">jieba 分词 → BM25</text>
+
+    <rect x="354" y="155" width="130" height="35" rx="6" fill="#f0f7ff" stroke="#0075de" stroke-width="1"/>
+    <text x="419" y="178" text-anchor="middle" fill="#0075de" font-size="11">Summary Embedding</text>
+
+    <text x="440" y="30" text-anchor="middle" fill="#9b9a97" font-size="12">离线建库阶段（Indexing）</text>
+  </svg>
+</div>
+
+<hr>
+
+<!-- ======== 数据类型与预处理 ======== -->
+<h2 id="data-types">数据类型与预处理</h2>
+<p><span class="badge badge-junior">⭐ 初级</span></p>
+
+<blockquote>RAG 系统需要处理三种数据类型，它们在存储方式和处理方法上截然不同。</blockquote>
+
+<ul>
+  <li><strong>结构化数据</strong>：SQL 表、CSV、Excel → 存入关系型数据库（RDBMS），用 SQL 查询</li>
+  <li><strong>半结构化数据</strong>：JSON、XML、HTML → 存入 NoSQL（MongoDB），灵活可嵌套</li>
+  <li><strong>非结构化数据</strong>：文本、PDF、图片、音视频 → 存入向量数据库（Milvus/Chroma），需 Embedding 转换</li>
+</ul>
+
+<div class="info-box">
+  <div class="label">💡 关键认知</div>
+  <p>非结构化数据约占 80%，LLM 通过 Embedding 将其转化为可计算的向量，解锁了海量沉睡数据的价值。</p>
+</div>
+
+<hr>
+
+<!-- ======== Docling ======== -->
+<h2 id="docling">多模态文档解析 — Docling</h2>
+
+<p>在企业级 RAG 中，80% 的价值信息在 PDF 的<strong>表格</strong>和<strong>图片</strong>中。传统纯文本提取会导致语义断层。</p>
+
+<h3 id="table-strategy">表格处理策略</h3>
+
+<table>
+  <thead><tr><th>策略</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><strong>行级原子化</strong></td><td>每行转为 [表格标题] + [表头] + [当前行数据]，检索精度最高</td></tr>
+    <tr><td><strong>HTML 序列化</strong></td><td>比 Markdown 更保留层级结构（rowspan/colspan），GPT-4o 推理更强</td></tr>
+    <tr><td><strong>强制携带表头</strong></td><td>长表拆分时，每块必须带表头，防止数据丢失索引</td></tr>
+  </tbody>
+</table>
+
+<h3 id="image-flow">图片处理流程</h3>
+
+<ol>
+  <li>Docling 导出图片 Base64</li>
+  <li>结合图片周边文字（图注）作为 Prompt 上下文</li>
+  <li>VLM（如 GPT-4o-mini）生成文字描述</li>
+  <li>将描述 + 原图路径存入向量库（实现"以文搜图"）</li>
+</ol>
+
+<h3 id="docling-code">Docling 代码示例</h3>
+
+<pre><code class="language-python">from docling.document_converter import DocumentConverter, PdfPipelineOptions
+
+options = PdfPipelineOptions()
+options.do_table_structure = True       # 开启 TableFormer
+options.generate_picture_images = True  # 开启图片提取
+converter = DocumentConverter(pipeline_options=options)
+result = converter.convert(pdf_path)
+doc = result.document
+
+for element in doc.elements:
+    if element.category == "table":
+        table_md = element.export_to_markdown()  # 导出 Markdown 表格
+    elif element.category == "picture":
+        pass  # 调用 VLM 生成描述</code></pre>
+
+<div class="info-box">
+  <div class="label">🔧 工程要点</div>
+  <ul>
+    <li>表格解析首选 <strong>Docling</strong>（IBM 开源，内置 TableFormer 模型）</li>
+    <li>图片不直接检索像素，而是检索其"语义代理"（Caption）</li>
+    <li>永远不要孤立存储表格，必须带上上下文标题</li>
+  </ul>
+</div>
+
+<hr>
+
+<!-- ======== 切片策略总览 ======== -->
+<h2 id="chunking-overview">切片策略总览</h2>
+<p><span class="badge badge-mid">⭐⭐ 中级</span></p>
+
+<blockquote>分块（Chunking）是 RAG 从"玩具"走向"工业级"的分水岭。检索不准 80% 不是模型问题，而是文档"切碎了"或"切错了"。</blockquote>
+
+<h3>四种切片策略对比</h3>
+
+<table>
+  <thead><tr><th>策略</th><th>复杂度</th><th>优点</th><th>缺点</th><th>适用场景</th></tr></thead>
+  <tbody>
+    <tr><td><strong>递归字符分块</strong></td><td>低</td><td>通用、保留语义边界</td><td>仍有概率切断逻辑</td><td>通用场景首选</td></tr>
+    <tr><td><strong>滑动窗口分块</strong></td><td>低</td><td>减少断裂风险</td><td>冗余多，费 Token</td><td>短文档</td></tr>
+    <tr><td><strong>向量语义分块</strong></td><td>中</td><td>逻辑最连贯，检索最准</td><td>多一次 Embedding 推理</td><td>高质量知识库</td></tr>
+    <tr><td><strong>模型语义分块</strong></td><td>高</td><td>捕捉长程依赖</td><td>推理成本高</td><td>法律合同、财报</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<!-- ======== 递归字符分块 ======== -->
+<h2 id="recursive">1. 递归字符分块</h2>
+<p>（Recursive Character Splitting）— <strong>最重要的通用方案</strong>，LangChain 默认推荐。</p>
+
+<p>核心逻辑：不是按长度一刀切，而是<strong>"带着备选方案的尝试切分"</strong>。</p>
+
+<p>分隔符优先级：<code>\n\n</code>（段落）→ <code>\n</code>（行）→ <code> </code>（词）→ <code>""</code>（字符）</p>
+
+<p>关键参数：</p>
+<ul>
+  <li><code>chunk_size</code>：通常 512-1024 token</li>
+  <li><code>chunk_overlap</code>：50-100 字符，给断开的语义贴"创可贴"</li>
+</ul>
+
+<pre><code class="language-python">from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,
+    chunk_overlap=50,
+    separators=["\n\n", "\n", "。", " ", ""]
+)
+chunks = splitter.split_text(text)</code></pre>
+
+<hr>
+
+<!-- ======== 向量语义分块 ======== -->
+<h2 id="semantic">2. 向量语义分块</h2>
+<p>（Semantic Chunking）— 不按字数切，而是计算相邻句子的<strong>向量相似度</strong>，在语义"断层"处切分。</p>
+
+<pre><code class="language-python">from FlagEmbedding import FlagModel
+import numpy as np
+
+model = FlagModel('BAAI/bge-small-zh-v1.5')
+
+def semantic_chunking(text, threshold=0.85):
+    sentences = text.split('。')
+    embeddings = model.encode(sentences)
+    chunks, current = [], [sentences[0]]
+    for i in range(len(sentences) - 1):
+        sim = np.dot(embeddings[i], embeddings[i+1]) / (
+            np.linalg.norm(embeddings[i]) * np.linalg.norm(embeddings[i+1]))
+        if sim > threshold:
+            current.append(sentences[i+1])
+        else:
+            chunks.append("。".join(current))
+            current = [sentences[i+1]]
+    chunks.append("。".join(current))
+    return chunks</code></pre>
+
+<hr>
+
+<!-- ======== 模型语义分块 ======== -->
+<h2 id="model-based">3. 模型语义分块</h2>
+<p>（Model-based / Agentic Chunking）— 利用 LLM 或 Reranker 判断逻辑边界。</p>
+
+<p><strong>优化策略</strong>："先暴力，再精修"——先用 BGE 向量距离初步切分，模糊地带再调用轻量级模型二审。</p>
+
+<pre><code class="language-python">from FlagEmbedding import FlagReranker
+
+reranker = FlagReranker('BAAI/bge-reranker-v2-m3', use_fp16=True)
+
+def model_based_split(text_list):
+    chunks, current = [], text_list[0]
+    for i in range(1, len(text_list)):
+        score = reranker.compute_score([current, text_list[i]])
+        if score > 0.0:
+            current += " " + text_list[i]
+        else:
+            chunks.append(current)
+            current = text_list[i]
+    chunks.append(current)
+    return chunks</code></pre>
+
+<hr>
+
+<!-- ======== 父子文档 ======== -->
+<h2 id="parent-child">4. 父子文档构建</h2>
+<p>（Parent-Child Retrieval）</p>
+
+<p>核心思想：<strong>"搜索用小块，生成用大块"</strong></p>
+<ul>
+  <li><strong>子文档（Child）</strong>：100-200 token，保证检索敏感度</li>
+  <li><strong>父文档（Parent）</strong>：500-2000 token，保证语境完整</li>
+</ul>
+
+<pre><code class="language-python">from langchain.retrievers import ParentDocumentRetriever
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+parent_splitter = RecursiveCharacterTextSplitter(chunk_size=500)
+child_splitter = RecursiveCharacterTextSplitter(chunk_size=50)
+
+retriever = ParentDocumentRetriever(
+    vectorstore=vectorstore,
+    docstore=store,
+    child_splitter=child_splitter,
+    parent_splitter=parent_splitter,
+)</code></pre>
+
+<hr>
+
+<!-- ======== 假设问题 ======== -->
+<h2 id="hypothetical">5. 文档假设问题构建</h2>
+<p>（Hypothetical Questions）— 入库前让 LLM 预判"别人会问什么"。</p>
+
+<pre><code class="language-python"># 每个 Chunk 生成 3-5 个假设问题
+prompt = "请阅读以下文档，列出3个用户可能提出的具体问题。"
+questions = llm.invoke(prompt.format(doc=chunk_text))</code></pre>
+
+<hr>
+
+<!-- ======== 摘要索引 ======== -->
+<h2 id="summary-index">6. 文档块摘要索引</h2>
+<p>（Chunk Summary Index）— 先让 LLM 把每个块总结成摘要，用<strong>摘要向量</strong>索引。</p>
+
+<p>原则：<strong>检索用摘要，回答用原文</strong>。</p>
+
+<hr>
+
+<!-- ======== 工程要点 ======== -->
+<h2 id="engineering">工程要点</h2>
+
+<div class="info-box">
+  <div class="label">🔧 关键经验</div>
+  <ul>
+    <li>一个完整逻辑的 1000 字 Chunk &gt; 三个逻辑断裂的 300 字 Chunk</li>
+    <li>语义分块是离线过程，不影响在线搜索延迟</li>
+    <li>可用轻量模型分块，检索时换回大模型</li>
+  </ul>
+</div>
+
+<!-- Cross-ref -->
+<h2 id="knowledge-links">知识串联</h2>
+
+<table>
+  <thead><tr><th>相关主题</th><th>关联说明</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td>向量检索与 Embedding</td><td>非结构化数据最终需要向量化</td><td><a href="rag-retrieval.html#dense">向量检索</a></td></tr>
+    <tr><td>重排序与融合</td><td>分块质量影响 Rerank 效果</td><td><a href="rag-retrieval.html#rerank">重排序</a></td></tr>
+    <tr><td>RAG 完整架构</td><td>数据预处理在离线阶段的位置</td><td><a href="rag-generation.html#architecture">完整架构</a></td></tr>
+    <tr><td>RAG 评估与优化</td><td>Context Recall 低 → 优化分块策略</td><td><a href="rag-generation.html#evaluation">评估优化</a></td></tr>
+  </tbody>
+</table>
+
+<div class="cross-ref">
+  <div class="label">🔗 项目实战</div>
+  <p><a href="rag-generation.html#practice">高性能 RAG 系统实战</a> — 对技术文档使用递归分块(512 token)，对 FAQ 使用父子文档策略。</p>
+</div>
+
+</div>
+</body>
+</html>

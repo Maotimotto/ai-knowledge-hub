@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>提示词工程 - AI大模型知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.7;color:#333;background:#fff}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#fff;border-right:1px solid rgba(0,0,0,0.1);position:sticky;top:0;height:100vh;overflow-y:auto;padding:0}
+.sidebar-header{padding:20px;border-bottom:1px solid rgba(0,0,0,0.06)}
+.sidebar-logo{font-size:18px;font-weight:700;color:#0075de;text-decoration:none;display:block}
+.sidebar-subtitle{font-size:12px;color:#888;display:block;margin-top:2px}
+.sidebar-section{padding:12px 0}
+.sidebar-link{display:block;padding:6px 20px;color:#333;text-decoration:none;font-size:14px;border-left:3px solid transparent;transition:all 0.15s}
+.sidebar-link:hover{background:#f6f5f4}
+.sidebar-link.active{border-left-color:#0075de;color:#0075de;background:#f0f7ff;font-weight:500}
+.sidebar-link.root-link{font-weight:600;font-size:15px;padding:8px 20px}
+.sidebar-group .section-link{padding-left:28px;font-size:13px}
+.main{flex:1;padding:40px 60px;max-width:900px;min-width:0}
+.breadcrumb{font-size:13px;color:#888;margin-bottom:16px}
+.breadcrumb a{color:#0075de;text-decoration:none}
+.breadcrumb span{margin:0 6px}
+.page-title{font-size:44px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.2}
+.page-desc{font-size:16px;color:#666;margin-bottom:32px}
+h1{font-size:32px;font-weight:700;color:#1a1a1a;margin:32px 0 12px}
+h2{font-size:28px;font-weight:600;color:#1a1a1a;margin:28px 0 10px}
+h3{font-size:20px;font-weight:600;color:#333;margin:20px 0 8px}
+h4{font-size:17px;font-weight:600;color:#444;margin:16px 0 6px}
+h5,h6{font-size:15px;font-weight:600;color:#555;margin:12px 0 4px}
+p{margin:8px 0}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+.wikilink{color:#0075de;background:#f0f7ff;padding:1px 4px;border-radius:3px;font-size:inherit}
+pre{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:16px;margin:12px 0;overflow-x:auto;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;line-height:1.5}
+code.inline{background:#f6f5f4;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:14px}
+.kw{color:#7c3aed}
+.str{color:#059669}
+.cmt{color:#9ca3af;font-style:italic}
+.num{color:#d97706}
+.table-wrapper{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr.even td{background:#fff}
+tr.odd td{background:#fafafa}
+blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:12px 0;background:#f0f7ff;color:#444;font-size:14px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+.list-item{margin:3px 0;font-size:15px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:500;vertical-align:middle;margin-left:8px}
+.toc-box{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin:20px 0}
+.toc-box h3{font-size:15px;margin:0 0 8px;color:#333}
+.toc-box ul{list-style:none;padding:0}
+.toc-box li{margin:3px 0}
+.toc-box a{font-size:13px;color:#555}
+.toc-box a:hover{color:#0075de}
+.local-toc{background:#fafafa;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:12px 16px;margin:12px 0}
+.local-toc h3{font-size:13px;margin:0 0 6px;color:#666}
+.local-toc ul{list-style:none;padding:0}
+.local-toc li{margin:2px 0}
+.local-toc a{font-size:13px;color:#555}
+.file-section{margin:40px 0;padding-top:20px;border-top:1px solid rgba(0,0,0,0.06)}
+.file-section:first-of-type{border-top:none}
+.file-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.file-title{margin:0;font-size:22px}
+.related-box{background:#f0f7ff;border:1px solid #0075de22;border-radius:8px;padding:16px 20px;margin:20px 0}
+.related-box h3{font-size:14px;margin:0 0 8px;color:#0075de}
+.project-link{display:block;font-size:14px;margin:4px 0}
+.diagram{width:100%;max-width:700px;margin:16px 0;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">
+<a href="index.html" class="sidebar-logo">AI知识库</a>
+<span class="sidebar-subtitle">AI大模型</span>
+</div>
+<div class="sidebar-section">
+<a href="index.html" class="sidebar-link root-link">AI大模型 知识体系</a><div class="sidebar-group"><a href="nlp-basics.html" class="sidebar-link section-link">NLP基础</a></div><div class="sidebar-group"><a href="transformer.html" class="sidebar-link section-link">Transformer架构</a></div><div class="sidebar-group"><a href="tech-stack.html" class="sidebar-link section-link">大模型技术栈</a></div><div class="sidebar-group"><a href="rag.html" class="sidebar-link section-link">RAG技术</a></div><div class="sidebar-group"><a href="agent.html" class="sidebar-link section-link">Agent开发</a></div><div class="sidebar-group"><a href="agent-overview.html" class="sidebar-link section-link">Agent开发详解</a></div><div class="sidebar-group"><a href="agent-mcp.html" class="sidebar-link section-link">MCP协议</a></div><div class="sidebar-group"><a href="agent-prompt.html" class="sidebar-link section-link active">提示词工程</a></div><div class="sidebar-group"><a href="langgraph.html" class="sidebar-link section-link">LangGraph</a></div><div class="sidebar-group"><a href="finetune.html" class="sidebar-link section-link">模型微调</a></div>
+</div>
+</aside>
+<main class="main">
+<div class="breadcrumb"><a href="index.html">AI大模型</a><span>/</span><a href="agent.html">Agent开发</a><span>/</span>提示词工程</div>
+<h1 class="page-title">提示词工程</h1>
+<p class="page-desc">Agent开发中的提示词工程: N-Shot Prompting, 思维链CoT, 角色定义Prompting</p>
+
+<svg class="diagram" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="ah3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#0075de"/></marker></defs>
+<rect x="20" y="60" width="130" height="60" rx="8" fill="#f0f7ff" stroke="#0075de" stroke-width="2"/>
+<text x="85" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">N-Shot</text>
+<line x1="150" y1="90" x2="185" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#ah3)"/>
+<rect x="185" y="60" width="130" height="60" rx="8" fill="#e8f4fd" stroke="#0075de" stroke-width="2"/>
+<text x="250" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">CoT</text>
+<line x1="315" y1="90" x2="350" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#ah3)"/>
+<rect x="350" y="60" width="130" height="60" rx="8" fill="#dbeafe" stroke="#0075de" stroke-width="2"/>
+<text x="415" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#0075de">Role</text>
+<line x1="480" y1="90" x2="515" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#ah3)"/>
+<rect x="515" y="60" width="160" height="60" rx="8" fill="#bfdbfe" stroke="#0075de" stroke-width="2"/>
+<text x="595" y="96" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">Agent Output</text>
+<text x="350" y="170" text-anchor="middle" font-size="13" fill="#888">Prompt Engineering Chain: N-Shot - CoT - Role - Agent</text>
+</svg><div class="toc-box"><h3>Table of Contents</h3><ul><li><a href="#n-shot-prompting">N-Shot Prompting</a></li><li><a href="#思维链cot">思维链CoT</a></li><li><a href="#角色定义prompting">角色定义Prompting</a></li></ul></div><div class="file-section" id="n-shot-prompting">
+<div class="file-header">
+<h2 class="file-title">N-Shot Prompting</h2>
+<span class="badge" style="background:#22c55e">basic</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#n-shot-prompting-zero-one-few-shot-基础">N-Shot Prompting (Zero/One/Few-shot) ⭐基础</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#三种模式">三种模式</a></li><li><a href="#n-shot-vs-fine-tuning">N-Shot vs Fine-tuning</a></li><li><a href="#最佳实践">最佳实践</a></li><li><a href="#面试高频问题">面试高频问题</a></li><li><a href="#关联笔记">关联笔记</a></li></ul></div>
+<h1 id="n-shot-prompting-zero-one-few-shot-基础">N-Shot Prompting (Zero/One/Few-shot) ⭐基础</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>N-Shot Prompting 是 Agent 开发知识体系中的<strong>基础技能层</strong>，通过给模型展示示例来引导输出，是所有 Prompt 工程技术的起点。</blockquote>
+<pre><code>05-Agent开发
+├── 08-提示词工程 ← 基础层（你在这里）
+│   ├── 01-N-Shot-Prompting ✅ ← 示例引导
+│   ├── 02-思维链CoT ← 推理引导
+│   └── 03-角色定义Prompting ← 身份引导
+├── 14-高级Prompt模式 ← 推理层：CoT/ReAct 基于此
+└── 11-Agent框架对比 ← 框架的 prompt 设计</code></pre>
+<p><strong>学习价值</strong>：N-Shot 是 Prompt Engineering 的基础。3-8 个示例 + CoT 推理过程的组合，是提升 Agent 输出质量的最实用方法。</p>
+<blockquote>来源: 知识星球/AI基础的概念/prompt提示词工程/<br>整理时间: 2026-05-30</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p>通过给模型展示 <strong>0/1/多个</strong> 示例，引导模型理解任务意图的技术。底层原理是LLM的<strong>上下文学习（In-Context Learning）</strong>能力。</p>
+<h2 id="三种模式">三种模式</h2>
+<p><strong>Zero-shot</strong>: 直接下指令，靠模型预训练知识。适用：通用任务如"总结这篇文章"。</p>
+<p><strong>One-shot</strong>: 给一个模板定调子。</p>
+<pre><code>输入: 餐厅 -&gt; 输出: CYBER-EAT-01
+输入: 图书馆 -&gt; 输出: ?</code></pre>
+<p><strong>Few-shot</strong>: 给多个示例对齐格式和逻辑。适用：特定格式输出、冷门领域。</p>
+<h2 id="n-shot-vs-fine-tuning">N-Shot vs Fine-tuning</h2>
+<div class="list-item" style="padding-left:0px">N-Shot: 临时抱佛脚，改Prompt不改参数，省钱快速</div>
+<div class="list-item" style="padding-left:0px">Fine-tuning: 基因改造，大量数据重训练，贵慢但强</div>
+<h2 id="最佳实践">最佳实践</h2>
+<div class="list-item" style="padding-left:0px">样本数量：3-8个为过多会费Token且可能"复读机"</div>
+<div class="list-item" style="padding-left:0px">样本多样性：覆盖典型case和边界case</div>
+<div class="list-item" style="padding-left:0px">结合CoT：在示例中加入推理过程效果更佳</div>
+<h2 id="面试高频问题">面试高频问题</h2>
+<p><strong>Q: Few-shot越多越好？</strong> 不是。Context Window有限，3-8个边际效应递减。</p>
+<p><strong>Q: Few-shot效果不好怎么办？</strong> 引入Chain of Thought (CoT)，不仅给结果还给解题过程。</p>
+<h2 id="关联笔记">关联笔记</h2>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-02-思维链cot">思维链CoT</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-03-角色定义prompting">角色定义</a></div>
+</div>
+<div class="file-section" id="思维链cot">
+<div class="file-header">
+<h2 class="file-title">思维链CoT</h2>
+<span class="badge" style="background:#22c55e">basic</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#思维链-cot-chain-of-thought-基础">思维链 CoT (Chain of Thought) ⭐基础</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#为什么需要cot">为什么需要CoT</a></li><li><a href="#实战场景">实战场景</a></li><li><a href="#zero-shot-cot">Zero-shot CoT</a></li><li><a href="#代码示例">代码示例</a></li><li><a href="#cot思维链">CoT思维链</a></li><li><a href="#面试高频问题">面试高频问题</a></li><li><a href="#关联笔记">关联笔记</a></li></ul></div>
+<h1 id="思维链-cot-chain-of-thought-基础">思维链 CoT (Chain of Thought) ⭐基础</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>CoT 是 Agent 开发知识体系中的<strong>推理基础</strong>，通过引导模型展示中间推理步骤来提升复杂任务的准确性，是 ReAct、ToT 等高级推理模式的核心组件。</blockquote>
+<pre><code>08-提示词工程
+├── 01-N-Shot-Prompting ← 示例引导
+├── 02-思维链CoT ✅ ← 推理引导
+└── 03-角色定义Prompting ← 身份引导
+
+14-高级Prompt模式
+├── ReAct = CoT + Action
+├── Reflexion = CoT + 反思
+└── ToT = CoT 的树状扩展</code></pre>
+<p><strong>学习价值</strong>：CoT 是 70B+ 参数模型的涌现能力，"Let's think step by step" 是最简单有效的推理增强技巧。理解 CoT 是掌握所有高级 Agent 推理模式的前提。</p>
+<blockquote>来源: 知识星球/AI基础的概念/prompt提示词工程/<br>整理时间: 2026-05-30</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p>CoT是在Few-shot示例中，不仅给出"问题-答案"，还详细写出<strong>中间推理过程</strong>，诱导模型进行逻辑推理。</p>
+<p><strong>核心公式</strong>: CoT = Few-shot + 逻辑过程</p>
+<div class="list-item" style="padding-left:0px">普通Few-shot只给答案（死记硬背）</div>
+<div class="list-item" style="padding-left:0px">CoT边写边推导（学会逻辑）</div>
+<h2 id="为什么需要cot">为什么需要CoT</h2>
+<div class="list-item" style="padding-left:0px">LLM本质是概率预测，不强制写步骤会"看一眼就猜答案"</div>
+<div class="list-item" style="padding-left:0px">解决多步骤逻辑中"一步错步步错"的问题</div>
+<div class="list-item" style="padding-left:0px">是<strong>涌现能力</strong>，通常70B+参数时效果显著</div>
+<h2 id="实战场景">实战场景</h2>
+<div class="list-item" style="padding-left:0px">复杂财务计算：要求列出每一步公式</div>
+<div class="list-item" style="padding-left:0px">代码纠错：先分析Bug成因再修复</div>
+<div class="list-item" style="padding-left:0px">多步决策：退货→检查保修→查库存→生成退货单</div>
+<h2 id="zero-shot-cot">Zero-shot CoT</h2>
+<p>不需要示例，Prompt末尾加"魔法咒语"：</p>
+<pre><code>Let&#x27;s think step by step.</code></pre>
+<h2 id="代码示例">代码示例</h2>
+<pre><code><span class="cmt"># CoT思维链</span>
+cot = <span class="str">&quot;&quot;</span><span class="str">&quot;
+Q: 盒子里有5个球，拿走2个，放进4个，现在有15个。最初有几个？
+A: 让我们一步步思考：
+1. 现有15个。
+2. 逆向：放进4个前有 15-4=11个。
+3. 拿走2个前有 11+2=13个。
+答案是13。
+&quot;</span><span class="str">&quot;&quot;</span></code></pre>
+<h2 id="面试高频问题">面试高频问题</h2>
+<p><strong>Q: CoT在7B小模型上有效吗？</strong> 效果不佳甚至有副作用，CoT是涌现能力，70B+才表现强。</p>
+<p><strong>Q: 什么是Zero-shot CoT？</strong> Prompt末尾加"Let's think step by step"，无需示例即提升推理准确度。</p>
+<h2 id="关联笔记">关联笔记</h2>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-01-n-shot-prompting">N-Shot Prompting</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-03-角色定义prompting">角色定义</a></div>
+</div>
+<div class="file-section" id="角色定义prompting">
+<div class="file-header">
+<h2 class="file-title">角色定义Prompting</h2>
+<span class="badge" style="background:#22c55e">basic</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#角色定义-prompting-role-prompting-基础">角色定义 Prompting (Role Prompting) ⭐基础</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#角色设定三要素">角色设定三要素</a></li><li><a href="#实战场景">实战场景</a></li><li><a href="#代码示例">代码示例</a></li><li><a href="#带角色认定">带角色认定</a></li><li><a href="#输出-吐槽函数名f是认真的吗">输出: "【吐槽】函数名f是认真的吗？</a></li><li><a href="#建议命名要有意义加类型标注">【建议】命名要有意义，加类型标注</a></li><li><a href="#代码def-calculate_taxamount-float---float-">【代码】def calculate_tax(amount: float) -> float: ..."</a></li><li><a href="#与其他技术的关系">与其他技术的关系</a></li><li><a href="#最佳实践">最佳实践</a></li><li><a href="#面试高频问题">面试高频问题</a></li><li><a href="#关联笔记">关联笔记</a></li></ul></div>
+<h1 id="角色定义-prompting-role-prompting-基础">角色定义 Prompting (Role Prompting) ⭐基础</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>角色定义是 Agent 开发知识体系中的<strong>身份锚定技术</strong>，通过指定 AI 的身份、背景和专业领域来约束输出风格与知识边界，是所有 Agent 框架 system prompt 设计的核心。</blockquote>
+<pre><code>08-提示词工程
+├── 01-N-Shot-Prompting ← 示例引导
+├── 02-思维链CoT ← 推理引导
+└── 03-角色定义Prompting ✅ ← 身份引导
+
+11-Agent框架对比
+├── CrewAI: role + goal + backstory
+├── AutoGen: system_message
+├── MetaGPT: profile + goal + constraints
+└── Agents SDK: instructions</code></pre>
+<p><strong>学习价值</strong>：角色定义是 Agent 开发的第一步——每个 Agent 都需要一个清晰的 system prompt。掌握"你是谁+你要做什么+你不能做什么"三要素，能显著提升 Agent 输出质量。</p>
+<blockquote>来源: 知识星球/AI基础的概念/prompt提示词工程/<br>整理时间: 2026-05-30</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p>通过明确指定AI的身份、背景和专业领域，约束输出风格与知识边界。本质是<strong>概率锚定</strong>——缩小模型在概率空间中的搜索范围。</p>
+<h2 id="角色设定三要素">角色设定三要素</h2>
+<div class="list-item" style="padding-left:0px"><strong>你是谁</strong>: 专业背景、经验年限、性格特征</div>
+<div class="list-item" style="padding-left:0px"><strong>你要做什么</strong>: 明确工作目标和输出要求</div>
+<div class="list-item" style="padding-left:0px"><strong>你不能做什么</strong>: 禁止行为、安全边界</div>
+<h2 id="实战场景">实战场景</h2>
+<div class="list-item" style="padding-left:0px"><strong>专业顾问系统</strong>: 医疗/法律RAG中设定"严谨合规审查员"</div>
+<div class="list-item" style="padding-left:0px"><strong>性格化IP</strong>: 游戏NPC设定"傲娇少女"或"毒舌教练"</div>
+<div class="list-item" style="padding-left:0px"><strong>复杂任务拆解</strong>: 设定"资深架构师"，先输出架构图再写代码</div>
+<h2 id="代码示例">代码示例</h2>
+<pre><code><span class="cmt"># 带角色认定</span>
+prompt = <span class="str">&quot;&quot;</span><span class="str">&quot;
+### System:
+你是一位20年经验的Python资深架构师，性格严谨毒舌。
+重视PEP8和安全性。回复必须包含：吐槽点、改进建议、重构代码。
+
+### User:
+评价: def f(x): return x*0.1
+&quot;</span><span class="str">&quot;&quot;</span>
+<span class="cmt"># 输出: &quot;【吐槽】函数名f是认真的吗？</span>
+<span class="cmt">#        【建议】命名要有意义，加类型标注</span>
+<span class="cmt">#        【代码】def calculate_tax(amount: float) -&gt; float: ...&quot;</span></code></pre>
+<h2 id="与其他技术的关系">与其他技术的关系</h2>
+<div class="list-item" style="padding-left:0px"><strong>vs Few-shot</strong>: 角色认定定调子，Few-shot给例子，结合效果最好</div>
+<div class="list-item" style="padding-left:0px"><strong>vs System Prompt</strong>: 角色认定通常写在System Prompt中</div>
+<h2 id="最佳实践">最佳实践</h2>
+<div class="list-item" style="padding-left:0px">关键约束原则：只保留决定性影响的背景、技能和禁忌</div>
+<div class="list-item" style="padding-left:0px">防止出戏：System Prompt定义角色 + User Prompt分隔符引导</div>
+<h2 id="面试高频问题">面试高频问题</h2>
+<p><strong>Q: 角色设定越详细越好？</strong> 过犹不及。过长占Token且导致注意力分散（Loss of Middle）。</p>
+<p><strong>Q: 如何防止模型出戏？</strong> System Prompt锁身份 + User Prompt分隔符 + Frequency Penalty参数。</p>
+<h2 id="关联笔记">关联笔记</h2>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-01-n-shot-prompting">N-Shot Prompting</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-08-提示词工程-02-思维链cot">思维链CoT</a></div>
+</div>
+<div class="related-box">
+<h3>Related Project</h3>
+<a class="project-link" href="https://github.com/Maotimotto/ai-knowledge-hub/tree/main/small-projects/agent-task-planner" target="_blank">Agent Task Planner - Multi-Agent Task Planning Demo</a>
+</div>
+</main>
+</div>
+<script>
+document.querySelectorAll('.sidebar-link').forEach(l => {
+    if(l.getAttribute('href') === 'agent-prompt.html') l.classList.add('active');
+});
+</script>
+</body>
+</html>

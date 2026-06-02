@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LangGraph 详解 - AI知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--text:#1a1a1a;--text-secondary:#6b7280;--accent:#0075de;--accent-light:#e8f0fe;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-bg:#f9fafb;--badge-green:#10b981;--badge-yellow:#f59e0b;--badge-red:#ef4444;--badge-purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:280px;min-width:280px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.sidebar .tree-item{padding:6px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-radius:6px;margin-bottom:2px;display:block}
+.sidebar .tree-item:hover{background:rgba(0,117,222,0.08);color:var(--accent)}
+.sidebar .tree-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.sidebar .tree-section{margin-bottom:16px}
+.sidebar .tree-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);margin-bottom:8px;padding:0 12px}
+.main{flex:1;max-width:900px;padding:48px 64px;margin:0 auto}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px;letter-spacing:-0.02em}
+h2{font-size:28px;font-weight:700;margin-top:48px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin-top:32px;margin-bottom:12px}
+h4{font-size:16px;font-weight:600;margin-top:24px;margin-bottom:8px}
+p{margin-bottom:12px}
+.subtitle{font-size:18px;color:var(--text-secondary);margin-bottom:32px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;margin-right:6px}
+.badge-green{background:var(--badge-green)}
+.badge-yellow{background:var(--badge-yellow)}
+.badge-red{background:var(--badge-red)}
+.badge-purple{background:var(--badge-purple)}
+.badge-blue{background:var(--accent)}
+.difficulty{display:flex;align-items:center;gap:8px;margin:16px 0;padding:12px 16px;background:var(--code-bg);border-radius:8px;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 12px;border:1px solid var(--border)}
+td{padding:10px 12px;border:1px solid var(--border)}
+tr:nth-child(even){background:#fafafa}
+pre{background:var(--code-bg);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0;font-size:13px;line-height:1.6;border:1px solid var(--border)}
+code{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px}
+p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;font-size:13px}
+blockquote{border-left:3px solid var(--accent);padding:12px 16px;margin:16px 0;background:var(--accent-light);border-radius:0 8px 8px 0;font-size:14px}
+blockquote p{margin-bottom:4px}
+ul,ol{margin:8px 0 12px 24px}
+li{margin-bottom:4px}
+.svg-diagram{margin:24px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.toc{background:var(--code-bg);border-radius:8px;padding:20px 24px;margin:24px 0}
+.toc h3{margin-top:0;font-size:16px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{padding:3px 0}
+.toc a{font-size:14px;color:var(--text-secondary)}
+.toc a:hover{color:var(--accent)}
+.nav-link{display:block;padding:4px 0;font-size:14px;color:var(--text-secondary)}
+.nav-link:hover{color:var(--accent)}
+.highlight{background:linear-gradient(120deg,var(--accent-light) 0%,transparent 100%);padding:2px 4px;border-radius:3px}
+.card{border:1px solid var(--border);border-radius:8px;padding:20px;margin:16px 0;background:#fff}
+.card-title{font-weight:600;margin-bottom:8px;color:var(--accent)}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<h2>LangGraph 目录</h2>
+<div class="tree-section">
+<div class="tree-section-title">核心概念</div>
+<a class="tree-item active" href="#overview">LangGraph 概述</a>
+<a class="tree-item" href="#state">State 核心概念</a>
+<a class="tree-item" href="#nodes-edges">节点与边</a>
+<a class="tree-item" href="#conditional">条件路由</a>
+<a class="tree-item" href="#persistence">持久化与记忆</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">进阶特性</div>
+<a class="tree-item" href="#human-in-loop">人机协作</a>
+<a class="tree-item" href="#multi-agent">多Agent协作</a>
+<a class="tree-item" href="#tool-integration">工具集成</a>
+<a class="tree-item" href="#streaming">流式输出</a>
+<a class="tree-item" href="#error-handling">错误处理</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">实践与部署</div>
+<a class="tree-item" href="#design-patterns">智能体设计模式</a>
+<a class="tree-item" href="#chatbi">ChatBI 项目实战</a>
+<a class="tree-item" href="#code-examples">基础代码示例</a>
+<a class="tree-item" href="#deployment">部署与最佳实践</a>
+</div>
+</aside>
+
+<main class="main">
+
+<h1>LangGraph 详解</h1>
+<p class="subtitle">基于图的Agent编排框架 -- 支持状态机、循环、条件分支的智能体工作流引擎</p>
+
+<div class="difficulty">
+<span class="badge badge-yellow">难度 3/5</span>
+<span>前置要求：LangChain基础、Python编程</span>
+<span class="badge badge-purple" style="margin-left:auto">面试频率 高频</span>
+</div>
+
+<div class="toc">
+<h3>目录</h3>
+<ul>
+<li><a href="#overview">1. LangGraph 概述</a></li>
+<li><a href="#state">2. State 核心概念</a></li>
+<li><a href="#nodes-edges">3. 节点与边</a></li>
+<li><a href="#conditional">4. 条件路由</a></li>
+<li><a href="#persistence">5. 持久化与记忆</a></li>
+<li><a href="#human-in-loop">6. 人机协作</a></li>
+<li><a href="#multi-agent">7. 多Agent协作</a></li>
+<li><a href="#tool-integration">8. 工具集成</a></li>
+<li><a href="#streaming">9. 流式输出</a></li>
+<li><a href="#error-handling">10. 错误处理</a></li>
+<li><a href="#design-patterns">11. 智能体设计模式</a></li>
+<li><a href="#chatbi">12. ChatBI 项目实战</a></li>
+<li><a href="#code-examples">13. 基础代码示例</a></li>
+<li><a href="#deployment">14. 部署与最佳实践</a></li>
+</ul>
+</div>
+
+<!-- LangGraph Workflow SVG Diagram -->
+<div class="svg-diagram">
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" style="max-width:700px">
+<defs>
+<marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#0075de"/></marker>
+<marker id="arrowhead-green" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/></marker>
+<marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/></marker>
+</defs>
+<!-- Background -->
+<rect width="800" height="500" rx="12" fill="#f9fafb" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="400" y="30" text-anchor="middle" font-size="16" font-weight="700" fill="#1a1a1a">LangGraph 工作流图结构</text>
+
+<!-- START node -->
+<circle cx="60" cy="140" r="24" fill="#10b981" opacity="0.15" stroke="#10b981" stroke-width="2"/>
+<text x="60" y="145" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981">START</text>
+
+<!-- Node: 意图识别 -->
+<rect x="130" y="110" width="130" height="56" rx="8" fill="#fff" stroke="#0075de" stroke-width="2"/>
+<text x="195" y="134" text-anchor="middle" font-size="12" font-weight="600" fill="#0075de">意图识别</text>
+<text x="195" y="152" text-anchor="middle" font-size="10" fill="#6b7280">LLM Node</text>
+
+<!-- Edge: START -> 意图识别 -->
+<line x1="84" y1="140" x2="128" y2="140" stroke="#0075de" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+<!-- Conditional Router -->
+<rect x="310" y="110" width="130" height="56" rx="8" fill="#f59e0b" opacity="0.15" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,3"/>
+<text x="375" y="134" text-anchor="middle" font-size="12" font-weight="600" fill="#f59e0b">条件路由</text>
+<text x="375" y="152" text-anchor="middle" font-size="10" fill="#6b7280">Conditional Edge</text>
+
+<!-- Edge: 意图识别 -> 条件路由 -->
+<line x1="260" y1="140" x2="308" y2="140" stroke="#0075de" stroke-width="2" marker-end="url(#arrowhead)"/>
+
+<!-- Branch: SQL Agent -->
+<rect x="500" y="60" width="130" height="56" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+<text x="565" y="84" text-anchor="middle" font-size="12" font-weight="600" fill="#8b5cf6">SQL Agent</text>
+<text x="565" y="102" text-anchor="middle" font-size="10" fill="#6b7280">数据库查询</text>
+
+<!-- Branch: Python Agent -->
+<rect x="500" y="140" width="130" height="56" rx="8" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+<text x="565" y="164" text-anchor="middle" font-size="12" font-weight="600" fill="#8b5cf6">Python Agent</text>
+<text x="565" y="182" text-anchor="middle" font-size="10" fill="#6b7280">代码执行</text>
+
+<!-- Branch: 通用回复 -->
+<rect x="500" y="220" width="130" height="56" rx="8" fill="#fff" stroke="#10b981" stroke-width="2"/>
+<text x="565" y="244" text-anchor="middle" font-size="12" font-weight="600" fill="#10b981">通用回复</text>
+<text x="565" y="262" text-anchor="middle" font-size="10" fill="#6b7280">直接回答</text>
+
+<!-- Conditional edges -->
+<line x1="440" y1="125" x2="498" y2="88" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+<text x="470" y="100" font-size="9" fill="#8b5cf6">SQL查询</text>
+
+<line x1="440" y1="140" x2="498" y2="160" stroke="#8b5cf6" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+<text x="470" y="155" font-size="9" fill="#8b5cf6">代码执行</text>
+
+<line x1="440" y1="155" x2="498" y2="240" stroke="#10b981" stroke-width="1.5" marker-end="url(#arrowhead-green)"/>
+<text x="470" y="210" font-size="9" fill="#10b981">直接回复</text>
+
+<!-- Tool Nodes -->
+<rect x="670" y="60" width="100" height="40" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+<text x="720" y="76" text-anchor="middle" font-size="10" fill="#6b7280">NL2SQL MCP</text>
+<text x="720" y="90" text-anchor="middle" font-size="9" fill="#6b7280">Tool Node</text>
+
+<rect x="670" y="140" width="100" height="40" rx="6" fill="#f6f5f4" stroke="rgba(0,0,0,0.15)" stroke-width="1"/>
+<text x="720" y="156" text-anchor="middle" font-size="10" fill="#6b7280">Python MCP</text>
+<text x="720" y="170" text-anchor="middle" font-size="9" fill="#6b7280">Tool Node</text>
+
+<line x1="630" y1="88" x2="668" y2="80" stroke="rgba(0,0,0,0.2)" stroke-width="1" marker-end="url(#arrowhead)"/>
+<line x1="630" y1="168" x2="668" y2="160" stroke="rgba(0,0,0,0.2)" stroke-width="1" marker-end="url(#arrowhead)"/>
+
+<!-- ReAct Loop indicator -->
+<path d="M 565 116 Q 565 130 565 138" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="4,2" marker-end="url(#arrowhead-red)"/>
+<text x="550" y="132" font-size="8" fill="#ef4444" transform="rotate(-90,550,132)">ReAct Loop</text>
+
+<!-- END node -->
+<circle cx="400" cy="370" r="24" fill="#ef4444" opacity="0.15" stroke="#ef4444" stroke-width="2"/>
+<text x="400" y="375" text-anchor="middle" font-size="11" font-weight="600" fill="#ef4444">END</text>
+
+<!-- Edges to END -->
+<line x1="565" y1="116" x2="420" y2="355" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrowhead-red)"/>
+<line x1="565" y1="196" x2="418" y2="350" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrowhead-red)"/>
+<line x1="565" y1="276" x2="412" y2="348" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,2" marker-end="url(#arrowhead-red)"/>
+
+<!-- State Flow annotation -->
+<rect x="40" y="320" width="250" height="160" rx="8" fill="#fff" stroke="var(--border)" stroke-width="1"/>
+<text x="165" y="345" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a1a">State 数据流</text>
+<text x="55" y="370" font-size="10" fill="#6b7280">class BIState(TypedDict):</text>
+<text x="55" y="386" font-size="10" fill="#6b7280">    messages: Annotated[list, add_messages]</text>
+<text x="55" y="408" font-size="10" fill="#6b7280">State 在节点间传递，通过 Annotated</text>
+<text x="55" y="424" font-size="10" fill="#6b7280">注解控制更新模式（覆盖/追加）</text>
+<text x="55" y="446" font-size="10" fill="#6b7280">Checkpointer 实现状态持久化</text>
+</svg>
+</div>
+
+<hr>
+
+<!-- Section 1: Overview -->
+<h2 id="overview">1. LangGraph 概述</h2>
+
+<h3>1.1 什么是 LangGraph</h3>
+<p>LangGraph 是专门用来构建"AI工作流"的工具包，帮你把复杂的AI任务拆成步骤，像搭积木一样组装起来。它是 LangChain 的升级版本，可以有效地处理并行、分支、人工介入等复杂场景。</p>
+
+<p>LangChain 是一个通用的智能体编排工具，工作编排成一系列的节点，用一条工作链把这些节点连接起来，组织成一张有向无环图(DAG)。LangGraph 则支持有环图，适合需要循环、条件判断的复杂工作流。</p>
+
+<h3>1.2 为什么需要 LangGraph</h3>
+<p>LangChain 不方便处理一些复杂工作流：分支、并行、人工介入。LangGraph 解决了以下问题：</p>
+<ul>
+<li><strong>复杂任务拆分</strong>：比如让AI先查资料再写文章，分步完成</li>
+<li><strong>动态调整流程</strong>：根据中间结果决定下面的分支路径</li>
+<li><strong>分支与并行</strong>：一些步骤可以拆分成不同的分支，并行完成后整合结果</li>
+<li><strong>多人协作</strong>：不同步骤可以用不同模型/API</li>
+<li><strong>人工介入</strong>：在某些非常关键的位置，必须由人类决定的点，可以人工介入</li>
+</ul>
+
+<h3>1.3 核心组件</h3>
+<p>LangGraph 的基础组件包括：图(Graph)、状态(State)、节点(Node)、边(Edge)、记忆(Memory)。</p>
+
+<h3>1.4 安装</h3>
+<pre><code># 创建虚拟环境
+conda create -n langgraph python=3.11
+conda activate langgraph
+
+# 安装依赖
+pip3 install torch torchvision torchaudio --index-url https://mirrors.nju.edu.cn/pytorch/whl/cu126
+pip3 install ollama langchain langchain_ollama matplotlib
+pip install langgraph</code></pre>
+
+<hr>
+
+<!-- Section 2: State -->
+<h2 id="state">2. State 核心概念</h2>
+
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>核心机制 -- 面试高频考点</span>
+</div>
+
+<h3>2.1 什么是 State</h3>
+<p>State 是 LangGraph 中的<strong>全局共享数据结构</strong>（通常是一个 TypedDict 或 Pydantic 模型），它定义了在图(Graph)的各个节点(Node)之间传递、更新和持久化的数据模式。</p>
+
+<blockquote>
+<p><strong>类比</strong>：State 就像是"项目的共享在线文档"。想象你在办一场婚礼：策划师、花艺师、厨师都是"节点"，State 就是那本《婚礼需求手册》。</p>
+</blockquote>
+
+<h3>2.2 为什么需要 State</h3>
+<p>在传统的 LangChain Chain 中，数据流是线性的(A - B - C)，信息容易丢失。LangGraph 的 State 解决了：</p>
+<ol>
+<li><strong>解决"断片"问题</strong>：State 允许数据在循环中反复被修改</li>
+<li><strong>实现"后悔药"（短时记忆）</strong>：State 记录了每一步的执行结果，如果 AI 走错了，可以根据历史记录跳回上一步重来</li>
+<li><strong>精准控制</strong>：可以决定哪些信息是给 LLM 决策用的，哪些是留给程序自动控制逻辑用的</li>
+</ol>
+
+<h3>2.3 与 BufferMemory 的区别</h3>
+<table>
+<tr><th>特性</th><th>BufferMemory</th><th>State</th></tr>
+<tr><td>存储内容</td><td>仅聊天记录</td><td>任意结构化数据(SQL结果、变量、文件路径等)</td></tr>
+<tr><td>更新模式</td><td>追加</td><td>覆盖或追加（可配置）</td></tr>
+<tr><td>适用场景</td><td>简单对话</td><td>复杂工作流、多步推理</td></tr>
+</table>
+
+<h3>2.4 State 更新机制</h3>
+<ul>
+<li>节点通过返回一个字典来更新 State</li>
+<li>默认是<strong>覆盖</strong>模式</li>
+<li>使用 <code>operator.add</code> 的 <code>Annotated</code> 注解则是<strong>追加</strong>模式（常用于消息列表）</li>
+</ul>
+
+<blockquote>
+<p><strong>设计原则</strong>：设计 Graph 的第一步永远不是写 Prompt，而是设计 State 的数据结构。State 设计得好，逻辑判断（Conditional Edges）就像写 if-else 一样自然。</p>
+</blockquote>
+
+<h3>2.5 代码示例：基础 State + 条件循环</h3>
+<pre><code>import operator
+from typing import Annotated, TypedDict
+from langgraph.graph import StateGraph, END
+
+class AgentState(TypedDict):
+    history: Annotated[list[str], operator.add]  # 追加模式
+    counter: int  # 覆盖模式
+
+def basic_node(state: AgentState):
+    new_counter = state['counter'] + 1
+    return {"counter": new_counter, "history": [f"计数更新为 {new_counter}"]}
+
+def decide_to_continue(state: AgentState):
+    return "stop" if state['counter'] >= 3 else "continue"
+
+workflow = StateGraph(AgentState)
+workflow.add_node("incrementer", basic_node)
+workflow.set_entry_point("incrementer")
+workflow.add_conditional_edges("incrementer", decide_to_continue, {
+    "continue": "incrementer",
+    "stop": END
+})
+
+app = workflow.compile()
+result = app.invoke({"counter": 0, "history": ["任务开始"]})</code></pre>
+
+<h3>2.6 Checkpointer（状态持久化）</h3>
+<p>Checkpointer 是 LangGraph 的持久化层，在每个节点执行完成后自动将 State 序列化并存储。三大核心价值：</p>
+<ol>
+<li><strong>容错与恢复</strong>：服务器崩了？重启后读取 State 接着干</li>
+<li><strong>人机协作</strong>：某些决策需要人审批，Agent 运行到一半"挂起"等待确认</li>
+<li><strong>时间旅行</strong>：回到"三步之前的状态"，修改参数看是否有更好结果</li>
+</ol>
+
+<table>
+<tr><th>类型</th><th>适用场景</th><th>特点</th></tr>
+<tr><td><code>MemorySaver</code></td><td>测试/开发</td><td>程序重启就没了</td></tr>
+<tr><td><code>SqliteSaver</code></td><td>生产环境</td><td>服务器关了数据还在</td></tr>
+<tr><td><code>PostgresSaver</code></td><td>大规模生产</td><td>支持高并发</td></tr>
+</table>
+
+<h3>2.7 Agent Checkpoint 恢复记忆的三个维度</h3>
+<ul>
+<li><strong>物理跨度 -- 永久</strong>：只要数据库没清空，记忆是永久的</li>
+<li><strong>逻辑跨度 -- 全量 vs 窗口</strong>：设置 <code>max_window_size</code>，只把最近 N 轮对话塞给模型以节省 Token</li>
+<li><strong>任务恢复 -- 断点续传</strong>：直接从上次中断的步骤开始，无需从头执行</li>
+</ul>
+
+<hr>
+
+<!-- Section 3: Nodes and Edges -->
+<h2 id="nodes-edges">3. 节点与边</h2>
+
+<h3>3.1 节点类型</h3>
+<table>
+<tr><th>节点类型</th><th>作用</th><th>说明</th></tr>
+<tr><td>默认节点（START/END）</td><td>基本节点</td><td>任何图至少包含 START 和 END</td></tr>
+<tr><td>函数节点</td><td>基本节点</td><td>Python 函数实现，接收状态并返回更新后的状态</td></tr>
+<tr><td>工具节点（ToolNode）</td><td>基本节点</td><td>封装外部工具调用（API、数据库查询）</td></tr>
+<tr><td>大模型节点</td><td>基本节点</td><td>调用 LLM 生成响应或决策</td></tr>
+<tr><td>条件节点</td><td>流程控制</td><td>通过边实现分支逻辑，选择不同处理路径</td></tr>
+<tr><td>并行节点</td><td>流程控制</td><td>并行执行多个操作，利用多核性能提升效率</td></tr>
+<tr><td>聚合节点</td><td>流程控制</td><td>合并多个节点输出（投票机制或多源数据整合）</td></tr>
+<tr><td>人工干预节点</td><td>流程控制</td><td>暂停流程等待人工输入或审核</td></tr>
+</table>
+
+<h3>3.2 添加节点</h3>
+<pre><code>def node1(state):
+    pass
+
+graphBuilder = StateGraph(state)
+graphBuilder.add_node("node1", node1)</code></pre>
+
+<h3>3.3 边的类型</h3>
+<table>
+<tr><th>边类型</th><th>说明</th></tr>
+<tr><td>普通边</td><td>直接连接两个节点，无条件跳转</td></tr>
+<tr><td>条件边</td><td>基于状态动态选择路径，通过函数返回目标节点名</td></tr>
+</table>
+
+<h3>3.4 添加普通边</h3>
+<pre><code>graphBuilder.add_edge("node1", "node2")
+graphBuilder.add_edge(START, "heatUp")
+graphBuilder.add_edge("getBoilWater", END)</code></pre>
+
+<hr>
+
+<!-- Section 4: Conditional Routing -->
+<h2 id="conditional">4. 条件路由</h2>
+
+<h3>4.1 条件边实现</h3>
+<pre><code>def processWater(state):
+    if state["temperature"] == 100:
+        return "hotWaterReady"
+    else:
+        return "stillHeating"
+
+graphBuilder.add_conditional_edges(
+    "heatUp",
+    processWater,
+    {"hotWaterReady": "getBoilWater", "stillHeating": "heatUp"}
+)</code></pre>
+
+<h3>4.2 多工具选择路由</h3>
+<pre><code>from typing_extensions import Literal
+
+def select_router(state: State) -> Literal[END, "tool_node_a", "tool_node_b"]:
+    if not state["messages"][-1].content:  # 有工具调用
+        if state["messages"][-1].tool_calls[0].get('name') == "tool_a":
+            return "tool_node_a"
+        else:
+            return "tool_node_b"
+    return END
+
+workflow.add_conditional_edges("call_selection", select_router)</code></pre>
+
+<hr>
+
+<!-- Section 5: Persistence -->
+<h2 id="persistence">5. 持久化与记忆</h2>
+
+<h3>5.1 Memory 机制</h3>
+<pre><code>from langgraph.checkpoint.memory import MemorySaver
+
+memory = MemorySaver()
+thread_config = {"configurable": {"thread_id": "session_3"}}
+graph_with_memory = graph_builder.compile(checkpointer=memory)
+
+# 第一轮对话
+result = graph_with_memory.invoke(
+    {"messages": "你好，我叫张三"}, config=thread_config
+)
+
+# 第二轮对话（同一 thread_id，能记住之前的内容）
+result = graph_with_memory.invoke(
+    {"messages": "我叫什么名字？"}, config=thread_config
+)</code></pre>
+
+<h3>5.2 Checkpointer 实现断点恢复</h3>
+<pre><code>from langgraph.checkpoint.memory import MemorySaver
+
+memory = MemorySaver()
+app = workflow.compile(checkpointer=memory)
+
+config = {"configurable": {"thread_id": "user_123"}}
+app.invoke({"count": 0}, config)
+result = app.invoke({"count": 1}, config)
+print(f"存档中的最终计数: {result['count']}")</code></pre>
+
+<hr>
+
+<!-- Section 6: Human-in-the-loop -->
+<h2 id="human-in-loop">6. 人机协作</h2>
+
+<p>在编译图时使用 <code>interrupt_before</code> 或 <code>interrupt_after</code> 参数。当图运行到此处时，Checkpointer 强制保存当前状态并停止运行。等待外部输入后，再通过相同的 <code>thread_id</code> 恢复。</p>
+
+<pre><code>from langgraph.types import interrupt, Command
+from langgraph.checkpoint.memory import MemorySaver
+
+def ask_sugar(state):
+    human_response = interrupt("")  # 中断节点
+    state["add_sugar"] = human_response
+    return state
+
+# 编译时注入 checkpointer
+checkpointer = MemorySaver()
+graph = graphBuilder.compile(checkpointer=checkpointer)
+
+# 启动工作流
+config = {"configurable": {"thread_id": "some_id"}}
+state = graph.invoke(state, config)
+
+# 中断后接收用户输入
+userDecision = input("请问您的咖啡需要加糖吗？(是/否):")
+# 使用 Command 恢复工作流
+result = graph.invoke(Command(resume=userDecision), config=config)</code></pre>
+
+<hr>
+
+<!-- Section 7: Multi-Agent -->
+<h2 id="multi-agent">7. 多Agent协作</h2>
+
+<p>LangGraph 支持多Agent协作模式，典型架构包括 Supervisor（主管）模式和辩论模式。</p>
+
+<h3>7.1 Supervisor 模式</h3>
+<p>Supervisor 负责路由分发、状态管理、冲突裁决，将任务分配给不同的专业 Agent：</p>
+<ul>
+<li><strong>General Agent</strong>：负责 RAG 业务百科、闲聊</li>
+<li><strong>SQL Agent</strong>：负责 Schema Linking、Text-to-SQL</li>
+<li><strong>Python Agent</strong>：负责复杂计算、数据清洗、生成图表</li>
+<li><strong>Summarizer Agent</strong>：负责多模态结果整合</li>
+</ul>
+
+<h3>7.2 子图实现</h3>
+<pre><code># 烧水子图
+heatWaterSubGraphBuilder = StateGraph(State)
+heatWaterSubGraphBuilder.add_node("heat water", boil_water)
+heatWaterSubGraphBuilder.add_edge(START, "heat water")
+heatWaterSubGraph = heatWaterSubGraphBuilder.compile()
+
+# 总图中使用子图作为节点
+graphBuilder = StateGraph(State)
+graphBuilder.add_node("得到热水子图", heatWaterSubGraph)
+graphBuilder.add_node("磨咖啡豆", grind_coffee)
+graphBuilder.add_edge(START, "得到热水子图")
+graphBuilder.add_edge(START, "磨咖啡豆")
+graphBuilder.add_edge(["得到热水子图", "磨咖啡豆"], "冲咖啡")
+graph = graphBuilder.compile()</code></pre>
+
+<hr>
+
+<!-- Section 8: Tool Integration -->
+<h2 id="tool-integration">8. 工具集成</h2>
+
+<h3>8.1 工具调用（Tool Calling）</h3>
+<pre><code>from langgraph.prebuilt import ToolNode, create_react_agent
+from langchain_core.tools import tool
+
+@tool
+def check_at_home(user_name: str) -> str:
+    """检查用户是否在家"""
+    return '在家' if user_name == "张三" else '不在家'
+
+tool_executor = ToolNode([check_at_home])</code></pre>
+
+<h3>8.2 MCP 工具集成</h3>
+<pre><code>from langchain_mcp_adapters.tools import load_mcp_tools
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+mcp_server_config = {
+    "my_mcp": {
+        "url": "http://server:9007/mcp",
+        "transport": "streamable_http",
+    }
+}
+
+@asynccontextmanager
+async def make_mcp_graph():
+    client = MultiServerMCPClient(mcp_server_config)
+    async with client.session("my_mcp") as session:
+        tools = await load_mcp_tools(session)
+        # ... 绑定到 Agent 节点</code></pre>
+
+<h3>8.3 create_react_agent（预构建 ReAct 智能体）</h3>
+<pre><code>from langgraph.prebuilt import create_react_agent
+from langgraph.checkpoint.memory import MemorySaver
+
+memory = MemorySaver()
+agent = create_react_agent(
+    model=llm,
+    tools=[check_at_home],
+    checkpointer=memory,
+    prompt="Respond in Chinese"
+)
+
+thread_config = {"configurable": {"thread_id": "session_5"}}
+result = agent.invoke({"messages": "张三在家吗"}, config=thread_config)</code></pre>
+
+<hr>
+
+<!-- Section 9: Streaming -->
+<h2 id="streaming">9. 流式输出</h2>
+
+<pre><code># stream_mode 参数：
+# - "values"：输出状态值的变化
+# - "updates"：输出每个步骤的增量更新
+# - "debug"：包含完整调试信息
+
+async for event in graph.astream(
+    {"messages": [{"role": "user", "content": user_input}]},
+    stream_mode="values",
+    config=thread_config
+):
+    event["messages"][-1].pretty_print()</code></pre>
+
+<hr>
+
+<!-- Section 10: Error Handling -->
+<h2 id="error-handling">10. 错误处理</h2>
+
+<h3>10.1 死循环预防</h3>
+<p>状态机中设置 Max_Iterations（通常 3 次）。3 次自愈尝试后仍失败，强制中断任务返回中间报错信息，并触发人工干预日志。</p>
+
+<h3>10.2 Token 溢出防护</h3>
+<p>采用窗口滑动与摘要压缩策略：只保留最近 N 轮原始对话，之前的通过 Summarizer Agent 提取核心事实存入 Memory。</p>
+
+<h3>10.3 数据库防爆</h3>
+<p>三层防护：账号只有只读权限、驱动层限制 Max_Rows 和 Timeout、所有 SQL 先过 EXPLAIN 预估成本。</p>
+
+<hr>
+
+<!-- Section 11: Design Patterns -->
+<h2 id="design-patterns">11. 智能体设计模式</h2>
+
+<h3>构建智能体的两种思路</h3>
+<table>
+<tr><th>思路</th><th>优点</th><th>缺点</th></tr>
+<tr><td><strong>工作流（Workflow）</strong></td><td>可控性强</td><td>有一定工作量</td></tr>
+<tr><td><strong>Agent</strong></td><td>通用性强，不需要定制</td><td>可控性较差</td></tr>
+</table>
+
+<h3>六大设计模式</h3>
+
+<div class="card">
+<div class="card-title">1. 提示链模式（Prompt Chaining）</div>
+<p>对复杂工作分步执行，通过多个前后关联的提示词不断优化，使小参数量模型产生媲美大参数量模型的结果。适用场景：模型能力有限，对结果要求比较高。</p>
+</div>
+
+<div class="card">
+<div class="card-title">2. 分支模式（Branching）</div>
+<p>要解决的问题可以从多方面阐述，首先找到最合适的角度，再详细展开。适用场景：可选的多个角度中，有一个特别适合这个问题。</p>
+</div>
+
+<div class="card">
+<div class="card-title">3. 并行模式（Parallel）</div>
+<p>解决问题需要的多个中间步骤中，有些步骤互不干扰，可以并行提升速度。适用场景：部分节点互不干扰。</p>
+</div>
+
+<div class="card">
+<div class="card-title">4. 计划-执行模式（Plan-and-Execute）</div>
+<p>首先对工作整体进行规划，按照规划的步骤逐步实施。适用场景：工作体量比较大，难以单次完成，但各部分之间有比较紧密的联系。</p>
+</div>
+
+<div class="card">
+<div class="card-title">5. 生成-评估模式（Generate-Evaluate）</div>
+<p>生成者负责结果生成，评估者负责评估结果，不合格则指出原因交给生成者继续。适用场景：对结果要求比较高，需要实现自动化。</p>
+</div>
+
+<div class="card">
+<div class="card-title">6. 智能体模式（Agent）</div>
+<p>大模型综合使用给出的各种工具，自行决定方案来满足用户需求。适用场景：工作要求比较复杂，无法提出通用的工作流。</p>
+</div>
+
+<hr>
+
+<!-- Section 12: ChatBI -->
+<h2 id="chatbi">12. ChatBI 项目实战</h2>
+
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>MCP + LangGraph 构建数据分析智能体</span>
+</div>
+
+<h3>12.1 项目背景</h3>
+<p>某电商公司需要开发对话型 ChatBI 智能数据分析智能体，能力范围包括：科学计算、写代码、业务数据查询、数据分析与建模、可视化图表、日常交流。</p>
+
+<h3>12.2 整体架构</h3>
+<table>
+<tr><th>角色</th><th>职责</th></tr>
+<tr><td>Supervisor（主管）</td><td>路由分发、状态管理、冲突裁决</td></tr>
+<tr><td>General Agent</td><td>RAG 业务百科、闲聊、系统使用指南</td></tr>
+<tr><td>SQL Agent</td><td>Schema Linking、Text-to-SQL、SQL 报错自纠</td></tr>
+<tr><td>Python Agent</td><td>复杂计算、数据清洗、生成 Echarts/Matplotlib 图表</td></tr>
+<tr><td>Summarizer Agent</td><td>多模态结果整合，输出人类可读的深度洞察</td></tr>
+</table>
+
+<h3>12.3 技术栈</h3>
+<ul>
+<li><strong>多智能体框架</strong>：LangGraph</li>
+<li><strong>工具协议</strong>：MCP（Model Context Protocol）Streamable HTTP</li>
+<li><strong>数据库</strong>：PostgreSQL</li>
+<li><strong>LLM</strong>：DeepSeek-V3（SQL专项）+ QWEN-plus（通用调度）</li>
+<li><strong>API 框架</strong>：FastAPI</li>
+</ul>
+
+<h3>12.4 MCP Server 端口分配</h3>
+<table>
+<tr><th>MCP Server</th><th>端口</th><th>功能</th></tr>
+<tr><td>search_db_mcp</td><td>9004</td><td>数据库查询（NL2SQL）</td></tr>
+<tr><td>python_chart_mcp</td><td>9002</td><td>Python 代码执行 + 绘图</td></tr>
+<tr><td>machine_learning_mcp</td><td>9003</td><td>机器学习算法</td></tr>
+<tr><td>ywfl_mcp</td><td>9005</td><td>业务分流/意图识别</td></tr>
+</table>
+
+<h3>12.5 图编排</h3>
+<pre><code>workflow = StateGraph(BIState)
+
+# 添加节点
+workflow.add_node(call_identify_intention)
+workflow.add_node(identify_intention_tool_node)
+workflow.add_node(call_list_tables)
+workflow.add_node(list_tables_tool)
+workflow.add_node(call_python_coder)
+workflow.add_node(python_run_tool_node)
+workflow.add_node(data_analysis_agent)
+
+# 添加边
+workflow.add_edge(START, "call_identify_intention")
+workflow.add_edge("call_identify_intention", "identify_intention_tool_node")
+workflow.add_conditional_edges("identify_intention_tool_node", should_continue_ywfl)
+workflow.add_edge("call_python_coder", "python_run_tool_node")
+workflow.add_edge("python_run_tool_node", END)
+workflow.add_edge("call_list_tables", "list_tables_tool")
+workflow.add_edge("list_tables_tool", "data_analysis_agent")
+workflow.add_edge("data_analysis_agent", END)
+
+graph = workflow.compile()</code></pre>
+
+<h3>12.6 NL2SQL 实现</h3>
+<ol>
+<li>对数据库所有表名、字段名进行注释（COMMENT），解释表和字段含义</li>
+<li>LangGraph 流程节点中，LLM 调用数据库连接方法读取所有表注释和字段注释作为上下文</li>
+<li>写 SQL 节点中，LLM 调用 NL2SQL MCP 工具，根据上下文完成 SQL 编写并执行</li>
+</ol>
+
+<h3>12.7 ChatBI 实战经验</h3>
+<ul>
+<li><strong>Text-to-SQL 幻觉处理</strong>：做元数据映射层（Schema Mapper），SQL 执行前用正则抓出表名和字段做白名单比对</li>
+<li><strong>多表 Join 优化</strong>：将 500 张表按业务线分成主题域，用户提问时先判断业务，只把相关的 10 张表 DDL 喂给模型，准确率从 60% 提到 85%</li>
+<li><strong>可视化决策树</strong>：数据 &lt; 5 行且是占比 - 饼图；时间序列 - 折线图</li>
+<li><strong>指标字典</strong>：复杂业务计算公式定义在向量库中，涉及特定指标时先检索计算逻辑作为硬性约束</li>
+</ul>
+
+<hr>
+
+<!-- Section 13: Code Examples -->
+<h2 id="code-examples">13. 基础代码示例</h2>
+
+<h3>13.1 最简 StateGraph</h3>
+<pre><code>from langgraph.graph import START, StateGraph, END
+
+def my_node(state):
+    return {"x": state["x"] + 1, "y": state["y"] + 2}
+
+builder = StateGraph(dict)
+builder.add_node("my_node", my_node)
+builder.add_edge(START, "my_node")
+builder.add_edge("my_node", END)
+
+graph = builder.compile()
+result = graph.invoke(input={"x": 7, "y": 8})
+# result = {"x": 8, "y": 10}</code></pre>
+
+<h3>13.2 基础聊天机器人</h3>
+<pre><code>from typing import Annotated
+from typing_extensions import TypedDict
+from langgraph.graph import StateGraph, START, END
+from langgraph.graph.message import add_messages
+from langchain_openai import ChatOpenAI
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+
+graph_builder = StateGraph(State)
+llm = ChatOpenAI(model='deepseek-chat', temperature=0)
+
+def chatbot(state: State):
+    return {"messages": [llm.invoke(state["messages"])]}
+
+graph_builder.add_node("chatbot", chatbot)
+graph_builder.add_edge(START, "chatbot")
+graph_builder.add_edge("chatbot", END)
+graph = graph_builder.compile()</code></pre>
+
+<h3>13.3 并行节点实现</h3>
+<pre><code>class State(TypedDict):
+    水温: Annotated[int, updateTemperature]
+    产物: Annotated[str, updateProduct]
+
+# 强制等待并行节点完成后再继续
+graphBuilder.add_edge(["烧水2", "磨咖啡豆"], "冲咖啡")</code></pre>
+
+<h3>13.4 图可视化</h3>
+<pre><code>import matplotlib.image as mpimg
+from matplotlib import pyplot as plt
+from io import BytesIO
+
+graph_png = graph.get_graph().draw_mermaid_png()
+img = mpimg.imread(BytesIO(graph_png), format='PNG')
+plt.imshow(img)
+plt.axis('off')
+plt.show()</code></pre>
+
+<hr>
+
+<!-- Section 14: Deployment -->
+<h2 id="deployment">14. 部署与最佳实践</h2>
+
+<h3>14.1 面试高频问题</h3>
+
+<div class="card">
+<div class="card-title">Q: 为什么选 LangGraph 而非其他框架？</div>
+<p>LangGraph 能先通过加载数据库节点访问数据库一次，后续节点用上下文反复进行 SQL/Python 编写，避免反复读取。LangGraph 有子图实现（大图嵌套小图），这是其他框架不具备的。</p>
+</div>
+
+<div class="card">
+<div class="card-title">Q: Supervisor 模式 vs Chain 链式架构？</div>
+<p>链式架构是静态、线性的，容错性差。Supervisor 模式是动态迭代的，能根据子 Agent 返回结果动态决定下一步，处理并行复杂任务。</p>
+</div>
+
+<div class="card">
+<div class="card-title">Q: 如何做能力扩展？</div>
+<p>流程最前端有业务分流节点，可在该节点做意图识别，设置不同路由边策略。根据需求扩展相应边下游的流程支线，无需修改已有节点。</p>
+</div>
+
+<h3>14.2 最佳实践</h3>
+<ol>
+<li><strong>State 设计优先</strong>：设计 Graph 的第一步永远不是写 Prompt，而是设计 State 的数据结构</li>
+<li><strong>信息限流</strong>：将大量表按业务线分主题域，查询时只喂相关表的 DDL 给模型</li>
+<li><strong>沙箱安全</strong>：Python 代码执行使用 Docker 容器化隔离，跑完就销毁</li>
+<li><strong>窗口滑动</strong>：只保留最近 N 轮对话，避免 Token 溢出</li>
+<li><strong>死循环防护</strong>：设置 Max_Iterations，超限强制中断</li>
+<li><strong>错误自愈</strong>：SQL 写错不报错，而是把正确字段名塞回让模型"反思重写"</li>
+</ol>
+
+<hr>
+
+<blockquote>
+<p>知识领域：AI大模型 / Agent开发 / LangGraph</p>
+<p>关联模块：Agent开发、RAG技术、MCP协议、Transformer架构</p>
+</blockquote>
+
+</main>
+</div>
+</body>
+</html>

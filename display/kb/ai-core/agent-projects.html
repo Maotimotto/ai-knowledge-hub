@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能体项目 - Agent开发 Part 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--font-sans:'Inter','Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--text);background:var(--bg);line-height:1.75;display:flex}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fbfbfa;font-size:14px;z-index:10}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none}
+.sidebar li{margin-bottom:2px}
+.sidebar a{display:block;padding:6px 10px;border-radius:6px;color:var(--text);text-decoration:none;transition:background .15s}
+.sidebar a:hover{background:rgba(0,117,222,0.08)}
+.sidebar a.active{background:rgba(0,117,222,0.12);color:var(--accent);font-weight:500}
+.sidebar .dir-label{font-weight:600;color:var(--accent);padding:8px 10px 4px;font-size:13px}
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:40px 60px 80px;max-width:900px}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px;letter-spacing:-0.02em}
+h2{font-size:28px;font-weight:700;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin-bottom:12px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:rgba(0,117,222,0.04);border-radius:0 6px 6px 0;font-size:15px}
+ul,ol{margin:8px 0 16px 24px}
+li{margin-bottom:4px}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+strong{font-weight:600}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-difficulty{background:#fef3c7;color:#92400e}
+.badge-freq{background:#fce7f3;color:#9d174d}
+.badge-section{background:rgba(0,117,222,0.1);color:var(--accent);font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle}
+code{font-family:var(--font-mono);font-size:14px;background:var(--code-bg);padding:2px 6px;border-radius:4px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px 20px;overflow-x:auto;margin:16px 0;line-height:1.6}
+pre code{background:none;padding:0;font-size:13.5px}
+.code-lang{font-size:11px;color:#9b9a97;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px}
+th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border:1px solid var(--border)}
+td{padding:10px 14px;border:1px solid var(--border)}
+tr:nth-child(even) td{background:#fafafa}
+.toc{background:#f8f8f7;border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{margin-bottom:4px}
+.toc a{font-size:14px;color:var(--text)}
+.toc a:hover{color:var(--accent)}
+.file-section{margin:48px 0;padding-top:32px;border-top:2px solid var(--accent)}
+.file-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.file-header h2{margin:0;border:none;padding:0}
+.meta{color:#9b9a97;font-size:13px;margin-bottom:24px}
+.wiki-link{color:var(--accent);font-weight:500;cursor:pointer}
+.wiki-link:hover{text-decoration:underline}
+.arch-diagram{background:#f8f8f7;border:1px solid var(--border);border-radius:8px;padding:20px;margin:16px 0;font-family:var(--font-mono);font-size:13px;line-height:1.8;white-space:pre;overflow-x:auto}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<h3>Agent开发 Part 2</h3>
+<div class="dir-label">09-图数据库</div>
+<ul>
+<li><a href="agent-graph-db.html">图数据库知识库</a></li>
+</ul>
+<div class="dir-label" style="margin-top:16px">10-智能体项目</div>
+<ul>
+<li><a href="#file-finance" class="active">金融智能咨询系统</a></li>
+<li><a href="#file-mcp-qa">多MCP协同系统实战</a></li>
+<li><a href="#file-sdk-guide">Agent SDK开发指南</a></li>
+</ul>
+<div class="dir-label" style="margin-top:16px">11-Agent框架对比</div>
+<ul>
+<li><a href="agent-frameworks.html">框架对比文档</a></li>
+</ul>
+</nav>
+
+<main class="main">
+<h1>智能体项目</h1>
+<p class="meta">AI大模型 &gt; Agent开发 &gt; 10-智能体项目 &mdash; 共3篇文档</p>
+
+<div class="toc">
+<h4>目录</h4>
+<ul>
+<li><a href="#file-finance">金融智能咨询系统（多MCP协同Agent项目）</a></li>
+<li><a href="#file-mcp-qa">从0到1打造多MCP协同智能体系统（面试问答）</a></li>
+<li><a href="#file-sdk-guide">OpenAI Agent SDK 开发指南</a></li>
+</ul>
+</div>
+
+<!-- SVG: Multi-Agent Architecture -->
+<div style="margin:24px 0;text-align:center">
+<svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,sans-serif;max-width:100%;height:auto">
+<defs>
+<marker id="arr" viewBox="0 0 10 7" refX="25" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9b9a97"/></marker>
+<filter id="sh" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/></filter>
+</defs>
+<!-- User -->
+<rect x="340" y="10" rx="8" width="120" height="40" fill="#37352f" filter="url(#sh)"/><text x="400" y="35" text-anchor="middle" fill="white" font-size="13" font-weight="600">用户输入</text>
+<!-- Switch Agent -->
+<rect x="310" y="90" rx="10" width="180" height="50" fill="#0075de" filter="url(#sh)"/><text x="400" y="112" text-anchor="middle" fill="white" font-size="13" font-weight="600">Switch Agent</text><text x="400" y="128" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">业务分流智能体</text>
+<line x1="400" y1="50" x2="400" y2="90" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- 4 Agents -->
+<rect x="40" y="200" rx="8" width="150" height="55" fill="#059669" filter="url(#sh)"/><text x="115" y="222" text-anchor="middle" fill="white" font-size="12" font-weight="600">投资顾问</text><text x="115" y="238" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Investment Agent</text>
+
+<rect x="230" y="200" rx="8" width="150" height="55" fill="#d97706" filter="url(#sh)"/><text x="305" y="222" text-anchor="middle" fill="white" font-size="12" font-weight="600">文章质检</text><text x="305" y="238" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Article Check</text>
+
+<rect x="420" y="200" rx="8" width="150" height="55" fill="#7c3aed" filter="url(#sh)"/><text x="495" y="222" text-anchor="middle" fill="white" font-size="12" font-weight="600">金融咨询</text><text x="495" y="238" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Consult Agent</text>
+
+<rect x="610" y="200" rx="8" width="150" height="55" fill="#dc2626" filter="url(#sh)"/><text x="685" y="222" text-anchor="middle" fill="white" font-size="12" font-weight="600">转人工</text><text x="685" y="238" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Turn Human Agent</text>
+
+<!-- Lines from switch to agents -->
+<line x1="360" y1="140" x2="145" y2="200" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="380" y1="140" x2="295" y2="200" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="420" y1="140" x2="505" y2="200" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arr)"/>
+<line x1="440" y1="140" x2="675" y2="200" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<!-- MCP Servers -->
+<rect x="40" y="310" rx="6" width="150" height="40" fill="white" stroke="#059669" stroke-width="1.5"/><text x="115" y="335" text-anchor="middle" fill="#059669" font-size="11" font-weight="500">投资建议 MCP</text>
+<line x1="115" y1="255" x2="115" y2="310" stroke="#059669" stroke-width="1" stroke-dasharray="4"/>
+
+<rect x="230" y="310" rx="6" width="150" height="40" fill="white" stroke="#d97706" stroke-width="1.5"/><text x="305" y="335" text-anchor="middle" fill="#d97706" font-size="11" font-weight="500">文章风险扫描 MCP</text>
+<line x1="305" y1="255" x2="305" y2="310" stroke="#d97706" stroke-width="1" stroke-dasharray="4"/>
+
+<rect x="420" y="310" rx="6" width="150" height="40" fill="white" stroke="#7c3aed" stroke-width="1.5"/><text x="495" y="335" text-anchor="middle" fill="#7c3aed" font-size="11" font-weight="500">金融智能咨询 MCP</text>
+<line x1="495" y1="255" x2="495" y2="310" stroke="#7c3aed" stroke-width="1" stroke-dasharray="4"/>
+
+<rect x="610" y="310" rx="6" width="150" height="40" fill="white" stroke="#dc2626" stroke-width="1.5"/><text x="685" y="335" text-anchor="middle" fill="#dc2626" font-size="11" font-weight="500">转人工 MCP</text>
+<line x1="685" y1="255" x2="685" y2="310" stroke="#dc2626" stroke-width="1" stroke-dasharray="4"/>
+
+<!-- Tools inside MCP -->
+<text x="115" y="370" text-anchor="middle" fill="#9b9a97" font-size="10">股价查询 | 股价预测 | 投资报告</text>
+<text x="305" y="370" text-anchor="middle" fill="#9b9a97" font-size="10">规范性审查 | 专业性审查</text>
+<text x="495" y="370" text-anchor="middle" fill="#9b9a97" font-size="10">本地知识库RAG | 网络检索</text>
+<text x="685" y="370" text-anchor="middle" fill="#9b9a97" font-size="10">转人工接口</text>
+
+<!-- Handoff arrows between agents -->
+<path d="M 195 230 Q 215 260 230 230" fill="none" stroke="#9b9a97" stroke-width="1" stroke-dasharray="3"/>
+<path d="M 380 230 Q 400 265 420 230" fill="none" stroke="#9b9a97" stroke-width="1" stroke-dasharray="3"/>
+<path d="M 570 230 Q 590 260 610 230" fill="none" stroke="#9b9a97" stroke-width="1" stroke-dasharray="3"/>
+
+<!-- Label -->
+<text x="400" y="420" text-anchor="middle" fill="#9b9a97" font-size="12">Handoff 双向箭头表示智能体间可互相转交</text>
+<text x="400" y="445" text-anchor="middle" fill="#9b9a97" font-size="11">技术栈: OpenAI Agents SDK + DeepSeek-V3 + MCP协议 + FastAPI</text>
+</svg>
+<p style="color:#9b9a97;font-size:13px;margin-top:8px">金融智能咨询系统架构：Switch Agent 分流 → 4个专业Agent → 4个MCP Server</p>
+</div>
+
+<hr>
+
+<!-- ==================== FILE 1: 金融智能咨询系统 ==================== -->
+<div class="file-section" id="file-finance">
+<div class="file-header">
+<span class="badge-section">01</span>
+<h2>金融智能咨询系统（多MCP协同Agent项目）</h2>
+<span class="badge badge-difficulty">高级</span>
+</div>
+<div class="meta">来源: 知识星球/推荐的项目 | Agent开发面试高频考点</div>
+
+<p>基于金融 SaaS 产品智能咨询工作台，搭建一套<strong>多 Agent 协作系统</strong>，通过 MCP 技术将金融文章风险扫描、投资建议、智能咨询、转人工等工具封装为独立服务，由 OpenAI Agents SDK 编排多智能体协作流转。</p>
+
+<h3>系统架构</h3>
+<div class="arch-diagram">用户输入
+   ↓
+Switch Agent（业务分流）
+   ├── Investment Agent ← 投资建议MCP
+   │     ├── 股价查询 (cal_close_price_trend_tool)
+   │     ├── 股价预测 (predict_future_7data_tool)
+   │     └── 投资报告 (generation_stock_prediction_report_tool)
+   ├── Article Check Agent ← 文章风险扫描MCP
+   │     ├── 规范性审查 (basic_check_tool)
+   │     ├── 专业性审查 (professional_check_tool)
+   │     ├── 审查报告 (produce_check_result_report_tool)
+   │     └── 文章改进 (produce_refine_report_tool)
+   ├── Consult Agent ← 金融咨询MCP
+   │     ├── 本地知识库RAG (invest_policy_consult_tool)
+   │     └── 网络检索 (finance_news_search_consult_tool)
+   └── Turn Human Agent ← 转人工MCP
+         └── 转人工 (turn_human_tool)</div>
+
+<h3>MCP Server 端口规划</h3>
+<table>
+<tr><th>MCP Server</th><th>端口</th><th>工具数</th></tr>
+<tr><td>stock_predict_mcp_server</td><td>8336</td><td>3</td></tr>
+<tr><td>article_check_mcp_server</td><td>9330</td><td>4</td></tr>
+<tr><td>finance_consult_mcp_server</td><td>9339</td><td>2</td></tr>
+<tr><td>turn_human_mcp_server</td><td>8335</td><td>1</td></tr>
+</table>
+
+<h3>核心实现要点</h3>
+
+<h4>1. Agent 定义与 MCP 绑定</h4>
+<div class="code-lang">Python</div>
+<pre><code>from agents import Agent, Runner, ModelSettings
+from agents.mcp import MCPServerSse
+
+# 定义 MCP Server
+investment_mcp = MCPServerSse(
+    params={"url": "http://server:8336/sse"},
+    cache_tools_list=True, client_session_timeout_seconds=200)
+
+# Agent 绑定 MCP
+investment_agent = Agent(
+    name="Investment Agent",
+    instructions=system_prompt + investment_prompt,
+    handoff_description="当用户咨询股票时调用",
+    model_settings=ModelSettings(tool_choice="required"),
+    model=deepseek_model,
+    mcp_servers=[investment_mcp]
+)</code></pre>
+
+<h4>2. Agent 间 Handoff 协作</h4>
+<div class="code-lang">Python</div>
+<pre><code># Switch Agent 可转交给所有下游 Agent
+switch_agent = Agent(
+    name="Switch Agent",
+    instructions="根据用户需求移交合适智能体",
+    handoffs=[investment_agent, turn_human_agent, 
+              article_check_agent, consult_agent])
+
+# 所有 Agent 之间互转
+consult_agent.handoffs.extend([turn_human_agent, switch_agent, 
+                                article_check_agent, investment_agent])</code></pre>
+
+<h4>3. Instruction 流程编排</h4>
+<p>每个 Agent 的 instruction 用文字化描述子业务流程：</p>
+<div class="arch-diagram">1.询问用户需要预测或查询的股票名称
+1a) 如果想预测未来走势 → 调用 predict_future_7data_tool
+1b) 如果想查询当前收盘价 → 调用 cal_close_price_trend_tool
+1c) 如果想生成报告 → 继续下一步
+2. 生成报告：
+2a) 先调用 predict_future_7data_tool
+2b) 再调用 cal_close_price_trend_tool  
+2c) 最后调用 generation_stock_prediction_report_tool
+3. 确认用户是否有其他问题，无则移交回 Switch Agent</div>
+
+<h4>4. 多轮对话消息管理</h4>
+<div class="code-lang">Python</div>
+<pre><code>messages = []
+while True:
+    user_input = input("请输入本轮消息：")
+    messages.append({"content": user_input, "role": "user"})
+    
+    result = await Runner.run(starting_agent=current_agent, input=messages)
+    
+    # 处理 handoff
+    for item in result.new_items:
+        if isinstance(item, HandoffOutputItem):
+            current_agent = item.target_agent
+    
+    # 更新对话历史（含工具调用记录）
+    messages = result.to_input_list()</code></pre>
+
+<h4>5. 股价预测算法（EMA 指数移动平均）</h4>
+<div class="code-lang">Python</div>
+<pre><code>def exponential_moving_average(series, alpha, forecast_periods=1):
+    ema = series.ewm(alpha=alpha, adjust=False).mean()
+    last_ema = ema[-1]
+    forecast_values = np.full(forecast_periods, last_ema)
+    future_dates = pd.date_range(start=series.index[-1],
+                                  periods=forecast_periods + 1, ...)
+    forecast_series = pd.Series(forecast_values, index=future_dates)
+    return pd.concat([ema, forecast_series])</code></pre>
+
+<h3>项目技术栈</h3>
+<ul>
+<li><strong>多 Agent 框架</strong>: OpenAI Agents SDK</li>
+<li><strong>LLM</strong>: DeepSeek-V3（火山云部署）</li>
+<li><strong>MCP 传输</strong>: SSE 协议</li>
+<li><strong>向量数据库</strong>: ChromaDB + 通义千问 Embedding</li>
+<li><strong>Web 框架</strong>: FastAPI（异步多线程）</li>
+<li><strong>并发能力</strong>: 560+ QPS</li>
+</ul>
+
+<h3>面试高频问题</h3>
+<blockquote><strong>Q: 为什么选用 Agents SDK？</strong><br>擅长高度自由的交互式对话业务，子流程不过于复杂但主场景需频繁切换。代码量少，不易出 Bug，和 DeepSeek 模型是绝配。</blockquote>
+<blockquote><strong>Q: 还有哪些框架能实现？</strong><br>LangGraph（supervisor 架构）、AutoGen（中心化调度）、Google ADK 等。</blockquote>
+<blockquote><strong>Q: 复杂子流程怎么办？</strong><br>将大过程分拆到多个 Agent，每个子 Agent 管一部分流程，再在 Agent 间建立 handoff。</blockquote>
+
+<h3>关联笔记</h3>
+<ul>
+<li><a class="wiki-link" href="#file-sdk-guide">Agent SDK 开发指南</a></li>
+<li><a class="wiki-link" href="#file-mcp-qa">多MCP协同系统实战（面试问答）</a></li>
+<li><a class="wiki-link" href="agent-frameworks.html">Agent框架对比</a></li>
+</ul>
+</div>
+
+<!-- ==================== FILE 2: 多MCP协同智能体系统实战 ==================== -->
+<div class="file-section" id="file-mcp-qa">
+<div class="file-header">
+<span class="badge-section">01</span>
+<h2>从 0 到 1 打造多 MCP 协同智能体系统（面试问答）</h2>
+<span class="badge badge-difficulty">高级</span>
+</div>
+<div class="meta">来源: 知识星球 | 覆盖80% Agent开发面试核心考点</div>
+
+<p>本文档是 Agent 开发知识体系中的<strong>面试备战指南</strong>，汇总了多 MCP 协同智能体系统的高频面试问题和标准答案。</p>
+
+<h3>面试高频问答</h3>
+
+<h4>1. 项目难点或挑战？</h4>
+<ol>
+<li>多个 MCP 工具同时连接，需要保持所有 MCP Server 与 Client 在一个对话 session 中，否则会引起连接中断</li>
+<li>AgentsSDK 多智能体框架要实现多个 Agent 协作共同办理业务，需要建立智能体之间两两移交的策略</li>
+<li>单个智能体内部子业务流程需要在智能体上做好 instruction 的流程编排 prompt 定义</li>
+</ol>
+
+<h4>2. 为什么选用 AgentsSDK 框架？</h4>
+<ul>
+<li>善于处理高度自由的交互式用户对话业务办理</li>
+<li>擅长单个智能体内子流程不复杂、但主场景需要频繁切换的场景</li>
+<li>代码量相对其他框架较少，不容易出 bug，和 DeepSeek 模型是绝配</li>
+</ul>
+
+<h4>3. 其他可选多智能体框架？</h4>
+<ul>
+<li><strong>LangGraph</strong>：使用 supervisor 作为中心调度者，下游监管多个智能体</li>
+<li><strong>AutoGen</strong>：中心化架构调度智能体</li>
+<li><strong>Google ADK</strong>：Google 的 Agent Development Kit</li>
+</ul>
+
+<h4>4. 子业务流程连续对话如何实现？</h4>
+<p>通过智能体上定义 instruction（指导智能体办理逻辑的 prompt），对流程先后顺序进行文字化描述。这类高度自由化的 Agent 系统不适合子业务流程特别复杂（如 10+ 步骤）的场景。</p>
+
+<h4>5. 多智能体协作如何实现？</h4>
+<p>通过智能体之间的 <strong>handoff</strong> 逻辑：配置智能体之间两两都能实现 handoff，让大模型在 Agent1 中办理业务得到中间产物后，转到 Agent2 中继续拿着中间产物进行对话交付和工具调用。</p>
+
+<h4>6. MCP 是什么？</h4>
+<p>MCP（Model Context Protocol）是一个标准的模型上下文协议，就像给 AI 大模型装了一个"万能接口"：</p>
+<ul>
+<li>像 USB-C 接口一样，提供标准化方法将 AI 模型连接到各种数据源和工具</li>
+<li>旨在替换碎片化的 Agent 代码集成，使 AI 系统更可靠</li>
+<li>可以在不同应用和服务之间保持上下文，增强自主执行任务的能力</li>
+</ul>
+
+<h4>7. MCP 三类传输协议对比</h4>
+<table>
+<tr><th>协议</th><th>特点</th><th>适用场景</th><th>局限</th></tr>
+<tr><td><strong>stdio</strong></td><td>客户端将 MCP Server 作为子进程启动，通过 stdin/stdout 通信</td><td>命令行工具、本地集成</td><td>只能在本地服务器使用</td></tr>
+<tr><td><strong>SSE + HTTP</strong></td><td>服务器独立运行，通过 SSE 连接接收消息</td><td>服务器到客户端流式传输</td><td>不支持恢复连接</td></tr>
+<tr><td><strong>Streamable HTTP</strong></td><td>客户端用 POST/GET 发请求，可选升级为 SSE 流</td><td>统一 message 端点</td><td>目前最新最优模式</td></tr>
+</table>
+
+<h4>8. 如何保持多个 MCP 工具在同一会话中使用？</h4>
+<p>构建一个<strong>统一的上下文会话管理器</strong>，不能单纯将每个 MCP Server 和 Client 单独连接。在这个统一的 session 下，连接所有 MCP 服务器后，将所有工具取出，走正常的 function calling 流程。</p>
+
+<h4>9. MCP 工具的并行调用和串行调用？</h4>
+<ul>
+<li><strong>串行调用</strong>：LLM 自主规划分先后调用工具。如：先调用规范性审查工具，再调用另一个工具写审查报告</li>
+<li><strong>并行调用</strong>：LLM 自主规划在同一时间多次/同步调用工具。如：同时调用规范性审查工具和专业性审查工具</li>
+</ul>
+
+<h4>10. 历史消息如何管理？</h4>
+<ul>
+<li>需要存储到数据库中，不能按框架默认方式存到本地文件</li>
+<li>会话量通常非常大，存在单台服务器上会造成无限扩容</li>
+<li>只需存储 AI 回复和用户问题，中间的工具调用日志无需存储</li>
+</ul>
+
+<h4>11. 如何实现分业务人工转接？</h4>
+<p>通过 Function Calling 的<strong>槽位提取功能</strong>：将业务场景分为'金融咨询'、'股票预测'、'文章审查'、'通用业务'。定义"转接场景抽取工具"，根据抽取到的业务场景手动调用下游转接 API。</p>
+
+<h4>12. 系统的劣势和缺点？</h4>
+<p>当需要融入特别复杂的业务流程时可能受到挑战。解决措施：将大过程分拆到多个智能体实现，每个子智能体分管一部分流程，再在多个智能体之间建立移交。</p>
+
+<h4>13. Prompt 输出格式稳定性如何控制？</h4>
+<p>通过<strong>指定输出模板 + 写 Few-shot Prompt</strong> 的方式引导模型按照预定模式输出。</p>
+
+<h4>14. 如何保证 QPS？</h4>
+<ul>
+<li>所有服务通过<strong>异步（非阻塞式方法）</strong>编写，天然不怕同步阻塞</li>
+<li>使用 FastAPI 的多线程启动服务，进一步保障高可用性</li>
+<li>压测结果：能承受 560+ 并发</li>
+</ul>
+
+<h3>落地实践</h3>
+
+<h4>场景一：评论监控系统的多 MCP 架构参考</h4>
+<p>参考多 MCP 协同架构，将评论采集（B站/抖音）、情感分析、自动回复封装为独立 MCP Server，通过统一 Session 管理器连接所有 Server，走 function calling 流程。Handoff 策略可参考：采集 Agent → 分析 Agent → 回复 Agent → 审核 Agent。</p>
+
+<h4>场景二：视频生成项目的 Agent 协作参考</h4>
+<p>MoneyPrinterTurbo 的视频生成流水线（选题→脚本→素材→配音→合成）可映射为多 MCP 协同系统：每个环节一个 MCP Server，通过 handoff 策略串联。</p>
+
+<h3>知识串联</h3>
+<table>
+<tr><th>关联主题</th><th>关联说明</th></tr>
+<tr><td>MCP 协议</td><td>MCP 传输协议和 Function Call 原理</td></tr>
+<tr><td>多 MCP 架构</td><td>多 Server 协同的架构设计</td></tr>
+<tr><td>框架选型</td><td>Agents SDK vs 其他框架的选型依据</td></tr>
+<tr><td>记忆管理</td><td>历史消息管理和会话持久化</td></tr>
+<tr><td>Agent 评估</td><td>多 Agent 系统的 QPS 和质量评估</td></tr>
+</table>
+</div>
+
+<!-- ==================== FILE 3: Agent SDK开发指南 ==================== -->
+<div class="file-section" id="file-sdk-guide">
+<div class="file-header">
+<span class="badge-section">02</span>
+<h2>OpenAI Agent SDK 开发指南</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">来源: 知识星球 | Agent开发的速查手册</div>
+
+<p>OpenAI Agents SDK 是 OpenAI 于 2025 年发布的<strong>事件驱动多智能体框架</strong>，特点是代码量少、易上手，特别适合处理高度自由的交互式对话业务。</p>
+
+<h4>注意事项</h4>
+<ul>
+<li>DeepSeek 模型必须是<strong>官网模型</strong>（其他接入平台暂不支持 Function Calling）</li>
+<li>每次运行产生一系列事件，通过 <code>result.new_items</code> 查看</li>
+<li>智能体转交通过内部执行 <code>transfer_xxx_agent</code> 的 Function Calling 实现</li>
+</ul>
+
+<h3>1. Agent 定义与调用</h3>
+<div class="code-lang">Python</div>
+<pre><code>from agents import Agent, Runner, OpenAIChatCompletionsModel, set_default_openai_client
+from openai import AsyncOpenAI
+
+# 配置 DeepSeek 模型
+external_client = AsyncOpenAI(
+    base_url="https://api.deepseek.com",
+    api_key="sk-xxx")
+set_default_openai_client(external_client)
+deepseek_model = OpenAIChatCompletionsModel(
+    model="deepseek-chat", openai_client=external_client)
+
+# 创建 Agent
+consult_agent = Agent(
+    name="consult agent",
+    instructions="你是一个只能回答医疗领域的智能体",
+    model=deepseek_model)
+
+# 运行
+result = await Runner.run(starting_agent=consult_agent, 
+                           input="美国次贷危机发生在哪一年？")
+print(result.final_output)  # 最终输出
+print(result.new_items)     # 全部事件列表</code></pre>
+
+<h3>2. 多轮对话（Memory）</h3>
+<div class="code-lang">Python</div>
+<pre><code># 第一轮
+result = await Runner.run(consult_agent, input="美国次贷危机发生在哪一年？")
+messages = result.to_input_list()  # 获取历史消息
+
+# 第二轮 — 追加新问题
+messages.append({"role": "user", "content": "刚才我问过这个问题了吗？"})
+result2 = await Runner.run(consult_agent, input=messages)</code></pre>
+
+<h3>3. 工具调用（Function Tool）</h3>
+<div class="code-lang">Python</div>
+<pre><code>from agents import function_tool
+
+@function_tool
+async def predict_future_7data_tool(stock_name: str) -> str:
+    """
+    输入股票名称，返回未来涨跌趋势
+    :param stock_name: 股票名称，如上证指数、中国石油
+    :return: 涨跌趋势描述
+    """
+    return predict_future_7data(stock_name)
+
+# Agent 绑定工具
+stock_agent = Agent(
+    name="收盘价预测Agent",
+    instructions="你能预测股票未来的收盘价",
+    tools=[predict_future_7data_tool],
+    model=deepseek_model)
+
+result = await Runner.run(stock_agent, input="上证指数未来收盘价？")</code></pre>
+
+<h3>4. 多 Agent 协作（Handoffs）</h3>
+<div class="code-lang">Python</div>
+<pre><code># 定义不同角色的 Agent
+poem_agent = Agent(
+    name="poem agent",
+    instructions="你是诗人，将用户问题转化为诗歌回复",
+    handoff_description="当用户描述美景时调用该智能体",
+    model=deepseek_model)
+
+vulgar_agent = Agent(
+    name="vulgar agent",
+    instructions="你只能用粗俗语言回复",
+    handoff_description="当用户骂脏话时调用该智能体",
+    model=deepseek_model)
+
+# 调度 Agent
+switch_agent = Agent(
+    name="switch Agent",
+    instructions="根据用户需求移交给合适的智能体",
+    handoffs=[vulgar_agent, poem_agent],
+    model=deepseek_model)
+
+result = await Runner.run(switch_agent, input="今天月亮好圆啊")</code></pre>
+
+<h3>5. 集成 MCP Server</h3>
+<div class="code-lang">Python</div>
+<pre><code>from agents.mcp import MCPServerSse
+from contextlib import AsyncExitStack
+
+async def run_with_mcp():
+    async with AsyncExitStack() as stack:
+        # 创建 MCP Server 实例
+        server = MCPServerSse(
+            name="stock Server",
+            cache_tools_list=True,
+            params={"url": "http://server:7336/sse"})
+        entered_server = await stack.enter_async_context(server)
+
+        # Agent 绑定多个 MCP Server
+        agent = Agent(
+            name="Assistant",
+            instructions="你是股票心理按摩师",
+            mcp_servers=[entered_server],
+            model=deepseek_model)
+        
+        result = await Runner.run(agent, input="查询上证指数趋势")
+        print(result.final_output)</code></pre>
+
+<h3>6. 事件循环机制</h3>
+<p><code>Runner.run</code> 是一个事件循环，不停执行直到 <code>max_turns</code> 或完成任务：</p>
+<pre><code># 事件类型
+result.new_items  # 包含：
+# - MessageOutputItem: 文本输出
+# - HandoffOutputItem: Agent 转交
+# - ToolCallItem: 工具调用
+# - ToolCallOutputItem: 工具返回</code></pre>
+
+<h3>关键 API 速查</h3>
+<table>
+<tr><th>API</th><th>说明</th></tr>
+<tr><td><code>Agent(name, instructions, tools, model)</code></td><td>定义智能体</td></tr>
+<tr><td><code>Runner.run(starting_agent, input)</code></td><td>运行智能体</td></tr>
+<tr><td><code>result.final_output</code></td><td>最终输出</td></tr>
+<tr><td><code>result.new_items</code></td><td>所有事件</td></tr>
+<tr><td><code>result.to_input_list()</code></td><td>转为多轮对话输入</td></tr>
+<tr><td><code>@function_tool</code></td><td>定义工具装饰器</td></tr>
+<tr><td><code>handoffs=[agent1, agent2]</code></td><td>配置转交列表</td></tr>
+<tr><td><code>MCPServerSse(params={"url":...})</code></td><td>SSE MCP 服务</td></tr>
+<tr><td><code>ModelSettings(tool_choice="required")</code></td><td>强制工具调用</td></tr>
+</table>
+
+<h3>关联笔记</h3>
+<ul>
+<li><a class="wiki-link" href="#file-finance">金融智能咨询系统</a></li>
+<li><a class="wiki-link" href="agent-frameworks.html">Agent框架对比</a></li>
+</ul>
+</div>
+
+<!-- Navigation -->
+<div style="margin-top:64px;padding-top:24px;border-top:2px solid var(--border);display:flex;justify-content:space-between">
+<div><a href="agent-graph-db.html">← 图数据库</a></div>
+<div style="text-align:right">
+<a href="agent-frameworks.html" style="color:var(--accent)">Agent框架对比 →</a>
+</div>
+</div>
+</main>
+</body>
+</html>

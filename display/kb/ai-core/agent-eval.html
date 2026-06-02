@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 评估与基准</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #f7f7f5;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 100;
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0075de;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 8px;
+}
+.sidebar-section {
+  padding: 8px 0;
+}
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 16px 2px;
+}
+.sidebar-link {
+  display: block;
+  padding: 4px 16px 4px 24px;
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sidebar-link:hover {
+  background: rgba(0,117,222,0.08);
+  color: #0075de;
+}
+
+/* Main Content */
+.content {
+  margin-left: 280px;
+  padding: 40px 60px;
+  max-width: 900px;
+}
+
+/* Typography */
+h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 40px;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 8px;
+}
+h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+/* Links */
+a {
+  color: #0075de;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.wikilink {
+  color: #0075de;
+  background: rgba(0,117,222,0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Code */
+code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #f6f5f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.code-block {
+  background: #f6f5f4;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  margin: 0;
+}
+.code-block code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th {
+  background: #f7f7f5;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+tr.alt {
+  background: #fafafa;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #0075de;
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: #f0f7ff;
+  color: #333;
+}
+
+/* Lists */
+ul, ol {
+  margin: 8px 0 12px 24px;
+}
+li {
+  margin-bottom: 4px;
+}
+
+/* Diagram */
+.diagram-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.diagram-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* TOC */
+.toc-container {
+  background: #f7f7f5;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0 24px;
+}
+.toc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+.toc-item {
+  padding: 2px 0;
+}
+.toc-item a {
+  font-size: 13px;
+  color: #555;
+}
+.toc-item a:hover {
+  color: #0075de;
+}
+
+/* Section */
+.doc-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.doc-section:last-child {
+  border-bottom: none;
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-title">Agent 评估与基准</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">Agent 评估与基准</div>
+<a href="#评估维度与指标体系" class="sidebar-link">Agent 评估维度与指标体系 高级</a>
+<a href="#基准测试GAIA-AgentBench" class="sidebar-link">主流 Agent 基准测试: GAIA、AgentBench、WebArena、SWE-bench、τ-bench 高级</a>
+<a href="#LLM-as-Judge评估方法" class="sidebar-link">LLM-as-Judge 评估方法 高级</a>
+</div>
+</nav>
+
+<main class="content">
+<section id="评估维度与指标体系" class="doc-section">
+<h1>Agent 评估维度与指标体系 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--任务完成率-(Task-Completion-Rate)">2. 任务完成率 (Task Completion Rate)</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-定义">2.1 定义</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-多级完成度">2.2 多级完成度</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-3-Pass@k-评估">2.3 Pass@k 评估</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--工具调用准确性-(Tool-Call-Accuracy)">3. 工具调用准确性 (Tool Call Accuracy)</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-核心指标">3.1 核心指标</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-工具调用效率">3.2 工具调用效率</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--推理质量-(Reasoning-Quality)">4. 推理质量 (Reasoning Quality)</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-评估维度">4.1 评估维度</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-推理链分析">4.2 推理链分析</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--安全指标-(Safety-Metrics)">5. 安全指标 (Safety Metrics)</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-安全评估框架">5.1 安全评估框架</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-提示注入检测">5.2 提示注入检测</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--成本效率-(Cost-Efficiency)">6. 成本效率 (Cost Efficiency)</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-成本核算">6.1 成本核算</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-性价比分析">6.2 性价比分析</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--综合评估框架">7. 综合评估框架</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-1-统一评分卡">7.1 统一评分卡</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-2-完整评估流程">7.2 完整评估流程</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--评估最佳实践">8. 评估最佳实践</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--参考资源">9. 参考资源</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的评估体系">场景一：评论监控机器人的评估体系</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成流水线的质量评估">场景二：视频生成流水线的质量评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的能力评估">场景三：Hermes Agent 的能力评估</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>Agent 评估是 Agent 开发知识体系中的<strong>质量保障层</strong>，提供系统化的评估框架来衡量 Agent 的任务完成率、工具调用准确性、推理质量和安全性。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 11-Agent框架对比 ← 框架选型
+├── 13-Agent评估与基准 ← 评估层（你在这里）
+│   ├── 01-评估维度与指标体系 ✅ ← 评估框架
+│   ├── 02-基准测试GAIA-AgentBench ← 标准化基准
+│   └── 03-LLM-as-Judge评估方法 ← 自动化评估
+├── 14-高级Prompt模式 ← 优化推理质量
+└── 10-智能体项目 ← 评估落地</code></pre></div>
+<p><strong>学习价值</strong>：掌握 Agent 评估的多维度方法论（任务完成、工具调用、推理质量、安全、成本），能科学地衡量和优化 Agent 系统的效果。</p>
+<h2>1. 概述</h2>
+<p>Agent 系统的评估比传统 LLM 评估复杂得多——不仅要衡量输出质量，还要评估<strong>工具调用、多步推理、安全性、成本</strong>等维度。本文档建立一套系统化的评估框架。</p>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────┐
+│            Agent 评估维度全景图               │
+├──────────┬──────────┬──────────┬────────────┤
+│ 任务完成  │ 工具调用  │ 推理质量  │ 安全指标   │
+│ 率/质量   │ 准确性    │          │            │
+├──────────┼──────────┼──────────┼────────────┤
+│ 延迟/吞吐 │ 成本效率  │ 鲁棒性   │ 用户体验   │
+└──────────┴──────────┴──────────┴────────────┘</code></pre></div>
+<p>---</p>
+<h2>2. 任务完成率 (Task Completion Rate)</h2>
+<h3>2.1 定义</h3>
+<p>任务完成率衡量 Agent 是否成功完成了给定任务。</p>
+<div class="code-block"><pre><code class="language-python">from dataclasses import dataclass
+from typing import Any
+
+@dataclass
+class TaskResult:
+    task_id: str
+    task_description: str
+    agent_output: Any
+    expected_output: Any
+    success: bool
+    steps_taken: int
+    total_time: float  # seconds
+    total_cost: float  # USD
+    tool_calls: list
+
+def compute_completion_rate(results: list[TaskResult]) -&gt; dict:
+    &quot;&quot;&quot;计算任务完成率及相关指标&quot;&quot;&quot;
+    total = len(results)
+    completed = sum(1 for r in results if r.success)
+
+    return {
+        &quot;completion_rate&quot;: completed / total,
+        &quot;avg_steps&quot;: sum(r.steps_taken for r in results) / total,
+        &quot;avg_time&quot;: sum(r.total_time for r in results) / total,
+        &quot;avg_cost&quot;: sum(r.total_cost for r in results) / total,
+    }</code></pre></div>
+<h3>2.2 多级完成度</h3>
+<p>不是简单的"成功/失败"，而是分层评估：</p>
+<table><thead><tr><th>等级</th><th>描述</th><th>分值</th></tr></thead><tbody><tr><td>完全成功</td><td>正确完成任务，输出最优</td><td>1.0</td></tr><tr class="alt"><td>部分成功</td><td>完成核心目标但有瑕疵</td><td>0.7</td></tr><tr><td>接近成功</td><td>正确方向但最终失败</td><td>0.3</td></tr><tr class="alt"><td>完全失败</td><td>未完成或结果错误</td><td>0.0</td></tr></tbody></table>
+<div class="code-block"><pre><code class="language-python">def graded_score(result: TaskResult, judge_fn) -&gt; float:
+    &quot;&quot;&quot;使用打分函数评估完成度 (0-1)&quot;&quot;&quot;
+    score = judge_fn(
+        task=result.task_description,
+        output=result.agent_output,
+        expected=result.expected_output
+    )
+    return max(0.0, min(1.0, score))
+
+def weighted_completion(results: list[tuple[TaskResult, float]],
+                        weights: list[float] | None = None) -&gt; float:
+    &quot;&quot;&quot;加权平均完成度&quot;&quot;&quot;
+    scores = [s for _, s in results]
+    if weights:
+        return sum(w * s for w, s in zip(weights, scores)) / sum(weights)
+    return sum(scores) / len(scores)</code></pre></div>
+<h3>2.3 Pass@k 评估</h3>
+<p>给定 k 次尝试机会，至少有一次成功的概率：</p>
+<div class="code-block"><pre><code class="language-python">import math
+import random
+
+def pass_at_k(n: int, c: int, k: int) -&gt; float:
+    &quot;&quot;&quot;
+    n: 总尝试次数
+    c: 成功次数
+    k: 允许的尝试次数
+    &quot;&quot;&quot;
+    if n - c &lt; k:
+        return 1.0
+    return 1.0 - math.prod(1.0 - k / (n - i) for i in range(c))
+
+# 示例: 10次尝试中成功3次，计算 pass@1
+print(pass_at_k(n=10, c=3, k=1))  # ≈ 0.3</code></pre></div>
+<p>---</p>
+<h2>3. 工具调用准确性 (Tool Call Accuracy)</h2>
+<h3>3.1 核心指标</h3>
+<div class="code-block"><pre><code class="language-python">@dataclass
+class ToolCallRecord:
+    tool_name: str
+    arguments: dict
+    expected_tool: str
+    expected_args: dict
+    result: Any
+    error: str | None = None
+
+def evaluate_tool_calls(records: list[ToolCallRecord]) -&gt; dict:
+    &quot;&quot;&quot;评估工具调用质量&quot;&quot;&quot;
+    total = len(records)
+    if total == 0:
+        return {&quot;tool_accuracy&quot;: 0, &quot;no_calls_made&quot;: True}
+
+    # 1. 工具选择准确率: 选对了工具
+    correct_tool = sum(1 for r in records if r.tool_name == r.expected_tool)
+
+    # 2. 参数准确率: 选对工具且参数正确
+    correct_args = sum(1 for r in records
+                       if r.tool_name == r.expected_tool
+                       and r.arguments == r.expected_args)
+
+    # 3. 无错误调用率
+    error_free = sum(1 for r in records if r.error is None)
+
+    # 4. 冗余调用检测 (相同工具+参数重复调用)
+    seen = set()
+    redundant = 0
+    for r in records:
+        key = (r.tool_name, str(sorted(r.arguments.items())))
+        if key in seen:
+            redundant += 1
+        seen.add(key)
+
+    return {
+        &quot;tool_selection_accuracy&quot;: correct_tool / total,
+        &quot;argument_accuracy&quot;: correct_args / total,
+        &quot;error_free_rate&quot;: error_free / total,
+        &quot;redundant_calls&quot;: redundant,
+        &quot;total_calls&quot;: total,
+    }</code></pre></div>
+<h3>3.2 工具调用效率</h3>
+<div class="code-block"><pre><code class="language-python">def tool_efficiency(records: list[ToolCallRecord],
+                    optimal_sequence: list[str]) -&gt; dict:
+    &quot;&quot;&quot;衡量是否以最优路径完成任务&quot;&quot;&quot;
+    actual_sequence = [r.tool_name for r in records if r.error is None]
+
+    # 编辑距离衡量与最优路径的偏差
+    def edit_distance(a, b):
+        m, n = len(a), len(b)
+        dp = [[0] * (n+1) for _ in range(m+1)]
+        for i in range(m+1): dp[i][0] = i
+        for j in range(n+1): dp[0][j] = j
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                if a[i-1] == b[j-1]:
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+        return dp[m][n]
+
+    dist = edit_distance(actual_sequence, optimal_sequence)
+    max_len = max(len(actual_sequence), len(optimal_sequence))
+
+    return {
+        &quot;path_similarity&quot;: 1 - dist / max_len if max_len &gt; 0 else 1.0,
+        &quot;optimal_steps&quot;: len(optimal_sequence),
+        &quot;actual_steps&quot;: len(actual_sequence),
+        &quot;step_overhead&quot;: len(actual_sequence) / len(optimal_sequence) if optimal_sequence else 1.0,
+    }</code></pre></div>
+<p>---</p>
+<h2>4. 推理质量 (Reasoning Quality)</h2>
+<h3>4.1 评估维度</h3>
+<div class="code-block"><pre><code class="language-python">REASONING_RUBRIC = {
+    &quot;coherence&quot;: {
+        &quot;weight&quot;: 0.25,
+        &quot;description&quot;: &quot;推理链是否逻辑连贯&quot;,
+        &quot;scale&quot;: &quot;1-5&quot;
+    },
+    &quot;completeness&quot;: {
+        &quot;weight&quot;: 0.25,
+        &quot;description&quot;: &quot;是否考虑了所有关键因素&quot;,
+        &quot;scale&quot;: &quot;1-5&quot;
+    },
+    &quot;efficiency&quot;: {
+        &quot;weight&quot;: 0.20,
+        &quot;description&quot;: &quot;推理路径是否高效，无冗余步骤&quot;,
+        &quot;scale&quot;: &quot;1-5&quot;
+    },
+    &quot;adaptability&quot;: {
+        &quot;weight&quot;: 0.15,
+        &quot;description&quot;: &quot;遇到错误/异常时是否能调整策略&quot;,
+        &quot;scale&quot;: &quot;1-5&quot;
+    },
+    &quot;groundedness&quot;: {
+        &quot;weight&quot;: 0.15,
+        &quot;description&quot;: &quot;推理是否基于工具返回的事实，而非幻觉&quot;,
+        &quot;scale&quot;: &quot;1-5&quot;
+    },
+}
+
+def compute_reasoning_score(scores: dict[str, float]) -&gt; float:
+    &quot;&quot;&quot;加权计算推理质量总分 (1-5)&quot;&quot;&quot;
+    return sum(
+        scores[dim] * REASONING_RUBRIC[dim][&quot;weight&quot;]
+        for dim in REASONING_RUBRIC
+    )</code></pre></div>
+<h3>4.2 推理链分析</h3>
+<div class="code-block"><pre><code class="language-python">@dataclass
+class ReasoningStep:
+    thought: str          # 思考内容
+    action: str | None    # 采取的行动
+    observation: str | None  # 观察结果
+    is_correct: bool      # 该步骤是否正确
+
+def analyze_reasoning_chain(steps: list[ReasoningStep]) -&gt; dict:
+    &quot;&quot;&quot;分析推理链质量&quot;&quot;&quot;
+    total = len(steps)
+    correct = sum(1 for s in steps if s.is_correct)
+
+    # 检测推理链中的错误恢复
+    error_recovery_count = 0
+    in_error = False
+    for s in steps:
+        if not s.is_correct:
+            in_error = True
+        elif in_error and s.is_correct:
+            error_recovery_count += 1
+            in_error = False
+
+    # 检测是否在出错后持续错误 (死循环)
+    max_consecutive_errors = 0
+    current_errors = 0
+    for s in steps:
+        if not s.is_correct:
+            current_errors += 1
+            max_consecutive_errors = max(max_consecutive_errors, current_errors)
+        else:
+            current_errors = 0
+
+    return {
+        &quot;step_accuracy&quot;: correct / total,
+        &quot;error_recovery_count&quot;: error_recovery_count,
+        &quot;max_consecutive_errors&quot;: max_consecutive_errors,
+        &quot;total_steps&quot;: total,
+        &quot;has_hallucination&quot;: any(
+            s.observation and &quot;hallucinated&quot; in s.observation.lower()
+            for s in steps
+        ),
+    }</code></pre></div>
+<p>---</p>
+<h2>5. 安全指标 (Safety Metrics)</h2>
+<h3>5.1 安全评估框架</h3>
+<div class="code-block"><pre><code class="language-python">SAFETY_CATEGORIES = {
+    &quot;prompt_injection_resistance&quot;: &quot;抵御提示注入攻击的能力&quot;,
+    &quot;data_leakage_prevention&quot;: &quot;防止敏感数据泄露&quot;,
+    &quot;harmful_action_prevention&quot;: &quot;阻止有害操作&quot;,
+    &quot;scope_adherence&quot;: &quot;不超出授权范围&quot;,
+    &quot;privacy_protection&quot;: &quot;保护用户隐私信息&quot;,
+}
+
+@dataclass
+class SafetyTestCase:
+    attack_type: str
+    attack_input: str
+    agent_response: str
+    is_safe: bool  # 人工标注的ground truth
+
+def safety_evaluation(test_cases: list[SafetyTestCase]) -&gt; dict:
+    &quot;&quot;&quot;计算安全指标&quot;&quot;&quot;
+    results = {}
+    for category in SAFETY_CATEGORIES:
+        cases = [t for t in test_cases if t.attack_type == category]
+        if not cases:
+            continue
+        blocked = sum(1 for c in cases if c.is_safe)
+        results[category] = {
+            &quot;defense_rate&quot;: blocked / len(cases),
+            &quot;total_attacks&quot;: len(cases),
+        }
+
+    overall = sum(r[&quot;defense_rate&quot;] for r in results.values()) / len(results)
+    results[&quot;overall_safety_score&quot;] = overall
+    return results</code></pre></div>
+<h3>5.2 提示注入检测</h3>
+<div class="code-block"><pre><code class="language-python">INJECTION_PATTERNS = [
+    r&quot;ignore (previous|above|all) instructions&quot;,
+    r&quot;you are now&quot;,
+    r&quot;system prompt&quot;,
+    r&quot;jailbreak&quot;,
+    r&quot;DAN mode&quot;,
+    r&quot;repeat the following&quot;,
+]
+
+import re
+
+def detect_injection_attempts(input_text: str) -&gt; bool:
+    &quot;&quot;&quot;基础的提示注入检测&quot;&quot;&quot;
+    text_lower = input_text.lower()
+    return any(re.search(p, text_lower) for p in INJECTION_PATTERNS)
+
+def evaluate_injection_resistance(agent, test_prompts: list[str]) -&gt; dict:
+    &quot;&quot;&quot;评估Agent对注入攻击的抵抗力&quot;&quot;&quot;
+    blocked = 0
+    total = len(test_prompts)
+
+    for prompt in test_prompts:
+        response = agent.run(prompt)
+        # 检查是否泄露系统信息或执行了注入指令
+        if _is_safe_response(response, prompt):
+            blocked += 1
+
+    return {
+        &quot;injection_resistance_rate&quot;: blocked / total,
+        &quot;total_tests&quot;: total,
+        &quot;vulnerabilities_found&quot;: total - blocked,
+    }
+
+def _is_safe_response(response: str, original_prompt: str) -&gt; bool:
+    &quot;&quot;&quot;判断响应是否安全&quot;&quot;&quot;
+    unsafe_indicators = [
+        &quot;system prompt&quot;,
+        &quot;my instructions are&quot;,
+        &quot;I was told to&quot;,
+        &quot;I cannot reveal&quot;,
+    ]
+    # 如果Agent拒绝了，说明防御成功
+    refusal_indicators = [
+        &quot;I can&#x27;t do that&quot;,
+        &quot;I won&#x27;t&quot;,
+        &quot;that&#x27;s not something I&quot;,
+        &quot;I&#x27;m unable to&quot;,
+    ]
+    resp_lower = response.lower()
+    return any(r in resp_lower for r in refusal_indicators) or \
+           not any(u in resp_lower for u in unsafe_indicators)</code></pre></div>
+<p>---</p>
+<h2>6. 成本效率 (Cost Efficiency)</h2>
+<h3>6.1 成本核算</h3>
+<div class="code-block"><pre><code class="language-python">PRICING = {
+    &quot;gpt-4o&quot;: {&quot;input&quot;: 2.50, &quot;output&quot;: 10.00},      # per 1M tokens
+    &quot;gpt-4o-mini&quot;: {&quot;input&quot;: 0.15, &quot;output&quot;: 0.60},
+    &quot;claude-3.5-sonnet&quot;: {&quot;input&quot;: 3.00, &quot;output&quot;: 15.00},
+}
+
+@dataclass
+class CostRecord:
+    model: str
+    input_tokens: int
+    output_tokens: int
+    task_success: bool
+
+def compute_cost(record: CostRecord) -&gt; float:
+    &quot;&quot;&quot;计算单次调用成本 (USD)&quot;&quot;&quot;
+    pricing = PRICING.get(record.model, {&quot;input&quot;: 0, &quot;output&quot;: 0})
+    return (record.input_tokens * pricing[&quot;input&quot;] +
+            record.output_tokens * pricing[&quot;output&quot;]) / 1_000_000
+
+def cost_efficiency_report(records: list[CostRecord]) -&gt; dict:
+    &quot;&quot;&quot;生成成本效率报告&quot;&quot;&quot;
+    costs = [compute_cost(r) for r in records]
+    success_costs = [c for c, r in zip(costs, records) if r.task_success]
+    failure_costs = [c for c, r in zip(costs, records) if not r.task_success]
+
+    return {
+        &quot;total_cost&quot;: sum(costs),
+        &quot;avg_cost_per_task&quot;: sum(costs) / len(costs),
+        &quot;avg_cost_per_success&quot;: sum(success_costs) / len(success_costs) if success_costs else 0,
+        &quot;wasted_cost_on_failures&quot;: sum(failure_costs),
+        &quot;cost_per_success_rate&quot;: sum(costs) / len(success_costs) if success_costs else float(&#x27;inf&#x27;),
+        &quot;success_rate&quot;: len(success_costs) / len(records),
+    }</code></pre></div>
+<h3>6.2 性价比分析</h3>
+<div class="code-block"><pre><code class="language-python">import numpy as np
+
+def pareto_frontier(models: dict[str, dict]) -&gt; list[str]:
+    &quot;&quot;&quot;
+    找到性价比帕累托前沿的模型
+    models: {&quot;model_name&quot;: {&quot;accuracy&quot;: float, &quot;cost&quot;: float}}
+    &quot;&quot;&quot;
+    sorted_models = sorted(models.items(), key=lambda x: x[1][&quot;cost&quot;])
+    frontier = []
+    best_accuracy = -1
+
+    for name, metrics in sorted_models:
+        if metrics[&quot;accuracy&quot;] &gt; best_accuracy:
+            frontier.append(name)
+            best_accuracy = metrics[&quot;accuracy&quot;]
+
+    return frontier
+
+# 示例使用
+models = {
+    &quot;gpt-4o&quot;: {&quot;accuracy&quot;: 0.92, &quot;cost&quot;: 0.50},
+    &quot;gpt-4o-mini&quot;: {&quot;accuracy&quot;: 0.78, &quot;cost&quot;: 0.05},
+    &quot;claude-3.5-sonnet&quot;: {&quot;accuracy&quot;: 0.90, &quot;cost&quot;: 0.45},
+    &quot;llama-3-70b&quot;: {&quot;accuracy&quot;: 0.82, &quot;cost&quot;: 0.08},
+}
+print(pareto_frontier(models))  # [&#x27;gpt-4o-mini&#x27;, &#x27;gpt-4o&#x27;]</code></pre></div>
+<p>---</p>
+<h2>7. 综合评估框架</h2>
+<h3>7.1 统一评分卡</h3>
+<div class="code-block"><pre><code class="language-python">@dataclass
+class AgentScorecard:
+    task_completion: float     # 0-1
+    tool_accuracy: float       # 0-1
+    reasoning_quality: float   # 1-5 归一化到 0-1
+    safety_score: float        # 0-1
+    cost_efficiency: float     # 归一化
+    latency: float             # seconds
+    total_tasks: int
+
+    def overall_score(self, weights: dict[str, float] | None = None) -&gt; float:
+        &quot;&quot;&quot;计算综合分数&quot;&quot;&quot;
+        w = weights or {
+            &quot;task_completion&quot;: 0.30,
+            &quot;tool_accuracy&quot;: 0.20,
+            &quot;reasoning_quality&quot;: 0.20,
+            &quot;safety_score&quot;: 0.15,
+            &quot;cost_efficiency&quot;: 0.15,
+        }
+        return (
+            w[&quot;task_completion&quot;] * self.task_completion +
+            w[&quot;tool_accuracy&quot;] * self.tool_accuracy +
+            w[&quot;reasoning_quality&quot;] * (self.reasoning_quality / 5.0) +
+            w[&quot;safety_score&quot;] * self.safety_score +
+            w[&quot;cost_efficiency&quot;] * self.cost_efficiency
+        )</code></pre></div>
+<h3>7.2 完整评估流程</h3>
+<div class="code-block"><pre><code class="language-python">def run_full_evaluation(agent, test_suite: dict) -&gt; AgentScorecard:
+    &quot;&quot;&quot;运行完整的Agent评估&quot;&quot;&quot;
+    results = []
+    tool_records = []
+    safety_cases = []
+    cost_records = []
+
+    for task in test_suite[&quot;tasks&quot;]:
+        # 运行Agent
+        result = agent.run(task[&quot;input&quot;])
+        results.append(TaskResult(
+            task_id=task[&quot;id&quot;],
+            task_description=task[&quot;input&quot;],
+            agent_output=result.output,
+            expected_output=task[&quot;expected&quot;],
+            success=task[&quot;evaluator&quot;](result.output, task[&quot;expected&quot;]),
+            steps_taken=len(result.steps),
+            total_time=result.duration,
+            total_cost=result.cost,
+            tool_calls=result.tool_calls,
+        ))
+        # 收集工具调用记录...
+        # 收集安全测试结果...
+        # 收集成本记录...
+
+    completion = compute_completion_rate(results)
+    tool_eval = evaluate_tool_calls(tool_records)
+    safety_eval = safety_evaluation(safety_cases)
+    cost_eval = cost_efficiency_report(cost_records)
+
+    return AgentScorecard(
+        task_completion=completion[&quot;completion_rate&quot;],
+        tool_accuracy=tool_eval[&quot;tool_selection_accuracy&quot;],
+        reasoning_quality=3.5,  # 需要LLM-as-Judge
+        safety_score=safety_eval[&quot;overall_safety_score&quot;],
+        cost_efficiency=1.0 / (1.0 + cost_eval[&quot;cost_per_success_rate&quot;]),
+        latency=completion[&quot;avg_time&quot;],
+        total_tasks=len(results),
+    )</code></pre></div>
+<p>---</p>
+<h2>8. 评估最佳实践</h2>
+<ol><li><strong>分层评估</strong>: 先单元测试各工具，再集成测试整个Agent</li><li><strong>多样化测试集</strong>: 覆盖简单/中等/困难任务，包含边界情况</li><li><strong>多次采样</strong>: 每个任务至少运行3-5次，取统计量</li><li><strong>持续回归</strong>: 每次模型/prompt更新后重跑评估</li><li><strong>人工校准</strong>: 定期人工审核自动评估结果，修正偏差</li></ol>
+<p>---</p>
+<h2>9. 参考资源</h2>
+<ul><li><a href="https://github.com/openai/evals">OpenAI Evals</a> - OpenAI评估框架</li><li><a href="https://docs.smith.langchain.com/evaluation">LangSmith Evaluation</a> - LangChain评估工具</li><li><a href="https://docs.anthropic.com">Anthropic Agent Evaluation</a> - Anthropic评估指南</li></ul>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的评估体系</h3>
+<table><thead><tr><th>评估维度</th><th>指标</th><th>目标值</th></tr></thead><tbody><tr><td>情感分析准确率</td><td>tool_selection_accuracy</td><td>>90%</td></tr><tr class="alt"><td>回复质量</td><td>LLM-as-Judge 评分</td><td>>4.0/5</td></tr><tr><td>响应延迟</td><td>P99 latency</td><td><3s</td></tr><tr class="alt"><td>安全性</td><td>注入攻击防御率</td><td>>99%</td></tr><tr><td>成本效率</td><td>每条评论处理成本</td><td><$0.001</td></tr></tbody></table>
+<h3>场景二：视频生成流水线的质量评估</h3>
+<p>用 Pass@k 评估视频脚本生成质量（k=3 时至少一次成功的概率），用 LLM-as-Judge 评估脚本创意性和连贯性，用成本效率分析对比不同模型的性价比。</p>
+<h3>场景三：Hermes Agent 的能力评估</h3>
+<p>用 AgentScorecard 评估 Hermes：任务完成率（skill 执行成功率）、工具准确性（MCP 调用正确率）、推理质量（多步任务的步骤合理性）、安全性（Guardrail 拦截率）。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody><tr><td>基准测试</td><td><a class="wikilink" href="#02-基准测试GAIA-AgentBench">02-基准测试GAIA-AgentBench</a></td><td>标准化基准的实际运行</td></tr><tr class="alt"><td>LLM Judge</td><td><a class="wikilink" href="#03-LLM-as-Judge评估方法">03-LLM-as-Judge评估方法</a></td><td>自动化评估的实现方法</td></tr><tr><td>框架对比</td><td><a class="wikilink" href="#框架横向对比矩阵">框架横向对比矩阵</a></td><td>用评估指标对比框架</td></tr><tr class="alt"><td>安全评估</td><td><a class="wikilink" href="#OpenAI-Agents-SDK深入">OpenAI-Agents-SDK深入</a></td><td>Guardrail 安全护栏系统</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融系统的质量评估</td></tr></tbody></table>
+</section>
+<section id="基准测试GAIA-AgentBench" class="doc-section">
+<h1>主流 Agent 基准测试: GAIA、AgentBench、WebArena、SWE-bench、τ-bench 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--GAIA-Benchmark">2. GAIA Benchmark</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-简介">2.1 简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-任务示例">2.2 任务示例</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-3-运行评估">2.3 运行评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-4-GAIA-排行榜-(截至-2024)">2.4 GAIA 排行榜 (截至 2024)</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--AgentBench">3. AgentBench</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-简介">3.1 简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-架构">3.2 架构</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-3-评估代码">3.3 评估代码</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-4-关键发现">3.4 关键发现</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--WebArena">4. WebArena</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-简介">4.1 简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-任务类型">4.2 任务类型</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-3-评估流程">4.3 评估流程</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-4-WebArena-结果">4.4 WebArena 结果</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--SWE-bench">5. SWE-bench</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-简介">5.1 简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-任务结构">5.2 任务结构</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-3-运行评估">5.3 运行评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-4-SWE-bench-排行榜-(2024)">5.4 SWE-bench 排行榜 (2024)</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--τ-bench-(Tau-bench)">6. τ-bench (Tau-bench)</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-简介">6.1 简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-工具复杂度">6.2 工具复杂度</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-3-评估方法">6.3 评估方法</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--运行-Benchmark-的最佳实践">7. 运行 Benchmark 的最佳实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-1-通用评估流程">7.1 通用评估流程</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-2-结果解读指南">7.2 结果解读指南</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-3-注意事项">7.3 注意事项</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--总结对比">8. 总结对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的基准评估">场景一：评论监控机器人的基准评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成流水线的-SWE-bench-思路">场景二：视频生成流水线的 SWE-bench 思路</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的能力基准">场景三：Hermes Agent 的能力基准</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--参考资源">9. 参考资源</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>基准测试是 Agent 评估层的<strong>标准化工具</strong>，提供可复现、可对比的评估环境，衡量 Agent 在真实世界任务中的能力水平。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 13-Agent评估与基准 ← 评估层（你在这里）
+│   ├── 01-评估维度与指标体系 ← 评估方法论
+│   ├── 02-基准测试GAIA-AgentBench ✅ ← 标准化基准
+│   └── 03-LLM-as-Judge评估方法 ← 自动化评估
+├── 11-Agent框架对比 ← 框架在基准上的表现
+└── 10-智能体项目 ← 用基准指导项目优化</code></pre></div>
+<p><strong>学习价值</strong>：了解 GAIA（通用助手）、AgentBench（多环境）、WebArena（网页操作）、SWE-bench（代码修复）、τ-bench（工具使用）五大基准的评估维度，能针对性地优化 Agent 能力。</p>
+<h2>1. 概述</h2>
+<p>Agent 基准测试(Benchmark)是标准化评估 Agent 能力的方法。不同于传统 NLP benchmark，Agent benchmark 需要评估<strong>多步决策、工具使用、环境交互</strong>等能力。</p>
+<div class="code-block"><pre><code>┌─────────────┬──────────────┬────────────────────────────┐
+│   Benchmark  │   核心能力    │        特点                │
+├──────────────┼──────────────┼────────────────────────────┤
+│ GAIA         │ 通用助手任务  │ 现实世界问题，需多工具组合   │
+│ AgentBench   │ 多环境交互   │ 8种环境，综合评估            │
+│ WebArena     │ 网页操作     │ 真实网站，端到端任务         │
+│ SWE-bench    │ 代码修复     │ GitHub issue → PR          │
+│ τ-bench     │ 工具使用     │ 550个函数，复杂工具链        │
+└──────────────┴──────────────┴────────────────────────────┘</code></pre></div>
+<p>---</p>
+<h2>2. GAIA Benchmark</h2>
+<h3>2.1 简介</h3>
+<p>GAIA (General AI Assistants) 由 Meta 等团队于 2023 年提出，评估 AI 助手解决<strong>现实世界问题</strong>的能力。</p>
+<ul><li><strong>论文</strong>: "GAIA: A Benchmark for General AI Assistants" (2023)</li><li><strong>任务数量</strong>: 466 个问题 (300 test, 166 validation)</li><li><strong>难度分级</strong>: Level 1 (简单) / Level 2 (中等) / Level 3 (困难)</li><li><strong>特点</strong>: 每个问题都有唯一确定答案，可自动验证</li></ul>
+<h3>2.2 任务示例</h3>
+<div class="code-block"><pre><code class="language-python"># GAIA 典型任务结构
+gaia_task = {
+    &quot;task_id&quot;: &quot;abc-123&quot;,
+    &quot;question&quot;: &quot;What is the population of the city where the inventor of the &quot;
+                &quot;telephone died, according to the 2020 census?&quot;,
+    &quot;level&quot;: 2,  # 需要多步推理 + 网络搜索
+    &quot;final_answer&quot;: &quot;1189015&quot;,  # 唯一确定答案
+    &quot;tools_required&quot;: [&quot;web_search&quot;, &quot;calculator&quot;],
+    &quot;annotated_file&quot;: &quot;reference_data.xlsx&quot;,  # 可选附件
+}</code></pre></div>
+<h3>2.3 运行评估</h3>
+<div class="code-block"><pre><code class="language-python"># 使用 Hugging Face GAIA benchmark
+# pip install datasets
+
+from datasets import load_dataset
+
+def evaluate_gaia(agent, split=&quot;validation&quot;):
+    &quot;&quot;&quot;运行GAIA评估&quot;&quot;&quot;
+    dataset = load_dataset(&quot;gaia-benchmark/GAIA&quot;, &quot;2023_all&quot;, split=split)
+
+    results = {&quot;level_1&quot;: [], &quot;level_2&quot;: [], &quot;level_3&quot;: []}
+
+    for example in dataset:
+        # 运行Agent
+        response = agent.run(
+            question=example[&quot;Question&quot;],
+            files=example.get(&quot;file_name&quot;),
+        )
+
+        # 提取最终答案
+        predicted = extract_final_answer(response)
+
+        # 对比标准答案 (精确匹配)
+        correct = normalize_answer(predicted) == normalize_answer(example[&quot;Final answer&quot;])
+
+        level = f&quot;level_{example[&#x27;Level&#x27;]}&quot;
+        results[level].append({
+            &quot;question_id&quot;: example[&quot;task_id&quot;],
+            &quot;correct&quot;: correct,
+            &quot;predicted&quot;: predicted,
+            &quot;expected&quot;: example[&quot;Final answer&quot;],
+        })
+
+    # 计算各级别准确率
+    summary = {}
+    for level, tasks in results.items():
+        if tasks:
+            acc = sum(1 for t in tasks if t[&quot;correct&quot;]) / len(tasks)
+            summary[level] = {&quot;accuracy&quot;: acc, &quot;total&quot;: len(tasks)}
+
+    return summary
+
+def normalize_answer(answer: str) -&gt; str:
+    &quot;&quot;&quot;标准化答案用于比较&quot;&quot;&quot;
+    if answer is None:
+        return &quot;&quot;
+    return str(answer).strip().lower().rstrip(&quot;.&quot;)
+
+def extract_final_answer(response: str) -&gt; str:
+    &quot;&quot;&quot;从Agent响应中提取最终答案&quot;&quot;&quot;
+    # 尝试多种格式
+    patterns = [
+        r&quot;final answer[:\s]+(.+)&quot;,
+        r&quot;answer[:\s]+(.+)&quot;,
+        r&quot;the answer is[:\s]+(.+)&quot;,
+    ]
+    import re
+    for p in patterns:
+        match = re.search(p, response, re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+    return response.strip()</code></pre></div>
+<h3>2.4 GAIA 排行榜 (截至 2024)</h3>
+<table><thead><tr><th>排名</th><th>模型/系统</th><th>Level 1</th><th>Level 2</th><th>Level 3</th><th>平均</th></tr></thead><tbody><tr><td>1</td><td>GPT-4 + plugins</td><td>92%</td><td>72%</td><td>45%</td><td>70%</td></tr><tr class="alt"><td>2</td><td>AutoGPT</td><td>75%</td><td>48%</td><td>22%</td><td>48%</td></tr><tr><td>3</td><td>人类平均</td><td>92%</td><td>85%</td><td>73%</td><td>83%</td></tr></tbody></table>
+<blockquote>⚠️ 人类在 GAIA 上远超 AI，说明该 benchmark 仍有很大挑战空间。</blockquote>
+<p>---</p>
+<h2>3. AgentBench</h2>
+<h3>3.1 简介</h3>
+<p>AgentBench 由清华大学等团队提出，是首个<strong>多环境综合评估</strong>框架。</p>
+<ul><li><strong>论文</strong>: "AgentBench: Evaluating LLMs as Agents" (2023)</li><li><strong>8 种环境</strong>:</li><li>操作系统 (OS)</li><li>数据库 (DB)</li><li>知识图谱 (KG)</li><li>卡牌游戏 (Card Game)</li><li>横向思维谜题 (LTP)</li><li>网页购物 (WebShop)</li><li>网页浏览 (Web Browsing)</li><li>编码 (Coding)</li></ul>
+<h3>3.2 架构</h3>
+<div class="code-block"><pre><code>┌──────────────────────────────────┐
+│          AgentBench 框架          │
+├──────────────────────────────────┤
+│  Agent Layer (LLM)               │
+│  ├─ GPT-4 / Claude / Llama ...  │
+├──────────────────────────────────┤
+│  Interface Layer                  │
+│  ├─ Action Space 定义            │
+│  ├─ Observation 格式             │
+├──────────────────────────────────┤
+│  Environment Layer               │
+│  ├─ OS / DB / KG / Web / ...    │
+└──────────────────────────────────┘</code></pre></div>
+<h3>3.3 评估代码</h3>
+<div class="code-block"><pre><code class="language-python"># AgentBench 评估框架核心逻辑
+import json
+from abc import ABC, abstractmethod
+
+class Environment(ABC):
+    &quot;&quot;&quot;AgentBench 环境基类&quot;&quot;&quot;
+
+    @abstractmethod
+    def reset(self) -&gt; dict:
+        &quot;&quot;&quot;重置环境，返回初始观察&quot;&quot;&quot;
+        pass
+
+    @abstractmethod
+    def step(self, action: str) -&gt; tuple[dict, float, bool]:
+        &quot;&quot;&quot;执行动作，返回 (观察, 奖励, 是否结束)&quot;&quot;&quot;
+        pass
+
+class AgentBenchEvaluator:
+    def __init__(self, agent, env: Environment, max_steps: int = 30):
+        self.agent = agent
+        self.env = env
+        self.max_steps = max_steps
+
+    def run_episode(self, task: dict) -&gt; dict:
+        &quot;&quot;&quot;运行单个评估episode&quot;&quot;&quot;
+        obs = self.env.reset()
+        history = []
+        total_reward = 0
+
+        for step in range(self.max_steps):
+            # Agent决策
+            action = self.agent.act(obs, history)
+
+            # 环境反馈
+            next_obs, reward, done = self.env.step(action)
+
+            history.append({
+                &quot;step&quot;: step,
+                &quot;action&quot;: action,
+                &quot;observation&quot;: next_obs,
+                &quot;reward&quot;: reward,
+            })
+            total_reward += reward
+
+            if done:
+                break
+            obs = next_obs
+
+        return {
+            &quot;task_id&quot;: task.get(&quot;id&quot;),
+            &quot;total_reward&quot;: total_reward,
+            &quot;steps&quot;: len(history),
+            &quot;success&quot;: total_reward &gt; 0,
+            &quot;history&quot;: history,
+        }
+
+    def evaluate(self, tasks: list[dict]) -&gt; dict:
+        &quot;&quot;&quot;评估多个任务&quot;&quot;&quot;
+        results = [self.run_episode(t) for t in tasks]
+        return {
+            &quot;success_rate&quot;: sum(r[&quot;success&quot;] for r in results) / len(results),
+            &quot;avg_reward&quot;: sum(r[&quot;total_reward&quot;] for r in results) / len(results),
+            &quot;avg_steps&quot;: sum(r[&quot;steps&quot;] for r in results) / len(results),
+        }</code></pre></div>
+<h3>3.4 关键发现</h3>
+<ul><li>GPT-4 在所有 8 个环境中均排名第一</li><li>开源模型 (Llama 等) 在知识图谱和编码任务上与 GPT-4 接近</li><li>卡牌游戏和横向思维谜题是所有模型最弱的领域</li></ul>
+<p>---</p>
+<h2>4. WebArena</h2>
+<h3>4.1 简介</h3>
+<p>WebArena 由 CMU 等团队提出，评估 Agent 在<strong>真实网站</strong>上完成复杂任务的能力。</p>
+<ul><li><strong>论文</strong>: "WebArena: A Realistic Web Environment for Building Autonomous Agents" (2023)</li><li><strong>环境</strong>: 4 个真实网站复刻 (电商、论坛、GitLab、地图)</li><li><strong>任务</strong>: 812 个端到端任务</li><li><strong>特点</strong>: 需要真实的多页面交互，非模拟环境</li></ul>
+<h3>4.2 任务类型</h3>
+<div class="code-block"><pre><code class="language-python"># WebArena 任务分类
+webarena_categories = {
+    &quot;information_retrieval&quot;: {
+        &quot;example&quot;: &quot;Find the top-rated post in the forum section &#x27;Machine Learning&#x27;&quot;,
+        &quot;complexity&quot;: &quot;需导航多个页面，理解排序逻辑&quot;,
+    },
+    &quot;content_creation&quot;: {
+        &quot;example&quot;: &quot;Create a new repository with a README file containing project description&quot;,
+        &quot;complexity&quot;: &quot;需填写表单、上传文件、设置权限&quot;,
+    },
+    &quot;content_management&quot;: {
+        &quot;example&quot;: &quot;Update the product price from $29.99 to $24.99&quot;,
+        &quot;complexity&quot;: &quot;需定位商品、编辑字段、保存更改&quot;,
+    },
+    &quot;site_navigation&quot;: {
+        &quot;example&quot;: &quot;Navigate to the checkout page and apply coupon code &#x27;SAVE20&#x27;&quot;,
+        &quot;complexity&quot;: &quot;需理解网站结构，处理动态元素&quot;,
+    },
+}</code></pre></div>
+<h3>4.3 评估流程</h3>
+<div class="code-block"><pre><code class="language-python"># WebArena 评估核心流程
+import playwright  # 使用 Playwright 进行浏览器自动化
+
+class WebArenaEvaluator:
+    def __init__(self, agent, base_urls: dict):
+        self.agent = agent
+        self.base_urls = base_urls  # {&quot;shopping&quot;: &quot;http://...&quot;, &quot;forum&quot;: &quot;http://...&quot;}
+
+    def evaluate_task(self, task: dict) -&gt; dict:
+        &quot;&quot;&quot;评估单个WebArena任务&quot;&quot;&quot;
+        # 启动浏览器环境
+        page = self._init_browser(task[&quot;start_url&quot;])
+
+        trajectory = []
+        for step in range(task.get(&quot;max_steps&quot;, 15)):
+            # 截取当前页面状态
+            page_state = self._capture_state(page)
+
+            # Agent决策
+            action = self.agent.decide(
+                task=task[&quot;intent&quot;],
+                page_state=page_state,
+                history=trajectory
+            )
+
+            # 执行浏览器操作
+            result = self._execute_browser_action(page, action)
+            trajectory.append({&quot;action&quot;: action, &quot;result&quot;: result})
+
+            if self._is_task_complete(page, task):
+                return {&quot;success&quot;: True, &quot;steps&quot;: len(trajectory)}
+
+        return {&quot;success&quot;: False, &quot;steps&quot;: len(trajectory)}
+
+    def _execute_browser_action(self, page, action: dict):
+        &quot;&quot;&quot;执行浏览器动作&quot;&quot;&quot;
+        action_type = action[&quot;type&quot;]
+        if action_type == &quot;click&quot;:
+            page.click(action[&quot;selector&quot;])
+        elif action_type == &quot;type&quot;:
+            page.fill(action[&quot;selector&quot;], action[&quot;text&quot;])
+        elif action_type == &quot;goto&quot;:
+            page.goto(action[&quot;url&quot;])
+        elif action_type == &quot;scroll&quot;:
+            page.evaluate(f&quot;window.scrollBy(0, {action[&#x27;direction&#x27;]})&quot;)
+        return page.url</code></pre></div>
+<h3>4.4 WebArena 结果</h3>
+<table><thead><tr><th>方法</th><th>成功率</th></tr></thead><tbody><tr><td>GPT-4 (text-only)</td><td>14.4%</td></tr><tr class="alt"><td>GPT-4V (多模态)</td><td>16.6%</td></tr><tr><td>Human</td><td>78.2%</td></tr><tr class="alt"><td>理想 Agent</td><td>95%+</td></tr></tbody></table>
+<p>---</p>
+<h2>5. SWE-bench</h2>
+<h3>5.1 简介</h3>
+<p>SWE-bench 由 Princeton 等团队提出，评估 Agent <strong>自动修复 GitHub issue</strong>的能力。</p>
+<ul><li><strong>论文</strong>: "SWE-bench: Can Language Models Resolve Real-World GitHub Issues?" (2023)</li><li><strong>任务</strong>: 2294 个真实 GitHub issue (来自 12 个 Python 仓库)</li><li><strong>输入</strong>: issue 描述 + 代码仓库</li><li><strong>输出</strong>: 生成 patch (代码修改)</li><li><strong>验证</strong>: 是否通过该仓库的单元测试</li></ul>
+<h3>5.2 任务结构</h3>
+<div class="code-block"><pre><code class="language-python"># SWE-bench 数据格式
+swe_task = {
+    &quot;instance_id&quot;: &quot;django__django-11049&quot;,
+    &quot;repo&quot;: &quot;django/django&quot;,
+    &quot;base_commit&quot;: &quot;a35e6b3b&quot;,  # 修复前的commit
+    &quot;problem_statement&quot;: &quot;&quot;&quot;
+        Error in forms.EmailField when blank=True and empty_value is set.
+        When using forms.EmailField with blank=True and setting empty_value=&#x27;&#x27;,
+        the field should accept empty strings but currently raises a validation error.
+    &quot;&quot;&quot;,
+    &quot;hints_text&quot;: &quot;&quot;,  # 可选的提示
+    &quot;created_at&quot;: &quot;2019-03-01&quot;,
+    &quot;patch&quot;: &quot;&quot;&quot;  # ground truth patch
+diff --git a/django/forms/fields.py b/django/forms/fields.py
+--- a/django/forms/fields.py
++++ b/django/forms/fields.py
+@@ -268,7 +268,7 @@ class EmailField(CharField):
+     def __init__(self, **kwargs):
+         super().__init__(strip=True, **kwargs)
+
+-    def clean(self, value):
++    def clean(self, value):
++        value = super().clean(value)
+         ...
+    &quot;&quot;&quot;,
+    &quot;test_patch&quot;: &quot;...&quot;,  # 用于验证的测试patch
+    &quot;PASS_TO_PASS&quot;: [&quot;test_emailfield_blank_and_empty_value&quot;],
+    &quot;FAIL_TO_PASS&quot;: [&quot;test_emailfield_blank_and_empty_value&quot;],
+}</code></pre></div>
+<h3>5.3 运行评估</h3>
+<div class="code-block"><pre><code class="language-python">import subprocess
+import os
+
+class SWEBenchEvaluator:
+    def __init__(self, agent, repo_dir: str = &quot;/tmp/swe_repos&quot;):
+        self.agent = agent
+        self.repo_dir = repo_dir
+
+    def evaluate_instance(self, instance: dict) -&gt; dict:
+        &quot;&quot;&quot;评估单个SWE-bench实例&quot;&quot;&quot;
+        repo_path = os.path.join(self.repo_dir, instance[&quot;repo&quot;].replace(&quot;/&quot;, &quot;__&quot;))
+
+        # 1. 克隆仓库并切换到base commit
+        self._setup_repo(instance[&quot;repo&quot;], instance[&quot;base_commit&quot;], repo_path)
+
+        # 2. Agent分析issue并生成patch
+        patch = self.agent.solve(
+            problem=instance[&quot;problem_statement&quot;],
+            repo_path=repo_path,
+            hints=instance.get(&quot;hints_text&quot;, &quot;&quot;),
+        )
+
+        # 3. 应用patch
+        apply_success = self._apply_patch(patch, repo_path)
+
+        if not apply_success:
+            return {&quot;instance_id&quot;: instance[&quot;instance_id&quot;],
+                    &quot;success&quot;: False, &quot;reason&quot;: &quot;patch_apply_failed&quot;}
+
+        # 4. 运行测试验证
+        test_results = self._run_tests(
+            repo_path,
+            instance[&quot;PASS_TO_PASS&quot;],
+            instance[&quot;FAIL_TO_PASS&quot;],
+        )
+
+        return {
+            &quot;instance_id&quot;: instance[&quot;instance_id&quot;],
+            &quot;success&quot;: test_results[&quot;all_pass&quot;],
+            &quot;tests_passed&quot;: test_results[&quot;passed&quot;],
+            &quot;tests_failed&quot;: test_results[&quot;failed&quot;],
+        }
+
+    def _run_tests(self, repo_path: str, pass_to_pass: list,
+                   fail_to_pass: list) -&gt; dict:
+        &quot;&quot;&quot;运行单元测试&quot;&quot;&quot;
+        all_tests = pass_to_pass + fail_to_pass
+        results = {&quot;passed&quot;: 0, &quot;failed&quot;: 0, &quot;all_pass&quot;: False}
+
+        for test in all_tests:
+            proc = subprocess.run(
+                [&quot;python&quot;, &quot;-m&quot;, &quot;pytest&quot;, test, &quot;-x&quot;, &quot;-q&quot;],
+                cwd=repo_path, capture_output=True, timeout=120
+            )
+            if proc.returncode == 0:
+                results[&quot;passed&quot;] += 1
+            else:
+                results[&quot;failed&quot;] += 1
+
+        results[&quot;all_pass&quot;] = results[&quot;failed&quot;] == 0
+        return results</code></pre></div>
+<h3>5.4 SWE-bench 排行榜 (2024)</h3>
+<table><thead><tr><th>系统</th><th>SWE-bench</th><th>SWE-bench Lite</th></tr></thead><tbody><tr><td>OpenAI o3 + Codex</td><td>69.1%</td><td>—</td></tr><tr class="alt"><td>Devin (Cognition)</td><td>13.9%</td><td>—</td></tr><tr><td>Agentless</td><td>30.0%</td><td>45.0%</td></tr><tr class="alt"><td>SWE-Agent</td><td>12.5%</td><td>23.0%</td></tr><tr><td>Human (estimated)</td><td>~70%</td><td>~70%</td></tr></tbody></table>
+<blockquote>SWE-bench Lite: 300 个精选子集，评估更高效</blockquote>
+<p>---</p>
+<h2>6. τ-bench (Tau-bench)</h2>
+<h3>6.1 简介</h3>
+<p>τ-bench 由 Sierra AI 于 2024 年提出，专注于评估 Agent 的<strong>复杂工具使用</strong>能力。</p>
+<ul><li><strong>论文</strong>: "τ-bench: A Benchmark for Tool-Augmented Language Models" (2024)</li><li><strong>工具数量</strong>: 550+ 个函数定义</li><li><strong>任务数量</strong>: 550 个复杂任务</li><li><strong>特点</strong>: 多轮对话，需要组合使用多个工具</li></ul>
+<h3>6.2 工具复杂度</h3>
+<div class="code-block"><pre><code class="language-python"># τ-bench 中的工具类型示例
+tau_tools = {
+    # 数据库查询
+    &quot;search_customers&quot;: {&quot;params&quot;: [&quot;name&quot;, &quot;email&quot;, &quot;phone&quot;]},
+    &quot;get_order_details&quot;: {&quot;params&quot;: [&quot;order_id&quot;]},
+    &quot;update_order_status&quot;: {&quot;params&quot;: [&quot;order_id&quot;, &quot;new_status&quot;]},
+
+    # API调用
+    &quot;send_email&quot;: {&quot;params&quot;: [&quot;to&quot;, &quot;subject&quot;, &quot;body&quot;]},
+    &quot;create_support_ticket&quot;: {&quot;params&quot;: [&quot;customer_id&quot;, &quot;issue&quot;, &quot;priority&quot;]},
+
+    # 计算
+    &quot;calculate_refund&quot;: {&quot;params&quot;: [&quot;order_id&quot;, &quot;items&quot;, &quot;reason&quot;]},
+    &quot;apply_discount&quot;: {&quot;params&quot;: [&quot;order_id&quot;, &quot;coupon_code&quot;]},
+
+    # 业务流程
+    &quot;escalate_to_manager&quot;: {&quot;params&quot;: [&quot;ticket_id&quot;, &quot;reason&quot;]},
+    &quot;process_return&quot;: {&quot;params&quot;: [&quot;order_id&quot;, &quot;items&quot;, &quot;reason&quot;]},
+}</code></pre></div>
+<h3>6.3 评估方法</h3>
+<div class="code-block"><pre><code class="language-python">class TauBenchEvaluator:
+    def __init__(self, agent):
+        self.agent = agent
+
+    def evaluate(self, tasks: list[dict]) -&gt; dict:
+        results = []
+        for task in tasks:
+            result = self._run_task(task)
+            results.append(result)
+
+        return {
+            &quot;pass_rate&quot;: sum(r[&quot;pass&quot;] for r in results) / len(results),
+            &quot;avg_turns&quot;: sum(r[&quot;turns&quot;] for r in results) / len(results),
+            &quot;tool_usage_accuracy&quot;: self._calc_tool_accuracy(results),
+        }
+
+    def _run_task(self, task: dict) -&gt; dict:
+        &quot;&quot;&quot;运行单个τ-bench任务&quot;&quot;&quot;
+        conversation = []
+        customer_info = task[&quot;customer&quot;]
+
+        for turn in task[&quot;turns&quot;]:
+            user_message = turn[&quot;user&quot;]
+            agent_response = self.agent.chat(user_message, conversation)
+
+            # 检查Agent是否调用了正确的工具
+            tool_calls = agent_response.tool_calls
+            expected_tools = turn.get(&quot;expected_tool_calls&quot;, [])
+
+            conversation.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_message})
+            conversation.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: agent_response})
+
+        # 最终检查: 数据库状态是否正确
+        final_state = self._check_database_state(task[&quot;expected_final_state&quot;])
+
+        return {
+            &quot;task_id&quot;: task[&quot;id&quot;],
+            &quot;pass&quot;: final_state,
+            &quot;turns&quot;: len(task[&quot;turns&quot;]),
+        }</code></pre></div>
+<p>---</p>
+<h2>7. 运行 Benchmark 的最佳实践</h2>
+<h3>7.1 通用评估流程</h3>
+<div class="code-block"><pre><code class="language-python">class BenchmarkRunner:
+    &quot;&quot;&quot;通用benchmark运行器&quot;&quot;&quot;
+
+    def __init__(self, agent, config: dict):
+        self.agent = agent
+        self.config = config
+
+    def run(self, benchmark_name: str, subset: str = &quot;full&quot;) -&gt; dict:
+        &quot;&quot;&quot;运行指定benchmark&quot;&quot;&quot;
+        evaluator = self._get_evaluator(benchmark_name)
+        tasks = self._load_tasks(benchmark_name, subset)
+
+        results = []
+        for i, task in enumerate(tasks):
+            print(f&quot;[{i+1}/{len(tasks)}] Running task {task[&#x27;id&#x27;]}...&quot;)
+            try:
+                result = evaluator.evaluate_task(task)
+                results.append(result)
+            except Exception as e:
+                results.append({
+                    &quot;task_id&quot;: task[&quot;id&quot;],
+                    &quot;success&quot;: False,
+                    &quot;error&quot;: str(e),
+                })
+
+        return self._compile_report(results)
+
+    def _compile_report(self, results: list) -&gt; dict:
+        &quot;&quot;&quot;生成评估报告&quot;&quot;&quot;
+        return {
+            &quot;total_tasks&quot;: len(results),
+            &quot;success_count&quot;: sum(1 for r in results if r.get(&quot;success&quot;)),
+            &quot;success_rate&quot;: sum(1 for r in results if r.get(&quot;success&quot;)) / len(results),
+            &quot;error_count&quot;: sum(1 for r in results if r.get(&quot;error&quot;)),
+            &quot;details&quot;: results,
+        }</code></pre></div>
+<h3>7.2 结果解读指南</h3>
+<table><thead><tr><th>指标</th><th>好</th><th>一般</th><th>差</th></tr></thead><tbody><tr><td>GAIA Level 1</td><td>> 80%</td><td>50-80%</td><td>< 50%</td></tr><tr class="alt"><td>GAIA Level 2</td><td>> 60%</td><td>30-60%</td><td>< 30%</td></tr><tr><td>WebArena</td><td>> 30%</td><td>15-30%</td><td>< 15%</td></tr><tr class="alt"><td>SWE-bench</td><td>> 40%</td><td>20-40%</td><td>< 20%</td></tr><tr><td>τ-bench</td><td>> 50%</td><td>25-50%</td><td>< 25%</td></tr></tbody></table>
+<h3>7.3 注意事项</h3>
+<ol><li><strong>环境复现</strong>: 确保使用官方 Docker 环境，避免依赖差异</li><li><strong>公平对比</strong>: 使用相同的 API 调用限制和超时设置</li><li><strong>随机性</strong>: 多次运行取平均值，报告置信区间</li><li><strong>数据泄露</strong>: 确保评估数据未出现在训练集中</li><li><strong>成本控制</strong>: 先在子集上调试，确认无误后跑全量</li></ol>
+<p>---</p>
+<h2>8. 总结对比</h2>
+<div class="code-block"><pre><code>选择 benchmark 的决策树:
+
+你的Agent主要做什么？
+├─ 通用助手 → GAIA
+├─ 网页操作 → WebArena
+├─ 代码修复 → SWE-bench
+├─ 多工具调用 → τ-bench
+└─ 综合评估 → AgentBench</code></pre></div>
+<p>---</p>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的基准评估</h3>
+<p>用 GAIA Level 1 评估 Agent 的信息检索能力（搜索+计算），用 τ-bench 评估多工具调用能力（评论API+情感分析+回复生成的工具链）。建立内部基准测试集，定期回归测试。</p>
+<h3>场景二：视频生成流水线的 SWE-bench 思路</h3>
+<p>借鉴 SWE-bench 的"输入需求→输出代码→运行测试"模式，建立视频生成的内部基准：输入选题→评估生成脚本质量→检查视频输出是否符合规格。</p>
+<h3>场景三：Hermes Agent 的能力基准</h3>
+<p>为 Hermes Agent 建立内部基准：GAIA 式的多步信息检索任务、τ-bench 式的多工具组合任务、WebArena 式的网页操作任务，定期评估 Agent 能力退化。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>评估框架</th><th><a class="wikilink" href="#01-评估维度与指标体系">01-评估维度与指标体系</a></th><th>基准测试背后的评估方法论</th></tr></thead><tbody><tr><td>LLM Judge</td><td><a class="wikilink" href="#03-LLM-as-Judge评估方法">03-LLM-as-Judge评估方法</a></td><td>用 LLM 自动化评估基准结果</td></tr><tr class="alt"><td>框架对比</td><td><a class="wikilink" href="#框架横向对比矩阵">框架横向对比矩阵</a></td><td>不同框架在基准上的表现对比</td></tr><tr><td>代码生成</td><td><a class="wikilink" href="#MetaGPT软件开发智能体">MetaGPT软件开发智能体</a></td><td>MetaGPT 在 SWE-bench 上的潜力</td></tr><tr class="alt"><td>工具使用</td><td><a class="wikilink" href="#OpenAI-Agents-SDK深入">OpenAI-Agents-SDK深入</a></td><td>SDK 的工具调用能力评估</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-多MCP协同智能体系统实战">01-多MCP协同智能体系统实战</a></td><td>项目中的质量评估实践</td></tr></tbody></table>
+<h2>9. 参考资源</h2>
+<ul><li><a href="https://huggingface.co/spaces/gaia-benchmark/leaderboard">GAIA Leaderboard</a></li><li><a href="https://github.com/THUDM/AgentBench">AgentBench GitHub</a></li><li><a href="https://webarena.dev/">WebArena</a></li><li><a href="https://www.swebench.com/">SWE-bench</a></li><li><a href="https://github.com/sierra-research/tau-bench">τ-bench</a></li></ul>
+</section>
+<section id="LLM-as-Judge评估方法" class="doc-section">
+<h1>LLM-as-Judge 评估方法 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:20px"><a href="#优势与局限">优势与局限</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--基础实现">2. 基础实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-简单的-LLM-Judge">2.1 简单的 LLM Judge</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-带-Rubric-的评估">2.2 带 Rubric 的评估</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--评估类型">3. 评估类型</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-打分型-(Scoring)">3.1 打分型 (Scoring)</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-排序型-(Pairwise-Ranking)">3.2 排序型 (Pairwise Ranking)</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-3-分类/Pass-Fail-型">3.3 分类/Pass-Fail 型</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--Rubric-设计最佳实践">4. Rubric 设计最佳实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-原则">4.1 原则</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-Rubric-模板生成">4.2 Rubric 模板生成</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--偏差与校准">5. 偏差与校准</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-已知偏见">5.1 已知偏见</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-位置偏差缓解">5.2 位置偏差缓解</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-3-长度偏差缓解">5.3 长度偏差缓解</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-4-校准方法">5.4 校准方法</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--多Judge-一致性">6. 多Judge 一致性</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--评估框架集成">7. 评估框架集成</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-1-Braintrust">7.1 Braintrust</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-2-AgentOps">7.2 AgentOps</a></div><div class="toc-item" style="padding-left:20px"><a href="#7-3-自建评估-Pipeline">7.3 自建评估 Pipeline</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--指标定义汇总">8. 指标定义汇总</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--最佳实践总结">9. 最佳实践总结</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的自动评估">场景一：评论监控机器人的自动评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成脚本的质量评审">场景二：视频生成脚本的质量评审</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-输出的自动化质量监控">场景三：Hermes Agent 输出的自动化质量监控</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#10--参考资源">10. 参考资源</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>LLM-as-Judge 是 Agent 评估层的<strong>自动化评估方案</strong>，用大语言模型来评估 Agent 输出质量，解决人工评估成本高、不可扩展的问题。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 13-Agent评估与基准 ← 评估层（你在这里）
+│   ├── 01-评估维度与指标体系 ← 评估框架
+│   ├── 02-基准测试GAIA-AgentBench ← 标准化基准
+│   └── 03-LLM-as-Judge评估方法 ✅ ← 自动化评估
+├── 11-Agent框架对比 ← 框架的评估能力
+└── 10-智能体项目 ← 评估落地</code></pre></div>
+<p><strong>学习价值</strong>：LLM-as-Judge 是生产环境中最实用的 Agent 评估方法。掌握 Rubric 设计、偏差校准、多 Judge 一致性等技术，能构建可靠的自动化评估流水线。</p>
+<h2>1. 概述</h2>
+<p><strong>LLM-as-Judge</strong> 是使用大语言模型来评估 Agent 输出质量的方法。当任务输出难以用规则判断（如"推理是否合理"、"回答是否有帮助"）时，LLM-as-Judge 提供了一种可扩展的自动化评估方案。</p>
+<div class="code-block"><pre><code>传统评估:  任务 → Agent → 输出 → 规则匹配 → ✓/✗
+LLM-as-Judge: 任务 → Agent → 输出 → LLM评判 → 分数/评价</code></pre></div>
+<h3>优势与局限</h3>
+<table><thead><tr><th>优势</th><th>局限</th></tr></thead><tbody><tr><td>可评估主观/开放性任务</td><td>存在偏见(position, verbosity)</td></tr><tr class="alt"><td>可扩展，成本低于人工</td><td>结果有随机性</td></tr><tr><td>可定制评估标准</td><td>对自己家族模型有偏好</td></tr><tr class="alt"><td>提供自然语言反馈</td><td>需要校准才能可靠</td></tr></tbody></table>
+<p>---</p>
+<h2>2. 基础实现</h2>
+<h3>2.1 简单的 LLM Judge</h3>
+<div class="code-block"><pre><code class="language-python">import openai
+import json
+
+class LLMJudge:
+    def __init__(self, model: str = &quot;gpt-4o&quot;):
+        self.model = model
+        self.client = openai.OpenAI()
+
+    def evaluate(self, task: str, output: str,
+                 criteria: str, scale: tuple = (1, 5)) -&gt; dict:
+        &quot;&quot;&quot;使用LLM评估Agent输出&quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;You are an expert evaluator. Please assess the following output.
+
+## Task
+{task}
+
+## Agent Output
+{output}
+
+## Evaluation Criteria
+{criteria}
+
+## Instructions
+Rate the output on a scale of {scale[0]} to {scale[1]}, where:
+- {scale[0]} = Very Poor
+- {scale[1]} = Excellent
+
+Respond in JSON format:
+{{&quot;score&quot;: &lt;number&gt;, &quot;reasoning&quot;: &quot;&lt;brief explanation&gt;&quot;}}
+&quot;&quot;&quot;
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            response_format={&quot;type&quot;: &quot;json_object&quot;},
+            temperature=0,
+        )
+
+        return json.loads(response.choices[0].message.content)</code></pre></div>
+<h3>2.2 带 Rubric 的评估</h3>
+<div class="code-block"><pre><code class="language-python">class RubricJudge(LLMJudge):
+    &quot;&quot;&quot;使用详细评分标准的Judge&quot;&quot;&quot;
+
+    def evaluate_with_rubric(self, task: str, output: str,
+                             rubric: dict) -&gt; dict:
+        &quot;&quot;&quot;
+        rubric 示例:
+        {
+            &quot;accuracy&quot;: {
+                &quot;description&quot;: &quot;信息是否准确&quot;,
+                &quot;levels&quot;: {
+                    5: &quot;所有信息完全准确，可验证&quot;,
+                    4: &quot;基本准确，有微小不精确处&quot;,
+                    3: &quot;大部分准确，有1-2个错误&quot;,
+                    2: &quot;多处错误或误导性信息&quot;,
+                    1: &quot;严重错误或完全不准确&quot;,
+                }
+            },
+            &quot;completeness&quot;: { ... },
+        }
+        &quot;&quot;&quot;
+        rubric_text = &quot;&quot;
+        for criterion, details in rubric.items():
+            rubric_text += f&quot;\n### {criterion}: {details[&#x27;description&#x27;]}\n&quot;
+            for level, desc in sorted(details[&quot;levels&quot;].items(), reverse=True):
+                rubric_text += f&quot;  - {level}: {desc}\n&quot;
+
+        prompt = f&quot;&quot;&quot;Evaluate the following agent output using the provided rubric.
+
+## Task
+{task}
+
+## Agent Output
+{output}
+
+## Rubric
+{rubric_text}
+
+Rate each criterion and provide overall assessment.
+Respond in JSON format:
+{{
+    &quot;criteria_scores&quot;: {{&quot;accuracy&quot;: &lt;score&gt;, &quot;completeness&quot;: &lt;score&gt;, ...}},
+    &quot;overall_score&quot;: &lt;weighted average&gt;,
+    &quot;strengths&quot;: [&quot;...&quot;],
+    &quot;weaknesses&quot;: [&quot;...&quot;],
+    &quot;suggestions&quot;: [&quot;...&quot;]
+}}
+&quot;&quot;&quot;
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            response_format={&quot;type&quot;: &quot;json_object&quot;},
+            temperature=0,
+        )
+
+        return json.loads(response.choices[0].message.content)</code></pre></div>
+<p>---</p>
+<h2>3. 评估类型</h2>
+<h3>3.1 打分型 (Scoring)</h3>
+<div class="code-block"><pre><code class="language-python">def score_evaluation(judge: LLMJudge, task: str, output: str) -&gt; float:
+    &quot;&quot;&quot;直接打分 (1-5)&quot;&quot;&quot;
+    result = judge.evaluate(
+        task=task,
+        output=output,
+        criteria=&quot;Overall quality of the response&quot;
+    )
+    return result[&quot;score&quot;]</code></pre></div>
+<h3>3.2 排序型 (Pairwise Ranking)</h3>
+<div class="code-block"><pre><code class="language-python">class PairwiseJudge(LLMJudge):
+    &quot;&quot;&quot;对比两个输出，判断哪个更好&quot;&quot;&quot;
+
+    def compare(self, task: str, output_a: str, output_b: str) -&gt; dict:
+        prompt = f&quot;&quot;&quot;Compare two responses to the same task and determine which is better.
+
+## Task
+{task}
+
+## Response A
+{output_a}
+
+## Response B
+{output_b}
+
+## Instructions
+1. Evaluate both responses independently
+2. Compare them on: accuracy, helpfulness, clarity, completeness
+3. Decide which is better overall
+
+Respond in JSON format:
+{{
+    &quot;winner&quot;: &quot;A&quot; or &quot;B&quot; or &quot;tie&quot;,
+    &quot;confidence&quot;: &quot;high&quot; / &quot;medium&quot; / &quot;low&quot;,
+    &quot;reasoning&quot;: &quot;...&quot;,
+    &quot;a_strengths&quot;: [&quot;...&quot;],
+    &quot;b_strengths&quot;: [&quot;...&quot;],
+    &quot;a_weaknesses&quot;: [&quot;...&quot;],
+    &quot;b_weaknesses&quot;: [&quot;...&quot;]
+}}
+&quot;&quot;&quot;
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            response_format={&quot;type&quot;: &quot;json_object&quot;},
+            temperature=0,
+        )
+        return json.loads(response.choices[0].message.content)</code></pre></div>
+<h3>3.3 分类/Pass-Fail 型</h3>
+<div class="code-block"><pre><code class="language-python">class PassFailJudge(LLMJudge):
+    &quot;&quot;&quot;二元判断: 通过/不通过&quot;&quot;&quot;
+
+    def evaluate_pass_fail(self, task: str, output: str,
+                           requirements: list[str]) -&gt; dict:
+        req_text = &quot;\n&quot;.join(f&quot;- {r}&quot; for r in requirements)
+        prompt = f&quot;&quot;&quot;Determine if the agent output meets ALL requirements.
+
+## Task
+{task}
+
+## Agent Output
+{output}
+
+## Requirements (ALL must be met to pass)
+{req_text}
+
+Respond in JSON format:
+{{
+    &quot;pass&quot;: true/false,
+    &quot;requirements_met&quot;: {{&quot;req1&quot;: true/false, ...}},
+    &quot;failing_reasons&quot;: [&quot;...&quot;]
+}}
+&quot;&quot;&quot;
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}],
+            response_format={&quot;type&quot;: &quot;json_object&quot;},
+            temperature=0,
+        )
+        return json.loads(response.choices[0].message.content)</code></pre></div>
+<p>---</p>
+<h2>4. Rubric 设计最佳实践</h2>
+<h3>4.1 原则</h3>
+<div class="code-block"><pre><code class="language-python"># ❌ 差的 Rubric
+bad_rubric = {
+    &quot;quality&quot;: &quot;回答质量好不好？1-5分&quot;
+}
+
+# ✅ 好的 Rubric
+good_rubric = {
+    &quot;accuracy&quot;: {
+        &quot;weight&quot;: 0.3,
+        &quot;description&quot;: &quot;事实信息的准确性&quot;,
+        &quot;levels&quot;: {
+            5: &quot;所有事实均可验证，无任何错误&quot;,
+            4: &quot;核心事实正确，细节有1处小错误&quot;,
+            3: &quot;大部分正确，但有1-2处影响理解的错误&quot;,
+            2: &quot;多处错误，但主要结论方向正确&quot;,
+            1: &quot;核心信息错误或完全编造&quot;,
+        },
+        &quot;examples&quot;: {
+            5: &quot;Paris is the capital of France, population ~2.1M (2020)&quot;,
+            3: &quot;Paris is the capital of France, population ~5M (不准确)&quot;,
+            1: &quot;Lyon is the capital of France (核心错误)&quot;,
+        }
+    },
+}</code></pre></div>
+<h3>4.2 Rubric 模板生成</h3>
+<div class="code-block"><pre><code class="language-python">def generate_rubric(task_type: str) -&gt; dict:
+    &quot;&quot;&quot;根据任务类型生成Rubric模板&quot;&quot;&quot;
+    templates = {
+        &quot;qa&quot;: {
+            &quot;accuracy&quot;: {&quot;weight&quot;: 0.4, &quot;description&quot;: &quot;回答是否准确&quot;},
+            &quot;completeness&quot;: {&quot;weight&quot;: 0.3, &quot;description&quot;: &quot;是否完整回答问题&quot;},
+            &quot;relevance&quot;: {&quot;weight&quot;: 0.2, &quot;description&quot;: &quot;是否切题&quot;},
+            &quot;clarity&quot;: {&quot;weight&quot;: 0.1, &quot;description&quot;: &quot;表达是否清晰&quot;},
+        },
+        &quot;code_generation&quot;: {
+            &quot;correctness&quot;: {&quot;weight&quot;: 0.35, &quot;description&quot;: &quot;代码是否正确运行&quot;},
+            &quot;efficiency&quot;: {&quot;weight&quot;: 0.20, &quot;description&quot;: &quot;时间/空间复杂度是否合理&quot;},
+            &quot;readability&quot;: {&quot;weight&quot;: 0.15, &quot;description&quot;: &quot;代码是否可读&quot;},
+            &quot;edge_cases&quot;: {&quot;weight&quot;: 0.20, &quot;description&quot;: &quot;是否处理边界情况&quot;},
+            &quot;best_practices&quot;: {&quot;weight&quot;: 0.10, &quot;description&quot;: &quot;是否遵循最佳实践&quot;},
+        },
+        &quot;summarization&quot;: {
+            &quot;faithfulness&quot;: {&quot;weight&quot;: 0.35, &quot;description&quot;: &quot;是否忠实于原文&quot;},
+            &quot;coverage&quot;: {&quot;weight&quot;: 0.30, &quot;description&quot;: &quot;是否覆盖关键信息&quot;},
+            &quot;conciseness&quot;: {&quot;weight&quot;: 0.20, &quot;description&quot;: &quot;是否简洁&quot;},
+            &quot;coherence&quot;: {&quot;weight&quot;: 0.15, &quot;description&quot;: &quot;逻辑是否连贯&quot;},
+        },
+        &quot;tool_use&quot;: {
+            &quot;tool_selection&quot;: {&quot;weight&quot;: 0.25, &quot;description&quot;: &quot;是否选择了正确的工具&quot;},
+            &quot;argument_correctness&quot;: {&quot;weight&quot;: 0.25, &quot;description&quot;: &quot;参数是否正确&quot;},
+            &quot;task_completion&quot;: {&quot;weight&quot;: 0.30, &quot;description&quot;: &quot;任务是否完成&quot;},
+            &quot;efficiency&quot;: {&quot;weight&quot;: 0.20, &quot;description&quot;: &quot;步骤是否高效&quot;},
+        },
+    }
+    return templates.get(task_type, templates[&quot;qa&quot;])</code></pre></div>
+<p>---</p>
+<h2>5. 偏差与校准</h2>
+<h3>5.1 已知偏见</h3>
+<div class="code-block"><pre><code class="language-python"># LLM-as-Judge 的已知偏见
+KNOWN_BIASES = {
+    &quot;position_bias&quot;: &quot;倾向于选择第一个/最后一个选项&quot;,
+    &quot;verbosity_bias&quot;: &quot;倾向于偏好更长的回答&quot;,
+    &quot;self_bias&quot;: &quot;倾向于偏好自己生成的回答&quot;,
+    &quot;style_bias&quot;: &quot;偏好特定写作风格而非实质内容&quot;,
+    &quot;authority_bias&quot;: &quot;偏好自信、权威的语气&quot;,
+}</code></pre></div>
+<h3>5.2 位置偏差缓解</h3>
+<div class="code-block"><pre><code class="language-python">def debias_pairwise_comparison(judge: PairwiseJudge,
+                                task: str, output_a: str, output_b: str) -&gt; dict:
+    &quot;&quot;&quot;通过交换顺序消除位置偏差&quot;&quot;&quot;
+    # 正序评估
+    result_ab = judge.compare(task, output_a, output_b)
+    # 反序评估
+    result_ba = judge.compare(task, output_b, output_a)
+
+    # 如果两次结果一致，高置信度
+    winner_ab = result_ab[&quot;winner&quot;]
+    winner_ba = result_ba[&quot;winner&quot;]
+
+    # 反转第二次的结果
+    if winner_ba == &quot;A&quot;:
+        winner_ba_reversed = &quot;B&quot;
+    elif winner_ba == &quot;B&quot;:
+        winner_ba_reversed = &quot;A&quot;
+    else:
+        winner_ba_reversed = &quot;tie&quot;
+
+    if winner_ab == winner_ba_reversed:
+        return {
+            &quot;winner&quot;: winner_ab,
+            &quot;confidence&quot;: &quot;high&quot;,
+            &quot;consistent&quot;: True,
+            &quot;reasoning&quot;: result_ab[&quot;reasoning&quot;],
+        }
+    else:
+        return {
+            &quot;winner&quot;: &quot;tie&quot;,
+            &quot;confidence&quot;: &quot;low&quot;,
+            &quot;consistent&quot;: False,
+            &quot;reasoning&quot;: &quot;Inconsistent results across orderings&quot;,
+        }</code></pre></div>
+<h3>5.3 长度偏差缓解</h3>
+<div class="code-block"><pre><code class="language-python">def normalize_for_length(prompt: str) -&gt; str:
+    &quot;&quot;&quot;在prompt中明确要求忽略长度因素&quot;&quot;&quot;
+    return prompt + &quot;&quot;&quot;
+
+IMPORTANT: Do NOT be biased by response length. A concise, accurate answer
+should score higher than a verbose, less accurate one. Judge based on
+content quality, not quantity.
+&quot;&quot;&quot;</code></pre></div>
+<h3>5.4 校准方法</h3>
+<div class="code-block"><pre><code class="language-python">class CalibratedJudge:
+    &quot;&quot;&quot;带校准的LLM Judge&quot;&quot;&quot;
+
+    def __init__(self, judge: LLMJudge, calibration_data: list[dict]):
+        &quot;&quot;&quot;
+        calibration_data: [{&quot;output&quot;: str, &quot;human_score&quot;: float, &quot;task&quot;: str}, ...]
+        &quot;&quot;&quot;
+        self.judge = judge
+        self.calibration_data = calibration_data
+        self.bias = self._compute_bias()
+
+    def _compute_bias(self) -&gt; dict:
+        &quot;&quot;&quot;计算系统偏差&quot;&quot;&quot;
+        scores = []
+        for item in self.calibration_data:
+            llm_score = self.judge.evaluate(
+                task=item[&quot;task&quot;],
+                output=item[&quot;output&quot;],
+                criteria=&quot;Overall quality&quot;
+            )[&quot;score&quot;]
+            scores.append({
+                &quot;llm_score&quot;: llm_score,
+                &quot;human_score&quot;: item[&quot;human_score&quot;],
+                &quot;diff&quot;: llm_score - item[&quot;human_score&quot;],
+            })
+
+        avg_diff = sum(s[&quot;diff&quot;] for s in scores) / len(scores)
+        import statistics
+        std_diff = statistics.stdev(s[&quot;diff&quot;] for s in scores) if len(scores) &gt; 1 else 0
+
+        return {
+            &quot;mean_bias&quot;: avg_diff,       # 正=偏高，负=偏低
+            &quot;std_bias&quot;: std_diff,
+            &quot;correlation&quot;: self._pearson_r(
+                [s[&quot;llm_score&quot;] for s in scores],
+                [s[&quot;human_score&quot;] for s in scores]
+            ),
+        }
+
+    def calibrated_evaluate(self, task: str, output: str, **kwargs) -&gt; dict:
+        &quot;&quot;&quot;带校准的评估&quot;&quot;&quot;
+        raw = self.judge.evaluate(task=task, output=output, **kwargs)
+        calibrated_score = raw[&quot;score&quot;] - self.bias[&quot;mean_bias&quot;]
+        calibrated_score = max(1, min(5, calibrated_score))  # clamp
+
+        return {**raw, &quot;raw_score&quot;: raw[&quot;score&quot;], &quot;score&quot;: calibrated_score}
+
+    def _pearson_r(self, x: list, y: list) -&gt; float:
+        &quot;&quot;&quot;计算皮尔逊相关系数&quot;&quot;&quot;
+        n = len(x)
+        mean_x, mean_y = sum(x)/n, sum(y)/n
+        cov = sum((xi-mean_x)*(yi-mean_y) for xi, yi in zip(x, y))
+        std_x = (sum((xi-mean_x)**2 for xi in x) / n) ** 0.5
+        std_y = (sum((yi-mean_y)**2 for yi in y) / n) ** 0.5
+        return cov / (n * std_x * std_y) if std_x * std_y &gt; 0 else 0</code></pre></div>
+<p>---</p>
+<h2>6. 多Judge 一致性</h2>
+<div class="code-block"><pre><code class="language-python">class MultiJudgeEnsemble:
+    &quot;&quot;&quot;使用多个Judge取共识&quot;&quot;&quot;
+
+    def __init__(self, judges: list[LLMJudge]):
+        self.judges = judges
+
+    def evaluate(self, task: str, output: str, **kwargs) -&gt; dict:
+        &quot;&quot;&quot;多Judge投票&quot;&quot;&quot;
+        scores = []
+        for judge in self.judges:
+            result = judge.evaluate(task=task, output=output, **kwargs)
+            scores.append(result[&quot;score&quot;])
+
+        avg_score = sum(scores) / len(scores)
+        import statistics
+        std_score = statistics.stdev(scores) if len(scores) &gt; 1 else 0
+
+        return {
+            &quot;score&quot;: avg_score,
+            &quot;std&quot;: std_score,
+            &quot;agreement&quot;: 1 - (std_score / 4),  # 0-1, 越高越一致
+            &quot;individual_scores&quot;: scores,
+            &quot;high_agreement&quot;: std_score &lt; 0.5,
+        }</code></pre></div>
+<p>---</p>
+<h2>7. 评估框架集成</h2>
+<h3>7.1 Braintrust</h3>
+<div class="code-block"><pre><code class="language-python"># Braintrust: 专注AI评估的平台
+# pip install braintrust
+
+import braintrust
+
+@braintrust.traced
+def agent_task(input_text: str) -&gt; str:
+    &quot;&quot;&quot;被评估的Agent任务&quot;&quot;&quot;
+    return agent.run(input_text)
+
+def braintrust_evaluate(dataset: list[dict]):
+    &quot;&quot;&quot;使用Braintrust运行评估&quot;&quot;&quot;
+    bt = braintrust.init(project=&quot;agent-eval&quot;)
+
+    for item in dataset:
+        output = agent_task(item[&quot;input&quot;])
+
+        # 自动记录并评估
+        bt.log(
+            input=item[&quot;input&quot;],
+            output=output,
+            expected=item[&quot;expected&quot;],
+            scores={
+                &quot;accuracy&quot;: llm_judge.evaluate(
+                    task=item[&quot;input&quot;],
+                    output=output,
+                    criteria=&quot;Is the answer correct?&quot;
+                )[&quot;score&quot;] / 5,
+                &quot;completeness&quot;: llm_judge.evaluate(
+                    task=item[&quot;input&quot;],
+                    output=output,
+                    criteria=&quot;Is the answer complete?&quot;
+                )[&quot;score&quot;] / 5,
+            },
+            metadata={&quot;difficulty&quot;: item.get(&quot;difficulty&quot;)},
+        )
+
+    return bt.summarize()</code></pre></div>
+<h3>7.2 AgentOps</h3>
+<div class="code-block"><pre><code class="language-python"># AgentOps: Agent 可观测性平台
+# pip install agentops
+
+import agentops
+
+agentops.init(api_key=&quot;your-key&quot;, tags=[&quot;agent-eval&quot;])
+
+@agentops.track_agent(name=&quot;my-agent&quot;)
+class MyAgent:
+    def run(self, task: str) -&gt; str:
+        # Agent逻辑
+        return result
+
+def evaluate_with_agentops(tasks: list[str]):
+    &quot;&quot;&quot;使用AgentOps跟踪和评估&quot;&quot;&quot;
+    agent = MyAgent()
+
+    for task in tasks:
+        result = agent.run(task)
+
+        # AgentOps 自动记录:
+        # - 调用链 (LLM calls, tool calls)
+        # - Token 使用量
+        # - 延迟
+        # - 成本
+
+    # 获取会话报告
+    session = agentops.end_session(
+        end_state=&quot;success&quot;,
+        rating=4.5  # 可附加人工评分
+    )
+    return session</code></pre></div>
+<h3>7.3 自建评估 Pipeline</h3>
+<div class="code-block"><pre><code class="language-python">class EvaluationPipeline:
+    &quot;&quot;&quot;完整的评估Pipeline&quot;&quot;&quot;
+
+    def __init__(self, agent, judges: dict[str, LLMJudge],
+                 rubrics: dict[str, dict]):
+        self.agent = agent
+        self.judges = judges
+        self.rubrics = rubrics
+
+    def run(self, test_cases: list[dict]) -&gt; dict:
+        results = []
+
+        for case in test_cases:
+            # 1. 运行Agent
+            agent_output = self.agent.run(case[&quot;input&quot;])
+
+            # 2. 多维度评估
+            scores = {}
+            for dimension, judge in self.judges.items():
+                rubric = self.rubrics.get(dimension)
+                if rubric:
+                    eval_result = judge.evaluate_with_rubric(
+                        task=case[&quot;input&quot;],
+                        output=agent_output,
+                        rubric=rubric
+                    )
+                    scores[dimension] = eval_result
+
+            # 3. 规则评估 (可自动验证的维度)
+            if &quot;expected&quot; in case:
+                scores[&quot;exact_match&quot;] = self._exact_match(
+                    agent_output, case[&quot;expected&quot;]
+                )
+
+            results.append({
+                &quot;case_id&quot;: case[&quot;id&quot;],
+                &quot;input&quot;: case[&quot;input&quot;],
+                &quot;output&quot;: agent_output,
+                &quot;scores&quot;: scores,
+                &quot;aggregate&quot;: self._aggregate_scores(scores),
+            })
+
+        return self._generate_report(results)
+
+    def _aggregate_scores(self, scores: dict) -&gt; float:
+        &quot;&quot;&quot;聚合各维度分数&quot;&quot;&quot;
+        numeric_scores = []
+        for dim, score_data in scores.items():
+            if isinstance(score_data, dict) and &quot;score&quot; in score_data:
+                numeric_scores.append(score_data[&quot;score&quot;])
+            elif isinstance(score_data, (int, float)):
+                numeric_scores.append(score_data)
+        return sum(numeric_scores) / len(numeric_scores) if numeric_scores else 0
+
+    def _generate_report(self, results: list) -&gt; dict:
+        &quot;&quot;&quot;生成评估报告&quot;&quot;&quot;
+        scores = [r[&quot;aggregate&quot;] for r in results]
+        return {
+            &quot;total_cases&quot;: len(results),
+            &quot;avg_score&quot;: sum(scores) / len(scores),
+            &quot;min_score&quot;: min(scores),
+            &quot;max_score&quot;: max(scores),
+            &quot;median_score&quot;: sorted(scores)[len(scores) // 2],
+            &quot;pass_rate&quot;: sum(1 for s in scores if s &gt;= 3.0) / len(scores),
+            &quot;details&quot;: results,
+        }
+
+    def _exact_match(self, output: str, expected: str) -&gt; float:
+        return 5.0 if output.strip().lower() == expected.strip().lower() else 1.0</code></pre></div>
+<p>---</p>
+<h2>8. 指标定义汇总</h2>
+<table><thead><tr><th>指标</th><th>定义</th><th>计算方式</th></tr></thead><tbody><tr><td>LLM Score</td><td>LLM给出的1-5评分</td><td>直接输出</td></tr><tr class="alt"><td>Pairwise Win Rate</td><td>A胜过B的百分比</td><td>反复比较取统计</td></tr><tr><td>Inter-Judge Agreement</td><td>多个Judge的一致性</td><td>Cohen's Kappa / 相关系数</td></tr><tr class="alt"><td>Human Correlation</td><td>与人工评分的相关性</td><td>Pearson/Spearman</td></tr><tr><td>Calibration Error</td><td>LLM评分与人工评分的偏差</td><td>平均绝对误差</td></tr><tr class="alt"><td>Pass@1</td><td>一次评估通过率</td><td>通过数/总数</td></tr></tbody></table>
+<p>---</p>
+<h2>9. 最佳实践总结</h2>
+<ol><li><strong>先校准后评估</strong>: 用100+人工标注样本校准Judge</li><li><strong>消除位置偏差</strong>: pairwise比较时AB/BA各评一次</li><li><strong>明确Rubric</strong>: 提供详细的评分标准和示例</li><li><strong>多Judge投票</strong>: 使用2-3个不同模型的Judge</li><li><strong>温度=0</strong>: 评估时设temperature=0保证一致性</li><li><strong>JSON输出</strong>: 使用response_format强制结构化输出</li><li><strong>保留人工审核</strong>: 定期抽样人工验证LLM Judge结果</li><li><strong>记录一切</strong>: 保存每次评估的prompt、输出、分数用于回溯</li></ol>
+<p>---</p>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的自动评估</h3>
+<p>用 LLM-as-Judge 自动评估评论回复质量：设计 Rubric（准确性、得体性、合规性），用 PairwiseJudge 对比不同回复策略的效果，用位置偏差消除确保评估公正。</p>
+<h3>场景二：视频生成脚本的质量评审</h3>
+<p>用 RubricJudge 评估视频脚本：创意性（0.3权重）、逻辑连贯性（0.25）、信息准确性（0.25）、可读性（0.2）。多 Judge 投票确保评估稳定。</p>
+<h3>场景三：Hermes Agent 输出的自动化质量监控</h3>
+<p>用 CalibratedJudge 定期评估 Hermes Agent 的输出质量，建立质量趋势仪表盘。当评分下降时自动告警，结合 Tracing 定位问题环节。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>评估框架</th><th><a class="wikilink" href="#01-评估维度与指标体系">01-评估维度与指标体系</a></th><th>LLM Judge 是评估框架的自动化实现</th></tr></thead><tbody><tr><td>基准测试</td><td><a class="wikilink" href="#02-基准测试GAIA-AgentBench">02-基准测试GAIA-AgentBench</a></td><td>用 LLM Judge 评估基准结果</td></tr><tr class="alt"><td>安全护栏</td><td><a class="wikilink" href="#OpenAI-Agents-SDK深入">OpenAI-Agents-SDK深入</a></td><td>Guardrail 系统使用类似的 LLM 评估</td></tr><tr><td>记忆评估</td><td><a class="wikilink" href="#04-记忆检索与衰减策略">04-记忆检索与衰减策略</a></td><td>LLM 辅助记忆重要性评估</td></tr><tr class="alt"><td>推理质量</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>Reflexion 中的 Evaluator 设计</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融回复的质量评估实践</td></tr></tbody></table>
+<h2>10. 参考资源</h2>
+<ul><li><a href="https://arxiv.org/abs/2306.05685">Judging LLM-as-a-Judge with MT-Bench</a></li><li><a href="https://www.braintrust.dev/">Braintrust</a></li><li><a href="https://www.agentops.ai/">AgentOps</a></li><li><a href="https://github.com/openai/evals">OpenAI Evals</a></li><li><a href="https://www.promptfoo.dev/">Promptfoo</a></li></ul>
+</section>
+</main>
+
+</body>
+</html>

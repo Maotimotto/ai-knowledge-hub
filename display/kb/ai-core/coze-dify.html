@@ -1,0 +1,3226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coze / Dify 平台开发</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #f7f7f5;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 100;
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0075de;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 8px;
+}
+.sidebar-section {
+  padding: 8px 0;
+}
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 16px 2px;
+}
+.sidebar-link {
+  display: block;
+  padding: 4px 16px 4px 24px;
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sidebar-link:hover {
+  background: rgba(0,117,222,0.08);
+  color: #0075de;
+}
+
+/* Main Content */
+.content {
+  margin-left: 280px;
+  padding: 40px 60px;
+  max-width: 900px;
+}
+
+/* Typography */
+h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 40px;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 8px;
+}
+h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+/* Links */
+a {
+  color: #0075de;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.wikilink {
+  color: #0075de;
+  background: rgba(0,117,222,0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Code */
+code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #f6f5f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.code-block {
+  background: #f6f5f4;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  margin: 0;
+}
+.code-block code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th {
+  background: #f7f7f5;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+tr.alt {
+  background: #fafafa;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #0075de;
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: #f0f7ff;
+  color: #333;
+}
+
+/* Lists */
+ul, ol {
+  margin: 8px 0 12px 24px;
+}
+li {
+  margin-bottom: 4px;
+}
+
+/* Diagram */
+.diagram-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.diagram-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* TOC */
+.toc-container {
+  background: #f7f7f5;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0 24px;
+}
+.toc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+.toc-item {
+  padding: 2px 0;
+}
+.toc-item a {
+  font-size: 13px;
+  color: #555;
+}
+.toc-item a:hover {
+  color: #0075de;
+}
+
+/* Section */
+.doc-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.doc-section:last-child {
+  border-bottom: none;
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-title">Coze / Dify 平台开发</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">Coze 平台</div>
+<a href="#Coze平台介绍" class="sidebar-link">1.1 Coze平台介绍</a>
+<a href="#Coze平台入门实战" class="sidebar-link">1.2 Coze平台入门实战</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">Dify 平台</div>
+<a href="#Dify平台介绍" class="sidebar-link">1.1 Dify平台介绍</a>
+<a href="#Dify入门实战" class="sidebar-link">1.2 Dify平台入门实战-大语言模型微调语料构建</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">进阶功能</div>
+<a href="#Docker原理和基本使用" class="sidebar-link">2.1 Docker的原理和基本使用</a>
+<a href="#私有数据访问" class="sidebar-link">2.1 私有数据访问</a>
+<a href="#Dify接入知识库" class="sidebar-link">2.2 RAG和知识库</a>
+<a href="#Dify接入外部知识库RAGFlow" class="sidebar-link">2.3 Dify接入外部知识库</a>
+<a href="#Coze-API调用" class="sidebar-link">2.4 Coze API调用</a>
+<a href="#DeepSeek-Dify搭建工作流" class="sidebar-link">DeepSeek + Dify 搭建工作流</a>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">参考文档</div>
+<a href="#RAGFlow-SDK" class="sidebar-link">ragflow-sdk</a>
+<a href="#Model-Runtime" class="sidebar-link">Model Runtime</a>
+<a href="#简历优化建议" class="sidebar-link">简历优化建议</a>
+<a href="#简历优化案例" class="sidebar-link">简历优化案例</a>
+<a href="#字节跳动Agent实践手册" class="sidebar-link">字节跳动Agent实践手册</a>
+</div>
+</nav>
+
+<main class="content">
+<div class="diagram-container">
+<svg viewBox="0 0 900 550" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+<style>
+  .wf-trigger { fill: #fff3e0; stroke: #f39c12; stroke-width: 2; rx: 8; }
+  .wf-llm { fill: #f0f7ff; stroke: #0075de; stroke-width: 2; rx: 8; }
+  .wf-action { fill: #e8f5e9; stroke: #27ae60; stroke-width: 2; rx: 8; }
+  .wf-cond { fill: #fce4ec; stroke: #e74c3c; stroke-width: 2; rx: 8; }
+  .wf-kb { fill: #f3e5f5; stroke: #8e44ad; stroke-width: 2; rx: 8; }
+  .wf-output { fill: #e0f2f1; stroke: #00897b; stroke-width: 2; rx: 8; }
+  .wf-arrow { stroke: #555; stroke-width: 1.5; fill: none; marker-end: url(#wf-arrow); }
+  .wf-label { font-family: Inter, sans-serif; font-size: 12px; fill: #1a1a1a; text-anchor: middle; }
+  .wf-title { font-family: Coze/Dify, sans-serif; font-size: 16px; fill: #0075de; font-weight: bold; text-anchor: middle; }
+  .wf-type { font-family: Inter, sans-serif; font-size: 10px; fill: #888; text-anchor: middle; }
+</style>
+<defs>
+  <marker id="wf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+</defs>
+
+<text x="450" y="25" class="wf-title">Coze / Dify 工作流构建器：节点、边、触发器、动作</text>
+
+<!-- Trigger -->
+<rect x="50" y="50" width="140" height="50" class="wf-trigger"/>
+<text x="120" y="72" class="wf-label" font-weight="bold">触发器 Trigger</text>
+<text x="120" y="88" class="wf-type">用户输入 / API / 定时</text>
+
+<path d="M190,75 L230,75" class="wf-arrow"/>
+
+<!-- LLM Node -->
+<rect x="230" y="50" width="140" height="50" class="wf-llm"/>
+<text x="300" y="72" class="wf-label" font-weight="bold">LLM 节点</text>
+<text x="300" y="88" class="wf-type">GPT / DeepSeek / Qwen</text>
+
+<path d="M370,75 L410,75" class="wf-arrow"/>
+
+<!-- Knowledge Base -->
+<rect x="410" y="50" width="140" height="50" class="wf-kb"/>
+<text x="480" y="72" class="wf-label" font-weight="bold">知识库 RAG</text>
+<text x="480" y="88" class="wf-type">向量检索 / Embedding</text>
+
+<path d="M550,75 L590,75" class="wf-arrow"/>
+
+<!-- Condition -->
+<rect x="590" y="50" width="140" height="50" class="wf-cond"/>
+<text x="660" y="72" class="wf-label" font-weight="bold">条件分支</text>
+<text x="660" y="88" class="wf-type">IF/ELSE / Switch</text>
+
+<path d="M660,100 L660,140" class="wf-arrow"/>
+<path d="M660,140 L300,140" class="wf-arrow"/>
+
+<!-- Action 1 -->
+<rect x="200" y="120" width="120" height="45" class="wf-action"/>
+<text x="260" y="140" class="wf-label" font-weight="bold">工具调用</text>
+<text x="260" y="155" class="wf-type">HTTP / Plugin</text>
+
+<path d="M320,142 L380,142" class="wf-arrow"/>
+
+<!-- Action 2 -->
+<rect x="380" y="120" width="120" height="45" class="wf-action"/>
+<text x="440" y="140" class="wf-label" font-weight="bold">代码执行</text>
+<text x="440" y="155" class="wf-type">Python / JS</text>
+
+<path d="M440,165 L440,195" class="wf-arrow"/>
+
+<!-- Template -->
+<rect x="370" y="195" width="140" height="50" class="wf-llm"/>
+<text x="440" y="217" class="wf-label" font-weight="bold">模板 Template</text>
+<text x="440" y="233" class="wf-type">Jinja2 / 变量替换</text>
+
+<path d="M440,245 L440,275" class="wf-arrow"/>
+
+<!-- Output -->
+<rect x="370" y="275" width="140" height="50" class="wf-output"/>
+<text x="440" y="297" class="wf-label" font-weight="bold">输出 Response</text>
+<text x="440" y="313" class="wf-type">文本 / JSON / 文件</text>
+
+<!-- Node Types Legend -->
+<rect x="50" y="350" width="800" height="180" fill="none" stroke="#ddd" stroke-width="1" rx="8"/>
+<text x="450" y="375" class="wf-title">节点类型与功能</text>
+
+<rect x="70" y="390" width="160" height="40" class="wf-trigger"/>
+<text x="150" y="415" class="wf-label">触发器节点</text>
+<text x="150" y="425" class="wf-type">启动工作流</text>
+
+<rect x="250" y="390" width="160" height="40" class="wf-llm"/>
+<text x="330" y="415" class="wf-label">LLM 节点</text>
+<text x="330" y="425" class="wf-type">AI 推理生成</text>
+
+<rect x="430" y="390" width="160" height="40" class="wf-action"/>
+<text x="510" y="415" class="wf-label">动作节点</text>
+<text x="510" y="425" class="wf-type">工具/代码执行</text>
+
+<rect x="610" y="390" width="160" height="40" class="wf-cond"/>
+<text x="690" y="415" class="wf-label">条件节点</text>
+<text x="690" y="425" class="wf-type">分支/循环逻辑</text>
+
+<rect x="70" y="450" width="160" height="40" class="wf-kb"/>
+<text x="150" y="475" class="wf-label">知识库节点</text>
+<text x="150" y="485" class="wf-type">RAG 检索增强</text>
+
+<rect x="250" y="450" width="160" height="40" class="wf-output"/>
+<text x="330" y="475" class="wf-label">输出节点</text>
+<text x="330" y="485" class="wf-type">返回结果</text>
+
+<rect x="430" y="450" width="160" height="40" fill="#e8e8e8" stroke="#888" stroke-width="1" rx="8"/>
+<text x="510" y="475" class="wf-label">变量系统</text>
+<text x="510" y="485" class="wf-type">会话/环境变量</text>
+
+<rect x="610" y="450" width="160" height="40" fill="#e8e8e8" stroke="#888" stroke-width="1" rx="8"/>
+<text x="690" y="475" class="wf-label">API 集成</text>
+<text x="690" y="485" class="wf-type">外部服务调用</text>
+</svg>
+</div>
+<section id="Coze平台介绍" class="doc-section">
+<h1>1.1 Coze平台介绍</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、智能体的基本概念">一、智能体的基本概念</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、Coze平台简介">二、Coze平台简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-Coze平台介绍">1 Coze平台介绍</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-Coze平台在线版">2 Coze平台在线版</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-Coze平台开源版">3 Coze平台开源版</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → 低代码平台 → Coze</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Coze是字节跳动推出的智能体开发平台，与Dify形成互补</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 AI基础概念，下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.4-Coze-API调用|Coze-API集成">AI大模型/05-Agent开发/Coze-Dify/2.4 Coze API调用|Coze API集成</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Dify对比 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 竞品对比 |</blockquote>
+<blockquote>| Coze API | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.4-Coze-API调用">AI大模型/05-Agent开发/Coze-Dify/2.4 Coze API调用</a> | API集成 |</blockquote>
+<blockquote>| Docker | <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a> | 开源版部署 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：智能体(对话驱动) vs 应用(界面驱动)，Coze同时支持两种形态</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- SaaS版：丰富的插件市场、多模态支持、一键发布到飞书/微信</blockquote>
+<blockquote>- 开源版：私有化部署，但功能受限（仅对话型智能体、19个插件）</blockquote>
+<blockquote>- 选型建议：企业级首选Dify，Coze适合快速原型和多模态场景</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Coze和Dify是两大主流低代码AI平台，Coze优势在插件生态和多模态，Dify优势在开源生态和私有化部署」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：AI基本概念</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — 平台选型能力</blockquote>
+<h2>一、智能体的基本概念</h2>
+<h2>二、Coze平台简介</h2>
+<h3>1 Coze平台介绍</h3>
+<h4>1.1 平台介绍</h4>
+<h4>1.2 智能体和应用</h4>
+<h5>1.2.1 Coze智能体</h5>
+<h5>1.2.2 Coze应用</h5>
+<h5>1.2.3 智能体和应用的对比</h5>
+<ul><li>从原理层面上讲，智能体和应用的区别不大，主要在于呈现和交互的方式不同，接下来我们做一个对比：</li></ul>
+<table><thead><tr><th>对比维度</th><th>智能体 (Agent)</th><th>AI 应用 (Application)</th></tr></thead><tbody><tr><td><strong>核心交互形态</strong></td><td><strong>对话驱动</strong>，以自然语言多轮对话为主</td><td><strong>界面驱动</strong>，提供图形化界面（如表单、按钮）进行交互</td></tr><tr class="alt"><td><strong>设计目标与心智</strong></td><td>“<strong>跟我聊</strong>”，像一个专家或助手，灵活响应</td><td>“<strong>帮我做</strong>”，像一个标准化工具，完成固定流程</td></tr><tr><td><strong>功能复杂度</strong></td><td>相对轻量，适合<strong>单一或特定任务</strong></td><td>相对复杂，整合<strong>多个智能体、工具和流程</strong>，形成完整解决方案</td></tr><tr class="alt"><td><strong>典型发布渠道</strong></td><td>对话框、Bot Store、集成到飞书/微信等即时通讯工具</td><td>独立的 Web App、H5 页面、小程序，或通过 SDK/API 集成</td></tr></tbody></table>
+<h3>2 Coze平台在线版</h3>
+<p><strong>拓展：什么是SaaS</strong></p>
+<blockquote>简单来说，SaaS（Software as a Service，软件即服务）就像软件的“订阅制”。您无需购买软件光盘安装到电脑上，而是通过互联网直接使用软件服务，按需订阅，按使用付费。 简单概括就是“可以在线使用的软件服务”。比如：腾讯文档、金蝶云、腾讯会议、钉钉、法大大等。需要注意的是这里的SaaS指的是商业软件，不包括爱奇艺、QQ会员这类面向用户的软件。</blockquote>
+<h3>3 Coze平台开源版</h3>
+<h4>3.1 什么是开源版Coze</h4>
+<h4>3.2 开源版Coze和SaaS版的区别</h4>
+<ul><li>开源版Coze与SaaS版区别如下：</li></ul>
+<table><thead><tr><th>功能模块</th><th><strong>SaaS 企业版 / 云端版</strong></th><th><strong>开源版 (Coze Studio)</strong></th></tr></thead><tbody><tr><td><strong>核心协作功能</strong></td><td>支持<strong>团队空间</strong>、多人协作、权限管理、审批流</td><td>仅支持<strong>个人空间</strong>，缺乏原生的团队协作功能</td></tr><tr class="alt"><td><strong>插件与工具</strong></td><td>提供丰富的官方和第三方<strong>插件市场</strong>，支持图像理解、音视频处理等</td><td>仅内置约 <strong>19 个官方插件</strong>，不支持用户插件市场，部分高级节点（如图像理解）被移除</td></tr><tr><td><strong>智能体类型</strong></td><td>支持<strong>对话型智能体</strong>和<strong>应用型智能体</strong>（有UI界面）</td><td>主要支持<strong>对话型智能体</strong>，不支持开发应用型智能体</td></tr><tr class="alt"><td><strong>发布与集成</strong></td><td>一键发布至<strong>飞书、微信公众号、Discord</strong>等多种平台</td><td>发布渠道有限，主要支持 <strong>Web SDK 和 API 集成</strong></td></tr><tr><td><strong>多模态与高级功能</strong></td><td>支持<strong>语音交互、图像生成</strong>等多模态能力</td><td>缺少官方支持的语音、图像生成等多模态功能</td></tr><tr class="alt"><td><strong>运维与数据分析</strong></td><td>提供完善的<strong>运营仪表盘</strong>，监控Token消耗、用户互动等</td><td>需要自行构建运维监控体系，缺乏开箱即用的数据分析面板</td></tr></tbody></table>
+<p>私有化部署使用的话，一般使用Dify，原因有以下几点：</p>
+<ul><li>dify是一个更早开源的平台，与coze功能类似，且社区成熟、功能对比coze更加强大，已经占据了较大的市场</li><li>coze对比dify的优势在于丰富的插件库、应用型智能体、以及对于多模态的支持，在开源版这些功能被阉割比较</li><li>coze是golang开发的，语言对比dify相对小众</li></ul>
+<p>因coze开源版在企业中使用较少，且安装和使用需要依赖Docker作为前置知识，因此，coze开源版的部署和使用我们将放在Dify的课程中进行。</p>
+</section>
+<section id="Coze平台入门实战" class="doc-section">
+<h1>1.2 Coze平台入门实战</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、Coze平台的基本使用">一、Coze平台的基本使用</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-功能简介">1 功能简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-工作流的使用">2 工作流的使用</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-在工作流中使用插件">3 在工作流中使用插件</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、搭建一个完整的智能体">二、搭建一个完整的智能体</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Coze-Dify → Coze平台实战</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Coze（扣子）平台是字节跳动的Agent开发平台，与Dify形成互补</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a>（Dify对比）、下启 <a class="wikilink" href="#字节跳动Agent实践手册">字节跳动Agent实践手册</a>（字节生态）</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a> | 平台对比 |</blockquote>
+<blockquote>| 字节Agent | <a class="wikilink" href="#字节跳动Agent实践手册">字节跳动Agent实践手册</a> | 企业实践 |</blockquote>
+<blockquote>| Agent框架 | <a class="wikilink" href="#框架横向对比矩阵">框架横向对比矩阵</a> | 框架选型 |</blockquote>
+<blockquote>| 提示词工程 | <a class="wikilink" href="#01-N-Shot-Prompting">01-N-Shot-Prompting</a> | 智能体提示词 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Coze平台 = 工作流编排 + 插件系统 + 智能体发布，低代码Agent开发</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：创建工作流 → 添加插件 → 编写提示词 → 发布智能体</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Coze通过可视化工作流和丰富插件生态，让业务人员也能快速搭建Agent」</blockquote>
+<h2>一、Coze平台的基本使用</h2>
+<h3>1 功能简介</h3>
+<h3>2 工作流的使用</h3>
+<h3>3 在工作流中使用插件</h3>
+<h2>二、搭建一个完整的智能体</h2>
+<p>接下来，我们将结合  <strong>旅游规划工作流</strong>和<strong>文档内容读取工作流</strong>实现一个简单，但是功能完整的智能体，可以通过：</p>
+<ol><li>创建一个智能体</li><li>编写提示词</li><li>添加工作流</li><li>发布智能体</li></ol>
+<p>以上4个步骤完成。</p>
+</section>
+<section id="Dify平台介绍" class="doc-section">
+<h1>1.1 Dify平台介绍</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、Dify平台介绍">一、Dify平台介绍</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、Dify的安装">二、Dify的安装</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-安装-WSL">1 安装 WSL</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-Docker">2 Docker</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-安装dify环境">3 安装dify环境</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、第一个Dify案例">三、第一个Dify案例</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、Dify和Coze的对比">四、Dify和Coze的对比</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → 低代码平台 → Dify</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Dify是最主流的开源LLM应用开发平台，支持可视化编排AI工作流</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a>（Docker部署），下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问|私有数据接入">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问|私有数据接入</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Docker部署 | <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a> | 运行环境 |</blockquote>
+<blockquote>| Coze对比 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Coze平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Coze平台介绍</a> | 竞品对比 |</blockquote>
+<blockquote>| 私有数据 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问</a> | 数据接入 |</blockquote>
+<blockquote>| RAGFlow | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow">AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow</a> | 外部知识库 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Dify = BaaS理念的LLM应用开发平台，可视化编排+本地部署+数据安全</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 快速搭建AI应用：拖拽式工作流编排，无需编码</blockquote>
+<blockquote>- 本地私有化部署：<code class="inline">docker compose up -d</code> 数据不出企业</blockquote>
+<blockquote>- 多模型接入：支持OpenAI、DeepSeek、本地模型等</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Dify是我常用的AI应用开发平台，支持可视化工作流编排和本地部署，能快速搭建RAG问答、智能客服等应用」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Docker基础、AI基本概念</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — 低代码AI平台使用能力</blockquote>
+<h2>一、Dify平台介绍</h2>
+<p><strong>Dify</strong> 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service, Baas） 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。即使你是非技术人员，也能参与到 AI 应用的定义和数据运营过程中。</p>
+<p>官网：https://github.com/langgenius/dify</p>
+<h2>二、Dify的安装</h2>
+<p>在安装 Dify 之前，请确保您的机器满足以下最低系统要求：</p>
+<ul><li>CPU >= 2 Core</li><li>RAM >= 4 GiB</li></ul>
+<p><strong>强调：仔细阅读安装手册，按照顺序安装</strong></p>
+<h3>1 安装 WSL</h3>
+<p>WSL(Windows Subsyetem for Linux)的作用： 在windows系统中运行linux子系统。</p>
+<div class="code-block"><pre><code class="language-`shell">wsl --install
+
+# 报错如下：
+# 1. 403: 使用windows的应用商店搜索 &quot;linux&quot;， 下载ubuntu 22.0.4 TSL
+# 2. 网络连接超时：连热点 + 挂梯子</code></pre></div>
+<p>安装完成，创建账户： 自己设置账号和密码即可</p>
+<h3>2 Docker</h3>
+<p>登录问题：直接点击下方的跳过，一直点skip就可以</p>
+<p>Docker运行失败（WSL），重启电脑，进到BIOS里去开启虚拟化 (问大模型+售后，你的电脑的型号，按照步骤)。</p>
+<p>Docker配置修改：</p>
+<p>以下这个命令执行失败的：</p>
+<div class="code-block"><pre><code class="language-`json">{
+  &quot;builder&quot;: {
+    &quot;gc&quot;: {
+      &quot;defaultKeepStorage&quot;: &quot;12GB&quot;,
+      &quot;enabled&quot;: true
+    }
+  },
+  &quot;dns&quot;: [
+    &quot;8.8.8.8&quot;,
+    &quot;223.5.5.5&quot;
+  ],
+  &quot;experimental&quot;: true,
+  &quot;registry-mirrors&quot;: [
+    &quot;https://docker.nju.edu.cn&quot;,
+    &quot;https://hub-mirror.c.163.com&quot;
+  ]
+}</code></pre></div>
+<p>修改成：</p>
+<div class="code-block"><pre><code class="language-`json">{
+  &quot;registry-mirrors&quot;: [
+    &quot;https://docker.nju.edu.cn&quot;,
+    &quot;https://hub-mirror.c.163.com&quot;
+  ]
+}
+</code></pre></div>
+<h3>3 安装dify环境</h3>
+<h4>3.1 下载dify项目压缩包</h4>
+<p>物料的 dify-main.zip </p>
+<h4>3.4 右键打开命令行</h4>
+<p>右键打开命令行没有的 ，使用CD命令</p>
+<div class="code-block"><pre><code class="language-`cmd">CD 完整目录
+LS </code></pre></div>
+<p>进入指定的目录（）后，再执行 <strong>docker compose up -d</strong></p>
+<h4>3.5 运行docker环境</h4>
+<p>必须要挂梯子，因为先访问docker官网。 </p>
+<p> <strong>docker compose up -d的原理：</strong></p>
+<p>!<a href="img/PixPin_2025-11-25_18-01-31.png">PixPin_2025-11-25_18-01-31</a></p>
+<p>如果遇到了网络比较差的情况：</p>
+<div class="code-block"><pre><code class="language-`shell">docker pull langgenius/dify-api:1.4.1</code></pre></div>
+<h2>三、第一个Dify案例</h2>
+<p>添加大模型：</p>
+<p>!<a href="img/PixPin_2025-11-25_16-16-59.png">PixPin_2025-11-25_16-16-59</a></p>
+<p>设置默认的大模型：</p>
+<p>!<a href="img/PixPin_2025-11-25_16-15-59.png">PixPin_2025-11-25_16-15-59</a></p>
+<p>在dify中接入ollama: </p>
+<p><img src="img/PixPin_2025-11-25_16-38-50.png" alt="PixPin_2025-11-25_16-38-50" style="zoom:67%;" /></p>
+<p>对话和补全：</p>
+<ul><li>对话：/api/chat，有角色。 System、user、assistant</li><li>补全：/api/generate，没有角色。就是基于用户的提示词，继续往后输出</li></ul>
+<p>添加成功，则一定是通的（ollama插件会自动调用对话）。如果遇到了连接拒绝，可以先看一下：ollama服务启动的时候是不是只监听127.0.0.1 （默认，代表本机）</p>
+<p>解决方案，如果在企业中遇到了ollama无法远程访问的情况，也是一样：</p>
+<div class="code-block"><pre><code class="language-`shell">export OLLAMA_HOST=&quot;0.0.0.0:11434&quot; 
+# 0.0.0.0 代表所有的IP都进行监听
+ollama serve</code></pre></div>
+<p><strong>ollama</strong>一般用在本地的测试或者实验，如果生产环境部署，一般我们使用<strong>vllm</strong>，用法和<strong>ollama</strong>类似。</p>
+<p>魔搭社区：https://www.modelscope.cn/models ， 寻找开源模型（尤其是中文的）。</p>
+<h2>四、Dify和Coze的对比</h2>
+<p>拓展：DevOPS</p>
+<p>!<a href="../06-图示/devops的流程.jpg">devops的流程</a></p>
+<p>LLMOps：大模型+工作流。</p>
+</section>
+<section id="Dify入门实战" class="doc-section">
+<h1>1.2 Dify平台入门实战-大语言模型微调语料构建</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、什么是微调">一、什么是微调</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、工作流构成">二、工作流构成</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、测试工作流">三、测试工作流</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Coze-Dify → Dify平台实战</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Dify平台微调语料构建工作流，是RAG与Agent应用开发的前置技能</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#2.2-dify接入知识库">2.2-dify接入知识库</a>（RAG基础）、下启 <a class="wikilink" href="#1.2-Coze平台入门实战">1.2 Coze平台入门实战</a>（Coze对比）</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| RAG知识库 | <a class="wikilink" href="#2.2-dify接入知识库">2.2-dify接入知识库</a> | 知识库构建 |</blockquote>
+<blockquote>| Coze平台 | <a class="wikilink" href="#1.2-Coze平台入门实战">1.2 Coze平台入门实战</a> | 平台对比 |</blockquote>
+<blockquote>| 微调概述 | <a class="wikilink" href="#01-微调概述/微调方式总览">01-微调概述/微调方式总览</a> | 微调理论基础 |</blockquote>
+<blockquote>| Agent开发 | <a class="wikilink" href="#README-Agent开发">README-Agent开发</a> | 上级目录 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：微调（Fine-tuning）= 预训练模型 + 特定任务数据再训练，0.7B~32B参数量</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：Dify工作流构建微调语料 → 数据清洗 → 格式化输出 → 导入训练平台</blockquote>
+<blockquote>- <strong>面试话术</strong>：「微调本质是迁移学习，在预训练模型基础上用业务数据二次训练，使模型适配特定场景」</blockquote>
+<h2>一、什么是微调</h2>
+<p>微调（Fine-tuning）是指在已经预训练好的大规模模型基础上，通过进一步训练来适应特定任务或数据集的过程。这一过程体现了迁移学习的思想，即利用预训练模型在通用数据上学习到的知识，通过微调使其更好地服务于特定的应用场景.</p>
+<p>预训练模型：已经训练过的模型，比如gpt、qwen、bert、yolo。</p>
+<p>微调：通过再次训练预训练模型，让预训练模型能够更好的服务于自己的业务或者数据集</p>
+<p>迁移学习：预训练 + 微调，去适配自己的业务</p>
+<p>对于大模型微调，一般来讲，参数量在： 0.7B ~ 32B之间</p>
+<p>微调的过程：</p>
+<p>!<a href="../06-图示/模型微调的过程.jpg">模型微调的过程</a></p>
+<p>拓展：bert模型 （作为案例参考，不需要记忆）</p>
+<p>!<a href="../06-图示/bert模型的简介.jpg">bert模型的简介</a></p>
+<h2>二、工作流构成</h2>
+<p>!<a href="img/PixPin_2025-11-26_11-08-28.png">PixPin_2025-11-26_11-08-28</a></p>
+<h2>三、测试工作流</h2>
+<p>输入：</p>
+<p>!<a href="img/PixPin_2025-11-26_11-10-15.png">PixPin_2025-11-26_11-10-15</a></p>
+<p>输出：</p>
+<p><img src="img/PixPin_2025-11-26_11-10-53.png" alt="PixPin_2025-11-26_11-10-53" style="zoom:67%;" /></p>
+</section>
+<section id="Docker原理和基本使用" class="doc-section">
+<h1>2.1 Docker的原理和基本使用</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、环境配置的难题">一、环境配置的难题</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、虚拟机">二、虚拟机</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-什么是虚拟机">1 什么是虚拟机</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-虚拟机案例">2 虚拟机案例</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-虚拟机的缺点">3 虚拟机的缺点</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-Linux-容器">4 Linux 容器</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-拓展：-什么是虚拟化">5 拓展： 什么是虚拟化</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、Docker是什么">三、Docker是什么</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-什么是Docker">1 什么是Docker</a></div><div class="toc-item" style="padding-left:20px"><a href="#2--Docker与虚拟机的对比">2  Docker与虚拟机的对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、Docker核心组件">四、Docker核心组件</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-Docker服务端和客户端">1 Docker服务端和客户端</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-Docker镜像">2 Docker镜像</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-Docker容器">3 Docker容器</a></div><div class="toc-item" style="padding-left:0px"><a href="#五、Docker的基本使用">五、Docker的基本使用</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-Docker的基本命令">1 Docker的基本命令</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-拓展：工作中对docker的使用">2 拓展：工作中对docker的使用</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-构建一个Docker镜像">3 构建一个Docker镜像</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → 基础设施 → Docker容器化</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Docker是AI应用部署的基础设施，Dify/RAGFlow等平台均依赖Docker运行</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#小工具/Linux">小工具/Linux</a>（Linux基础），下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍|Dify部署">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍|Dify部署</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Linux基础 | <a class="wikilink" href="#小工具/Linux">小工具/Linux</a> | Docker运行环境 |</blockquote>
+<blockquote>| Dify部署 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 实际应用 |</blockquote>
+<blockquote>| Docker实战 | <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a> | 深入学习 |</blockquote>
+<blockquote>| RAGFlow部署 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow">AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow</a> | 依赖Docker |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：虚拟机(重量隔离) → Linux容器(轻量隔离) → Docker(标准化容器管理)</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 部署Dify平台：<code class="inline">docker compose up -d</code> 一键启动完整AI应用开发环境</blockquote>
+<blockquote>- 部署RAGFlow：<code class="inline">git clone</code> + <code class="inline">docker compose up</code> 启动RAG引擎</blockquote>
+<blockquote>- 环境一致性：开发/测试/生产环境完全一致，避免"在我机器能跑"的问题</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Docker通过容器化技术解决了环境一致性问题，相比虚拟机更轻量高效，是AI项目从开发到生产的必备基础设施」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Linux基础、命令行操作</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — 工程岗必问，AI岗加分项</blockquote>
+<h2>一、环境配置的难题</h2>
+<p>“在我的机器可以运行”：环境兼容性问题。 </p>
+<p>需要正确配置：操作系统的相关设置， 依赖库、组件和环境变量</p>
+<h2>二、虚拟机</h2>
+<h3>1 什么是虚拟机</h3>
+<p>虚拟机（virtual machine）就是带环境安装的一种解决方案。它可以在一种操作系统里面运行另一种操作系统</p>
+<p>!<a href="img/PixPin_2025-11-26_12-01-55.png">PixPin_2025-11-26_12-01-55</a></p>
+<h3>2 虚拟机案例</h3>
+<p>个人：vmware</p>
+<p>企业：exsi （openstack）</p>
+<h3>3 虚拟机的缺点</h3>
+<p>虽然用户可以通过虚拟机还原软件的原始环境。但是，这个方案有几个缺点：</p>
+<ol><li>占用资源大</li><li>有冗余的操作</li><li>启动慢</li></ol>
+<p>虽然虚拟机在部署软件基本用的很少，但是它还是有场景：云服务器。</p>
+<h3>4 Linux 容器</h3>
+<p>linux操作系统把进程包一层壳，对于壳内的进程，相当于运行在独立物理机上，从而实现资源隔离。</p>
+<h3>5 拓展： 什么是虚拟化</h3>
+<p><strong>虚拟化简单讲，就是把一台物理计算机虚拟成多台逻辑计算机，每个逻辑计算机里面可以运行不同的操作系统，相互不受影响，这样就可以充分利用硬件资源</strong></p>
+<h2>三、Docker是什么</h2>
+<h3>1 什么是Docker</h3>
+<p>linux容器的一种，分为CE(社区)和EE(企业)两个版本</p>
+<h3>2  Docker与虚拟机的对比</h3>
+<p>!<a href="img/PixPin_2025-11-26_15-14-51.png">PixPin_2025-11-26_15-14-51</a></p>
+<p><strong>小结：</strong></p>
+<table><thead><tr><th><strong>特性</strong></th><th><strong>虚拟机</strong></th><th><strong>容器</strong></th></tr></thead><tbody><tr><td>隔离级别</td><td>操作系统级</td><td>进程级</td></tr><tr class="alt"><td>隔离策略</td><td>运行于<strong>Hypervisor</strong>上</td><td>直接运行在宿主机内核中</td></tr><tr><td>系统资源</td><td>5-15%</td><td>0-5%</td></tr><tr class="alt"><td>启动速度</td><td>慢，分钟级</td><td>快，秒级</td></tr><tr><td>占用磁盘空间</td><td>非常大，GB-TB级</td><td>小，KB-MB甚至KB级</td></tr><tr class="alt"><td>并发性</td><td>一台宿主机十几个，最多几十个</td><td>上百个，甚至上百上千个</td></tr><tr><td>高可用策略</td><td>备份、容灾、迁移 （手动）</td><td>弹性、负载、动态 （自动）</td></tr></tbody></table>
+<p><strong>结论：</strong></p>
+<p>  与传统的虚拟化相比，Docker优势体现在启动速度快，占用体积小。</p>
+<h2>四、Docker核心组件</h2>
+<h3>1 Docker服务端和客户端</h3>
+<p>Restful API：<strong>基于 HTTP 协议、遵循 REST 架构风格的应用程序编程接口设计规范</strong>。它的核心思想是面向资源，通过标准的 HTTP 方法对资源进行操作，使得 API 设计更加统一、简洁和可扩展。</p>
+<p>!<a href="img/PixPin_2025-11-26_15-56-05.png">PixPin_2025-11-26_15-56-05</a></p>
+<p>!<a href="img/PixPin_2025-11-26_16-12-38-4144765.png">PixPin_2025-11-26_16-12-38</a></p>
+<p>两个组件：</p>
+<ol><li>客户端：发送请求和命令，接收结果。 两种客户端：<strong>命令行</strong>(一般开发者使用)、restful-api(二次开发，记不住就记<strong>http接口</strong>)</li><li>服务端：接收client的请求并完成，核心服务：守护进程。</li></ol>
+<p>外部：镜像仓库。</p>
+<h3>2 Docker镜像</h3>
+<ul><li>什么是Docker镜像：包含应用程序和它的依赖(操作系统+运行库+运行环境)的一个压缩包。</li><li>Docker镜像的分层：</li><li>打镜像的时候每步操作都可以看做是一层， 比如添加操作系统、安装软件、把代码复制到镜像里面。</li><li>运行的时候：镜像的分层用户感知不到，用户视角来看，只有一个文件系统。</li></ul>
+<p><img src="img/PixPin_2025-11-26_16-59-19.png" alt="PixPin_2025-11-26_16-59-19" style="zoom:67%;" /></p>
+<p>!<a href="img/PixPin_2025-11-26_17-04-49.png">PixPin_2025-11-26_17-04-49</a></p>
+<p>查看docker本机当前有哪些镜像:</p>
+<div class="code-block"><pre><code class="language-`shell">docker images</code></pre></div>
+<p>!<a href="img/PixPin_2025-11-26_17-08-38.png">PixPin_2025-11-26_17-08-38</a></p>
+<h3>3 Docker容器</h3>
+<p>!<a href="img/PixPin_2025-11-26_17-55-57.png">PixPin_2025-11-26_17-55-57</a> </p>
+<p>最终，我们总结一下镜像和容器的关系：</p>
+<ul><li>镜像：完整操作系统 + 需要运行的程序 所组成的一个文件</li><li>容器：运行起来的文件</li></ul>
+<h2>五、Docker的基本使用</h2>
+<h3>1 Docker的基本命令</h3>
+<h4>1.1 Hello World案例</h4>
+<p>下面，我们通过最简单的 image 文件"<a href="https://link.juejin.cn?target=https%3A%2F%2Fhub.docker.com%2Fr%2Flibrary%2Fhello-world%2F">hello world"</a>，感受一下 Docker。</p>
+<p>首先，运行下面的命令，将 image 文件从仓库抓取到本地。</p>
+<div class="code-block"><pre><code class="language-shell">docker pull library/hello-world</code></pre></div>
+<p>上面代码中，<code class="inline">docker image pull</code>是抓取 image 文件的命令。<code class="inline">library/hello-world</code>是 image 文件在仓库里面的位置，其中<code class="inline">library</code>是 image 文件所在的组，<code class="inline">hello-world</code>是 image 文件的名字。</p>
+<p>由于 Docker 官方提供的 image 文件，都放在<a href="https://link.juejin.cn?target=https%3A%2F%2Fhub.docker.com%2Fr%2Flibrary%2F"><code class="inline">library</code></a>组里面，所以它的是默认组，可以省略。因此，上面的命令可以写成下面这样。</p>
+<div class="code-block"><pre><code class="language-arduino">docker pull hello-world</code></pre></div>
+<p>抓取成功以后，就可以在本机看到这个 image 文件了。</p>
+<div class="code-block"><pre><code class="language-shell">docker images</code></pre></div>
+<p>现在，运行这个 image 文件。</p>
+<div class="code-block"><pre><code class="language-shell">docker run hello-world</code></pre></div>
+<p><code class="inline">docker run</code>命令会从 image 文件，生成一个正在运行的容器实例。</p>
+<p>注意，<code class="inline">docker run</code>命令具有自动抓取 image 文件的功能。如果发现本地没有指定的 image 文件，就会从仓库自动抓取。因此，前面的<code class="inline">docker image pull</code>命令并不是必需的步骤。</p>
+<p>如果运行成功，你会在屏幕上读到下面的输出。</p>
+<div class="code-block"><pre><code class="language-shell">docker run hello-world</code></pre></div>
+<p>输出这段提示以后，<code class="inline">hello world</code>就会停止运行，容器自动终止。</p>
+<p>对于那些不会自动终止的容器，必须使用以下命令命令手动终止。</p>
+<div class="code-block"><pre><code class="language-inform7">docker kill [containID]</code></pre></div>
+<h4>1.2 其他常用命令</h4>
+<p>除hello world中的案例以外，在实际工作中，以下命令我们也会常用以下容器运维命令：</p>
+<p>列出容器：</p>
+<div class="code-block"><pre><code class="language-`shell"># 列出本机正在运行的容器
+docker ps 
+
+# 列出本机所有容器，包括终止运行的容器
+docker ps --all</code></pre></div>
+<p>!<a href="img/PixPin_2025-11-26_18-11-59.png">PixPin_2025-11-26_18-11-59</a></p>
+<p>查看容器中的日志：</p>
+<div class="code-block"><pre><code class="language-`shell">docker logs [containID]</code></pre></div>
+<p>在运行中的容器内执行命令</p>
+<div class="code-block"><pre><code class="language-`shell">docker exec
+# 常用：
+docker exec -it [containID] /bin/bash</code></pre></div>
+<p>docker的命令种类繁多，在这里我们仅介绍最基础，最常用的。因为我们的目标是成为一名大模型开发工程师或算法工程师，对于docker的高级用法，比如卷、网络等在实际工作中往往由运维负责，我们在这里不做赘述。</p>
+<h3>2 拓展：工作中对docker的使用</h3>
+<p>!<a href="img/PixPin_2025-11-28_09-30-08.png">PixPin_2025-11-28_09-30-08</a></p>
+<h3>3 构建一个Docker镜像</h3>
+<h4>3.1 准备代码文件</h4>
+<p>完整的项目目录结构如下：</p>
+<div class="code-block"><pre><code class="language-`python">flask-blog-app/
+│
+├── app.py                 # Flask主应用
+├── requirements.txt       # Python依赖
+├── Dockerfile            # Docker构建配置
+├── .dockerignore         # Docker忽略文件
+│
+├── templates/            # HTML模板目录
+    └── index.html</code></pre></div>
+<p>我们先安装环境，并在本地执行</p>
+<div class="code-block"><pre><code class="language-`shell">conda create -n dify-xa1 python==3.12.7</code></pre></div>
+<p>启动app.py以后，访问：http://localhost:5000，页面如下：</p>
+<p>、</p>
+<h4>3.2 编辑Dockerfile和忽略文件</h4>
+<p>Dockerfile  是 Docker 技术的核心组成部分之一，它是一个文本文件，里面包含了一系列用于<strong>自动化构建 Docker 镜像的指令</strong>。你可以把它理解为一份详细的“施工图纸”，Docker 引擎通过读取这份图纸，就能一步步地自动组装出一个可以直接运行应用程序的镜像。</p>
+<p>ENV和Label：</p>
+<p>!<a href="img/image-20251128100821935.png">image-20251128100821935</a></p>
+<p>注意：以下内容不需要强行记忆，在实际工作中，我们往往会借助使用文档会大模型编写以下文件，以及基于公司已有的Dockerfile（可能包含公司要求的一些规范）进行修改。请同学们把重点放到整体的流程的理解上：</p>
+<p>流程：</p>
+<p>!<a href="img/image-20251128103418683.png">image-20251128103418683</a></p>
+<p>代码：</p>
+<div class="code-block"><pre><code class="language-`dockerfile"># 使用官方Python精简镜像作为基础
+# TODO 要求:能够根据搜索引擎查到的案例的基础上进行修改，满足自己的业务需求
+
+# 基于python:3.12.7-slim基础镜像：python官方打包的一个精简版的镜像，底层是debain(类似于ubuntu,也是linux)系统。
+# 构成：操作系统 + python环境
+FROM python:3.12.7-slim
+
+# 设置元数据
+# 元数据：描述数据(某个项目)的数据
+LABEL maintainer=&quot;xingbu@itcast.cn&quot;
+LABEL version=&quot;1.0&quot;
+LABEL description=&quot;Simple Flask Blog API&quot;
+
+# 设置环境变量
+# 环境变量：全局、可变的一些设置
+ENV FLASK_DEBUG=False
+
+# 设置工作目录
+WORKDIR /app
+
+# 安装系统依赖并清理缓存（合并RUN指令以减少镜像层数）
+# 在镜像中执行安装，生成一个新的镜像layer： 一层。 一个RUN生成一层新
+# 在镜像中安装gcc, 满足python运行所需
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+    gcc \
+    &amp;&amp; rm -rf /var/lib/apt/lists/* \
+    &amp;&amp; apt-get clean
+
+# 复制依赖文件并安装Python依赖
+
+# 把requirements.txt复制到镜像中的 .（当前目录）-&gt; /app
+# 复制应用代码（包含requirements.txt）
+COPY . .
+
+# 安装flask等依赖
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 暴露端口
+EXPOSE 9000
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:9000/health || exit 1
+
+# 设置容器启动命令
+CMD [&quot;python&quot;, &quot;app.py&quot;]</code></pre></div>
+<p>常见指令如下：</p>
+<table><thead><tr><th>指令</th><th>说明</th><th>示例</th></tr></thead><tbody><tr><td><strong><code class="inline">FROM</code></strong></td><td><strong>指定基础镜像</strong>，必须是 Dockerfile 的第一条有效指令（除了一些解析器指令）</td><td><code class="inline">FROM python:3.9-slim</code></td></tr><tr class="alt"><td><strong><code class="inline">RUN</code></strong></td><td><strong>在构建过程中执行命令</strong>，用于安装软件包、创建目录等</td><td><code class="inline">RUN apt-get update && apt-get install -y git</code></td></tr><tr><td><strong><code class="inline">COPY</code></strong></td><td>将文件或目录从构建上下文复制到镜像中</td><td><code class="inline">COPY ./app /usr/src/app</code></td></tr><tr class="alt"><td><strong><code class="inline">ADD</code></strong></td><td>功能类似 <code class="inline">COPY</code>，但源文件可以是 URL，如果是本地压缩文件还会自动解压（更推荐使用 <code class="inline">COPY</code>进行普通文件复制）</td><td><code class="inline">ADD https://example.com/file.tar.gz /opt/</code></td></tr><tr><td><strong><code class="inline">CMD</code></strong></td><td><strong>指定容器启动时默认执行的命令</strong>。Dockerfile 中可以有多个 <code class="inline">CMD</code>，但只有最后一个生效。<code class="inline">docker run</code>的命令行参数会覆盖</td><td><code class="inline">CMD ["python", "app.py"]</code></td></tr><tr class="alt"><td><strong><code class="inline">ENTRYPOINT</code></strong></td><td>也用于指定容器启动时运行的命令，但不会被 <code class="inline">docker run</code>的命令行参数覆盖，而是将这些参数作为其本身的参数</td><td><code class="inline">ENTRYPOINT ["nginx", "-c"]</code></td></tr><tr><td><strong><code class="inline">EXPOSE</code></strong></td><td><strong>声明容器运行时监听的网络端口</strong>，这只是一个文档性说明，并不会自动进行端口映射</td><td><code class="inline">EXPOSE 80</code></td></tr><tr class="alt"><td><strong><code class="inline">ENV</code></strong></td><td><strong>设置环境变量</strong>，这个变量在构建阶段和容器运行时都可用</td><td><code class="inline">ENV NODE_ENV production</code></td></tr><tr><td><strong><code class="inline">WORKDIR</code></strong></td><td><strong>设置后续指令（如 <code class="inline">RUN</code>, <code class="inline">CMD</code>）的工作目录</strong>。如果目录不存在则会创建</td><td><code class="inline">WORKDIR /app</code></td></tr><tr class="alt"><td><strong><code class="inline">USER</code></strong></td><td><strong>指定运行后续指令以及运行容器时的用户名或 UID</strong>，有助于提高安全性</td><td><code class="inline">USER nobody</code></td></tr></tbody></table>
+<p>忽略文件：</p>
+<div class="code-block"><pre><code class="language-`python">.git
+.gitignore
+README.md
+.env
+*.pyc
+__pycache__
+*.log
+Dockerfile
+.dockerignore
+venv/
+env/
+.venv
+.coverage
+htmlcov/
+.pytest_cache/
+.coverage.*</code></pre></div>
+<h4>3.3 执行构建</h4>
+<p>执行以下命令：</p>
+<div class="code-block"><pre><code class="language-`shell"># 构建镜像
+docker build -t flask-blog-app .
+
+# 或者指定标签
+docker build -t flask-blog-app:1.0 .</code></pre></div>
+<p>!<a href="img/PixPin_2025-11-28_11-00-20.png">PixPin_2025-11-28_11-00-20</a></p>
+<h4>3.4 运行容器</h4>
+<p>执行以下命令运行容器：</p>
+<div class="code-block"><pre><code class="language-`shell"># 基本运行
+docker run -d -p 5000:5000 --name blog-app flask-blog-app
+
+# 带环境变量运行
+docker run -d \
+  -p 5000:5000 \
+  -e FLASK_DEBUG=False \
+  -e FLASK_PORT=5000 \
+  --name blog-app \
+  flask-blog-app
+
+# 使用不同的主机端口
+docker run -d -p 8080:5000 --name blog-app flask-blog-app</code></pre></div>
+<p>或者通过docker-compose运行</p>
+<div class="code-block"><pre><code class="language-`yaml">version: &#x27;3.8&#x27;
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - &quot;5000:5000&quot;
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:5000/health&quot;]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s</code></pre></div>
+<p>docker-compose：</p>
+<ol><li>进入docker-compose.yaml所在的目录</li><li>创建或修改.env（环境变量所在的目录）</li><li>运行docker compose up -d ，docker会自动在当前目录下下载.env文件作为环境变量，然后执行docker-compose.yaml中部署操作</li></ol>
+<p>启动后，访问：http://localhost:5000 ，若页面和3.1中一致，说明已经成功启动。</p>
+</section>
+<section id="私有数据访问" class="doc-section">
+<h1>2.1 私有数据访问</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、概述">一、概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、在工作流中使用知识库">二、在工作流中使用知识库</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、在工作流中使用数据库">三、在工作流中使用数据库</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、总结">四、总结</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → 数据接入 → 知识库与数据库</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：私有数据访问是RAG和Agent的核心能力，决定AI系统能获取哪些企业数据</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍|Dify平台">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍|Dify平台</a>，下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow|RAGFlow增强">AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow|RAGFlow增强</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 平台基础 |</blockquote>
+<blockquote>| RAGFlow | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow">AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow</a> | 外部知识库增强 |</blockquote>
+<blockquote>| 向量数据库 | <a class="wikilink" href="#AI大模型/02-大模型应用/大模型应用-向量数据库与知识库">AI大模型/02-大模型应用/大模型应用-向量数据库与知识库</a> | 知识库存储 |</blockquote>
+<blockquote>| MySQL | <a class="wikilink" href="#小工具/MySQL">小工具/MySQL</a> | 结构化数据 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：知识库(非结构化/语义检索) vs 数据库(结构化/增删改查)，选型取决于数据类型和检索方式</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- RAG流程：文档加载 → 分块 → Embedding → 向量存储 → 语义检索 → LLM生成</blockquote>
+<blockquote>- 知识库场景：企业文档问答、产品手册查询、法规检索</blockquote>
+<blockquote>- 数据库场景：订单查询、用户信息管理、业务数据CRUD</blockquote>
+<blockquote>- <strong>面试话术</strong>：「私有数据访问分两类：知识库用于非结构化文档的语义检索，数据库用于结构化数据的精确查询，实际项目中需根据场景做技术选型」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：RAG基本概念、Dify平台使用</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥🔥☆ — RAG选型是AI面试核心话题</blockquote>
+<h2>一、概述</h2>
+<p>什么时候使用知识库，什么时候使用数据库：</p>
+<ul><li>知识库：【存储类似文档类的非结构化数据，进行语义或者全文搜索的时候使用】</li><li>数据库：【结构化数据存储，进行增删改查】</li></ul>
+<h2>二、在工作流中使用知识库</h2>
+<p>知识库功能包含两个能力，一是【存储和管理外部数据】，二是【增强检索】。</p>
+<p>!<a href="img/PixPin_2025-11-18_10-01-59.png">PixPin_2025-11-18_10-01-59</a></p>
+<p>拓展：RAG的流程：</p>
+<p>!<a href="img/PixPin_2025-11-18_10-40-55.png">PixPin_2025-11-18_10-40-55</a></p>
+<p>拓展：RAG的完整流程</p>
+<p>!<a href="../06-图示/RAG的流程.png">RAG的流程</a></p>
+<h2>三、在工作流中使用数据库</h2>
+<p>数据库的功能：【】</p>
+<p>硬盘的分类：</p>
+<ul><li>SSD（固态硬盘）：闪存颗粒（长江存储：致态、三星），读写速度 致态 TiPro7000系列连续读取速度达7000MB/s，写入速度5000MB/s。随机读写，均达1500000 IOPS</li><li>HDD（机械硬盘）：碟片（东芝、希捷、西数），一个碟片1.5T。 连续读写 190MB/s，随机读写约 70 - 100  IOPS。</li></ul>
+<p>什么是读写：</p>
+<ul><li>读：查询</li><li>写：新增、更新、删除</li></ul>
+<h2>四、总结</h2>
+<p>本章节介绍了两种访问私有数据的功能，知识库和数据库：</p>
+<ul><li>知识库：适用于知识检索，数据基本不写入，只做检索，且进行语义匹配的检索方式。</li><li>数据库：使用实现业务处理的Agent，对数据库进行增删改查，不支持基于语义的检索方式。</li></ul>
+<p>在实际工作中，需要基于不同的场景做不同的技术选型。</p>
+</section>
+<section id="Dify接入知识库" class="doc-section">
+<h1>2.2 RAG和知识库</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一-、知识库创建">一 、知识库创建</a></div><div class="toc-item" style="padding-left:20px"><a href="#0-RAG-">0 RAG </a></div><div class="toc-item" style="padding-left:20px"><a href="#1-选择数据源">1 选择数据源</a></div><div class="toc-item" style="padding-left:20px"><a href="#2--分段模式">2  分段模式</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-索引方法">3 索引方法</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-检索方法">4 检索方法</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-知识库">5 知识库</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、AI-Agent知识库">二、AI Agent知识库</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、知识库工作流">三、知识库工作流</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、工作流测试">四、工作流测试</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Coze-Dify → RAG知识库构建</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Dify平台RAG知识库创建与检索策略，是RAG技术的工程化落地</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#04-RAG技术">04-RAG技术</a>（RAG理论）、下启 <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a>（微调语料）</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| RAG架构 | <a class="wikilink" href="#05-生成阶段/RAG完整架构图">05-生成阶段/RAG完整架构图</a> | 整体架构 |</blockquote>
+<blockquote>| 切片策略 | <a class="wikilink" href="#切片策略总览">切片策略总览</a> | 文档分块 |</blockquote>
+<blockquote>| 向量检索 | <a class="wikilink" href="#向量检索与Embedding">向量检索与Embedding</a> | 检索方法 |</blockquote>
+<blockquote>| 重排序 | <a class="wikilink" href="#重排序与融合">重排序与融合</a> | 检索优化 |</blockquote>
+<blockquote>| Dify实战 | <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a> | 平台应用 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：RAG = 检索增强生成，Dify支持通用/父子两种分块模式、经济/高质量两种索引</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：选择数据源 → 分段(父子模式) → 索引(高质量) → 混合检索(向量+全文+Rerank)</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Dify的父子分块模式，父块提供上下文，子块用于精确匹配，兼顾召回率和准确性」</blockquote>
+<h2>一 、知识库创建</h2>
+<h3>0 RAG </h3>
+<p><strong>拓展：全文检索</strong></p>
+<p>!<a href="../06-图示/全文检索 (1">全文检索 (1)</a>.jpg)</p>
+<p><strong>【重要】RAG 的流程</strong></p>
+<p>!<a href="../06-图示/RAG的流程.jpg">RAG的流程</a></p>
+<h3>1 选择数据源</h3>
+<p>内部知识库：本地上传(建议用这个)、notion、web </p>
+<p>外部知识库：符合dify开放的协议，都可以 。 ragflow</p>
+<h3>2  分段模式</h3>
+<p>知识库支持两种分段模式：<strong>通用模式</strong>与<strong>父子模式</strong>。如果你是首次创建知识库，建议选择父子模式。</p>
+<h4>2.1 通用模式</h4>
+<p>直接把文档按照：</p>
+<ul><li>标点符号</li><li>长度</li></ul>
+<p>进行划分。</p>
+<p>重叠长度：下一段包含上一段的一部分内容，让上下文更完整。10%~25%</p>
+<h4>2.2 <strong>父子模式</strong></h4>
+<p>父块：文本内容划分成的大块， 用来返回上下文</p>
+<p>子块：基于父块进一步划分，子块是父块的一部分。进行查询的时候，query是和子块进行匹配的。</p>
+<p>!<a href="../06-图示/父子分块.jpg">父子分块</a></p>
+<h3>3 索引方法</h3>
+<p>如搜索引擎通过高效的索引算法匹配与用户问题最相关的网页内容，索引方式是否合理将直接影响 LLM 对知识库内容的检索效率以及回答的准确性。Dify提供“<strong>高质量”</strong>与”<strong>经济“</strong> 两种索引方法。</p>
+<h4>3.1 经济模式</h4>
+<p>10个关键词的全文检索， 用的关键词作为索引（倒排索引）</p>
+<h4>3.2 高质量索引</h4>
+<p>关键词 + 大模型同时处理和存储</p>
+<h3>4 检索方法</h3>
+<p>三种检索方式：</p>
+<ul><li>向量检索：只用向量进行检索</li><li>全文检索：使用倒排索引，但是使用全部的关键词进行检索</li><li>混合检索：向量检索和全文检索混合使用</li><li>权重：通过数值设定关键词和语义的比重</li><li>rerank：通过rerank模型自行判断</li></ul>
+<p>【<strong>重要</strong>】<strong>混合检索的检索流程：</strong></p>
+<p>!<a href="../06-图示/混合检索的检索流程.jpg">混合检索的检索流程</a></p>
+<h3>5 知识库</h3>
+<p>!<a href="img/image-20251128184549473.png">image-20251128184549473</a></p>
+<p> !<a href="img/image-20251128184609482.png">image-20251128184609482</a></p>
+<h2>二、AI Agent知识库</h2>
+<p>!<a href="img/image-20251128184649891.png">image-20251128184649891</a></p>
+<h2>三、知识库工作流</h2>
+<p>!<a href="img/image-20251128184428892.png">image-20251128184428892</a></p>
+<h2>四、工作流测试</h2>
+<p><img src="img/image-20251128184503295.png" alt="image-20251128184503295" style="zoom:67%;" /></p>
+</section>
+<section id="Dify接入外部知识库RAGFlow" class="doc-section">
+<h1>2.3 Dify接入外部知识库</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、RAGFlow简介">一、RAGFlow简介</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-Dify知识库的不足">1 Dify知识库的不足</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-什么是RAGFlow">2 什么是RAGFlow</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、RAGFlow的安装方法">二、RAGFlow的安装方法</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-到github下载项目源码">1 到github下载项目源码</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-修改web访问默认端口">2 修改web访问默认端口</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-修改redis配置">3 修改redis配置</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-启动服务">4 启动服务</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-打开浏览器访问">5 打开浏览器访问</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-模型配置">6 模型配置</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、RAGFlow-创建知识库">三、RAGFlow 创建知识库</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-知识库创建">1 知识库创建</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-上传文件">2 上传文件</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-分片方式">3 分片方式</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、RAGFlow-知识库检索">四、RAGFlow 知识库检索</a></div><div class="toc-item" style="padding-left:0px"><a href="#五、RAGFlow-API-设置">五、RAGFlow API 设置</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-获取API">1 获取API</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-获取IP">2 获取IP</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-获取API-key">3 获取API key</a></div><div class="toc-item" style="padding-left:0px"><a href="#六-dify配置外部知识库">六 dify配置外部知识库</a></div><div class="toc-item" style="padding-left:0px"><a href="#七、dify-ai-agent使用外部知识库">七、dify ai agent使用外部知识库</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → RAG增强检索 → RAGFlow</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：RAGFlow是Dify知识库的增强方案，解决PDF等复杂文档的深度解析问题</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问|私有数据访问">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问|私有数据访问</a>，下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流|工作流搭建">AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流|工作流搭建</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| 私有数据访问 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问</a> | 知识库基础 |</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 平台基础 |</blockquote>
+<blockquote>| Docker部署 | <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a> | RAGFlow运行环境 |</blockquote>
+<blockquote>| 向量数据库 | <a class="wikilink" href="#AI大模型/02-大模型应用/大模型应用-向量数据库与知识库">AI大模型/02-大模型应用/大模型应用-向量数据库与知识库</a> | Embedding存储 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：RAGFlow = 基于深度文档理解的开源RAG引擎，支持PDF/DOCX/EXCEL/PPT解析</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 复杂PDF解析：深度文档理解（deepdoc）自动识别表格、图片、公式</blockquote>
+<blockquote>- 可视化文本切片：支持手动调整切片策略，提升检索精度</blockquote>
+<blockquote>- Dify集成：通过API将RAGFlow作为外部知识库接入Dify工作流</blockquote>
+<blockquote>- <strong>面试话术</strong>：「RAGFlow解决了传统RAG对复杂文档解析不佳的问题，通过深度文档理解实现精准的文本切片，配合Dify构建企业级知识问答系统」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Docker基础、RAG基本概念、Dify平台使用</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — RAG优化是高频面试话题</blockquote>
+<h2>一、RAGFlow简介</h2>
+<h3>1 Dify知识库的不足</h3>
+<p>知识库设置不够丰富和灵活</p>
+<p>pdf上传识别效果不好</p>
+<h3>2 什么是RAGFlow</h3>
+<p>RAGFlow是一款基于<strong>深度文档理解</strong>（deepdoc）构建的<strong>开源 RAG引擎</strong>。 </p>
+<p>对PDF、DOCX、EXCEL和PPT四种文档格式，都有相应的解析器。</p>
+<p>优势：能够从各类复杂格式的非结构化数据中提取信息，文本切片过程可视化，还支持手动调整。支持丰富的文件类型</p>
+<p>官网地址：</p>
+<div class="code-block"><pre><code class="language-`python">https://RAGFlow.io/</code></pre></div>
+<p>安装包镜像完整下载下来，体积非常大，环境要求如下：</p>
+<ul><li>CPU >= 4 核</li><li>运行内存= 16 GB</li><li>硬盘 >= 50 GB</li><li>Docker >= 24.0.0 & Docker Compose>= v2.26.1</li></ul>
+<h2>二、RAGFlow的安装方法</h2>
+<h3>1 到github下载项目源码</h3>
+<p><strong>方法1：</strong></p>
+<p>地址如下：</p>
+<div class="code-block"><pre><code class="language-`properties">https://www.github.com/infiniflow/RAGFlow</code></pre></div>
+<p>克隆命令如下：</p>
+<div class="code-block"><pre><code class="language-`shell">git clone https://github.com/infiniflow/RAGFlow.git
+cd RAGFlow/docker
+git checkout -f v0.22.0</code></pre></div>
+<p><strong>方法2：使用老师提供的</strong></p>
+<p>!<a href="img/image-20251129120057665.png">image-20251129120057665</a></p>
+<p>拓展：dify项目的组件</p>
+<p>!<a href="img/PixPin_2025-11-29_10-28-12.png">PixPin_2025-11-29_10-28-12</a></p>
+<p>需要修改的配置：</p>
+<p>!<a href="img/PixPin_2025-11-29_10-58-15.png">PixPin_2025-11-29_10-58-15</a></p>
+<h3>2 修改web访问默认端口</h3>
+<p>!<a href="img/image-20251129110037341.png">image-20251129110037341</a></p>
+<h3>3 修改redis配置</h3>
+<p>.env: </p>
+<p>!<a href="img/image-20251129120344241.png">image-20251129120344241</a></p>
+<p>docker-compose-base.yml</p>
+<p>!<a href="img/image-20251129120430298.png">image-20251129120430298</a></p>
+<h3>4 启动服务</h3>
+<p>输入命令：</p>
+<div class="code-block"><pre><code class="language-text">docker compose up -d</code></pre></div>
+<p>!<a href="img/image-20251129120529780.png">image-20251129120529780</a></p>
+<h3>5 打开浏览器访问</h3>
+<p>!<a href="img/image-20251129120622031.png">image-20251129120622031</a></p>
+<h3>6 模型配置</h3>
+<p>!<a href="img/image-20251129115712139.png">image-20251129115712139</a></p>
+<p><img src="img/image-20251129115703567.png" alt="image-20251129115703567" style="zoom:67%;" /></p>
+<h2>三、RAGFlow 创建知识库</h2>
+<h3>1 知识库创建</h3>
+<p>创建好知识库，点击RAGFlow 创建知识库。</p>
+<h3>2 上传文件</h3>
+<p>我们点击新增加文件。上传我们要解析的私有化知识库文档，然后点击解析完成文档向量化。</p>
+<p> 可以单个文件解析，也可以批量解析，大家可以根据自己的需要选择使用，解析完成后可进行</p>
+<h3>3 分片方式</h3>
+<p>进入模型设置界面 选择好嵌入模型和解析方法：</p>
+<p>!<a href="img/PixPin_2025-11-29_14-59-54.png">PixPin_2025-11-29_14-59-54</a></p>
+<p> <strong>拓展：知识图谱</strong></p>
+<p><img src="img/PixPin_2025-11-29_15-21-39.png" alt="PixPin_2025-11-29_15-21-39" style="zoom:67%;" /></p>
+<h2>四、RAGFlow 知识库检索</h2>
+<p>以上设置我们完成了RAGFlow相关设置。</p>
+<p>!<a href="img/image-20251129161758841.png">image-20251129161758841</a></p>
+<h2>五、RAGFlow API 设置</h2>
+<h3>1 获取API</h3>
+<p>地址：http://宿主机ip:9380/api/v1/dify</p>
+<h3>2 获取IP</h3>
+<p>windows:  cmd -> ifconfig ， 使用192.168. xxx 开头的 （在企业中，需要确认内网IP的网段）</p>
+<h3>3 获取API key</h3>
+<p>!<a href="img/image-20251129162834565.png">image-20251129162834565</a></p>
+<h2>六 dify配置外部知识库</h2>
+<p><strong>添加外部知识库API：</strong></p>
+<p>!<a href="img/image-20251129163043428.png">image-20251129163043428</a></p>
+<p><strong>拓展：为什么要用192.xx的IP，而不是localhost</strong></p>
+<p>!<a href="../06-图示/Dify对接RAGFlow为什么要用192的内网IP.jpg">Dify对接RAGFlow为什么要用192的内网IP</a></p>
+<p><strong>连接外部知识库：</strong></p>
+<p>!<a href="img/image-20251129163202387.png">image-20251129163202387</a></p>
+<p><strong>知识库ID的获取：</strong></p>
+<p>!<a href="img/image-20251129161603340.png">image-20251129161603340</a></p>
+<h2>七、dify ai agent使用外部知识库</h2>
+<p>!<a href="img/image-20251129170335833.png">image-20251129170335833</a></p>
+</section>
+<section id="Coze-API调用" class="doc-section">
+<h1>2.4 Coze API调用</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#一、Coze-API简介">一、Coze API简介</a></div><div class="toc-item" style="padding-left:0px"><a href="#二、环境安装与鉴权">二、环境安装与鉴权</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-注册一个令牌">1 注册一个令牌</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-安装Coze-Python-SDK">2 安装Coze Python SDK</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-测试连通性">3 测试连通性</a></div><div class="toc-item" style="padding-left:0px"><a href="#三、使用API实现对话调用">三、使用API实现对话调用</a></div><div class="toc-item" style="padding-left:20px"><a href="#1-对话API中的基本概念">1 对话API中的基本概念</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-代码示例">2 代码示例</a></div><div class="toc-item" style="padding-left:0px"><a href="#四、其他操作">四、其他操作</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Coze平台 → API集成</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Coze API是将智能体能力集成到自有业务系统的关键技能</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Coze平台介绍|Coze平台">AI大模型/05-Agent开发/Coze-Dify/1.1 Coze平台介绍|Coze平台</a>，下启 自有系统集成</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Coze平台 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Coze平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Coze平台介绍</a> | 平台基础 |</blockquote>
+<blockquote>| Dify API | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 对比方案 |</blockquote>
+<blockquote>| Python基础 | <a class="wikilink" href="#小工具/Python基础">小工具/Python基础</a> | SDK开发语言 |</blockquote>
+<blockquote>| HTTP协议 | <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础-Transformer架构">AI大模型/01-大模型基础/大模型基础-Transformer架构</a> | 通信基础 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：API = 预定义的规则和协议，让外部程序安全调用AI能力，无需了解底层实现</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- Http API直接调用：通过HTTP请求与Coze Bot交互</blockquote>
+<blockquote>- Python SDK封装：更优雅的调用方式，支持同步/异步</blockquote>
+<blockquote>- 业务系统集成：将Coze智能体嵌入网站、App、企业内部系统</blockquote>
+<blockquote>- <strong>面试话术</strong>：「通过Coze API将智能体能力集成到业务系统，使用PAT鉴权+Python SDK实现高效调用，让AI能力无缝融入现有产品」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Python基础、HTTP协议、Coze平台使用</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — API集成能力是工程化落地的关键</blockquote>
+<h2>一、Coze API简介</h2>
+<p>Coze API 是 Coze 平台对外开放的编程接口，允许开发者通过代码与在 Coze 上创建的 AI 机器人（Bot）或工作流进行交互。简单来说，它为你提供了一种方式，让你自己的应用程序（比如网站、手机App或企业内部系统）能够“调用”并使用你在 Coze 平台上打造的 AI 能力</p>
+<p>调用API可以通过两种方式进行：</p>
+<ul><li>Http API：直接通过Http协议调用Coze API</li><li>SDK：Python、Java、JS等各类语言的SDK，本质上其实还是在Http API的基础上封装的。 使用起来比Http的更好用一些，但是有一定的学习成本。</li></ul>
+<p><strong>拓展：什么是API</strong></p>
+<p>API就是一组预先定义好的规则、标准和协议。软件或服务提供方通过开放API，允许其他程序在<strong>不触碰其底层核心代码和复杂内部逻辑</strong>的前提下，安全、规范地使用它的特定功能或数据。</p>
+<p>API(Application Program Interface)：</p>
+<ul><li>编程语言的函数</li></ul>
+<p>  !<a href="img/PixPin_2025-11-19_16-47-39.png">PixPin_2025-11-19_16-47-39</a></p>
+<ul><li>web api</li></ul>
+<ul><li>其他特殊协议</li></ul>
+<p>这带来的巨大好处是<strong>极高的效率</strong>。开发者无需“重新发明轮子”，可以像拼乐高一样，专注于自己的核心业务，同时灵活集成全世界最专业的服务（如支付、地图、翻译等），快速构建出功能强大的应用。</p>
+<p>为什么要调用Coze API： 目的：把coze上的智能体接入到自己的业务系统</p>
+<p>!<a href="img/PixPin_2025-11-19_16-53-42.png">PixPin_2025-11-19_16-53-42</a></p>
+<h2>二、环境安装与鉴权</h2>
+<h3>1 注册一个令牌</h3>
+<p>扣子 API 通过访问令牌（Access Token）进行 API 请求的鉴权。所有的 API 请求都必须在请求头的 <strong>Authorization</strong> 参数中包含你的访问令牌（Access Token）。</p>
+<div class="code-block"><pre><code class="language-`http">Authorization: Bearer $Access_Token</code></pre></div>
+<p>在教学阶段，我们使用PAT进行API的调用。</p>
+<h3>2 安装Coze Python SDK</h3>
+<p>Coze API SDK for Python 是一个扣子官方提供的 SDK 工具包，你可以通过 Python SDK 将扣子的 OpenAPI 集成到你的应用程序中。</p>
+<p>Coze Python SDK 支持所有扣子的官方鉴权方式，支持同步或异步函数调用，具备高度的灵活性和高可用性，显著提升 OpenAPI 的使用效率。你可以通过 pip 快速安装 Coze Python SDK，用你的访问密钥初始化 SDK，然后就可以开始安全、高效地通过 OpenAPI 访问你的 AI 智能体。</p>
+<p>在安装SDK之前，我们需要准备一个新的conda环境：</p>
+<div class="code-block"><pre><code class="language-`shell">conda create -n coze python==3.12.7
+# 环境初始化以后，切换到新的环境
+conda activate coze</code></pre></div>
+<p>安装SDK:</p>
+<div class="code-block"><pre><code class="language-`shell">pip install cozepy</code></pre></div>
+<h3>3 测试连通性</h3>
+<p>接下来我们将通过一个案例来测试是否能够成功调用：</p>
+<p><strong>思路：</strong></p>
+<div class="code-block"><pre><code class="language-`python">&quot;&quot;&quot;
+需求：测试使用Pyhon SDK调用Coze的连通性
+思路步骤：
+
+1. 设置令牌和API基础地址
+2. 初始化Coze客户端：使用TokenAuth类构建认证对象并传入访问令牌，再将认证对象和API基础地址传入Coze类，建立同步coze客户端
+3. 展示所有的工作空间
+&quot;&quot;&quot;</code></pre></div>
+<p><strong>代码：</strong></p>
+<div class="code-block"><pre><code class="language-`python">&quot;&quot;&quot;
+需求：测试使用Pyhon SDK调用Coze的连通性
+思路步骤：
+
+1. 设置令牌和API基础地址
+2. 初始化Coze客户端：使用TokenAuth类构建认证对象并传入访问令牌，再将认证对象和API基础地址传入Coze类，建立同步coze客户端
+3. 展示所有的工作空间
+&quot;&quot;&quot;
+
+&quot;&quot;&quot;
+如何使用个人访问令牌初始化Coze客户端。
+
+首先，你需要访问https://www.coze.cn/open/oauth/pats（对于coze.com环境，访问https://www.coze.com/open/oauth/pats）。
+
+点击添加新令牌。设置好合适的名称、过期时间和权限后，点击“确定”生成你的个人访问令牌。请将其存储在安全的环境中，防止此个人访问令牌泄露。
+&quot;&quot;&quot;
+
+
+# 从cozepy库中导入相关类和常量
+from cozepy import COZE_CN_BASE_URL, Coze, TokenAuth
+
+# 设置令牌
+coze_api_token = &#x27;你的秘钥&#x27;
+
+# 使用默认的COZE_CN_BASE_URL作为API基础地址
+# 默认访问的是api.coze.cn，但如果你需要访问api.coze.com，请使用base_url配置要访问的API端点
+coze_api_base = COZE_CN_BASE_URL
+
+# Coze SDK提供了TokenAuth类，用于基于固定的访问令牌构建一个认证类。同时，Coze类允许传入一个认证类来构建一个coze客户端。
+# 因此，你可以使用以下代码初始化一个coze客户端，或者一个异步coze客户端
+
+# 使用TokenAuth类构建认证对象，并传入访问令牌，再将认证对象和API基础地址传入Coze类，建立一个同步coze客户端
+coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=coze_api_base)
+
+user_id = &#x27;你的账户id&#x27;
+account_id = &#x27;你的账户id&#x27;
+
+workspaces = coze.workspaces.list(
+    user_id=user_id,
+    coze_account_id=account_id,
+)
+
+for workspace in workspaces:
+    # workspaces is an iterator. Traversing workspaces will automatically turn pages and
+    # get all workspace results.
+    print(workspace.model_dump_json(indent=2))
+print(&quot;logid&quot;, workspaces.response.logid)
+</code></pre></div>
+<p><strong>这里需要注意：</strong>不要去死记硬背代码（尤其是在cursor和trae等ai编码工具日渐成熟的情况下）和API，在实际工作中我们会接触很多平台和工具开放的SDK或者其他形式的API，每个厂家都有自己设计API的方式，参数比较多的情况下，全部记住用法是不可能的。所以我们更重要是记住<strong>思路</strong>，以及基于SDK的example和API文档提供的样例拓展和修改，来满足我们自己的业务需求。</p>
+<p>执行结果如下图：</p>
+<p>说明coze被成功率调用，需要注意，这里只会展示在“Coze SDK”渠道发布过的机器人</p>
+<h2>三、使用API实现对话调用</h2>
+<h3>1 对话API中的基本概念</h3>
+<ul><li>在调用对话API之前，我们先要了解构成对话的4个对象：</li></ul>
+<table><thead><tr><th><strong>名词</strong></th><th><strong>说明</strong></th></tr></thead><tbody><tr><td>会话（Conversation）</td><td>智能体和用户之间的一段问答交互。一个会话包含一条或多条消息，并且能够自动处理截断，以适应模型的上下文内容。</td></tr><tr class="alt"><td>消息（Message）</td><td>一条由用户或智能体创建的消息，消息内容可以包括文本、图片或文件。消息以列表的形式储存在对话中。</td></tr><tr><td>对话（Chat）</td><td>在会话中对智能体的一次调用。智能体收到请求后，结合用户输入、通过预设的一系列工作流等配置来调用模型或工具执行指定任务。每个对话都是会话的一部分，智能体会将对话中产生的消息添加到会话中。 你可以直接发起对话，与智能体进行一次交互；也可以创建会话和消息，并在指定会话中发起对话，会话中的其他消息会作为历史消息传递给大模型。</td></tr><tr class="alt"><td>上下文段落（Section）</td><td>在智能体对话管理中，Section 是一个独立的上下文段落，用于分隔不同的对话阶段或主题。创建会话时会生成一个 Section，Section 中包含上下文消息，当用户清除上下文时，系统会创建一个新的 Section，从而确保新的对话不受历史消息的影响。 会话、消息和上下文段落的关系如下图所示。</td></tr></tbody></table>
+<h3>2 代码示例</h3>
+<p>接下来，我们去调用在前面实现的 ”多功能机器人“，实现上传简历文件：素材 <strong>02-简历.docx</strong>到coze平台并实现内容提取的案例。</p>
+<p><strong>思路：</strong></p>
+<div class="code-block"><pre><code class="language-`python">&quot;&quot;&quot;
+需求：调用在前面实现的 ”多功能机器人“，实现上传简历文件：素材 **02-简历.docx**到coze平台并实现内容提取
+思路步骤：
+1. 准备工作：
+    1.1 导入必要的模块和类，如json、logging、os、Path、typing及cozepy中的相关类
+    1.2 初始化Coze客户端，设置访问令牌和基础URL
+    1.3 设定机器人ID和用户ID 
+2. 实现文件上传功能：定义upload_file函数，接收文件路径作为参数
+3. 上传文件并获取文件ID：
+    3.1 指定要上传的文件路径
+    3.2 调用upload_file函数上传文件，若上传失败则退出程序
+    3.3 获取上传文件的ID
+4. 构建多模态消息：构建包含文件的多模态消息
+5. 进行流式聊天：
+    5.1 调用coze.chat.stream方法创建聊天，传入机器人ID、用户ID、多模态消息列表和参数
+    5.2 遍历聊天迭代器，根据不同的ChatEventType进行处理：
+        5.2.1 若为CONVERSATION_MESSAGE_DELTA，打印推理内容或正常内容
+        5.2.2 若为CONVERSATION_CHAT_COMPLETED，打印token使用情况
+        5.2.3 若为CONVERSATION_CHAT_FAILED，打印聊天失败信息
+    5.3 捕获聊天过程中的异常并打印错误信息
+&quot;&quot;&quot;</code></pre></div>
+<p><strong>代码：</strong></p>
+<div class="code-block"><pre><code class="language-`python">&quot;&quot;&quot;
+需求：调用在前面实现的 ”多功能机器人“，实现上传简历文件：素材 **02-简历.docx**到coze平台并实现内容提取
+思路步骤：
+1. 准备工作：
+    1.1 导入必要的模块和类，如json、logging、os、Path、typing及cozepy中的相关类
+    1.2 初始化Coze客户端，设置访问令牌和基础URL
+    1.3 设定机器人ID和用户ID 
+2. 实现文件上传功能：定义upload_file函数，接收文件路径作为参数
+3. 上传文件并获取文件ID：
+    3.1 指定要上传的文件路径
+    3.2 调用upload_file函数上传文件，若上传失败则退出程序
+    3.3 获取上传文件的ID
+4. 构建多模态消息：构建包含文件的多模态消息
+5. 进行流式聊天：
+    5.1 调用coze.chat.stream方法创建聊天，传入机器人ID、用户ID、多模态消息列表和参数
+    5.2 遍历聊天迭代器，根据不同的ChatEventType进行处理：
+        5.2.1 若为CONVERSATION_MESSAGE_DELTA，打印推理内容或正常内容
+        5.2.2 若为CONVERSATION_CHAT_COMPLETED，打印token使用情况
+        5.2.3 若为CONVERSATION_CHAT_FAILED，打印聊天失败信息
+    5.3 捕获聊天过程中的异常并打印错误信息
+&quot;&quot;&quot;
+
+import json
+import logging
+import os
+from pathlib import Path
+from typing import Optional
+
+from cozepy import COZE_CN_BASE_URL, ChatEventType, Coze, DeviceOAuthApp, Message, TokenAuth, \
+    MessageObjectString  # noqa
+
+coze_api_token = &#x27;api token&#x27;
+
+# 通过access_token初始化Coze客户端
+coze = Coze(auth=TokenAuth(token=coze_api_token), base_url=COZE_CN_BASE_URL)
+
+# 在Coze中创建机器人实例，复制网页链接中的最后一个数字作为机器人ID[1](@ref)
+bot_id = &quot;机器人id&quot;  # 直接指定机器人ID
+# 用户ID用于标识用户身份，开发者可以使用自定义业务ID或随机字符串
+user_id = &quot;用户id&quot;
+
+parameters = {}  # 直接指定空参数字典
+
+
+
+# --- 新增：文件上传功能 ---
+def upload_file(file_path: str):
+    &quot;&quot;&quot;
+    上传文件到Coze并返回文件信息[1,5](@ref)
+    &quot;&quot;&quot;
+    try:
+        # 检查文件是否存在
+        if not os.path.exists(file_path):
+            raise FileNotFoundError(f&quot;文件不存在: {file_path}&quot;)
+
+        # 检查文件大小（Coze限制为512MB）[5](@ref)
+        file_size = os.path.getsize(file_path)
+        if file_size &gt; 512 * 1024 * 1024:
+            raise ValueError(&quot;文件大小超过512MB限制&quot;)
+
+        # 使用cozepy的files.upload方法上传文件[1,4](@ref)
+        file_response = coze.files.upload(file=Path(file_path))
+        print(f&quot;文件上传成功！文件ID: {file_response.id}&quot;)
+        return file_response
+    except Exception as e:
+        print(f&quot;文件上传失败: {str(e)}&quot;)
+        return None
+
+
+# --- 在调用聊天前，先上传文件 ---
+# 指定要上传的文件路径（请替换为您的实际文件路径）
+file_to_upload = &quot;02-简历.docx&quot;  # 支持图片、文档、音频等格式[1](@ref)
+
+# 上传文件
+uploaded_file = upload_file(file_to_upload)
+
+if not uploaded_file:
+    print(&quot;文件上传失败，程序退出。&quot;)
+    exit(1)
+
+# 获取上传文件的ID，后续消息会用到
+file_id = uploaded_file.id
+
+# --- 构建包含文件的多模态消息 ---
+# 使用Message.build_user_question_objects构建多模态消息[1](@ref)
+# 这里同时支持图片、音频、文本等多种文件类型
+additional_messages = [
+    Message.build_user_question_objects(
+        [
+            # 可以同时传入多种类型的文件[1](@ref)
+            MessageObjectString.build_file(file_id=file_id),
+            # 如果是音频文件，使用：MessageObjectString.build_audio(file_id=file_id)
+            # 还可以添加文本描述
+        ]
+    )
+]
+
+# TODO或者使用多模态问答方式，同时包含文本和文件[1](@ref)
+# additional_messages = [
+#     Message.build_user_multimodal_question(
+#         contents=[
+#             {&quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;请分析一下这个文件的内容：&quot;},
+#             {&quot;type&quot;: &quot;file&quot;, &quot;file_id&quot;: file_id}  # 文件部分，使用上传得到的file_id
+#         ]
+#     )
+# ]
+
+print(&quot;----- 开始与机器人对话 -----&quot;)
+
+# 调用coze.chat.stream方法创建聊天，此方法为流式聊天，返回聊天迭代器
+is_first_reasoning_content = True
+is_first_content = True
+
+try:
+    stream = coze.chat.stream(
+        bot_id=bot_id,
+        user_id=user_id,
+        additional_messages=additional_messages,
+        parameters=parameters,
+    )
+
+    print(&quot;日志ID:&quot;, stream.response.logid)
+
+    for event in stream:
+        if event.event == ChatEventType.CONVERSATION_MESSAGE_DELTA:
+            if event.message.reasoning_content:
+                if is_first_reasoning_content:
+                    is_first_reasoning_content = not is_first_reasoning_content
+                    print(&quot;----- 推理内容开始 -----\n&gt; &quot;, end=&quot;&quot;, flush=True)
+                print(event.message.reasoning_content, end=&quot;&quot;, flush=True)
+            else:
+                if is_first_content and not is_first_reasoning_content:
+                    is_first_content = not is_first_content
+                    print(&quot;----- 推理内容结束 -----&quot;)
+                print(event.message.content, end=&quot;&quot;, flush=True)
+
+        if event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
+            print()
+            print(&quot;token使用情况:&quot;, event.chat.usage.token_count)
+            break
+
+        if event.event == ChatEventType.CONVERSATION_CHAT_FAILED:
+            print()
+            print(&quot;聊天失败&quot;, event.chat.last_error)
+            break
+
+except Exception as e:
+    print(f&quot;聊天过程发生错误: {str(e)}&quot;)
+</code></pre></div>
+<h2>四、其他操作</h2>
+<p>支持的操作如下，如果在实际开发中需要用到什么功能。可访问：https://github.com/coze-dev/coze-py/tree/main/examples ，并根据文件名查找自己要使用的demo，然后在demo的基础上修改，并实现自己需要的业务逻辑。</p>
+<p>以下内容来自官网，可能不是最新的：</p>
+<table><thead><tr><th>模块</th><th>示例文件</th><th>说明</th></tr></thead><tbody><tr><td>授权</td><td>examples/auth_pat.py</td><td>通过个人访问密钥实现 OpenAPI 鉴权。</td></tr><tr class="alt"><td>授权</td><td>examples/auth_oauth_web.py</td><td>通过 OAuth 授权码方式实现授权与 OpenAPI 鉴权。</td></tr><tr><td>授权</td><td>examples/auth_oauth_jwt.py</td><td>通过 OAuth JWT 方式实现授权与 OpenAPI 鉴权。</td></tr><tr class="alt"><td>授权</td><td>examples/auth_oauth_pkce.py</td><td>通过 OAuth PKCE 方式实现授权与 OpenAPI 鉴权。</td></tr><tr><td>授权</td><td>examples/auth_oauth_device.py</td><td>通过 OAuth 设备码方式实现授权与 OpenAPI 鉴权。</td></tr><tr class="alt"><td>对话</td><td>examples/chat_no_stream.py</td><td>发起对话，响应方式为非流式响应。</td></tr><tr><td>对话</td><td>examples/chat_stream.py</td><td>发起对话，响应方式为流式响应。</td></tr><tr class="alt"><td>对话</td><td>examples/chat_multimodal_stream.py</td><td>发起对话，对话中上传文件，并发送多模态内容。</td></tr><tr><td>对话</td><td>examples/chat_simple_audio.py</td><td>语音消息，对话时通过语音输入消息。</td></tr><tr class="alt"><td>对话</td><td>examples/chat_oneonone_audio.py</td><td>实时语音通话。</td></tr><tr><td>对话</td><td>examples/chat_local_plugin.py</td><td>端插件。</td></tr><tr class="alt"><td>会话</td><td>examples/conversation.py</td><td>创建对话、向对话中添加消息以及清除对话内容等。</td></tr><tr><td>会话</td><td>examples/conversation_list.py</td><td>查询对话列表。</td></tr><tr class="alt"><td>工作流</td><td>examples/workflow_no_stream.py</td><td>运行工作流，响应方式为非流式响应。</td></tr><tr><td>工作流</td><td>examples/workflow_stream.py</td><td>运行工作流，响应方式为流式响应，且工作流中包含问答节点。</td></tr><tr class="alt"><td>工作流</td><td>examples/workflow_async.py</td><td>异步运行工作流，并获取工作流运行结果。</td></tr><tr><td>工作流</td><td>examples/workflow_chat_stream.py</td><td>运行对话流。</td></tr><tr class="alt"><td>工作流</td><td>examples/workflow_chat_multimode_stream.py</td><td>在对话流中上传图片，实现多模态交互。包括图片上传、流式响应处理及对话管理等操作。</td></tr><tr><td>智能体管理</td><td>examples/bot_publish.py</td><td>创建一个草稿状态的智能体，更新智能体，并发布智能体为 API 服务。</td></tr><tr class="alt"><td>工作空间</td><td>/examples/workspaces_list.py</td><td>查询所有工作空间列表。</td></tr><tr><td>工作空间</td><td>/examples/workspaces_members_create.py</td><td>批量邀请用户加入指定的工作空间。</td></tr><tr class="alt"><td>工作空间</td><td>/examples/workspaces_members_delete.py</td><td>批量移除工作空间中的成员。</td></tr><tr><td>知识库</td><td>examples/dataset_create.py</td><td>创建知识库、上传知识库文件。</td></tr><tr class="alt"><td>语音合成</td><td>examples/audio.py</td><td>将文本转为语音，并将生成的语音保存为音频文件。</td></tr><tr><td>文件管理</td><td>examples/files_upload.py</td><td>文件上传。</td></tr><tr class="alt"><td>复制模板</td><td>examples/template_duplicate.py</td><td>复制商店中的模板到指定工作空间。</td></tr><tr><td>用户</td><td>examples/users_me.py</td><td>获取当前用户信息，如用户 ID、用户名等。</td></tr><tr class="alt"><td>变量</td><td>examples/variable_retrieve.py</td><td>获取用户变量的值。</td></tr><tr><td>变量</td><td>examples/variable_update.py</td><td>设置用户变量的值。</td></tr><tr class="alt"><td>异常处理</td><td>examples/exception.py</td><td>处理 API 异常。</td></tr><tr><td>日志处理</td><td>examples/log.py</td><td>修改日志级别。</td></tr><tr class="alt"><td>超时时间</td><td>examples/timeout.py</td><td>配置超时时间，确保 API 请求在规定时间内完成。</td></tr></tbody></table>
+</section>
+<section id="DeepSeek-Dify搭建工作流" class="doc-section">
+<h1>DeepSeek + Dify 搭建工作流</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#Dify-本地部署">Dify 本地部署</a></div><div class="toc-item" style="padding-left:20px"><a href="#1--安装-Docker-Desktop">1. 安装 Docker Desktop</a></div><div class="toc-item" style="padding-left:20px"><a href="#2--部署-Dify">2. 部署 Dify</a></div><div class="toc-item" style="padding-left:20px"><a href="#3--Dify-特点">3. Dify 特点</a></div><div class="toc-item" style="padding-left:0px"><a href="#Dify-搭建工作流：一键生成专题论文">Dify 搭建工作流：一键生成专题论文</a></div><div class="toc-item" style="padding-left:20px"><a href="#其他工作流平台">其他工作流平台</a></div><div class="toc-item" style="padding-left:0px"><a href="#DeepResearch-的应用">DeepResearch 的应用</a></div><div class="toc-item" style="padding-left:20px"><a href="#秘塔-AI-搜索">秘塔 AI 搜索</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Dify工作流实战</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Dify工作流是AI应用落地的核心技能，从部署到搭建完整论文生成pipeline</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍|Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍|Dify平台介绍</a>，下启 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问|私有数据接入">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问|私有数据接入</a></blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 平台基础 |</blockquote>
+<blockquote>| Docker部署 | <a class="wikilink" href="#Docker/Docker简介">Docker/Docker简介</a> | Dify运行环境 |</blockquote>
+<blockquote>| 私有数据 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.1-私有数据访问">AI大模型/05-Agent开发/Coze-Dify/2.1 私有数据访问</a> | 数据接入 |</blockquote>
+<blockquote>| RAGFlow | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow">AI大模型/05-Agent开发/Coze-Dify/2.3-dify接入外部知识库ragflow</a> | 外部知识库 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Dify工作流 = 可视化的AI任务编排，将多个节点串联实现复杂业务逻辑</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 一键生成调研报告：输入主题 → 大纲生成 → 内容填充 → 排版输出</blockquote>
+<blockquote>- DeepResearch深度搜索：结合秘塔AI实现多轮搜索+总结</blockquote>
+<blockquote>- 多平台对比：腾讯元器、百度文心、讯飞星火等均支持工作流</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Dify工作流让我能将复杂的AI任务拆解为可复用的节点，通过Docker本地部署保证数据安全，同时支持接入外部模型实现灵活编排」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Docker基础、Dify平台使用</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — 工程落地能力的核心体现</blockquote>
+<blockquote>来源：尚硅谷AI大模型生态 - 知识库与智能体</blockquote>
+<h2>Dify 本地部署</h2>
+<h3>1. 安装 Docker Desktop</h3>
+<ol><li>下载安装 Docker Desktop（官网：https://www.docker.com/）</li><li>安装完成后重启电脑</li><li>接受服务协议，不登录使用</li><li>验证：cmd 中输入 <code class="inline">docker</code> 显示帮助信息即成功</li></ol>
+<h3>2. 部署 Dify</h3>
+<ol><li><strong>拉取代码</strong>：<code class="inline">git clone https://github.com/langgenius/dify</code></li><li><strong>配置环境</strong>：进入 <code class="inline">dify/docker</code> 目录，复制 <code class="inline">.env.example</code> 为 <code class="inline">.env</code></li><li><strong>修改端口</strong>：默认端口 80，可修改为 8100</li><li><strong>启动服务</strong>：<code class="inline">docker compose up -d</code></li></ol>
+<h3>3. Dify 特点</h3>
+<ul><li>✅ 开源，可本地部署，数据安全</li><li>⚠️ 插件国际化，部分需要魔法访问</li></ul>
+<p>官网：https://dify.ai/zh</p>
+<p>---</p>
+<h2>Dify 搭建工作流：一键生成专题论文</h2>
+<p>利用 Dify 工作流功能，实现一键生成行业调研报告/深度专题论文。</p>
+<h3>其他工作流平台</h3>
+<ul><li>腾讯元器</li><li>百度文心智能体平台</li><li>讯飞星火智能体创作中心</li><li>通义智能体</li><li>飞书多维表格</li></ul>
+<p>---</p>
+<h2>DeepResearch 的应用</h2>
+<h3>秘塔 AI 搜索</h3>
+<p>网址：https://metaso.cn/</p>
+<ul><li>选择"长思考"和"研究模式"</li><li>支持深度研究和专题报告生成</li></ul>
+</section>
+<section id="RAGFlow-SDK" class="doc-section">
+<h1>ragflow-sdk</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Coze-Dify → RAGFlow SDK</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：RAGFlow SDK发布工具，属于RAG生态工程化的一部分</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#2.2-dify接入知识库">2.2-dify接入知识库</a>（RAG知识库）、下启实际部署使用</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| RAG知识库 | <a class="wikilink" href="#2.2-dify接入知识库">2.2-dify接入知识库</a> | 知识库构建 |</blockquote>
+<blockquote>| Dify实战 | <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a> | 平台工具 |</blockquote>
+<blockquote>| RAG架构 | <a class="wikilink" href="#05-生成阶段/RAG完整架构图">05-生成阶段/RAG完整架构图</a> | 整体架构 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：ragflow-sdk是RAGFlow的Python SDK，用于构建和发布RAG应用</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：uv build → twine upload发布到PyPI，供团队统一调用RAGFlow服务</blockquote>
+<blockquote>- <strong>面试话术</strong>：「RAGFlow SDK封装了RAG检索能力，通过PyPI分发实现团队标准化接入」</blockquote>
+<h1>build and publish python SDK to pypi.org</h1>
+<div class="code-block"><pre><code class="language-shell">uv build
+uv pip install twine
+export TWINE_USERNAME=&quot;__token__&quot;
+export TWINE_PASSWORD=$YOUR_PYPI_API_TOKEN
+twine upload dist/*.whl</code></pre></div>
+</section>
+<section id="Model-Runtime" class="doc-section">
+<h1>Model Runtime</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#功能介绍">功能介绍</a></div><div class="toc-item" style="padding-left:0px"><a href="#结构">结构</a></div><div class="toc-item" style="padding-left:0px"><a href="#下一步">下一步</a></div><div class="toc-item" style="padding-left:20px"><a href="#增加新的供应商配置-👈🏻">增加新的供应商配置 👈🏻</a></div><div class="toc-item" style="padding-left:20px"><a href="#为已存在的供应商新增模型-👈🏻">为已存在的供应商新增模型 👈🏻</a></div><div class="toc-item" style="padding-left:20px"><a href="#接口的具体实现-👈🏻">接口的具体实现 👈🏻</a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → Dify架构 → 模型运行时</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Model Runtime是Dify的核心模块，负责模型调用、鉴权和供应商管理</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍|Dify平台">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍|Dify平台</a>，下启 具体模型接入</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Dify平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Dify平台介绍</a> | 平台基础 |</blockquote>
+<blockquote>| LLM基础 | <a class="wikilink" href="#AI大模型/01-大模型基础/大模型基础-Transformer架构">AI大模型/01-大模型基础/大模型基础-Transformer架构</a> | 模型原理 |</blockquote>
+<blockquote>| 向量数据库 | <a class="wikilink" href="#AI大模型/02-大模型应用/大模型应用-向量数据库与知识库">AI大模型/02-大模型应用/大模型应用-向量数据库与知识库</a> | Embedding存储 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Model Runtime = 模型与应用的解耦层，支持LLM/Embedding/Rerank/STT/TTS/Moderation六类模型</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 多模型切换：同一应用可切换不同供应商的模型，无需修改业务代码</blockquote>
+<blockquote>- 统一鉴权：通过凭据表单统一管理API Key等认证信息</blockquote>
+<blockquote>- 参数配置：后端定义模型参数，前端自动展示配置界面</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Dify的Model Runtime采用工厂模式实现模型与应用解耦，支持横向扩展新供应商，前端无需修改即可展示新模型」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐⭐☆ (4/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Dify架构理解、模型调用基础</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥☆☆☆ — 架构理解加分项</blockquote>
+<p>该模块提供了各模型的调用、鉴权接口，并为 Dify 提供了统一的模型供应商的信息和凭据表单规则。</p>
+<ul><li>一方面将模型和上下游解耦，方便开发者对模型横向扩展，</li><li>另一方面提供了只需在后端定义供应商和模型，即可在前端页面直接展示，无需修改前端逻辑。</li></ul>
+<h2>功能介绍</h2>
+<ul><li>支持 5 种模型类型的能力调用</li></ul>
+<ul><li><code class="inline">LLM</code> - LLM 文本补全、对话，预计算 tokens 能力</li><li><code class="inline">Text Embedding Model</code> - 文本 Embedding，预计算 tokens 能力</li><li><code class="inline">Rerank Model</code> - 分段 Rerank 能力</li><li><code class="inline">Speech-to-text Model</code> - 语音转文本能力</li><li><code class="inline">Text-to-speech Model</code> - 文本转语音能力</li><li><code class="inline">Moderation</code> - Moderation 能力</li></ul>
+<ul><li>模型供应商展示</li></ul>
+<p>  !<a href="./docs/zh_Hans/images/index/image-20231210143654461.png">image-20231210143654461</a></p>
+<p>​	展示所有已支持的供应商列表，除了返回供应商名称、图标之外，还提供了支持的模型类型列表，预定义模型列表、配置方式以及配置凭据的表单规则等等，规则设计详见：<a href="./docs/zh_Hans/schema.md">Schema</a>。</p>
+<ul><li>可选择的模型列表展示</li></ul>
+<p>  !<a href="./docs/zh_Hans/images/index/image-20231210144229650.png">image-20231210144229650</a></p>
+<p>​	配置供应商/模型凭据后，可在此下拉（应用编排界面/默认模型）查看可用的 LLM 列表，其中灰色的为未配置凭据供应商的预定义模型列表，方便用户查看已支持的模型。</p>
+<p>​	除此之外，该列表还返回了 LLM 可配置的参数信息和规则，如下图：</p>
+<p>​	!<a href="./docs/zh_Hans/images/index/image-20231210144814617.png">image-20231210144814617</a>	</p>
+<p>​	这里的参数均为后端定义，相比之前只有 5 种固定参数，这里可为不同模型设置所支持的各种参数，详见：<a href="./docs/zh_Hans/schema.md#ParameterRule">Schema</a>。</p>
+<ul><li>供应商/模型凭据鉴权</li></ul>
+<p>  !<a href="./docs/zh_Hans/images/index/image-20231210151548521.png">image-20231210151548521</a></p>
+<p>!<a href="./docs/zh_Hans/images/index/image-20231210151628992.png">image-20231210151628992</a></p>
+<p>​	供应商列表返回了凭据表单的配置信息，可通过 Runtime 提供的接口对凭据进行鉴权，上图 1 为供应商凭据 DEMO，上图 2 为模型凭据 DEMO。</p>
+<h2>结构</h2>
+<p>![](./docs/zh_Hans/images/index/image-20231210165243632.png)</p>
+<p>Model Runtime 分三层：</p>
+<ul><li>最外层为工厂方法</li></ul>
+<p>  提供获取所有供应商、所有模型列表、获取供应商实例、供应商/模型凭据鉴权方法。</p>
+<ul><li>第二层为供应商层</li></ul>
+<p>  提供获取当前供应商模型列表、获取模型实例、供应商凭据鉴权、供应商配置规则信息，<strong>可横向扩展</strong>以支持不同的供应商。</p>
+<p>  对于供应商/模型凭据，有两种情况</p>
+<ul><li>如 OpenAI 这类中心化供应商，需要定义如<strong>api_key</strong>这类的鉴权凭据</li><li>如<a href="https://github.com/xorbitsai/inference"><strong>Xinference</strong></a>这类本地部署的供应商，需要定义如<strong>server_url</strong>这类的地址凭据，有时候还需要定义<strong>model_uid</strong>之类的模型类型凭据，就像下面这样，当在供应商层定义了这些凭据后，就可以在前端页面上直接展示，无需修改前端逻辑。</li></ul>
+<p>  !<a href="docs/zh_Hans/images/index/image.png">Alt text</a></p>
+<p>  当配置好凭据后，就可以通过 DifyRuntime 的外部接口直接获取到对应供应商所需要的<strong>Schema</strong>（凭据表单规则），从而在可以在不修改前端逻辑的情况下，提供新的供应商/模型的支持。</p>
+<ul><li>最底层为模型层</li></ul>
+<p>  提供各种模型类型的直接调用、预定义模型配置信息、获取预定义/远程模型列表、模型凭据鉴权方法，不同模型额外提供了特殊方法，如 LLM 提供预计算 tokens 方法、获取费用信息方法等，<strong>可横向扩展</strong>同供应商下不同的模型（支持的模型类型下）。</p>
+<p>  在这里我们需要先区分模型参数与模型凭据。</p>
+<ul><li>模型参数 (<strong>在本层定义</strong>)：这是一类经常需要变动，随时调整的参数，如 LLM 的 <strong>max_tokens</strong>、<strong>temperature</strong> 等，这些参数是由用户在前端页面上进行调整的，因此需要在后端定义参数的规则，以便前端页面进行展示和调整。在 DifyRuntime 中，他们的参数名一般为<strong>model_parameters: dict[str, any]</strong>。</li></ul>
+<ul><li>模型凭据 (<strong>在供应商层定义</strong>)：这是一类不经常变动，一般在配置好后就不会再变动的参数，如 <strong>api_key</strong>、<strong>server_url</strong> 等。在 DifyRuntime 中，他们的参数名一般为<strong>credentials: dict[str, any]</strong>，Provider 层的 credentials 会直接被传递到这一层，不需要再单独定义。</li></ul>
+<h2>下一步</h2>
+<h3><a href="./docs/zh_Hans/provider_scale_out.md">增加新的供应商配置 👈🏻</a></h3>
+<p>当添加后，这里将会出现一个新的供应商</p>
+<p>!<a href="docs/zh_Hans/images/index/image-1.png">Alt text</a></p>
+<h3><a href="./docs/zh_Hans/provider_scale_out.md#增加模型">为已存在的供应商新增模型 👈🏻</a></h3>
+<p>当添加后，对应供应商的模型列表中将会出现一个新的预定义模型供用户选择，如 GPT-3.5 GPT-4 ChatGLM3-6b 等，而对于支持自定义模型的供应商，则不需要新增模型。</p>
+<p>!<a href="docs/zh_Hans/images/index/image-2.png">Alt text</a></p>
+<h3><a href="./docs/zh_Hans/interfaces.md">接口的具体实现 👈🏻</a></h3>
+<p>你可以在这里找到你想要查看的接口的具体实现，以及接口的参数和返回值的具体含义。</p>
+</section>
+<section id="简历优化建议" class="doc-section">
+<h1>简历优化建议</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：求职指导 → 简历优化 → 大模型开发岗位</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：简历是技术能力的载体，优化简历是求职成功的第一步</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/杰-两年-本科-大模型开发|简历优化建议">AI大模型/05-Agent开发/Coze-Dify/杰-两年-本科-大模型开发|简历优化建议</a>，下启 面试准备</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| 简历优化 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/杰-两年-本科-大模型开发">AI大模型/05-Agent开发/Coze-Dify/杰-两年-本科-大模型开发</a> | 优化建议 |</blockquote>
+<blockquote>| Dify实战 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流">AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流</a> | 项目素材 |</blockquote>
+<blockquote>| Coze开发 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Coze平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Coze平台介绍</a> | 技能方向 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：简历优化方向 = 基本信息补全 + 技能大模型化 + 项目结构化</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 技能补充：RAG、Agent、Prompt Engineering等大模型关键词</blockquote>
+<blockquote>- 项目周期调整：从3天改为2个月，体现完整开发周期</blockquote>
+<blockquote>- 成果量化：AUC从0.78提升至0.91，降低流失率12%</blockquote>
+<blockquote>- <strong>面试话术</strong>：「简历需要体现大模型相关技能，项目经历要覆盖从数据处理到模型部署的全流程」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：项目经验、技术基础</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥🔥☆ — 求职必备</blockquote>
+<p><strong>基本信息</strong>  </p>
+<p>需补充以下关键内容（符合规则5、6要求）：  </p>
+<ol><li>城市信息：简历未包含现居或意向城市，建议添加「现居城市：XX」或「意向城市：XX」；  </li><li>毕业时间：未明确毕业时间，无法验证工作年限合理性，建议补充「毕业时间：XXXX.XX」（需与2024.07开始的实习时间线一致）；  </li><li>学历细节：未说明具体专业，建议补充「学历：XX大学XX专业本科」（规则4要求非优秀本科需匹配意向岗位）；  </li><li>年龄信息：仅写出生年月「1980.06.11」，未明确年龄，建议添加「年龄：45岁」。  </li></ol>
+<p><strong>学历</strong>  </p>
+<p>简历原文：「教育情况：学历：本科毕业于牛津大学，在校时间：无，专业：无，是否为计算机专业：无，在简历内容的第1部分」  </p>
+<p>需优化以下内容：  </p>
+<ol><li>补充完整教育信息：需填写入学/毕业时间（如「2020.09-2024.06」，确保毕业时间在2024年6月前，与实习不冲突）、专业（如「计算机科学与技术」）；  </li><li>明确专业属性：需标注「是否为计算机专业：是/否」；  </li><li>确保真实性：学历信息需真实，造假会影响求职信用。  </li></ol>
+<p><strong>个人技能</strong>  </p>
+<p>需按以下方向调整（结合规则2、3、6、7、9）：  </p>
+<ol><li><strong>位置调整</strong>：当前技能位于「实习工作经历」之后，违反规则9，需调整至「实习工作经历」「项目经历」之前；  </li><li><strong>补充大模型技能</strong>：无大模型相关描述（违反规则2），建议补充：  </li><li>大模型应用：了解GPT、LLaMA等大模型基本原理，熟悉Prompt Engineering在任务中的应用；  </li><li>RAG技术：掌握检索增强生成（RAG）流程，能结合Milvus等向量数据库实现知识增强；  </li><li>Agent开发：了解智能体架构，能搭建简单任务型Agent（如自动问答）；  </li><li><strong>补充项目关联技能</strong>：项目中用到的<code class="inline">逻辑回归、随机森林、XGBoost、ROC曲线、AUC、网格搜索</code>未体现（违反规则7），建议补充：  </li><li>机器学习算法：掌握逻辑回归、随机森林、梯度提升树（GBDT）、XGBoost等分类算法；  </li><li>模型评估：熟悉ROC曲线、AUC值等指标，能通过网格搜索、交叉验证调参；  </li><li><strong>优化表述明确性</strong>：部分表述模糊（违反规则6），建议修改：  </li><li>原「Python：熟练使用Python语言编程，pandas，numpy的运用」→ 改为「Python：熟练使用Python编程，掌握pandas数据清洗/处理、numpy数值计算」；  </li><li>原「机器学习建模全流程：数据获取、数据预处理、特征工程、模型训练（如线性回归、决策树等）、模型评估及调优」→ 改为「机器学习建模全流程：掌握数据获取、预处理、特征工程，熟悉线性回归、决策树、逻辑回归、随机森林、XGBoost等模型训练，能通过交叉验证、网格搜索调优」。  </li></ol>
+<p><strong>工作经历</strong>  </p>
+<p>简历原文：「工作经历：公司：北京ABC有限公司，时间：2024.07-至今，角色：NLP算法工程师，从事内容：无，在简历内容的第2部分」  </p>
+<p>需补充具体工作内容（违反规则3）：建议填写NLP相关任务，如「负责文本分类、命名实体识别等需求分析、数据处理及模型优化」。  </p>
+<p><strong>项目经历</strong>  </p>
+<p>需解决以下问题（结合规则3、4、9）：  </p>
+<ol><li><strong>调整项目周期</strong>：当前周期「2025.07.20-2025.07.22」（仅3天）不合理（违反规则9），建议改为「2025.07-2025.09」（2个月）；  </li><li><strong>补充个人负责部分</strong>：未明确个人具体工作（违反规则3），建议补充：「负责员工行为数据清洗与缺失值填充（用Pandas处理10万条数据，缺失值从15%降至2%）；参与特征工程，提取「最近3个月加班频率」等12个衍生特征；负责XGBoost模型训练与调参（通过网格搜索优化max_depth等参数）」；  </li><li><strong>清晰成果数据</strong>：成果中「在简历内容的第4部分」表述模糊（违反规则3），建议修改为「最终模型AUC达0.91，较baseline（0.78）提升16.7%，帮助业务团队提前30天识别高流失风险员工，降低流失率12%」；  </li><li><strong>添加技术栈</strong>：未标注项目技术栈（违反规则4），建议在项目名称前添加「技术栈：Python、Pandas、Scikit-learn、XGBoost、Matplotlib」；  </li></ol>
+<p><strong>额外提醒</strong>：实习阶段避免用「主导」「负责整个项目」等夸大表述（规则8）；需准备项目逐字稿（包括数据来源、特征选择依据、调参过程等，规则12）。  </p>
+<p><strong>个人评价</strong>  </p>
+<p>简历原文：「• 综合素质：自主学习意识强，能在有限时间内学习并掌握相关专业技能；注重实践，具有较强的沟通协调能力，清晰、准确地表达自己的观点和想法，同时能够倾听他人的意见。• 工作态度：工作认真严谨，有责任感，对数据敏感，逻辑分析能力强，能同时处理多项复杂工作任务，抗压能力强，在简历内容的第5部分」  </p>
+<p>需删除末尾「在简历内容的第5部分」（表述冗余）。  </p>
+<p><strong>整体情况总结</strong>  </p>
+<p>你的简历当前存在<strong>关键信息缺失</strong>（如基本信息、学历细节）、<strong>内容逻辑问题</strong>（如技能位置、项目周期）及<strong>表述不清晰</strong>等问题，建议先按上述方向逐一修改。修改完成后，可再次使用助手复查或联系对应老师进一步优化，确保内容符合岗位要求。</p>
+</section>
+<section id="简历优化案例" class="doc-section">
+<h1>简历优化案例</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:20px"><a href="#简历优化建议（按模块整理）">简历优化建议（按模块整理）</a></div><div class="toc-item" style="padding-left:20px"><a href="#整体总结--">整体总结  </a></div>
+</div>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：求职指导 → 简历优化 → 大模型开发岗位</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：简历优化是求职落地的关键环节，确保技术能力通过简历有效传达</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/02-简历|简历模板">AI大模型/05-Agent开发/Coze-Dify/02-简历|简历模板</a>，下启 面试准备</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| 简历模板 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/02-简历">AI大模型/05-Agent开发/Coze-Dify/02-简历</a> | 另一份简历参考 |</blockquote>
+<blockquote>| 项目经验 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流">AI大模型/05-Agent开发/Coze-Dify/DeepSeek+Dify搭建工作流</a> | 项目素材 |</blockquote>
+<blockquote>| Agent开发 | <a class="wikilink" href="#AI大模型/05-Agent开发/Coze-Dify/1.1-Coze平台介绍">AI大模型/05-Agent开发/Coze-Dify/1.1 Coze平台介绍</a> | 技能补充方向 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：简历优化三要素 = 信息准确性 + 技能关联度 + 项目结构化</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 技能补充：大模型应用、RAG技术、Agent开发等关键词</blockquote>
+<blockquote>- 项目量化：基线数据+提升比例，如"准确率从82%提升至94%"</blockquote>
+<blockquote>- 技术栈前置：每个项目开头列出核心技术栈</blockquote>
+<blockquote>- <strong>面试话术</strong>：「简历优化重点是将技术能力与项目经验关联，通过量化数据体现价值，同时确保信息真实准确」</blockquote>
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：项目经验、技术基础</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥🔥☆ — 求职必备技能</blockquote>
+<h3>简历优化建议（按模块整理）</h3>
+<h4><strong>一、基本信息：需修正信息准确性</strong></h4>
+<ol><li><strong>删除具体薪资要求</strong>：简历原文包含「薪资要求:15k」，建议删除（薪资建议在面试环节沟通更稳妥）。  </li><li><strong>替换专业邮箱</strong>：简历原文「邮箱:15305@qq.com」，建议替换为企业邮箱或163、Gmail等更专业的邮箱（降低HR对职业专业性的质疑）。  </li><li><strong>修正工作年限</strong>：简历原文「工作年限:2年经验」，但2024.06毕业至2025.11仅约1年5个月工作经验，需修改为「工作年限:1年+经验」（确保信息真实性）。  </li></ol>
+<h4><strong>二、学历：补充核心课程突出专业基础</strong></h4>
+<p>简历原文教育背景：「2020.09-2024.06 哈尔滨学院 软件工程(本科)，学历:本科(全日制)，在校时间:2020.09-2024.06，专业:软件工程，是否为计算机专业:是」。  </p>
+<p><strong>修改建议</strong>：补充软件工程核心课程（如《数据结构》《算法设计与分析》《操作系统》《计算机网络》《Python程序设计》《机器学习》《深度学习》），原因：您是计算机专业且毕业1年多（2年以内），补充核心课程可突出专业基础，符合“扬长”要求。  </p>
+<p>⚠️ 提醒：需保证学历信息真实性，造假会导致严重后果。  </p>
+<h4><strong>三、个人技能：强化与项目的关联度</strong></h4>
+<ol><li><strong>补充项目未体现的关键词</strong>：项目中使用<strong>TF-IDF</strong>处理文本，但原技能条「熟练使用Numpy､Pandas､Scikit-learn 等数据科学库,进行数据处理､特征工程与传统机器学习建模｡」未提及。建议修改为：「熟练使用Numpy、Pandas、Scikit-learn等数据科学库，进行数据处理（缺失值/错误值/异常值处理、标准化）、特征工程（TF-IDF文本数值化）与传统机器学习建模（随机森林）。」  </li><li><strong>强化预训练模型的应用场景</strong>：原技能条「熟悉常见预训练模型的结构和原理,如Bert､GPT 等｡」未体现项目中“审计风险识别”的应用场景，建议修改为：「熟悉Bert、GPT等预训练模型的结构原理及应用（如审计风险类型识别）。」  </li><li><strong>优化关键词的明确性</strong>：原技能条「掌握常见深度学习算法,如RNN､LSTM､GRU 等,熟练掌握TextCNN､FastText 等轻量级文本分类模型｡」建议补充项目中模型的具体作用，修改为：「掌握RNN、LSTM、GRU等深度学习算法，熟练使用TextCNN、FastText等轻量级文本模型（用于审计文本分类、词向量训练）。」  </li></ol>
+<h4><strong>四、项目经历：重点优化结构与内容完整性</strong></h4>
+<p>您的项目经历需优先解决<strong>5个核心问题</strong>，以下是具体建议：  </p>
+<h5>1. <strong>补充项目数量</strong>  </h5>
+<p>工作年限约1年5个月，需补充至<strong>≥3个大模型/算法方向</strong>的项目（如“基于BERT的财务报表文本错误检测系统”“大模型微调的审计法规问答机器人”），符合“工作2年（含实习）项目不低于3个”的规则。  </p>
+<h5>2. <strong>清晰拆分项目结构</strong>  </h5>
+<p>每个项目需通过<strong>标题/分段</strong>区分「项目背景→个人负责→成果数据」，示例如下（以“审计智能诊断与优化系统”为例）：  </p>
+<p><strong>项目名称</strong>：审计智能诊断与优化系统  </p>
+<p><strong>技术栈</strong>：Python、PyTorch、Scikit-learn、FastText、BERT-base、TextCNN、模型量化/知识蒸馏、SQL  </p>
+<p><strong>项目背景</strong>：为解决传统审计依赖人工经验、效率低下（单项目平均耗时15天）、风险遗漏率高达25%等问题，开发基于深度学习的审计智能诊断系统，覆盖财务/业务数据整合、风险自动识别、优化建议输出等功能。  </p>
+<p><strong>个人负责部分</strong>：  </p>
+<ul><li>数据预处理：主导多源数据（ERP/CRM/法规库）清洗，包括缺失值填充（均值/模式法）、错误值纠正（正则匹配修正财务数据格式）、异常值处理（3σ原则+业务规则筛选），数据准确率从78%提升至95%。  </li><li>模型开发与优化：基线模型用Scikit-learn搭建随机森林（结合财务特征+TF-IDF文本特征），准确率82.15%；引入FastText提升至89.45%，替换为BERT-base（冻结前6层，学习率2e-5）后准确率达94.27%；用知识蒸馏（TextCNN为学生模型，T=5）+量化（INT8）压缩模型，大小减少70%、推理时间缩短65%，准确率保持91.74%。  </li><li>技术调研与上线：调研Flask+Docker部署方案，参与线上测试解决推理延迟问题（从2s/条优化至500ms/条），负责上线后1个月的迭代优化（调整风险阈值）。  </li></ul>
+<p><strong>项目成果</strong>：  </p>
+<ul><li>业务价值：单项目审计耗时从15天缩短至9天（效率提升40%），风险遗漏率从25%降至8%，降低资深审计人员依赖度60%；  </li><li>技术价值：申请软件著作权1项，“BERT模型轻量化方案”在公司内部技术分享。  </li></ul>
+<h5>3. <strong>前置技术栈</strong>  </h5>
+<p>每个项目开头需明确列出核心技术栈（如上述示例中的“Python、PyTorch、BERT-base”），降低HR理解成本。  </p>
+<h5>4. <strong>补充技术调研与上线维护</strong>  </h5>
+<p>职责需覆盖「模型选型调研（如“调研BERT vs RoBERTa的适配性”）、上线后的部署测试、迭代优化」等内容，体现全流程能力。  </p>
+<h5>5. <strong>成果数据具象化</strong>  </h5>
+<p>当前成果如“审计效率提升约40%”需补充<strong>基线数据</strong>（如“原单项目耗时15天”），并增加技术成果（如软著、内部分享），增强说服力。  </p>
+<h4><strong>五、其他提醒</strong>  </h4>
+<ul><li><strong>话术准备</strong>：为每个项目准备逐字稿（如“模型蒸馏时为何选TextCNN作为学生模型？”“BERT微调的学习率为何是2e-5？”），避免面试时无法具体回答。  </li><li><strong>重复度检查</strong>：您的项目内容与知识库无雷同，无需调整重复率。  </li></ul>
+<h3>整体总结  </h3>
+<p>您的简历目前需优先解决<strong>项目数量补充、基本信息准确性、技能与项目的关联度</strong>三个核心方向。其中，<strong>项目数量不足</strong>和<strong>基本信息错误</strong>（薪资/邮箱/工作年限）是最紧急的优化点，建议先完成这两部分修改，再逐步优化技能与项目的细节。  </p>
+<p>修改完成后，建议请对应老师再次检查，确保符合“大模型应用开发工程师”岗位的要求。</p>
+</section>
+<section id="字节跳动Agent实践手册" class="doc-section">
+<h1>字节跳动Agent实践手册</h1>
+<span class="difficulty-badge" style="background:#3498db20;color:#3498db;border:1px solid #3498db40">基础</span>
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI大模型 → Agent开发 → 字节跳动实践</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：字节跳动Agent方法论全览，覆盖开发流程、应用场景、运营优化与安全合规</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a class="wikilink" href="#1.2-Coze平台入门实战">1.2 Coze平台入门实战</a>（Coze工具）、下启具体项目实战</blockquote>
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Coze平台 | <a class="wikilink" href="#1.2-Coze平台入门实战">1.2 Coze平台入门实战</a> | 开发工具 |</blockquote>
+<blockquote>| Dify平台 | <a class="wikilink" href="#1.2Dify的入门实战">1.2Dify的入门实战</a> | 对比平台 |</blockquote>
+<blockquote>| Agent框架 | <a class="wikilink" href="#框架横向对比矩阵">框架横向对比矩阵</a> | 框架选型 |</blockquote>
+<blockquote>| 项目实战 | <a class="wikilink" href="#DeepSeek-RAG">DeepSeek-RAG</a> | 落地参考 |</blockquote>
+<blockquote>| 提示词工程 | <a class="wikilink" href="#01-N-Shot-Prompting">01-N-Shot-Prompting</a> | 提示词设计 |</blockquote>
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：字节Agent体系 = LLM + 工具调用 + 感知执行 + 分层架构(感知层/推理层/执行层)</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：需求分析 → 模型选择 → 工具集成(Coze插件/自定义) → Trae平台开发 → 全面测试</blockquote>
+<blockquote>- <strong>面试话术</strong>：「字节Agent采用分层架构，感知层收集数据，推理层用LLM决策，执行层调用工具，支持办公/电商/教育多场景」</blockquote>
+<blockquote>来源: <code class="inline">/mnt/c/Users/24961/Desktop/字节跳动 Agent 实践手册-2025-69页(1).pdf</code></blockquote>
+<p>---</p>
+<p>字字节节跳跳动动 AAggeenntt 实实践践手手册册</p>
+<p>字字节节跳跳动动 AAGGEENNTT 实实践践手手册册...................................................................................................................... 11</p>
+<ol><li>引言............................................................................................ 1</li></ol>
+<p>1.1 Agent 概述................................................................................1</p>
+<p>1.2 字节跳动业务线与 Agent 的结合点......................................... 1</p>
+<ol><li>Agent 技术基础...........................................................................3</li></ol>
+<p>2.1 核心技术组件............................................................................3</p>
+<p>2.2 技术架构解析............................................................................5</p>
+<ol><li>字节跳动 Agent 开发流程..........................................................7</li></ol>
+<p>3.1 需求分析与场景定义................................................................. 7</p>
+<p>3.2 模型选择与配置........................................................................ 9</p>
+<p>3.3 工具与插件集成...................................................................... 10</p>
+<p>3.4 开发与测试..............................................................................12</p>
+<ol><li>字节跳动 Agent 应用场景详解.................................................14</li></ol>
+<p>4.1 办公场景................................................................................. 14</p>
+<p>4.2 电商场景................................................................................. 17</p>
+<p>4.3 内容创作场景..........................................................................20</p>
+<p>4.4 教育场景................................................................................. 22</p>
+<ol><li>字节跳动 Agent 运营与优化.................................................... 24</li></ol>
+<p>5.1 运营数据监测与分析............................................................... 24</p>
+<p>5.2 Agent 性能优化.......................................................................27</p>
+<p>5.3 用户体验优化..........................................................................30</p>
+<ol><li>字节跳动 Agent 安全与合规.................................................... 33</li></ol>
+<p>6.1 数据安全保障..........................................................................33</p>
+<p>6.2 合规管理................................................................................. 37</p>
+<ol><li>字节跳动 Agent 未来发展方向.................................................40</li></ol>
+<p>7.1 技术创新方向..........................................................................40</p>
+<p>7.2 业务拓展方向..........................................................................44</p>
+<p>7.3 生态构建方向..........................................................................47</p>
+<ol><li>字节跳动 Agent 典型案例剖析.................................................50</li></ol>
+<p>8.1 飞书智能办公 Agent 集群......................................................50</p>
+<p>8.2 抖音电商智能运营 Agent........................................................54</p>
+<ol><li>字节跳动 Agent 团队协作与人才培养......................................58</li></ol>
+<p>9.1 跨团队协作机制...................................................................... 58</p>
+<p>9.2 Agent 人才培养体系................................................................60</p>
+<ol><li>字节跳动 Agent 风险应对策略...............................................63</li></ol>
+<p>10.1 技术风险与应对.................................................................... 64</p>
+<p>10.2 业务风险与应对.................................................................... 66</p>
+<p>10.3 合规风险与应对.................................................................... 69</p>
+<ol><li>结语........................................................................................ 73</li></ol>
+<p>11.1 手册核心价值回顾.................................................................73</p>
+<p>11.2 对字节跳动业务线的建议......................................................74</p>
+<p>11.3 未来展望............................................................................... 74</p>
+<ol><li>字节跳动 Agent 项目落地工具包...........................................75</li></ol>
+<p>12.1 需求分析工具集.................................................................... 75</p>
+<p>12.2 开发落地工具集.................................................................... 77</p>
+<p>12.3 运营监控工具集.................................................................... 78</p>
+<ol><li>字节跳动 Agent 常见问题解答（FAQ）................................80</li></ol>
+<p>13.1 技术类问题............................................................................80</p>
+<p>13.2 业务类问题............................................................................81</p>
+<p>13.3 合规类问题............................................................................83</p>
+<ol><li>字节跳动跨业务线 Agent 协作案例....................................... 84</li></ol>
+<p>14.1 飞书 × 抖音电商：跨场景协同 Agent..................................84</p>
+<p>14.2 教育 × 飞书：知识管理协同 Agent.....................................86</p>
+<ol><li>补充结语：Agent 落地的关键成功要素..................................88</li><li>字节跳动 Agent 项目验收标准...............................................89</li></ol>
+<p>16.1 验收维度与核心指标............................................................. 89</p>
+<p>16.2 验收流程与结果判定............................................................. 92</p>
+<ol><li>字节跳动 Agent 长期迭代规划方法....................................... 94</li></ol>
+<p>17.1 迭代需求优先级排序............................................................. 94</p>
+<p>17.2 迭代周期与规划模板............................................................. 96</p>
+<p>17.3 迭代效果评估与复盘........................................................... 101</p>
+<ol><li>字节跳动 Agent 全球化适配实操指南..................................102</li></ol>
+<p>18.1 语言与文化适配.................................................................. 102</p>
+<p>18.2 法律法规与合规适配........................................................... 104</p>
+<p>18.3 基础设施与服务适配........................................................... 106</p>
+<ol><li>最终结语：构建字节跳动 Agent 生态的长期愿景................108</li></ol>
+<p>11.. 引引言言</p>
+<p>11..11 AAggeenntt 概概述述</p>
+<p>在当今数字化和智能化快速发展的时代，Agent 技术正逐渐成为推动业务创新和效率提</p>
+<p>升的关键力量。Agent 可以被看作是一种具有自主性、反应性、主动性和社会性的软件</p>
+<p>实体，它能够在特定环境中感知信息，基于自身的知识和策略进行推理决策，并采取行</p>
+<p>动以实现既定目标。在字节跳动多元化的业务生态中，Agent 技术的应用为各个业务线</p>
+<p>带来了全新的机遇和变革。从智能办公助手到个性化内容推荐系统，从自动化运营工具</p>
+<p>到复杂业务流程的智能协调，Agent 正以其独特的优势，深入到业务的各个环节，助力</p>
+<p>提升用户体验、优化业务流程、增强企业竞争力。</p>
+<p>11..22 字字节节跳跳动动业业务务线线与与 AAggeenntt 的的结结合合点点</p>
+<p>字节跳动拥有丰富多样的业务线，涵盖了信息资讯、短视频社交、在线办公、电商、教</p>
+<p>育等多个领域。在信息资讯领域，如今日头条，Agent 可以通过对用户阅读行为、兴趣</p>
+<p>偏好的持续感知和分析，实现更加精准的内容推荐，不仅推荐用户可能感兴趣的文章，</p>
+<p>还能根据用户当前的阅读场景和需求，主动推送相关的深度解读、拓展资料等，提升用</p>
+<p>户获取信息的效率和满意度。在短视频社交平台抖音上，Agent 可用于辅助创作者进行</p>
+<p>视频创作，例如根据创作者输入的主题和风格要求，自动推荐合适的拍摄地点、音乐素</p>
+<p>材，甚至在视频编辑过程中提供智能剪辑建议；同时，在用户互动方面，Agent 能够实</p>
+<p>时响应用户的评论和私信，提供个性化的回复和引导，增强社交互动的及时性和趣味性。</p>
+<p>飞书作为字节跳动的在线办公平台，Agent 的应用更是广泛。它可以充当智能办公助手，</p>
+<p>帮助员工自动处理日常办公任务，如会议安排、邮件筛选与回复、文档协作管理等。在</p>
+<p>电商业务中，Agent 可以协助商家进行商品管理、库存监控、客户服务等工作，例如根</p>
+<p>据市场动态和销售数据，自动调整商品价格、推荐热门商品组合，以及快速响应客户的</p>
+<p>咨询和售后问题。在教育领域，Agent 能够为学生提供个性化的学习辅导，根据学生的</p>
+<p>学习进度、知识掌握情况和学习习惯，定制专属的学习计划、提供针对性的练习题和讲</p>
+<p>解，实现因材施教。这些只是字节跳动业务线与 Agent 结合的部分示例，实际上，</p>
+<p>Agent 技术的潜力在各个业务场景中还有待进一步挖掘和发挥。</p>
+<p>22.. AAggeenntt 技技术术基基础础</p>
+<p>22..11 核核心心技技术术组组件件</p>
+<p>22..11..11 大大语语言言模模型型（（LLLLMM））</p>
+<p>大语言模型是 Agent 实现智能交互和任务处理的核心驱动力之一。在字节跳动，我们自</p>
+<p>主研发的豆包大模型系列，如 Doubao-Seed-1.6-thinking 在编码、数学、逻辑推理等基</p>
+<p>础能力上表现卓越；Doubao-Seed-1.6 作为 All-in-One 的综合模型，更是国内首个支</p>
+<p>持 256K 上下文的思考模型，具备深度思考、多模态理解、图形界面操作等多项强大能</p>
+<p>力。大语言模型通过在大规模文本数据上的无监督预训练，学习到了丰富的语言知识和</p>
+<p>语义表示，能够理解用户输入的自然语言指令，并生成高质量的文本回复。在实际应用</p>
+<p>中，Agent 借助大语言模型对用户指令进行语义解析，提取关键信息，理解用户意图，</p>
+<p>为后续的决策和行动提供基础。例如，在智能客服场景中，用户询问 “我购买的商品什</p>
+<p>么时候发货”，大语言模型能够准确理解用户的查询意图，并将相关信息传递给后续的处</p>
+<p>理模块，以获取订单发货状态并回复用户。</p>
+<p>22..11..22 工工具具调调用用与与 AAPPII 集集成成</p>
+<p>为了拓展 Agent 的能力边界，使其能够完成更复杂、多样化的任务，工具调用和 API 集</p>
+<p>成至关重要。字节跳动的 Agent 平台支持与丰富的外部工具和 API 进行集成，涵盖了</p>
+<p>资讯阅读、旅游出行、效率办公、图片理解等多个领域。例如，在创建一个智能旅游规</p>
+<p>划 Agent 时，可以集成航司官网 API 实现机票预订功能，调用旅游景点介绍 API 获</p>
+<p>取景点信息，利用地图 API 规划行程路线等。通过这种方式，Agent 能够将大语言模</p>
+<p>型的语言理解和生成能力与外部工具的专业功能相结合，实现从简单文本交互到实际业</p>
+<p>务操作的跨越。同时，字节跳动还提供了便捷的插件机制，如扣子（Coze）平台内置了</p>
+<p>超过 60 款各类型的插件，并且支持用户自定义插件，进一步简化了工具调用和 API 集</p>
+<p>成的过程，降低了开发门槛，使得业务人员和开发者能够快速为 Agent 赋予新的能力。</p>
+<p>22..11..33 感感知知与与执执行行模模块块</p>
+<p>感知模块负责获取 Agent 所处环境的信息，对于字节跳动的业务场景，这可能包括用户</p>
+<p>的输入信息（如文本、语音、图像等）、系统状态信息（如服务器负载、应用程序运行状</p>
+<p>态等）、业务数据信息（如销售数据、用户行为数据等）等。例如，在电商业务中，感知</p>
+<p>模块需要实时获取商品库存数据、用户订单数据以及市场价格波动数据等。执行模块则</p>
+<p>根据决策模块的输出结果，在环境中执行相应的操作，如发送邮件、生成文档、操作数</p>
+<p>据库、控制硬件设备等。在自动化办公场景中，执行模块可以根据智能办公 Agent 的决</p>
+<p>策，自动在文档中插入数据图表、发送会议邀请邮件等。感知与执行模块的高效协同，</p>
+<p>确保了 Agent 能够与实际业务环境进行紧密交互，实现对各种任务的有效处理。</p>
+<p>22..22 技技术术架架构构解解析析</p>
+<p>22..22..11 分分层层架架构构设设计计</p>
+<p>字节跳动的 Agent 技术采用了分层架构设计，主要包括感知层、推理层和执行层。感知</p>
+<p>层负责收集来自外部环境和用户的各种数据，将其转化为可供后续处理的信息格式。例</p>
+<p>如，通过摄像头获取图像数据、通过麦克风获取语音数据、通过网络接口获取用户请求</p>
+<p>数据等，并对这些数据进行初步的预处理，如图像识别中的特征提取、语音识别中的音</p>
+<p>频转文本等。推理层是 Agent 的核心决策部分，它基于感知层提供的数据，结合大语言</p>
+<p>模型和各种推理算法，对用户意图进行理解和分析，制定出实现目标的策略和计划。在</p>
+<p>这一层，大语言模型发挥着关键作用，通过对自然语言指令的语义理解和知识推理，生</p>
+<p>成一系列的行动建议和决策方案。执行层则根据推理层的输出结果，调用相应的工具和</p>
+<p>API，在实际环境中执行具体的操作，完成任务目标。这种分层架构设计使得各个模块的</p>
+<p>职责清晰，易于维护和扩展，同时也提高了系统的整体性能和可靠性。</p>
+<p>22..22..22 模模块块间间通通信信与与协协同同</p>
+<p>在 Agent 的技术架构中，各个模块之间的通信与协同至关重要。感知层将处理后的数据</p>
+<p>通过消息队列或 RPC（远程过程调用）等机制传递给推理层，推理层在接收到数据后，</p>
+<p>利用大语言模型进行推理计算，并将生成的决策结果和行动指令发送给执行层。执行层</p>
+<p>在完成操作后，将执行结果反馈给推理层，以便推理层进行后续的决策调整和优化。例</p>
+<p>如，在一个智能数据分析 Agent 中，感知层从数据库中获取销售数据，并将其发送给推</p>
+<p>理层；推理层利用大语言模型对数据进行分析，生成数据分析报告的框架和内容要点，</p>
+<p>并将这些指令发送给执行层；执行层根据指令调用文档生成工具，生成详细的数据分析</p>
+<p>报告，并将报告生成结果反馈给推理层。为了确保模块间通信的高效性和可靠性，字节</p>
+<p>跳动采用了一系列先进的技术手段，如消息队列的异步处理机制、数据缓存技术、错误</p>
+<p>重试和容错机制等，以保障系统在高并发、复杂业务场景下的稳定运行。</p>
+<p>33.. 字字节节跳跳动动 AAggeenntt 开开发发流流程程</p>
+<p>33..11 需需求求分分析析与与场场景景定定义义</p>
+<p>33..11..11 挖挖掘掘业业务务痛痛点点与与需需求求</p>
+<p>在字节跳动的各个业务线中，深入挖掘业务痛点和需求是开发 Agent 的首要步骤。这需</p>
+<p>要与业务团队紧密合作，通过现场观察、业务流程分析、用户反馈收集等方式，全面了</p>
+<p>解业务运作过程中存在的问题和挑战。例如，在内容审核业务中，人工审核大量的图文、</p>
+<p>视频内容效率低下且容易出现疲劳导致审核不准确，这就是一个明显的业务痛点。通过</p>
+<p>与审核团队的沟通和对审核流程的详细分析，我们可以明确提出开发一个智能内容审核</p>
+<p>Agent 的需求，该 Agent 需要具备快速准确识别违规内容、自动分类内容类型、实时</p>
+<p>反馈审核结果等功能。在电商业务中，商家面临着商品信息管理繁琐、库存监控不及时</p>
+<p>等问题，我们可以针对这些痛点，提出开发能够自动更新商品信息、实时监控库存并在</p>
+<p>库存不足时自动补货的 Agent 需求。只有精准把握业务痛点，才能确保开发出的</p>
+<p>Agent 真正满足业务需求，为业务带来实际价值。</p>
+<p>33..11..22 定定义义清清晰晰的的应应用用场场景景</p>
+<p>在明确业务需求后，需要进一步定义 Agent 的应用场景。以智能客服 Agent 为例，我</p>
+<p>们可以定义其应用场景为：用户在使用字节跳动旗下产品（如抖音、今日头条等）时，</p>
+<p>遇到产品使用问题、账号相关问题、内容推荐问题等，通过在线客服渠道（如聊天窗口、</p>
+<p>语音客服等）与智能客服 Agent 进行交互，Agent 能够实时解答用户问题、提供解决</p>
+<p>方案、引导用户操作等。在定义应用场景时，需要详细描述场景中的用户角色、用户目</p>
+<p>标、用户行为、环境条件等因素。对于智能客服 Agent，用户角色可能包括普通用户、</p>
+<p>创作者、企业用户等；用户目标可能是解决问题、获取信息、完成某项操作等；用户行</p>
+<p>为可能是输入文字问题、发送语音消息、点击界面按钮等；环境条件可能包括不同的设</p>
+<p>备类型（手机、电脑等）、网络状况等。清晰准确的应用场景定义有助于后续的 Agent 设</p>
+<p>计、开发和测试工作，确保 Agent 在实际应用中能够稳定、高效地运行。</p>
+<p>33..22 模模型型选选择择与与配配置置</p>
+<p>33..22..11 适适配配不不同同业业务务的的模模型型考考量量</p>
+<p>字节跳动拥有丰富的大模型资源，在开发 Agent 时，需要根据不同的业务需求和应用场</p>
+<p>景选择合适的模型。对于需要进行复杂逻辑推理和知识问答的业务场景，如智能法律咨</p>
+<p>询、技术问题解答等，Doubao-Seed-1.6-thinking 等在编码、数学、逻辑推理方面表现</p>
+<p>出色的模型可能更为合适。这些模型能够深入理解问题的本质，运用丰富的知识储备进</p>
+<p>行推理分析，给出准确、专业的回答。对于注重多模态信息处理和创意生成的业务场景，</p>
+<p>如短视频创意辅助、广告文案创作等，Doubao-Seed-1.6 这种支持多模态理解、具备强</p>
+<p>大创意生成能力的综合模型则更具优势。它可以同时处理文本、图像、视频等多种模态</p>
+<p>的信息，为用户提供富有创意和吸引力的内容建议。此外，还需要考虑模型的性能、成</p>
+<p>本、响应速度等因素。对于对响应速度要求极高的实时交互场景，如在线客服，需要选</p>
+<p>择性能优化、响应迅速的模型，以确保用户能够得到及时的回复。</p>
+<p>33..22..22 模模型型参参数数调调整整与与优优化化</p>
+<p>在选定模型后，还需要对模型的参数进行调整和优化，以使其更好地适应具体的业务需</p>
+<p>求。模型参数的调整涉及到多个方面，如语言模型的上下文窗口大小、生成文本的长度</p>
+<p>限制、温度参数（用于控制生成文本的随机性）等。例如，在一个智能写作 Agent 中，</p>
+<p>如果希望生成的文章更加连贯、逻辑清晰，可以适当增大上下文窗口大小，让模型能够</p>
+<p>更好地利用前文信息进行生成；如果需要生成的文本更加多样化、富有创意，可以适当</p>
+<p>提高温度参数，但同时要注意避免生成过于随机、无意义的内容。此外，还可以通过在</p>
+<p>特定业务数据上进行微调的方式，进一步优化模型性能。例如，对于一个专注于电商领</p>
+<p>域的智能客服 Agent，可以使用大量的电商领域问答数据对模型进行微调，使其对电商</p>
+<p>相关的问题理解更加准确，回答更加专业。在进行模型参数调整和优化时，需要通过严</p>
+<p>格的实验和评估，结合业务指标（如准确率、召回率、用户满意度等）来确定最佳的参</p>
+<p>数配置。</p>
+<p>33..33 工工具具与与插插件件集集成成</p>
+<p>33..33..11 扣扣子子平平台台插插件件应应用用</p>
+<p>扣子（Coze）平台为 Agent 开发提供了丰富的插件资源，极大地简化了工具集成的过</p>
+<p>程。在开发 Agent 时，可以根据业务需求在扣子平台上选择合适的插件进行应用。例如，</p>
+<p>若要开发一个具备资讯推送功能的 Agent，可以在扣子平台上找到 “头条新闻” 插件，</p>
+<p>将其集成到 Agent 中。通过该插件，Agent 能够实时获取头条新闻的相关内容，并根</p>
+<p>据用户的兴趣偏好进行筛选和推送。在集成插件时，需要按照扣子平台提供的规范和接</p>
+<p>口进行配置，确保插件与 Agent 的其他模块能够顺畅协作。同时，扣子平台还支持对插</p>
+<p>件进行参数调整，以满足不同业务场景的个性化需求。例如，对于 “头条新闻” 插件，可</p>
+<p>以设置新闻的分类（如科技、娱乐、体育等）、推送频率、新闻来源等参数，使 Agent 能</p>
+<p>够为用户提供定制化的资讯服务。</p>
+<p>33..33..22 自自定定义义工工具具开开发发与与接接入入</p>
+<p>除了使用扣子平台提供的现成插件外，在某些情况下，还需要根据特定的业务需求开发</p>
+<p>自定义工具并接入 Agent。以字节跳动的电商业务为例，为了实现对特定商品数据的深</p>
+<p>度分析和处理，可能需要开发一个自定义的商品数据分析工具。在开发自定义工具时，</p>
+<p>可以采用字节跳动内部推荐的技术栈，如使用 Python 结合相关的数据处理库（如</p>
+<p>Pandas、NumPy 等）进行工具的开发。开发完成后，需要将自定义工具封装成符合</p>
+<p>Agent 平台接口规范的形式，以便能够顺利接入 Agent 系统。通常，这涉及到定义工</p>
+<p>具的输入输出格式、接口调用方式、错误处理机制等。接入自定义工具后，Agent 就能</p>
+<p>够利用该工具的独特功能，完成在现有插件无法满足的复杂业务任务，进一步拓展</p>
+<p>Agent 的能力边界，提升其在特定业务场景下的实用性和竞争力。</p>
+<p>33..44 开开发发与与测测试试</p>
+<p>33..44..11 基基于于 TTrraaee 等等平平台台的的开开发发</p>
+<p>Trae 平台为字节跳动的 Agent 开发提供了便捷的环境和工具支持。在 Trae 平台上，</p>
+<p>开发者可以方便地创建 Agent 项目，进行代码编写、调试和部署等工作。以开发一个智</p>
+<p>能任务调度 Agent 为例，首先在 Trae 平台上创建项目，然后根据任务调度的业务逻</p>
+<p>辑，使用平台支持的编程语言（如 Python）编写代码。在代码编写过程中，可以充分利</p>
+<p>用 Trae 平台提供的各种开发工具和库，如用于与大模型交互的接口库、用于处理任务</p>
+<p>队列的工具库等。Trae 平台还提供了可视化的开发界面，方便开发者对 Agent 的架构、</p>
+<p>工作流程进行设计和管理。例如，通过可视化界面可以直观地定义 Agent 的各个模块之</p>
+<p>间的通信关系、任务执行流程等，降低了开发的复杂性，提高了开发效率。同时，Trae 平</p>
+<p>台支持实时调试功能，开发者可以在开发过程中随时对代码进行调试，查看变量值、跟</p>
+<p>踪程序执行路径，及时发现和解决问题。</p>
+<p>33..44..22 全全面面的的测测试试策策略略与与方方法法</p>
+<p>为了确保开发出的 Agent 能够在实际业务环境中稳定、可靠地运行，需要采用全面的测</p>
+<p>试策略和方法。功能测试是基础，通过设计一系列的测试用例，验证 Agent 是否能够按</p>
+<p>照预期完成各项功能。例如，对于一个智能客服 Agent，需要测试其对各种常见问题和</p>
+<p>边缘问题的回答是否准确、是否能够正确引导用户解决问题等。性能测试也是关键环节，</p>
+<p>测试 Agent 在高并发、大数据量等场景下的响应速度、资源消耗等性能指标。比如，模</p>
+<p>拟大量用户同时与智能客服 Agent 进行交互，测试 Agent 的响应时间是否在可接受范</p>
+<p>围内，服务器的 CPU、内存等资源使用率是否正常。此外，还需要进行兼容性测试，确</p>
+<p>保 Agent 能够在不同的设备（如手机、平板、电脑等）、操作系统（如 iOS、Android、</p>
+<p>Windows 等）和网络环境下正常工作。同时，引入用户测试，邀请真实用户对 Agent 进</p>
+<p>行试用，收集用户的反馈意见，从用户体验的角度发现潜在的问题并进行优化。通过综</p>
+<p>合运用多种测试策略和方法，能够最大程度地保证 Agent 的质量，为其在业务中的成功</p>
+<p>应用奠定坚实基础。</p>
+<p>44.. 字字节节跳跳动动 AAggeenntt 应应用用场场景景详详解解</p>
+<p>44..11 办办公公场场景景</p>
+<p>44..11..11 智智能能文文档档协协作作</p>
+<p>在字节跳动的办公环境中，文档协作是日常工作的重要组成部分。智能文档协作 Agent</p>
+<p>能够极大地提升文档协作的效率和质量。当团队成员共同编辑一份项目报告时，智能文</p>
+<p>档协作 Agent 可以实时感知成员的编辑操作，如文字输入、格式调整、图表插入等。根</p>
+<p>据成员的操作，Agent 能够自动提供智能建议，例如当成员输入一个专业术语时，</p>
+<p>Agent 可以自动弹出相关的解释和参考资料链接；当成员插入一个数据表格时，Agent</p>
+<p>可以根据表格内容推荐合适的图表类型，并自动生成相应的图表。同时，Agent 还能对</p>
+<p>文档内容进行智能检查，如语法错误检查、逻辑一致性检查等，及时提醒成员进行修改。</p>
+<p>在多人协作过程中，Agent 可以跟踪成员的编辑历史，当出现意见分歧时，能够快速定</p>
+<p>位到争议内容，并提供历史版本对比，帮助团队成员更好地沟通和协调。此外，智能文</p>
+<p>档协作 Agent 还可以与其他办公工具集成，如将文档中的任务安排自动同步到团队的</p>
+<p>项目管理工具中，实现办公流程的无缝衔接。</p>
+<p>44..11..22 自自动动化化会会议议安安排排</p>
+<p>会议安排在办公场景中往往耗费大量的时间和精力，自动化会议安排 Agent 能够有效</p>
+<p>解决这一问题。该 Agent 可以与员工的日历系统集成，实时获取员工的日程安排信息。</p>
+<p>当需要安排一次会议时，用户只需向 Agent 提供会议主题、参会人员范围、会议时长等</p>
+<p>基本信息，Agent 就能够根据参会人员的日程情况，自动筛选出合适的会议时间，并向</p>
+<p>参会人员发送会议邀请。在会议邀请中，Agent 可以自动添加会议相关的资料链接、背</p>
+<p>景介绍等信息，方便参会人员提前做好准备。如果有参会人员在收到邀请后无法参加，</p>
+<p>Agent 能够及时感知并重新调整会议时间，再次发送邀请，直到确定一个所有参会人员</p>
+<p>都能参加的会议时间为止。在会议开始前，Agent 会自动向参会人员发送提醒通知，避</p>
+<p>免参会人员遗忘。会议结束后，Agent 还可以根据会议录音或文字记录，自动生成会议</p>
+<p>纪要，并提取出会议中的关键任务和待办事项，分配给相应的责任人，同时将会议纪要</p>
+<p>和任务安排同步到团队的文档协作工具和项目管理工具中，确保会议成果能够及时落地</p>
+<p>和跟踪。例如，在飞书平台上，自动化会议安排 Agent 与飞书日历、飞书文档、飞书项</p>
+<p>目等工具深度集成，实现了从会议安排、会议准备、会议记录到任务跟踪的全流程自动</p>
+<p>化管理，极大地提升了办公效率。</p>
+<p>44..11..33 智智能能邮邮件件管管理理</p>
+<p>邮件作为办公场景中重要的沟通工具，每天都会产生大量的邮件信息，智能邮件管理</p>
+<p>Agent 能够帮助员工高效处理邮件。该 Agent 可以对收到的邮件进行自动分类，根据</p>
+<p>邮件的发件人、主题、内容关键词等信息，将邮件分为工作汇报类、项目沟通类、会议</p>
+<p>邀请类、垃圾邮件类等不同类别，并按照优先级进行排序，将重要且紧急的邮件优先展</p>
+<p>示给员工。对于工作汇报类邮件，Agent 可以自动提取邮件中的关键数据和信息，生成</p>
+<p>简洁的摘要，方便员工快速了解汇报内容；对于项目沟通类邮件，Agent 能够跟踪邮件</p>
+<p>中的项目进展讨论，自动更新项目管理工具中的相关信息，确保项目团队成员能够及时</p>
+<p>了解项目动态。在邮件回复方面，Agent 可以根据邮件内容和员工的历史回复风格，生</p>
+<p>成回复草稿，员工只需进行简单修改即可发送，节省了邮件回复时间。此外，智能邮件</p>
+<p>管理 Agent 还可以设置邮件提醒规则，例如对于重要客户的邮件，设置实时提醒，确保</p>
+<p>员工能够及时处理。</p>
+<p>44..22 电电商商场场景景</p>
+<p>44..22..11 智智能能商商品品管管理理</p>
+<p>在字节跳动的电商业务中，智能商品管理 Agent 能够为商家提供全方位的商品管理支</p>
+<p>持。该 Agent 可以实时监测商品的市场动态，包括竞品的价格变化、促销活动、销售数</p>
+<p>据等，并根据这些信息为商家提供商品定价建议。例如，当发现竞品某款商品进行降价</p>
+<p>促销时，Agent 会分析该商品的市场份额、用户评价以及自身商品的竞争优势，建议商</p>
+<p>家是否跟进降价、调整促销策略或推出差异化的商品卖点。在商品信息维护方面，Agent</p>
+<p>可以自动抓取商品的相关信息，如商品图片、规格参数、使用说明等，并对这些信息进</p>
+<p>行优化处理，例如对商品图片进行尺寸调整、亮度优化，对商品描述进行语言润色和关</p>
+<p>键词优化，提高商品在搜索结果中的曝光率。同时，Agent 还可以根据用户的搜索行为</p>
+<p>和购买历史，分析用户对商品的需求偏好，为商家推荐合适的商品品类和款式，帮助商</p>
+<p>家优化商品结构，提升商品销量。</p>
+<p>44..22..22 智智能能库库存存监监控控与与补补货货</p>
+<p>库存管理是电商业务中的关键环节，智能库存监控与补货 Agent 能够实现库存的精细</p>
+<p>化管理。该 Agent 可以与电商平台的库存系统实时对接，实时获取商品的库存数量、销</p>
+<p>售速度、订单状态等信息，并根据这些数据建立库存预警机制。当商品库存数量低于设</p>
+<p>定的预警阈值时，Agent 会自动向商家发送库存预警通知，并根据商品的历史销售数据、</p>
+<p>市场需求预测、供应商的交货周期等因素，生成补货建议，包括补货数量、补货时间、</p>
+<p>推荐供应商等。例如，对于一款在节假日期间销量大幅增长的商品，Agent 可以根据往</p>
+<p>年的销售数据和今年的市场趋势，预测出节假日期间的销量需求，并提前提醒商家进行</p>
+<p>补货，避免出现库存短缺的情况。在补货过程中，Agent 还可以与供应商的系统进行对</p>
+<p>接，自动发送补货订单，并跟踪订单的发货状态和物流信息，及时向商家反馈补货进展。</p>
+<p>此外，Agent 还可以对库存积压的商品进行分析，找出库存积压的原因，如商品款式过</p>
+<p>时、价格过高、宣传不足等，并为商家提供清库存的建议，如开展促销活动、捆绑销售、</p>
+<p>调整商品定价等，帮助商家减少库存成本，提高资金周转率。</p>
+<p>44..22..33 智智能能客客户户服服务务</p>
+<p>智能客户服务 Agent 是电商场景中提升客户体验和服务效率的重要工具。该 Agent 能</p>
+<p>够通过多种渠道与客户进行交互，如电商平台的聊天窗口、语音客服、短信等，为客户</p>
+<p>提供 7×24 小时的服务支持。在客户咨询方面，Agent 可以准确理解客户的问题，包括</p>
+<p>商品咨询、订单查询、物流跟踪、售后问题等，并提供快速、准确的回答。例如，当客</p>
+<p>户询问 “我购买的商品是否已经发货” 时，Agent 会自动查询客户的订单信息，获取物</p>
+<p>流单号和物流状态，并以简洁明了的方式回复客户，同时提供物流跟踪链接，方便客户</p>
+<p>实时查看物流进展。对于售后问题，如商品质量问题、尺寸不合适等，Agent 能够引导</p>
+<p>客户提供相关的证据信息，如商品照片、视频等，并根据电商平台的售后政策，为客户</p>
+<p>提供解决方案，如退货、换货、退款等，并跟踪售后处理进度，及时向客户反馈处理结</p>
+<p>果。此外，智能客户服务 Agent 还可以对客户的咨询内容和反馈意见进行分析，挖掘客</p>
+<p>户的潜在需求和不满情绪，为商家提供客户服务优化建议，如改进商品质量、优化售后</p>
+<p>流程、提升服务态度等，帮助商家提升客户满意度和忠诚度。</p>
+<p>44..33 内内容容创创作作场场景景</p>
+<p>44..33..11 短短视视频频创创意意辅辅助助</p>
+<p>在抖音等短视频平台上，短视频创意辅助 Agent 为创作者提供了全方位的创意支持，助</p>
+<p>力创作者提升视频创作效率和质量。该 Agent 可以根据创作者输入的主题、风格、目标</p>
+<p>受众等信息，生成丰富的视频创意方案。例如，当创作者希望制作一款关于 “夏季穿搭”</p>
+<p>的短视频时，Agent 可以推荐多种创意方向，如 “夏季通勤穿搭指南”“学生党夏季平价</p>
+<p>穿搭”“海边度假穿搭灵感” 等，并为每个创意方向提供详细的内容框架，包括视频的开头</p>
+<p>引入、中间展示、结尾引导等环节的建议。在素材推荐方面，Agent 可以根据创意方案，</p>
+<p>自动推荐合适的音乐素材、视频片段、图片素材等，这些素材来自字节跳动的素材库，</p>
+<p>确保素材的版权合规和质量。同时，Agent 还可以提供拍摄建议，如拍摄地点选择、拍</p>
+<p>摄角度、光线运用等，帮助创作者拍出更具吸引力的视频画面。在视频编辑过程中，</p>
+<p>Agent 能够实时提供剪辑建议，如剪辑节奏调整、转场效果选择、字幕添加位置等，例</p>
+<p>如当视频内容节奏较慢时，Agent 会建议加快剪辑速度或添加一些动态转场效果，提升</p>
+<p>视频的观赏性。</p>
+<p>44..33..22 图图文文内内容容创创作作辅辅助助</p>
+<p>对于今日头条等图文内容平台，图文内容创作辅助 Agent 能够为作者提供从选题到内</p>
+<p>容生成的全流程支持。在选题阶段，Agent 可以根据当前的热点话题、用户兴趣趋势、</p>
+<p>平台内容政策等因素，为作者推荐合适的选题方向。例如，在科技领域，Agent 可以推</p>
+<p>荐 “人工智能在医疗领域的最新应用”“5G 技术对智能家居发展的影响” 等热门选题，并</p>
+<p>提供选题的相关背景信息和数据支持，帮助作者更好地理解选题的价值和创作方向。在</p>
+<p>内容创作阶段，Agent 可以根据作者确定的选题和大纲，协助作者生成内容初稿。例如，</p>
+<p>当作者需要撰写一篇关于 “健康饮食” 的文章时，Agent 可以根据作者列出的大纲，自</p>
+<p>动生成各个部分的内容，包括健康饮食的重要性、常见的健康食材、健康饮食的搭配原</p>
+<p>则等，并引用相关的科学研究数据和权威机构的建议，增强文章的专业性和可信度。在</p>
+<p>内容优化方面，Agent 可以对文章进行语法检查、错别字修正、语言润色等，提升文章</p>
+<p>的语言表达质量；同时，还可以对文章的结构进行优化，调整段落顺序，使文章的逻辑</p>
+<p>更加清晰。此外，Agent 还可以根据平台的内容推荐算法，为作者提供关键词优化建议，</p>
+<p>帮助作者在文章中合理布局关键词，提高文章在平台的搜索排名和推荐量。</p>
+<p>44..44 教教育育场场景景</p>
+<p>44..44..11 个个性性化化学学习习计计划划制制定定</p>
+<p>个性化学习计划制定 Agent 能够根据学生的个体情况，为学生量身定制专属的学习计</p>
+<p>划，实现因材施教。该 Agent 首先会通过多种方式收集学生的相关信息，包括学生的年</p>
+<p>级、学科基础、学习进度、知识掌握情况、学习习惯、兴趣爱好、学习目标等。例如，</p>
+<p>通过让学生完成入学测试，了解学生在各个学科的知识薄弱点；通过分析学生的学习记</p>
+<p>录，掌握学生的学习时间分配、学习效率、错题类型等情况。然后，Agent 会利用这些</p>
+<p>信息，结合教学大纲和课程标准，为学生制定详细的学习计划。学习计划包括学习目标、</p>
+<p>学习内容、学习时间安排、学习方法建议等方面。例如，对于一名数学基础较弱的初中</p>
+<p>学生，Agent 会在学习计划中重点安排数学基础知识的巩固内容，如代数公式的推导、</p>
+<p>几何图形的性质等，并将学习时间分散到每天的固定时间段，避免学生因学习任务过重</p>
+<p>而产生厌学情绪；同时，根据学生喜欢通过视频学习的习惯，推荐相关的数学教学视频</p>
+<p>资源，并建议学生在学习后完成相应的练习题进行巩固。在学习计划的执行过程中，</p>
+<p>Agent 会实时跟踪学生的学习进度和学习效果，根据学生的学习情况对学习计划进行动</p>
+<p>态调整。例如，当学生某一知识点掌握较好时，Agent 会适当加快该知识点相关内容的</p>
+<p>学习进度，增加难度；当学生某一知识点学习困难时，Agent 会放慢进度，提供更多的</p>
+<p>学习资源和辅导，帮助学生攻克难点。</p>
+<p>44..44..22 智智能能答答疑疑与与辅辅导导</p>
+<p>智能答疑与辅导 Agent 为学生提供了随时随地的学习辅导支持，帮助学生及时解决学</p>
+<p>习过程中遇到的问题。该 Agent 能够通过文本、语音、图像等多种方式接收学生的问题，</p>
+<p>例如学生可以通过输入文字描述问题、拍摄题目照片或录制语音提问等方式向 Agent</p>
+<p>求助。对于数学、物理等理科类问题，Agent 能够准确识别题目中的知识点和解题关键，</p>
+<p>通过逐步推导的方式为学生提供详细的解题步骤和思路讲解，帮助学生理解解题过程。</p>
+<p>例如，当学生询问一道数学几何证明题时，Agent 会先分析题目给出的已知条件和求证</p>
+<p>结论，然后引导学生回忆相关的几何定理和性质，逐步推导证明过程，并在关键步骤处</p>
+<p>进行提示和讲解，确保学生能够跟上解题思路。对于语文、英语等文科类问题，Agent 可</p>
+<p>以对题目进行详细的解析，如语文阅读理解题，Agent 会分析文章的主旨大意、段落结</p>
+<p>构、修辞手法等，帮助学生理解文章内容，并指导学生如何从文章中提取关键信息进行</p>
+<p>答题；英语语法题，Agent 会讲解相关的语法规则，并举例说明，帮助学生掌握语法知</p>
+<p>识。此外，智能答疑与辅导 Agent 还可以根据学生的问题类型和错误原因，为学生推荐</p>
+<p>相关的练习题和学习资源，帮助学生进行针对性的强化训练，巩固所学知识。</p>
+<p>55.. 字字节节跳跳动动 AAggeenntt 运运营营与与优优化化</p>
+<p>55..11 运运营营数数据据监监测测与与分分析析</p>
+<p>55..11..11 关关键键运运营营指指标标定定义义</p>
+<p>为了全面评估 Agent 在业务中的应用效果，需要定义明确的关键运营指标（KPI）。不</p>
+<p>同业务场景下的 Agent，其关键运营指标有所不同。在办公场景中，智能文档协作</p>
+<p>Agent 的关键运营指标包括文档协作效率提升率（如团队完成文档协作的平均时间缩短</p>
+<p>比例）、文档错误率降低比例（如语法错误、逻辑错误的减少比例）、员工对 Agent 的使</p>
+<p>用率和满意度等；自动化会议安排 Agent 的关键运营指标包括会议安排时间缩短比例</p>
+<p>（如人工安排会议平均时间与 Agent 安排会议平均时间的差值比例）、会议邀请响应率、</p>
+<p>会议取消率、参会人员对会议安排的满意度等。在电商场景中，智能客户服务 Agent 的</p>
+<p>关键运营指标包括客户咨询响应时间（如从客户发出咨询到 Agent 回复的平均时间）、</p>
+<p>客户问题解决率（如 Agent 成功解决客户问题的数量占客户总咨询数量的比例）、客户</p>
+<p>满意度评分、客户投诉率等；智能库存监控与补货 Agent 的关键运营指标包括库存短缺</p>
+<p>率（如因库存不足导致无法发货的订单数量占总订单数量的比例）、库存周转率（如商品</p>
+<p>库存的平均周转天数）、补货准确率（如实际补货数量与推荐补货数量的偏差比例）等。</p>
+<p>在内容创作场景中，短视频创意辅助 Agent 的关键运营指标包括创作者使用 Agent 生</p>
+<p>成创意方案的比例、使用 Agent 辅助创作的视频播放量提升率、点赞率、评论率、转发</p>
+<p>率等；图文内容创作辅助 Agent 的关键运营指标包括作者使用 Agent 的频率、文章创</p>
+<p>作时间缩短比例、文章阅读量、收藏量、分享量等。在教育场景中，个性化学习计划制</p>
+<p>定 Agent 的关键运营指标包括学生学习计划完成率、学生知识掌握程度提升比例（如学</p>
+<p>生在测试中的平均分提高比例）、学生对学习计划的满意度等；智能答疑与辅导 Agent</p>
+<p>的关键运营指标包括学生问题解答准确率、学生提问响应时间、学生对辅导服务的满意</p>
+<p>度、学生学习成绩提升比例等。</p>
+<p>55..11..22 数数据据监监测测工工具具与与方方法法</p>
+<p>字节跳动拥有完善的数据监测工具和体系，能够为 Agent 的运营数据监测提供有力支</p>
+<p>持。在数据采集方面，常用的工具包括内部开发的日志采集系统（如 LogAgent）、数据</p>
+<p>埋点工具（如 ByteTrack）等。LogAgent 能够实时采集 Agent 运行过程中的各种日志</p>
+<p>数据，包括用户交互日志（如用户的输入内容、Agent 的回复内容、用户的操作行为等）、</p>
+<p>系统运行日志（如 Agent 的响应时间、资源消耗、错误信息等）、业务数据日志（如电</p>
+<p>商场景中的订单数据、库存数据，教育场景中的学生学习数据等）。ByteTrack 则通过在</p>
+<p>Agent 的相关功能模块中设置埋点，采集用户的关键行为数据，如用户是否点击 Agent</p>
+<p>推荐的功能、是否使用 Agent 生成的内容、是否对 Agent 的服务进行评价等。在数据</p>
+<p>存储和管理方面，字节跳动采用分布式数据存储系统（如 HDFS）和数据仓库（如</p>
+<p>ByteHouse）来存储大量的运营数据。ByteHouse 具备高性能的数据存储和查询能力，</p>
+<p>能够支持大规模数据的实时分析和离线分析。在数据分析方面，常用的工具包括 SQL</p>
+<p>查询工具（如 DataGear）、数据可视化工具（如 DataV）、机器学习分析平台（如</p>
+<p>ByteML）等。DataGear 支持通过 SQL 语句对数据仓库中的数据进行查询和分析，提</p>
+<p>取所需的运营指标数据；DataV 能够将分析后的数据以图表、报表等形式进行可视化展</p>
+<p>示，如折线图展示 Agent 的日活跃用户数变化趋势、柱状图展示不同业务场景下</p>
+<p>Agent 的问题解决率对比、仪表盘展示 Agent 的关键运营指标实时数据等，方便运营</p>
+<p>人员直观地了解 Agent 的运营情况。ByteML 则可以利用机器学习算法对运营数据进</p>
+<p>行深度分析，如通过聚类分析识别不同用户群体对 Agent 的使用习惯，通过回归分析预</p>
+<p>测 Agent 关键运营指标的变化趋势，为 Agent 的优化提供数据支持。</p>
+<p>55..22 AAggeenntt 性性能能优优化化</p>
+<p>55..22..11 响响应应速速度度优优化化</p>
+<p>Agent 的响应速度直接影响用户体验，尤其是在实时交互场景（如智能客服、在线辅导）</p>
+<p>中，快速的响应能够提升用户的满意度和使用意愿。针对 Agent 响应速度优化，可从多</p>
+<p>个层面采取措施。在模型层面，对于大语言模型，可通过模型压缩（如量化、剪枝）的</p>
+<p>方式减小模型体积，降低模型推理时的计算量，从而提高模型的响应速度。例如，将</p>
+<p>Doubao-Seed-1.6 模型进行量化处理，将模型参数从 32 位浮点数转换为 16 位浮点</p>
+<p>数甚至 8 位整数，在保证模型性能损失较小的前提下，显著提升模型的推理速度。同时，</p>
+<p>还可以采用模型蒸馏的方法，以复杂的大模型作为教师模型，训练一个结构更简单、参</p>
+<p>数更少的学生模型，学生模型能够继承教师模型的大部分能力，且推理速度更快，适用</p>
+<p>于对响应速度要求较高的场景。在系统架构层面，可采用缓存技术减少重复计算和数据</p>
+<p>查询时间。例如，将 Agent 经常使用的工具调用结果、模型生成的常见回复、用户的历</p>
+<p>史交互信息等缓存在 Redis 等缓存系统中，当 Agent 再次需要这些信息时，可直接从</p>
+<p>缓存中获取，而无需重新调用工具或查询数据库，大大缩短了响应时间。此外，还可以</p>
+<p>采用分布式部署的方式，将 Agent 的不同模块部署在多个服务器节点上，通过负载均衡</p>
+<p>技术将用户请求均匀分配到各个节点，避免单个节点因负载过高而导致响应延迟，提高</p>
+<p>系统的整体处理能力和响应速度。在网络层面，可优化 API 调用和数据传输过程，减少</p>
+<p>网络延迟。例如，对 Agent 与外部工具、数据库之间的 API 调用进行批量处理，将多</p>
+<p>个小的 API 请求合并为一个大的请求，减少网络请求次数；采用数据压缩技术（如</p>
+<p>Gzip）对传输的数据进行压缩，减小数据传输量，提高数据传输速度；选择距离用户较</p>
+<p>近的服务器节点部署 Agent 相关服务，缩短数据传输的物理距离，降低网络延迟。</p>
+<p>55..22..22 准准确确性性优优化化</p>
+<p>Agent 的准确性是其在业务中发挥作用的关键，不准确的响应可能会导致用户误解、业</p>
+<p>务失误，甚至影响用户对产品的信任。为了优化 Agent 的准确性，可从数据、模型、策</p>
+<p>略等多个方面入手。在数据层面，高质量的训练数据和反馈数据是提高 Agent 准确性的</p>
+<p>基础。可通过多种方式收集和整理高质量的数据，如人工标注用户交互数据，确保数据</p>
+<p>的准确性和完整性；从用户反馈中筛选出 Agent 响应错误的案例，进行人工修正后加入</p>
+<p>训练数据集；利用数据清洗工具去除数据中的噪声、重复数据和错误数据，提高数据质</p>
+<p>量。同时，还可以构建领域知识库，将业务领域的专业知识、规则、常见问题及答案等</p>
+<p>整理成结构化的数据，存储在知识库中，Agent 在处理用户请求时，可通过查询知识库</p>
+<p>获取准确的信息，辅助模型生成正确的响应。例如，在电商智能客服场景中，构建电商</p>
+<p>领域知识库，包含商品信息、订单规则、售后政策、物流知识等，当用户询问相关问题</p>
+<p>时，Agent 可结合知识库中的信息生成准确的回复，避免因模型知识不足而导致的错误。</p>
+<p>在模型层面，除了选择合适的模型和进行参数优化外，还可以采用多模型融合的策略提</p>
+<p>高准确性。例如，将多个不同类型的模型（如大语言模型、规则模型、检索模型）结合</p>
+<p>起来，对于用户的请求，先通过规则模型进行初步判断，若规则模型能够明确处理（如</p>
+<p>简单的订单查询、常见问题解答），则直接返回结果；若规则模型无法处理，则调用检索</p>
+<p>模型从知识库中查找相关信息，结合大语言模型生成回复，通过多模型的协同工作，提</p>
+<p>高 Agent 的准确性。在策略层面，可引入人工审核机制，对 Agent 的响应进行监督和</p>
+<p>修正。例如，在智能客服场景中，对于 Agent 生成的回复，先由人工客服进行审核，确</p>
+<p>认回复准确无误后再发送给用户；对于 Agent 无法解决的复杂问题，自动转交给人工客</p>
+<p>服处理，并将人工客服的处理结果反馈给 Agent，用于模型的后续优化。同时，还可以</p>
+<p>建立反馈闭环，及时收集用户对 Agent 响应的评价（如满意、不满意、需要改进）和修</p>
+<p>改建议，将这些反馈信息作为模型迭代优化的依据，不断调整模型参数和策略，提升</p>
+<p>Agent 的准确性。</p>
+<p>55..33 用用户户体体验验优优化化</p>
+<p>55..33..11 交交互互方方式式优优化化</p>
+<p>优化 Agent 的交互方式，能够让用户更便捷、更自然地与 Agent 进行交互，提升用户</p>
+<p>体验。首先，支持多模态交互是重要的优化方向。除了传统的文本交互外，还可以支持</p>
+<p>语音、图像、视频等多种交互方式。例如，在智能答疑场景中，学生可以通过拍摄题目</p>
+<p>照片的方式向 Agent 提问，Agent 通过图像识别技术识别题目内容，并生成解答；在</p>
+<p>短视频创意辅助场景中，创作者可以通过语音描述自己的创意想法，Agent 将语音转换</p>
+<p>为文本后，生成相应的创意方案。多模态交互方式能够满足不同用户的使用习惯和场景</p>
+<p>需求，提高交互的便捷性。其次，优化交互流程，减少用户操作步骤。例如，在自动化</p>
+<p>会议安排场景中，用户只需通过自然语言向 Agent 提出会议安排需求（如 “下周三下午</p>
+<p>3 点安排一次产品研发会议，参会人员包括张三、李四、王五”），Agent 即可自动提取</p>
+<p>关键信息，完成会议时间筛选、参会人员邀请等操作，无需用户进行多次手动输入和确</p>
+<p>认；在智能商品管理场景中，商家只需告知 Agent 需要优化的商品品类，Agent 即可</p>
+<p>自动完成市场数据采集、定价建议生成、商品信息优化等一系列操作，减少商家的操作</p>
+<p>负担。此外，还可以引入上下文感知能力，让 Agent 能够理解用户的上下文意图，实现</p>
+<p>连贯的交互。例如，用户先询问 “我购买的手机什么时候发货”，Agent 回复后，用户接</p>
+<p>着问 “它大概什么时候能到”，Agent 能够根据上一轮的交互信息，明确 “它” 指的是用</p>
+<p>户购买的手机，并结合物流信息给出准确的到货时间预测，无需用户再次明确说明，提</p>
+<p>升交互的自然性和流畅性。</p>
+<p>55..33..22 个个性性化化交交互互优优化化</p>
+<p>个性化交互优化能够让 Agent 更好地适应不同用户的需求和偏好，提供更贴心的服务。</p>
+<p>首先，基于用户画像实现个性化响应。通过收集和分析用户的基本信息、使用习惯、历</p>
+<p>史交互记录、兴趣偏好等数据，构建详细的用户画像。Agent 在与用户交互时，根据用</p>
+<p>户画像调整响应的内容、语气、风格等。例如，对于年轻的创作者用户，Agent 的响应</p>
+<p>可以更活泼、更具创意，使用流行的网络用语和表情符号；对于企业用户，Agent 的响</p>
+<p>应则更正式、更专业，注重数据和逻辑的严谨性；对于老年用户，Agent 的响应可以更</p>
+<p>简洁、更易懂，避免使用复杂的专业术语。其次，提供个性化的功能推荐。根据用户的</p>
+<p>使用习惯和需求，向用户推荐 Agent 的相关功能，帮助用户发现更适合自己的服务。例</p>
+<p>如，在办公场景中，对于经常进行文档协作的用户，推荐智能文档协作 Agent 的高级功</p>
+<p>能（如多人实时编辑、文档版本管理、智能图表生成等）；对于经常出差的用户，推荐自</p>
+<p>动化会议安排 Agent 的行程同步功能（如将会议安排同步到手机日历、提醒用户提前到</p>
+<p>达会议地点等）。此外，还可以允许用户自定义 Agent 的交互设置，如设置 Agent 的响</p>
+<p>应速度优先级（是优先保证速度还是优先保证准确性）、交互方式偏好（默认文本交互还</p>
+<p>是语音交互）、信息展示方式（简洁模式还是详细模式）等，让用户能够根据自己的需求</p>
+<p>调整 Agent 的交互体验，提升用户的满意度和忠诚度。</p>
+<p>66.. 字字节节跳跳动动 AAggeenntt 安安全全与与合合规规</p>
+<p>66..11 数数据据安安全全保保障障</p>
+<p>66..11..11 数数据据采采集集安安全全</p>
+<p>在 Agent 的运行过程中，会涉及大量用户数据、业务数据的采集，确保数据采集安全是</p>
+<p>数据安全保障的首要环节。首先，需遵循 “最小必要” 原则，仅采集 Agent 运行和业务</p>
+<p>开展所必需的数据，不采集与业务无关的用户信息。例如，在智能客服 Agent 中，仅采</p>
+<p>集用户的咨询内容、订单信息（用于查询订单状态）、联系方式（用于必要时反馈处理结</p>
+<p>果）等数据，不采集用户的地理位置、浏览历史等与客服业务无关的数据。同时，在采</p>
+<p>集数据前，需明确告知用户数据采集的目的、范围、用途和保存期限，并获得用户的明</p>
+<p>确授权。例如，在用户首次使用 Agent 时，通过弹窗或协议的方式向用户展示数据采集</p>
+<p>相关的隐私政策，用户同意后才开始采集数据；对于敏感数据（如用户的身份证号、银</p>
+<p>行卡号、手机号等），需单独获得用户的书面或电子授权，确保用户知情权和选择权。</p>
+<p>其次，采用安全的数据采集方式，防止数据在采集过程中被窃取、篡改或泄露。例如，</p>
+<p>对于用户通过网络输入的文本数据、上传的图像数据、录制的语音数据等，采用加密传</p>
+<p>输技术（如 HTTPS、TLS）进行传输，确保数据在传输过程中的安全性；在采集用户设</p>
+<p>备上的数据（如手机相册中的图片、通讯录中的联系人信息）时，通过调用设备系统提</p>
+<p>供的安全接口，遵循设备系统的安全规范，避免直接访问设备存储区域，防止数据采集</p>
+<p>过程中对用户设备安全造成威胁。此外，还需对采集的数据进行实时监测和审计，建立</p>
+<p>数据采集日志，记录数据采集的时间、地点、采集人、采集内容、数据来源等信息，以</p>
+<p>便后续追溯和审计；同时，通过异常检测技术监测数据采集过程中的异常行为，如大量</p>
+<p>数据的异常采集、未经授权的数据采集请求等，及时发现并阻止数据采集安全事件的发</p>
+<p>生。</p>
+<p>66..11..22 数数据据存存储储安安全全</p>
+<p>数据存储阶段是数据安全的重要保障环节，需采取多种措施确保存储数据的机密性、完</p>
+<p>整性和可用性。首先，对存储的数据进行分类分级管理，根据数据的敏感程度将数据分</p>
+<p>为不同的级别（如公开数据、内部数据、敏感数据、核心数据），针对不同级别的数据采</p>
+<p>取不同的安全保护措施。例如，对于公开数据（如 Agent 的功能介绍、使用指南），可</p>
+<p>采用普通的存储方式；对于内部数据（如 Agent 的运营数据、非敏感的业务数据），采</p>
+<p>用访问控制和加密存储；对于敏感数据（如用户的身份证号、银行卡号、手机号）和核</p>
+<p>心数据（如 Agent 的核心算法、模型参数、业务核心数据），采用高强度的加密算法（如</p>
+<p>AES-256、RSA-2048）进行加密存储，加密密钥采用密钥管理系统（KMS）进行统一</p>
+<p>管理，确保密钥的安全性和可管理性。其次，采用安全的存储架构和设备，选择具备高</p>
+<p>安全性、高可靠性的存储系统（如字节跳动内部的安全存储服务 ByteStore），该存储系</p>
+<p>统具备数据备份、容灾恢复、访问控制、日志审计等功能。同时，对存储设备进行物理</p>
+<p>安全防护，如部署在具备严格门禁管理、视频监控、消防设施的机房内，防止存储设备</p>
+<p>被物理破坏或窃取。此外，建立完善的数据备份和恢复机制，定期对存储的数据进行备</p>
+<p>份，备份数据采用与原数据相同的加密方式进行存储，并将备份数据存储在不同的地理</p>
+<p>位置（如本地备份和异地备份），以防止因自然灾害、设备故障、人为破坏等原因导致数</p>
+<p>据丢失。同时，定期对备份数据进行恢复测试，确保备份数据的可用性和完整性，当发</p>
+<p>生数据丢失或损坏时，能够快速通过备份数据恢复，减少业务损失。</p>
+<p>66..11..33 数数据据使使用用安安全全</p>
+<p>数据使用安全是确保数据在授权范围内合法、合规使用，防止数据被滥用、泄露或篡改</p>
+<p>的关键。首先，实施严格的访问控制机制，根据用户的角色、职责和业务需求，为用户</p>
+<p>分配不同的数据访问权限，确保用户只能访问其工作所必需的数据。例如，在智能客服</p>
+<p>团队中，普通客服人员只能访问用户的咨询内容和订单信息（脱敏处理后），无法访问用</p>
+<p>户的敏感个人信息（如身份证号、银行卡号）；客服管理人员可以访问客服团队的整体运</p>
+<p>营数据，但无法访问单个用户的详细信息。访问控制采用基于角色的访问控制（RBAC）</p>
+<p>或基于属性的访问控制（ABAC）模型，并结合多因素认证（MFA）技术，如密码 + 验</p>
+<p>证码、密码 + 生物识别（指纹、人脸）等，提高访问的安全性。其次，对数据使用过程</p>
+<p>进行实时监控和审计，建立数据使用日志，记录用户访问数据的时间、地点、操作类型</p>
+<p>（如查询、修改、删除、导出）、数据内容等信息，通过日志审计工具对数据使用日志进</p>
+<p>行定期审计和分析，及时发现异常的数据使用行为，如未经授权的数据导出、大量数据</p>
+<p>的查询、数据的异常修改等，并及时采取措施（如暂停用户访问权限、进行调查取证），</p>
+<p>防止数据泄露或滥用。此外，在数据使用过程中，还需对敏感数据进行脱敏处理，避免</p>
+<p>敏感数据在非必要场景下的暴露。例如，在展示用户手机号时，将中间四位数字替换为 “”</p>
+<p>（如 13855667788））；；在在展展示示用用户户身身份份证证号号时时，，将将中中间间八八位位数数字字替替换换为为 ““””（（如如 1111001100111234）；</p>
+<p>在进行数据分析时，对敏感数据进行匿名化处理，去除数据中的个人标识信息，确保数</p>
+<p>据无法关联到具体的个人。同时，禁止将 Agent 相关的数据用于与业务无关的用途，如</p>
+<p>禁止将用户数据用于广告精准投放（除非获得用户明确授权）、禁止将 Agent 的核心算</p>
+<p>法和模型参数泄露给外部人员或机构，确保数据使用的合规性和安全性。</p>
+<p>66..22 合合规规管管理理</p>
+<p>66..22..11 法法律律法法规规遵遵循循</p>
+<p>字节跳动的 Agent 开发和运营严格遵循国内外相关的法律法规，确保 Agent 的应用符</p>
+<p>合法律要求，避免法律风险。在国内，主要遵循《中华人民共和国网络安全法》《中华人</p>
+<p>民共和国数据安全法》《中华人民共和国个人信息保护法》《生成式人工智能服务管理暂</p>
+<p>行办法》等法律法规。例如，根据《个人信息保护法》的要求，在采集、存储、使用、</p>
+<p>传输、共享用户个人信息时，需获得用户的明确同意，确保用户的知情权、选择权、更</p>
+<p>正权、删除权等权利；根据《生成式人工智能服务管理暂行办法》的要求，Agent 生成</p>
+<p>的内容需符合法律法规和公序良俗，不得含有危害国家安全、损害公共利益、侵犯他人</p>
+<p>合法权益的内容，同时需对生成内容的来源进行标注，确保内容的可追溯性。在国际业</p>
+<p>务中，还需遵循当地的法律法规，如欧盟的《通用数据保护条例》（GDPR）、美国的《加</p>
+<p>州消费者隐私法案》（CCPA）等，根据当地法律要求调整 Agent 的数据处理流程、隐</p>
+<p>私政策和服务条款，确保国际业务的合规性。为了确保法律法规的有效遵循，字节跳动</p>
+<p>建立了专门的合规团队，负责跟踪国内外法律法规的更新动态，对 Agent 的开发和运营</p>
+<p>进行合规审查和指导；同时，定期组织技术团队、运营团队、产品团队进行法律法规培</p>
+<p>训，提高员工的合规意识和法律素养，确保员工在工作中能够遵守相关法律法规。</p>
+<p>66..22..22 内内部部合合规规制制度度建建设设</p>
+<p>除了遵循外部法律法规外，字节跳动还建立了完善的内部合规制度，规范 Agent 的开发、</p>
+<p>测试、部署、运营等各个环节的行为，确保 Agent 的全生命周期合规。首先，制定</p>
+<p>Agent 开发合规规范，明确 Agent 开发过程中的数据采集、模型训练、工具集成、功能</p>
+<p>设计等方面的合规要求。例如，在模型训练数据方面，规范要求训练数据必须来源合法、</p>
+<p>授权明确，不得使用未经授权的版权数据、个人信息数据；在工具集成方面，要求集成</p>
+<p>的外部工具和 API 必须经过安全评估和合规审查，确保工具的安全性和合规性。其次，</p>
+<p>建立 Agent 测试合规流程，在 Agent 测试阶段，除了进行功能测试、性能测试、安全</p>
+<p>测试外，还需进行合规测试，验证 Agent 是否符合法律法规和内部合规制度的要求。例</p>
+<p>如，测试 Agent 的数据采集是否获得用户授权、生成的内容是否符合内容规范、数据使</p>
+<p>用是否符合访问控制要求等，对于合规测试中发现的问题，需及时进行整改，整改完成</p>
+<p>后才能进入下一阶段。此外，还建立了 Agent 运营合规监控机制，在 Agent 运营过程</p>
+<p>中，实时监控 Agent 的运行情况、数据处理情况、内容生成情况等，通过自动化监控工</p>
+<p>具和人工审核相结合的方式，及时发现和处理合规风险。例如，监控 Agent 是否存在未</p>
+<p>经授权的数据采集行为、是否生成违规内容、是否存在数据泄露风险等，对于发现的合</p>
+<p>规问题，启动应急预案，采取暂停服务、数据隔离、用户通知等措施，降低合规风险造</p>
+<p>成的影响。同时，定期对 Agent 的合规情况进行审计和评估，总结合规管理经验，不断</p>
+<p>完善内部合规制度，适应法律法规的变化和业务发展的需求。</p>
+<p>77.. 字字节节跳跳动动 AAggeenntt 未未来来发发展展方方向向</p>
+<p>77..11 技技术术创创新新方方向向</p>
+<p>77..11..11 多多模模态态融融合合技技术术深深化化</p>
+<p>随着用户需求的多样化和业务场景的复杂化，单一模态的 Agent 已无法满足需求，多模</p>
+<p>态融合技术将成为字节跳动 Agent 未来的重要技术创新方向。未来，字节跳动将进一步</p>
+<p>深化多模态融合技术的研究和应用，实现文本、语音、图像、视频、音频、传感器数据</p>
+<p>等多种模态信息的深度融合和协同处理。例如，在智能办公场景中，Agent 能够同时处</p>
+<p>理会议的语音记录、视频画面、会议文档、参会人员的表情动作等多模态信息，通过分</p>
+<p>析语音记录提取会议关键内容，通过分析视频画面和表情动作判断参会人员的情绪和参</p>
+<p>与度，通过分析会议文档了解会议主题和讨论背景，综合多模态信息生成更全面、更准</p>
+<p>确的会议纪要和任务安排。在电商场景中，Agent 能够结合商品的图像、视频、文字描</p>
+<p>述、用户的语音评价、使用场景的传感器数据（如商品的使用温度、压力数据）等多模</p>
+<p>态信息，为用户提供更全面的商品介绍和使用建议，帮助用户做出更准确的购买决策。</p>
+<p>为了实现多模态融合技术的深化，字节跳动将加大对多模态大模型的研发投入，突破多</p>
+<p>模态信息的统一表示、跨模态注意力机制、多模态推理等关键技术，开发出具备更强多</p>
+<p>模态理解和生成能力的大模型，为 Agent 的多模态融合应用提供核心技术支撑。同时，</p>
+<p>还将优化多模态数据的采集、标注和训练流程，构建大规模、高质量的多模态数据集，</p>
+<p>提升多模态模型的性能和泛化能力。</p>
+<p>77..11..22 自自主主学学习习与与进进化化能能力力提提升升</p>
+<p>当前的 Agent 大多需要依赖人工干预进行优化和更新，如人工标注数据、调整模型参数、</p>
+<p>更新知识库等，缺乏自主学习和进化的能力。未来，字节跳动将致力于提升 Agent 的自</p>
+<p>主学习与进化能力，使 Agent 能够在实际运行过程中，通过不断学习用户反馈、环境变</p>
+<p>化、业务数据等信息，自动优化自身的模型、策略和知识库，实现持续进化。例如，在</p>
+<p>智能答疑与辅导 Agent 中，Agent 能够通过分析学生的学习效果数据（如测试成绩、</p>
+<p>作业完成情况）、提问内容、对 Agent 辅导的反馈意见等信息，自动识别自身在知识点</p>
+<p>讲解、解题思路引导等方面的不足，自主调整辅导策略和内容，优化模型参数，提升辅</p>
+<p>导效果；同时，能够自动从最新的教育资源、学术研究成果中学习新知识，更新自身的</p>
+<p>知识库，确保辅导内容的时效性和准确性。在电商智能客服 Agent 中，Agent 能够通</p>
+<p>过分析客户的咨询内容、投诉反馈、购买行为等信息，自动学习新的客户需求和问题类</p>
+<p>型，更新常见问题及答案库，优化客户问题的识别和解决能力；同时，能够从市场动态、</p>
+<p>竞品信息、行业政策等变化中学习，调整客户服务策略，适应市场变化。为了提升</p>
+<p>Agent 的自主学习与进化能力，字节跳动将研究和应用强化学习、自监督学习、元学习</p>
+<p>等先进的机器学习技术，设计适合 Agent 的自主学习框架和算法，使 Agent 能够在无</p>
+<p>人工干预或少量人工干预的情况下，实现自我优化和进化。同时，还将建立 Agent 的进</p>
+<p>化评估机制，定期评估 Agent 的自主学习效果和进化方向，确保 Agent 的进化符合业</p>
+<p>务需求和用户期望。</p>
+<p>77..11..33 跨跨场场景景协协同同能能力力增增强强</p>
+<p>随着字节跳动业务的不断拓展和融合，用户在不同业务场景之间的切换日益频繁，对</p>
+<p>Agent 跨场景协同能力的需求也越来越高。未来，字节跳动将重点增强 Agent 的跨场</p>
+<p>景协同能力，实现不同业务场景下 Agent 之间的信息共享、功能协同和任务协作，为用</p>
+<p>户提供无缝、连贯的服务体验。例如，用户在抖音平台浏览某款商品的短视频后，产生</p>
+<p>购买兴趣，此时抖音的商品推荐 Agent 可以将用户的兴趣信息和商品浏览记录同步给</p>
+<p>电商平台的智能客服 Agent 和智能商品管理 Agent；当用户进入电商平台购买该商品</p>
+<p>时，智能客服 Agent 能够基于同步的信息，快速为用户提供商品的详细介绍、优惠信息</p>
+<p>和购买建议，无需用户重复说明需求；智能商品管理 Agent 能够根据用户的浏览记录，</p>
+<p>确保该商品库存充足，并为用户提供个性化的物流选择。在办公场景中，用户在飞书文</p>
+<p>档中编辑项目计划时，智能文档协作 Agent 可以将项目计划中的任务信息同步给自动</p>
+<p>化会议安排 Agent 和智能任务管理 Agent；自动化会议安排 Agent 能够根据任务的时</p>
+<p>间节点和参与人员，自动安排项目会议；智能任务管理 Agent 能够将任务分配给相应的</p>
+<p>责任人，并跟踪任务进度，实现项目计划、会议安排、任务管理的跨场景协同。为了增</p>
+<p>强 Agent 的跨场景协同能力，字节跳动将构建统一的 Agent 协同平台，制定统一的信</p>
+<p>息交互标准和接口规范，实现不同场景下 Agent 之间的高效通信和数据共享。同时，还</p>
+<p>将研究跨场景任务规划和协同调度算法，确保 Agent 之间能够根据用户需求和业务目</p>
+<p>标，合理分配任务、协同工作，实现跨场景服务的无缝衔接。</p>
+<p>77..22 业业务务拓拓展展方方向向</p>
+<p>77..22..11 垂垂直直行行业业深深度度渗渗透透</p>
+<p>目前，字节跳动的 Agent 已在办公、电商、内容创作、教育等多个业务领域得到应用，</p>
+<p>但在一些垂直行业（如医疗、金融、工业制造、法律等）的应用还处于初步阶段。未来，</p>
+<p>字节跳动将加大在垂直行业的 Agent 应用拓展力度，实现 Agent 在垂直行业的深度渗</p>
+<p>透，为行业客户提供专业化、定制化的 Agent 解决方案。在医疗行业，将开发医疗辅助</p>
+<p>Agent，该 Agent 能够协助医生进行病历分析、疾病诊断辅助、治疗方案推荐等工作，</p>
+<p>例如通过分析患者的病历数据、检查报告、影像资料等信息，为医生提供可能的疾病诊</p>
+<p>断建议和治疗方案参考；同时，还能够为患者提供健康咨询、疾病预防指导、用药提醒</p>
+<p>等服务，帮助患者管理自身健康。在金融行业，将开发金融服务 Agent，该 Agent 能够</p>
+<p>为用户提供个性化的金融产品推荐（如理财产品、贷款产品）、投资咨询、风险评估等服</p>
+<p>务；同时，能够协助金融机构进行客户关系管理、风险控制、反欺诈检测等工作，例如</p>
+<p>通过分析用户的财务状况、信用记录、交易行为等信息，评估用户的信用风险和投资风</p>
+<p>险，为金融机构的决策提供支持。在工业制造行业，将开发工业智能 Agent，该 Agent 能</p>
+<p>够实时监测生产设备的运行状态、生产过程中的数据（如温度、压力、转速等），预测设</p>
+<p>备故障，提供维护建议，优化生产流程，提高生产效率和产品质量；同时，能够协助企</p>
+<p>业进行供应链管理、库存优化、订单处理等工作，提升企业的整体运营效率。为了实现</p>
+<p>垂直行业的深度渗透，字节跳动将与行业内的专业机构、企业合作，深入了解行业需求</p>
+<p>和业务流程，结合行业知识和技术优势，开发符合行业特点的 Agent 解决方案；同时，</p>
+<p>将培养具备行业知识和 Agent 技术的复合型人才，为垂直行业 Agent 的开发和运营提</p>
+<p>供人才支持。</p>
+<p>77..22..22 全全球球化化业业务务适适配配</p>
+<p>随着字节跳动全球化战略的推进，Agent 作为业务创新和用户体验提升的重要工具，也</p>
+<p>将逐步向全球市场拓展。未来，字节跳动将加强 Agent 的全球化业务适配能力，根据不</p>
+<p>同国家和地区的文化习惯、法律法规、用户需求，开发适合当地市场的 Agent 产品和服</p>
+<p>务，推动 Agent 在全球范围内的应用。在语言适配方面，将进一步提升 Agent 的多语</p>
+<p>言处理能力，支持更多语种的自然语言理解和生成，不仅能够处理英语、日语、韩语、</p>
+<p>西班牙语等主流语种，还能够支持小语种的处理，确保不同语言背景的用户能够便捷地</p>
+<p>与 Agent 进行交互。同时，还将优化 Agent 对不同语种的文化语境理解，避免因文化</p>
+<p>差异导致的交互误解，例如在一些注重礼仪的国家，Agent 的交互语气和表达方式将更</p>
+<p>加正式、礼貌；在一些文化氛围轻松的国家，Agent 的交互方式可以更活泼、幽默。在</p>
+<p>法律法规适配方面，将根据不同国家和地区的法律法规要求，调整 Agent 的数据处理流</p>
+<p>程、隐私政策、内容规范等，确保 Agent 在全球市场的合规运营。例如，在欧盟市场，</p>
+<p>将严格遵循 GDPR 的要求，加强用户数据的保护，确保用户的知情权、访问权、删除</p>
+<p>权等权利得到充分保障；在东南亚一些国家，将根据当地的内容监管政策，调整 Agent</p>
+<p>生成内容的审核标准，确保内容符合当地的法律法规和公序良俗。在用户需求适配方面，</p>
+<p>将通过市场调研、用户反馈等方式，了解不同国家和地区用户的需求特点和使用习惯，</p>
+<p>开发符合当地用户需求的 Agent 功能和服务。例如，在一些移动互联网普及率较高的国</p>
+<p>家，将重点优化 Agent 的移动端交互体验；在一些电商发展迅速的国家，将加强 Agent</p>
+<p>在电商场景的应用，提升用户的购物体验。</p>
+<p>77..33 生生态态构构建建方方向向</p>
+<p>77..33..11 开开发发者者生生态态完完善善</p>
+<p>开发者是 Agent 生态的重要组成部分，完善的开发者生态能够为 Agent 的创新和发展</p>
+<p>提供源源不断的动力。未来，字节跳动将进一步完善 Agent 开发者生态，为开发者提供</p>
+<p>更丰富的开发资源、更便捷的开发工具、更全面的技术支持和更广阔的商业合作机会，</p>
+<p>吸引更多开发者参与到字节跳动 Agent 的开发和创新中来。在开发资源方面，将开放更</p>
+<p>多的大模型能力、工具接口、数据集和知识库，例如开放豆包大模型的更多 API 接口，</p>
+<p>允许开发者根据自身需求调用模型的语言理解、生成、推理等能力；提供各行业的专用</p>
+<p>数据集和知识库，帮助开发者快速搭建行业 Agent 解决方案。在开发工具方面，将优化</p>
+<p>扣子（Coze）平台、Trae 平台等开发工具的功能和体验，提供更丰富的插件资源、更</p>
+<p>便捷的可视化开发界面、更强大的调试和测试工具，降低开发者的开发门槛，提高开发</p>
+<p>效率。例如，在 Coze 平台上，将增加更多行业专用插件（如医疗行业的病历分析插件、</p>
+<p>金融行业的风险评估插件），支持开发者通过拖拽式操作快速构建 Agent，无需编写大量</p>
+<p>代码；在 Trae 平台上，将增强实时调试功能和性能分析工具，帮助开发者及时发现和</p>
+<p>解决开发过程中的问题。在技术支持方面，将建立专业的开发者技术支持团队，通过在</p>
+<p>线文档、视频教程、技术论坛、线下培训等多种方式，为开发者提供技术指导和问题解</p>
+<p>答；同时，将组织开发者交流活动（如黑客马拉松、技术沙龙），促进开发者之间的技术</p>
+<p>交流和合作，分享开发经验和创新案例。在商业合作方面，将为开发者提供商业化变现</p>
+<p>渠道，例如开发者开发的优秀 Agent 可以在字节跳动的产品生态中推广和应用，通过用</p>
+<p>户付费、广告分成、服务收费等方式实现商业化；同时，将为开发者对接行业客户资源，</p>
+<p>帮助开发者将 Agent 解决方案应用到实际业务中，实现商业价值。</p>
+<p>77..33..22 合合作作伙伙伴伴生生态态拓拓展展</p>
+<p>除了开发者生态外，合作伙伴生态也是字节跳动 Agent 生态构建的重要组成部分。未来，</p>
+<p>字节跳动将积极拓展合作伙伴生态，与不同领域的合作伙伴（如硬件厂商、软件服务商、</p>
+<p>行业解决方案提供商、内容提供商等）建立深度合作关系，共同推动 Agent 技术的创新</p>
+<p>和应用，构建开放、共赢的 Agent 生态系统。在硬件合作方面，将与智能手机、智能手</p>
+<p>表、智能家居设备、智能汽车等硬件厂商合作，将 Agent 技术集成到硬件产品中，为用</p>
+<p>户提供更智能、更便捷的硬件使用体验。例如，与智能汽车厂商合作，开发车载智能</p>
+<p>Agent，该 Agent 能够与汽车的控制系统、导航系统、娱乐系统等集成，为驾驶员提供</p>
+<p>语音控制、路线规划、路况提醒、娱乐推荐等服务，提升驾驶的安全性和舒适性；与智</p>
+<p>能家居设备厂商合作，开发家居智能 Agent，该 Agent 能够统一控制家中的智能灯光、</p>
+<p>智能空调、智能门锁等设备，根据用户的生活习惯和环境变化，自动调整设备状态，实</p>
+<p>现智能家居的智能化管理。在软件服务合作方面，将与办公软件服务商、电商平台服务</p>
+<p>商、教育软件服务商等合作，实现 Agent 与现有软件服务的深度集成，拓展 Agent 的</p>
+<p>应用场景和功能。例如，与办公软件服务商合作，将智能办公 Agent 集成到办公软件中，</p>
+<p>为用户提供文档协作、会议安排、邮件管理等一站式办公服务；与教育软件服务商合作，</p>
+<p>将个性化学习 Agent 集成到教育软件中，为学生提供更全面的学习辅导和服务。在行业</p>
+<p>解决方案合作方面，将与行业解决方案提供商合作，结合 Agent 技术和行业知识，开发</p>
+<p>针对特定行业的整体解决方案，推动行业的数字化转型和智能化升级。例如，与医疗行</p>
+<p>业解决方案提供商合作，开发医疗智能解决方案，集成医疗辅助 Agent、患者管理</p>
+<p>Agent 等，提升医疗机构的服务效率和医疗质量；与工业制造行业解决方案提供商合作，</p>
+<p>开发工业智能解决方案，集成工业智能 Agent、设备维护 Agent 等，提高工业企业的生</p>
+<p>产效率和管理水平。通过拓展合作伙伴生态，字节跳动将整合各方资源，实现优势互补，</p>
+<p>共同推动 Agent 技术的广泛应用和发展，为用户和行业创造更大的价值。</p>
+<p>88.. 字字节节跳跳动动 AAggeenntt 典典型型案案例例剖剖析析</p>
+<p>88..11 飞飞书书智智能能办办公公 AAggeenntt 集集群群</p>
+<p>88..11..11 案案例例背背景景与与目目标标</p>
+<p>随着字节跳动全球员工规模的扩大和跨地域协作需求的增加，传统办公模式面临诸多挑</p>
+<p>战：会议安排耗时、文档协作效率低、任务跟踪不及时、信息同步不顺畅等问题，严重</p>
+<p>影响办公效率。为解决这些痛点，飞书团队启动了智能办公 Agent 集群建设项目，目标</p>
+<p>是构建一套覆盖 “文档协作 - 会议管理 - 任务跟踪 - 信息同步” 全流程的 Agent 体</p>
+<p>系，实现办公场景的智能化、自动化，提升跨团队协作效率，降低沟通成本，支撑字节</p>
+<p>跳动全球业务的高效运转。</p>
+<p>88..11..22 技技术术架架构构与与核核心心功功能能实实现现</p>
+<p>飞书智能办公 Agent 集群采用 “统一协同层 + 模块化 Agent” 的架构设计。统一协同</p>
+<p>层负责各 Agent 之间的信息同步、任务调度和权限管理，基于字节跳动内部的分布式消</p>
+<p>息队列（ByteMQ）实现跨 Agent 的实时通信，通过统一的用户画像系统（ByteProfile）</p>
+<p>确保各 Agent 对用户需求的理解一致。模块化 Agent 包含智能文档协作 Agent、自动</p>
+<p>化会议 Agent、智能任务管理 Agent、信息同步 Agent 四大核心模块，各模块通过标</p>
+<p>准化 API 与飞书底层系统（如飞书文档、飞书日历、飞书项目）深度集成。</p>
+<p>● 智智能能文文档档协协作作 AAggeenntt：基于 Doubao-Seed-1.6 大模型的文本理解与生成能力，实</p>
+<p>现文档内容的智能辅助。在多人协作文档时，Agent 通过实时解析文档编辑行为，自动</p>
+<p>识别关键信息（如任务节点、数据指标、待办事项），并同步到智能任务管理 Agent；同</p>
+<p>时，支持 “文档 - 表格 - 图表” 的自动转换，当用户在文档中输入结构化数据时，</p>
+<p>Agent 可自动生成折线图、柱状图等可视化图表，并根据数据变化实时更新。例如，在</p>
+<p>产品需求文档（PRD）协作中，Agent 能自动提取需求点、优先级、交付时间等信息，</p>
+<p>生成任务卡片同步至飞书项目，避免人工重复录入。</p>
+<p>● 自自动动化化会会议议 AAggeenntt：整合飞书日历、音视频会议、语音转文字（ByteASR）、自然语</p>
+<p>言处理（NLP）等能力。会前，Agent 根据参会人日程、会议主题自动推荐会议时间，</p>
+<p>生成会议议程并同步至参会人飞书文档；会中，通过 ByteASR 实时将语音转为文字，</p>
+<p>标记会议重点（如决策事项、待办任务），并对参会人发言进行情绪分析，提醒主持人关</p>
+<p>注沉默成员；会后，10 分钟内自动生成会议纪要，提取待办任务并分配责任人，同步至</p>
+<p>智能任务管理 Agent，同时将纪要归档至飞书知识库。在字节跳动全球产品发布会筹备</p>
+<p>会议中，该 Agent 可支持 20 + 语言的实时转写与翻译，确保跨国家团队的顺畅沟通。</p>
+<p>● 智智能能任任务务管管理理 AAggeenntt：与飞书项目、飞书文档、自动化会议 Agent 深度联动。</p>
+<p>Agent 可从文档、会议纪要中自动抓取待办任务，生成任务卡片并设置优先级、截止时</p>
+<p>间；通过分析任务依赖关系（如 “设计完成后才能开发”），自动调整任务排期；在任务执</p>
+<p>行过程中，实时跟踪进度，当任务逾期或出现风险时，通过飞书消息、邮件双重提醒责</p>
+<p>任人及负责人；同时，支持任务数据的可视化分析，为团队管理者提供 “任务完成率”“延</p>
+<p>期率”“资源利用率” 等指标报表，辅助决策。例如，在研发项目中，Agent 可根据代码提</p>
+<p>交记录、测试报告自动更新任务进度，无需研发人员手动填报。</p>
+<p>● 信信息息同同步步 AAggeenntt：基于用户的工作场景和关注领域，实现个性化信息推送。Agent</p>
+<p>通过分析用户的文档浏览记录、会议参与情况、任务关注方向，构建 “用户 - 信息” 匹</p>
+<p>配模型，每日定时向用户推送相关的文档更新、会议纪要、任务进展等信息；同时，支</p>
+<p>持 “自然语言查询 - 信息聚合” 功能，用户通过飞书对话输入 “本周产品研发进度”，</p>
+<p>Agent 可自动聚合智能任务管理 Agent 的任务数据、智能文档协作 Agent 的文档更新、</p>
+<p>自动化会议 Agent 的会议纪要，生成结构化报告，避免用户在多个系统中切换查询。</p>
+<p>88..11..33 实实施施效效果果与与优优化化迭迭代代</p>
+<p>飞书智能办公 Agent 集群在字节跳动内部全面推广后，取得显著成效：会议安排时间从</p>
+<p>平均 40 分钟缩短至 5 分钟，文档协作效率提升 60%（协作文档平均完成时间从 2 天</p>
+<p>缩短至 0.8 天），任务延期率降低 45%，跨团队信息同步时间减少 70%。在 2024 年</p>
+<p>字节跳动全球 OKR 对齐会议中，该 Agent 集群支撑了 10 万 + 员工的跨地域协作，</p>
+<p>会议纪要生成准确率达 92%，任务同步延迟率低于 1%。</p>
+<p>在迭代优化方面，团队通过用户反馈和数据监测持续改进：针对 “复杂任务依赖关系处</p>
+<p>理不准确” 的问题，引入图神经网络（GNN）优化任务调度算法，将任务排期准确率从</p>
+<p>85% 提升至 94%；针对 “多语言文档协作支持不足” 的需求，扩展 Doubao-Seed-1.6</p>
+<p>模型的多语言能力，新增 12 种小语种的文档理解与生成支持，满足全球各地员工的使</p>
+<p>用需求。</p>
+<p>88..22 抖抖音音电电商商智智能能运运营营 AAggeenntt</p>
+<p>88..22..11 案案例例背背景景与与目目标标</p>
+<p>抖音电商业务高速增长的同时，商家面临 “商品运营难、用户服务压力大、库存管理复</p>
+<p>杂” 三大痛点：中小商家缺乏专业运营能力，难以精准把握用户需求；大促期间客服咨</p>
+<p>询量激增，人工客服响应不及时导致用户流失；库存管理依赖经验，易出现 “超卖” 或</p>
+<p>“库存积压” 问题。为帮助商家降本增效，抖音电商团队开发了智能运营 Agent，目标是</p>
+<p>为商家提供 “商品优化 - 客户服务 - 库存管理 - 营销推广” 一体化的智能解决方案，</p>
+<p>提升商家运营效率，改善用户购物体验，最终实现商家销售额与平台用户留存率的双重</p>
+<p>提升。</p>
+<p>88..22..22 技技术术架架构构与与核核心心功功能能实实现现</p>
+<p>抖音电商智能运营 Agent 基于 “数据驱动 + 场景化决策” 的架构，整合抖音电商数据</p>
+<p>中台（ByteEcomData）、豆包大模型（Doubao-Seed-1.6-thinking）、外部工具 API（如</p>
+<p>物流 API、支付 API），构建 “感知 - 决策 - 执行” 闭环。核心功能模块包括商品智能</p>
+<p>优化 Agent、智能客服 Agent、动态库存管理 Agent、个性化营销 Agent。</p>
+<p>● 商商品品智智能能优优化化 AAggeenntt：通过分析抖音电商平台的用户搜索数据、点击数据、转化数</p>
+<p>据，为商家提供商品优化建议。Agent 首先基于用户搜索关键词生成 “需求标签（” 如 “夏</p>
+<p>季透气”“平价”“显瘦”），再结合商品当前的标题、主图、详情页内容，识别优化空间。例</p>
+<p>如，当发现某款女装的 “透气” 关键词搜索量高但商品标题未包含时，Agent 会建议在</p>
+<p>标题中添加 “夏季透气”；同时，基于 Doubao-Seed-1.6 的图像理解能力，对商品主图</p>
+<p>进行优化，推荐 “模特姿势”“背景颜色”“卖点标注位置” 等调整方案，提升主图点击率。</p>
+<p>在 2024 年抖音 618 大促前，该 Agent 为 10 万 + 商家提供商品优化建议，平均提</p>
+<p>升商品点击率 35%，转化率 22%。</p>
+<p>● 智智能能客客服服 AAggeenntt：采用 “规则 + 大模型” 的混合决策模式，支撑 7×24 小时客户</p>
+<p>服务。对于常见问题（如 “发货时间”“退换货政策”），通过规则引擎快速响应，响应时间</p>
+<p>控制在 0.5 秒内；对于复杂问题（如 “商品尺寸推荐”“使用故障排查”），调用</p>
+<p>Doubao-Seed-1.6-thinking 的推理能力，结合用户历史购买记录（如身高、体重）、商品</p>
+<p>参数（如尺寸表、材质）生成个性化回答。例如，当用户询问 “165cm/55kg 适合穿多大</p>
+<p>码” 时，Agent 会结合过往相同体型用户的购买记录和尺码反馈，推荐合适的尺码，并</p>
+<p>提示 “建议选择 M 码，过往 80% 同体型用户选择此尺码”。大促期间，该 Agent 承担</p>
+<p>了 85% 的客服咨询量，客户问题解决率达 90%，用户满意度评分 4.8/5.0，较人工客</p>
+<p>服成本降低 60%。</p>
+<p>● 动动态态库库存存管管理理 AAggeenntt：基于实时销售数据、历史销售趋势、促销活动力度构建库存</p>
+<p>预测模型，实现 “预警 - 补货 - 清库存” 的自动化。Agent 与抖音电商库存系统、商家</p>
+<p>ERP 系统、供应商管理系统（SCM）实时对接，每 5 分钟更新一次库存数据。当商品</p>
+<p>库存低于预警阈值时，Agent 自动生成补货建议（包含补货数量、推荐供应商、预计到</p>
+<p>货时间），并同步至商家 ERP；对于库存积压商品，Agent 分析积压原因（如价格过高、</p>
+<p>宣传不足），推荐解决方案，如 “设置限时折扣 + 关联销售”“在直播间推流” 等。例如，</p>
+<p>某美妆商家的一款口红库存积压超 3000 支，Agent 通过分析用户评价发现 “颜色描述</p>
+<p>与实际偏差大”，建议调整详情页颜色展示，并设置 “买一送一” 促销，3 天内库存消化</p>
+<p>率达 80%。</p>
+<p>● 个个性性化化营营销销 AAggeenntt：基于用户的消费行为、浏览历史、兴趣标签，为商家提供精准</p>
+<p>营销方案。Agent 可自动生成营销活动方案（如 “会员日”“满减活动”），并根据用户画像</p>
+<p>推送个性化优惠券；同时，支持 “短视频 - 直播 - 商品” 的营销联动，当商家发起直播</p>
+<p>时，Agent 自动筛选高意向用户（如近 7 天浏览过商品、加入购物车未购买），通过抖</p>
+<p>音消息推送直播预告，并附带专属优惠券。在 2024 年抖音双 11 期间，该 Agent 帮</p>
+<p>助商家实现营销转化率提升 40%，用户复购率提升 25%。</p>
+<p>88..22..33 经经验验总总结结与与可可复复用用方方案案</p>
+<p>飞书智能办公 Agent 集群和抖音电商智能运营 Agent 的成功实践，沉淀出一套可复用</p>
+<p>的 Agent 建设方法论：</p>
+<ol><li>场场景景聚聚焦焦，，问问题题驱驱动动：优先解决业务中最痛、最高频的问题（如办公场景的会议安</li></ol>
+<p>排、电商场景的客服咨询），避免盲目追求 “大而全” 的功能，确保 Agent 上线即能产</p>
+<p>生实际价值。</p>
+<ol><li>深深度度集集成成现现有有系系统统：Agent 不是独立存在的工具，需与业务现有系统（如飞书底层</li></ol>
+<p>系统、电商 ERP）深度耦合，通过标准化 API 实现数据互通，避免形成 “信息孤岛”。</p>
+<ol><li>混混合合决决策策，，平平衡衡效效率率与与准准确确性性：对于规则明确的简单任务（如常见问题解答、数据</li></ol>
+<p>统计），采用规则引擎提升效率；对于复杂推理任务（如个性化建议、需求分析），采用</p>
+<p>大模型增强能力，兼顾效率与准确性。</p>
+<ol><li>数数据据闭闭环环，，持持续续迭迭代代：建立 “用户反馈 - 数据监测 - 模型优化” 的闭环机制，通过</li></ol>
+<p>用户行为数据（如 Agent 使用率、功能点击量）和业务数据（如效率提升率、销售额增</p>
+<p>长）评估 Agent 效果，定期迭代模型与功能。</p>
+<p>99.. 字字节节跳跳动动 AAggeenntt 团团队队协协作作与与人人才才培培养养</p>
+<p>99..11 跨跨团团队队协协作作机机制制</p>
+<p>99..11..11 AAggeenntt 项项目目组组架架构构</p>
+<p>字节跳动 Agent 项目采用 “业务负责人 + 技术负责人 + 合规负责人” 的三角管理架</p>
+<p>构，确保项目兼顾业务价值、技术可行性与合规安全。项目组核心成员包括：</p>
+<p>● 业业务务团团队队：来自各业务线（如飞书、抖音电商、教育）的产品经理，负责需求拆解、</p>
+<p>场景定义、效果评估，确保 Agent 功能贴合业务实际需求。</p>
+<p>● 技技术术团团队队：分为大模型团队、工程开发团队、数据团队。大模型团队负责模型选型、</p>
+<p>参数调优、能力适配；工程开发团队负责 Agent 架构设计、模块开发、系统集成；数据</p>
+<p>团队负责数据采集、清洗、标注，支撑模型训练与效果监测。</p>
+<p>● 合合规规团团队队：提前介入项目需求阶段，负责数据安全、隐私保护、内容合规审查，确</p>
+<p>保 Agent 开发与运营符合国内外法律法规及内部制度。</p>
+<p>● 运运营营团团队队：负责 Agent 上线后的用户培训、反馈收集、运营数据监测，协助技术团</p>
+<p>队进行迭代优化。</p>
+<p>99..11..22 协协作作流流程程与与沟沟通通机机制制</p>
+<p>Agent 项目采用 “敏捷开发 + 双周迭代” 的协作模式，具体流程如下：</p>
+<ol><li>需需求求对对齐齐阶阶段段（第 1-2 天）：业务团队组织需求评审会，明确迭代目标（如 “优化智</li></ol>
+<p>能客服 Agent 的问题解决率至 90%”），技术团队评估技术可行性，合规团队提出数据</p>
+<p>合规要求，形成《迭代需求文档》。</p>
+<ol><li>开开发发实实现现阶阶段段（第 3-12 天）：技术团队按模块分工开发，每日召开 15 分钟站会同</li></ol>
+<p>步进度；业务团队参与关键功能的测试，及时反馈需求偏差；合规团队对数据采集、存</p>
+<p>储方案进行中期审查。</p>
+<ol><li>测测试试验验收收阶阶段段（第 13-14 天）：测试团队进行功能测试、性能测试、合规测试，出</li></ol>
+<p>具《测试报告》；业务团队进行业务验收，验证 Agent 是否满足迭代目标；运营团队准</p>
+<p>备用户培训材料。</p>
+<ol><li>上上线线与与复复盘盘阶阶段段：Agent 上线后，运营团队跟踪 7 天运营数据，组织跨团队复盘会，</li></ol>
+<p>分析上线效果（如目标达成率、用户反馈问题），确定下一轮迭代方向。</p>
+<p>沟通工具方面，项目组通过飞书文档实时共享需求、方案、测试报告；通过飞书会议开</p>
+<p>展评审会、复盘会；通过飞书项目跟踪任务进度，确保信息透明、同步及时。对于跨地</p>
+<p>域团队（如中国、美国、新加坡团队），采用 “异步沟通 + 核心时段同步” 的方式，将重</p>
+<p>要会议安排在跨时区重叠时段（如北京时间 16:00-18:00，对应美国太平洋时间</p>
+<p>00:00-02:00、新加坡时间 16:00-18:00），并录制会议回放供异步团队查看。</p>
+<p>99..22 AAggeenntt 人人才才培培养养体体系系</p>
+<p>99..22..11 人人才才能能力力模模型型</p>
+<p>字节跳动 Agent 人才需具备 “技术能力 + 业务理解 + 合规意识” 三大核心能力，具</p>
+<p>体能力模型如下：</p>
+<p>● 技技术术能能力力：</p>
+<p>● 大模型能力：熟悉 LLM（如 Doubao 系列）的原理、调优方法（如微调、提示工</p>
+<p>程），能根据业务需求选择合适的模型；</p>
+<p>● 工程能力：掌握 Python/Go 等编程语言，熟悉分布式系统、API 开发、数据库设计，</p>
+<p>能独立完成 Agent 模块开发；</p>
+<p>● 数据能力：掌握数据采集、清洗、分析方法，熟悉 SQL、Spark 等工具，能利用数</p>
+<p>据优化 Agent 效果。</p>
+<p>● 业业务务理理解解能能力力：深入理解所在业务线的流程、痛点、目标，能将业务需求转化为技</p>
+<p>术方案，具备 “从业务视角评估 Agent 价值” 的能力。</p>
+<p>● 合合规规意意识识：熟悉《个人信息保护法》《生成式人工智能服务管理暂行办法》等法律法</p>
+<p>规，能在 Agent 开发中落实数据安全、隐私保护、内容合规要求。</p>
+<p>99..22..22 培培养养路路径径与与资资源源支支持持</p>
+<p>字节跳动为 Agent 人才设计了 “新手 - 骨干 - 专家” 三级培养路径，配套完善的资源</p>
+<p>支持：</p>
+<p>● 新新手手阶阶段段（0-6 个月）：</p>
+<p>● 入职培训：开展 “Agent 技术基础”“字节跳动业务 overview”“合规基础” 三大核心</p>
+<p>课程，帮助新手快速了解 Agent 技术体系与业务背景；</p>
+<p>● 导师带教：为每位新手分配 1 名骨干工程师作为导师，指导完成 1-2 个小型</p>
+<p>Agent 模块开发（如工具调用功能、简单数据统计功能），熟悉开发流程；</p>
+<p>● 实践项目：参与成熟 Agent 的迭代优化（如优化智能客服 Agent 的回复模板），</p>
+<p>积累实战经验。</p>
+<p>● 骨骨干干阶阶段段（6-18 个月）：</p>
+<p>● 专项培训：开设 “大模型调优实战”“Agent 架构设计”“跨团队协作管理” 等课程，提</p>
+<p>升技术深度与协作能力；</p>
+<p>● 项目负责人：独立负责中小型 Agent 项目（如某业务线的智能任务管理 Agent），</p>
+<p>统筹需求拆解、技术方案设计、团队协作；</p>
+<p>● 技术分享：定期在团队内开展技术分享，沉淀开发经验，参与内部技术标准制定（如</p>
+<p>Agent API 设计规范）。</p>
+<p>● 专专家家阶阶段段（18 个月以上）：</p>
+<p>● 前沿技术研究：参与字节跳动大模型与 Agent 技术的前沿探索（如多模态 Agent、</p>
+<p>自主进化 Agent），主导核心技术突破；</p>
+<p>● 跨业务赋能：作为 Agent 技术专家，支持其他业务线的 Agent 项目，提供技术指</p>
+<p>导与方案评审；</p>
+<p>● 行业交流：参与国内外 Agent 技术峰会（如 ACM SIGAI、中国人工智能大会），</p>
+<p>分享字节跳动实践经验，引领行业技术发展。</p>
+<p>资源支持方面，字节跳动为 Agent 人才提供三大保障：</p>
+<ol><li>技技术术资资源源：开放内部大模型（如 Doubao 系列）的 API 接口、数据集（如各业务</li></ol>
+<p>线的用户交互数据、业务数据）、开发工具（如 Coze 平台、Trae 平台），降低开发门</p>
+<p>槛；</p>
+<ol><li>学学习习资资源源：搭建内部学习平台（ByteLearning），上线 “Agent 实战案例库”“大模型</li></ol>
+<p>技术手册” 等学习材料，定期组织技术沙龙、黑客马拉松活动；</p>
+<ol><li>成成长长激激励励：设立 “Agent 技术创新奖”“业务价值贡献奖”，对在 Agent 技术突破、业</li></ol>
+<p>务效率提升中表现突出的团队与个人给予奖励，优先推荐参与核心项目。</p>
+<p>1100.. 字字节节跳跳动动 AAggeenntt 风风险险应应对对策策略略</p>
+<p>1100..11 技技术术风风险险与与应应对对</p>
+<p>1100..11..11 大大模模型型能能力力不不稳稳定定风风险险</p>
+<p>大模型（如 Doubao 系列）在复杂推理、多轮对话场景中可能出现能力波动，导致</p>
+<p>Agent 响应不准确（如误解用户意图、生成错误信息），影响业务使用。例如，在智能答</p>
+<p>疑与辅导 Agent 中，模型可能因题目表述复杂而给出错误的解题步骤；在电商智能客服</p>
+<p>Agent 中，模型可能混淆不同商品的售后政策。</p>
+<p>应应对对策策略略：</p>
+<ol><li>模模型型能能力力监监测测：建立大模型能力监测体系，通过 “基准测试 + 实时采样” 评估模型</li></ol>
+<p>效果。基准测试每周执行一次，采用各业务线的典型任务数据集（如客服问答数据集、</p>
+<p>解题数据集），测试模型的准确率、召回率；实时采样则通过在 Agent 中设置 “随机采</p>
+<p>样点”，每小时抽取 1% 的用户交互数据，人工审核响应质量，当准确率低于阈值（如</p>
+<p>90%）时触发预警。</p>
+<ol><li>多多模模型型 ffaallllbbaacckk 机机制制：为关键业务场景配置多模型冗余，当主模型（如</li></ol>
+<p>Doubao-Seed-1. 6 ） 响 应 准 确 率 低 于 阈 值 时 ， 自 动 切 换 至 备 用 模 型 （ 如</p>
+<p>Doubao-Seed-1.6-thinking）或规则引擎。例如，在金融客服 Agent 中，主模型负责复</p>
+<p>杂咨询（如投资建议），备用规则引擎负责简单查询（如账户余额查询），确保核心功能</p>
+<p>不中断。</p>
+<ol><li>模模型型快快速速迭迭代代：建立 “问题反馈 - 模型调优” 的快速迭代通道，将用户反馈的错误</li></ol>
+<p>案例（如错误回复、误解意图）整理成标注数据集，每周进行模型微调，提升模型在特</p>
+<p>定业务场景的能力。例如，抖音电商智能客服 Agent 将 “商品尺码推荐错误” 的案例整</p>
+<p>理成数据集，微调后相关问题的准确率提升 30%。</p>
+<p>1100..11..22 系系统统性性能能瓶瓶颈颈风风险险</p>
+<p>在高并发场景（如电商大促、办公早高峰），Agent 可能面临性能瓶颈，出现响应延迟、</p>
+<p>服务中断等问题。例如，抖音双 11 期间，智能客服 Agent 的咨询量峰值达百万级 / 小</p>
+<p>时，可能导致服务器 CPU 使用率过高、数据库查询超时；飞书早高峰（9:00-10:00），</p>
+<p>自动化会议 Agent 的会议安排请求激增，可能导致日程查询延迟。</p>
+<p>应应对对策策略略：</p>
+<ol><li>性性能能压压测测与与容容量量规规划划：在 Agent 上线前，采用内部压测工具（BytePressure）模拟</li></ol>
+<p>高并发场景，测试不同并发量下的响应时间、资源消耗（CPU、内存、带宽），确定系统</p>
+<p>最大承载能力。例如，抖音电商智能客服 Agent 在上线前，模拟 200 万 / 小时的咨询</p>
+<p>量，测试出服务器需扩容至 500 台才能满足性能要求，并提前 3 天完成扩容。</p>
+<ol><li>缓缓存存与与分分布布式式部部署署：采用多级缓存架构减少重复计算，将高频访问数据（如常见问</li></ol>
+<p>题答案、用户历史交互记录）缓存在 Redis 集群中，缓存命中率目标设定为 90% 以上；</p>
+<p>同时，将 Agent 的不同模块（如请求接收、模型推理、工具调用）分布式部署在多个服</p>
+<p>务器节点，通过负载均衡（ByteLB）将请求均匀分配，避免单点故障。</p>
+<ol><li>流流量量控控制制与与降降级级策策略略：在高并发时段启用流量控制，通过 “令牌桶算法” 限制每秒请</li></ol>
+<p>求数，避免超出系统承载能力；同时，制定服务降级策略，当系统负载过高时，优先保</p>
+<p>障核心功能（如客服咨询、会议安排），暂停非核心功能（如个性化推荐、数据统计），</p>
+<p>确保核心业务正常运行。例如，飞书自动化会议 Agent 在早高峰负载过高时，暂停 “会</p>
+<p>议纪要自动生成” 的非核心功能，优先保障 “会议时间查询”“会议邀请发送” 等核心功能。</p>
+<p>1100..22 业业务务风风险险与与应应对对</p>
+<p>1100..22..11 用用户户接接受受度度低低风风险险</p>
+<p>部分用户可能因 “习惯传统操作”“不信任 Agent 能力” 而拒绝使用 Agent，导致 Agent</p>
+<p>使用率低，无法发挥预期价值。例如，老年员工可能更习惯人工安排会议，不愿使用自</p>
+<p>动化会议 Agent；电商商家可能担心智能库存管理 Agent 的补货建议不准确，仍采用</p>
+<p>人工补货方式。</p>
+<p>应应对对策策略略：</p>
+<ol><li>分分阶阶段段推推广广与与引引导导：采用 “试点 - 推广 - 全面覆盖” 的分阶段策略，先在部分团队</li></ol>
+<p>或商家中试点 Agent，收集反馈并优化后再逐步推广。例如，飞书自动化会议 Agent 先</p>
+<p>在字节跳动产品团队试点，优化会议时间推荐算法后，再推广至全公司；抖音电商智能</p>
+<p>运营 Agent 先在 1000 家核心商家中试点，通过 “使用 Agent 的商家销售额增长</p>
+<p>20%” 的案例，吸引更多商家使用。</p>
+<ol><li>用用户户培培训训与与操操作作简简化化：为不同用户群体提供针对性的培训，如为老年员工提供 “一</li></ol>
+<p>对一上门培训”，为电商商家提供 “直播教学 + 操作手册”；同时，简化 Agent 操作流程，</p>
+<p>减少用户学习成本。例如，飞书智能文档协作 Agent 将 “生成图表” 功能简化为 “一键</p>
+<p>点击”，用户无需设置参数即可生成可视化图表。</p>
+<ol><li>效效果果可可视视化化与与激激励励：通过数据报表向用户展示 Agent 带来的价值，如飞书智能办公</li></ol>
+<p>Agent 向员工展示 “使用后会议安排时间缩短 80%”“任务延期率降低 45%”；抖音电商</p>
+<p>智能运营 Agent 向商家展示 “使用后客服成本降低 60%”“销售额增长 25%”。同时，设</p>
+<p>置激励机制，如飞书员工使用 Agent 完成任务可获得 “办公效率积分”，兑换福利；电</p>
+<p>商商家使用 Agent 可获得抖音流量扶持。</p>
+<p>1100..22..22 业业务务流流程程适适配配风风险险</p>
+<p>Agent 的功能设计可能与现有业务流程不匹配，导致 Agent 无法融入业务场景，甚至</p>
+<p>打乱原有工作节奏。例如，智能任务管理 Agent 的任务分配逻辑与某团队的 “项目经理</p>
+<p>审核制” 冲突，导致任务无法正常流转；智能文档协作 Agent 的信息提取规则与某业务</p>
+<p>线的 PRD 格式不一致，导致关键信息提取错误。</p>
+<p>应应对对策策略略：</p>
+<ol><li>业业务务流流程程深深度度调调研研：在 Agent 设计阶段，业务团队与技术团队共同开展 “业务流程</li></ol>
+<p>访谈”，覆盖业务线的一线员工、管理者，绘制详细的业务流程图，明确关键节点、角色</p>
+<p>权限、数据流向。例如，飞书智能任务管理 Agent 在设计前，访谈了 10 个不同业务线</p>
+<p>的项目团队，梳理出 “任务创建 - 审核 - 分配 - 执行 - 验收” 的标准化流程，确保</p>
+<p>Agent 功能与流程匹配。</p>
+<ol><li>自自定定义义配配置置功功能能：为 Agent 设计灵活的自定义配置接口，允许业务团队根据自身流</li></ol>
+<p>程调整功能参数。例如，智能任务管理 Agent 支持自定义 “任务审核节点”，某团队可</p>
+<p>设置 “项目经理审核后才能分配任务”，另一团队可设置 “无需审核直接分配”；智能文档</p>
+<p>协作 Agent 支持自定义 “信息提取规则”，各业务线可根据 PRD 格式调整关键信息的</p>
+<p>提取关键词、格式要求。</p>
+<ol><li>小小范范围围试试点点与与流流程程优优化化：在 Agent 上线前，选择 1-2 个典型团队开展小范围试点，</li></ol>
+<p>跟踪 Agent 与业务流程的适配情况，及时调整 Agent 功能或优化业务流程。例如，某</p>
+<p>研发团队在试点智能任务管理 Agent 时，发现 “任务验收流程” 与 Agent 功能冲突，</p>
+<p>团队通过简化验收节点（从 “三级验收” 改为 “两级验收”），实现 Agent 与流程的适配。</p>
+<p>1100..33 合合规规风风险险与与应应对对</p>
+<p>1100..33..11 数数据据隐隐私私泄泄露露风风险险</p>
+<p>Agent 在运行过程中会收集大量用户数据（如个人信息、业务数据），若数据保护措施不</p>
+<p>到位，可能导致数据泄露，违反《个人信息保护法》等法律法规。例如，智能客服</p>
+<p>Agent 存储的用户手机号、地址等敏感信息被未授权人员访问；智能文档协作 Agent 的</p>
+<p>协作文档包含员工个人信息，被外部人员获取。</p>
+<p>应应对对策策略略：</p>
+<ol><li>数数据据分分级级与与权权限限管管控控：根据数据敏感程度将数据分为 “公开数据 - 内部数据 - 敏</li></ol>
+<p>感数据 - 核心数据”，对不同级别数据采取不同的保护措施。敏感数据（如手机号、身份</p>
+<p>证号）采用 AES-256 加密存储，核心数据（如 Agent 核心算法）采用 “加密存储 + 访</p>
+<p>问白名单” 管理；同时，基于 RBAC 模型设置严格的权限，确保用户只能访问其工作必</p>
+<p>需的数据。例如，智能客服团队的普通员工只能访问脱敏后的用户咨询记录（手机号中</p>
+<p>间四位替换为 “*”），无法访问完整手机号。</p>
+<ol><li>数数据据全全生生命命周周期期安安全全管管理理：建立数据 “采集 - 存储 - 使用 - 传输 - 销毁” 全生命</li></ol>
+<p>周期的安全管控机制。采集阶段遵循 “最小必要” 原则，不采集无关数据；存储阶段采用</p>
+<p>字节跳动安全存储服务（ByteStore），定期进行数据备份与安全审计；使用阶段对敏感</p>
+<p>数据进行脱敏处理（如展示、传输时脱敏）；传输阶段采用 TLS 1.3 加密；销毁阶段采</p>
+<p>用 “多次覆写 + 物理销毁” 方式，确保数据无法恢复。</p>
+<ol><li>合合规规审审计计与与应应急急响响应应：定期开展数据合规审计，由内部合规团队或第三方机构检查</li></ol>
+<p>数据保护措施的落实情况，排查安全漏洞；同时，制定数据泄露应急预案，明确泄露后</p>
+<p>的应急处置流程（如暂停服务、数据隔离、用户通知、上报监管机构），并定期组织演练，</p>
+<p>确保发生泄露时能快速响应。例如，某 Agent 出现数据泄露预警后，团队在 1 小时内</p>
+<p>暂停相关服务，隔离泄露数据，24 小时内通知受影响用户，并按要求上报监管机构。</p>
+<p>1100..33..22 生生成成内内容容合合规规风风险险</p>
+<p>Agent 基于大模型生成的内容（如客服回复、营销文案、学习辅导内容）可能包含违规</p>
+<p>信息（如虚假宣传、低俗内容、错误知识），违反《生成式人工智能服务管理暂行办法》</p>
+<p>等规定。例如，电商智能营销 Agent 生成的商品宣传文案包含 “绝对化用语（” 如 “最好”</p>
+<p>“第一”）；教育智能答疑 Agent 生成的解题步骤包含错误知识点。</p>
+<p>应应对对策策略略：</p>
+<ol><li>内内容容审审核核机机制制：建立 “预审核 + 实时审核 + 事后追溯” 的三级内容审核体系。预</li></ol>
+<p>审核阶段，在 Agent 上线前，采用合规数据集（如违规词库、虚假宣传案例库）测试生</p>
+<p>成内容，确保基础合规；实时审核阶段，在 Agent 生成内容后，通过 AI 审核工具</p>
+<p>（ByteContentCheck）检测违规信息（如关键词匹配、语义分析），审核通过后再展示给</p>
+<p>用户；事后追溯阶段，留存生成内容的日志（包含生成时间、用户、内容），保留至少 6 个</p>
+<p>月，供监管检查。</p>
+<ol><li>合合规规提提示示工工程程：在大模型的提示词中加入合规要求，引导模型生成合规内容。例如，</li></ol>
+<p>电商智能营销 Agent 的提示词中明确 “禁止使用‘最好’‘第一’等绝对化用语，禁止虚假</p>
+<p>宣传商品功效”；教育智能答疑 Agent 的提示词中明确 “生成解题步骤时需引用权威教</p>
+<p>材知识点，确保准确性”。</p>
+<ol><li>用用户户反反馈馈与与内内容容优优化化：在 Agent 中设置 “内容举报” 功能，允许用户举报违规内容；</li></ol>
+<p>运营团队定期整理举报案例，分析违规原因（如模型漏洞、提示词不完善），并针对性优</p>
+<p>化。例如，教育智能答疑 Agent 收到 “解题步骤错误” 的举报后，团队将相关案例加入</p>
+<p>模型微调数据集，优化后错误率降低 25%。</p>
+<p>1111.. 结结语语</p>
+<p>1111..11 手手册册核核心心价价值值回回顾顾</p>
+<p>本手册从字节跳动业务视角出发，系统梳理了 Agent 的技术基础、开发流程、应用场景、</p>
+<p>运营优化、安全合规、典型案例、团队协作、风险应对等核心内容，形成了一套 “从理</p>
+<p>论到实践、从技术到业务、从建设到运营” 的完整指导体系。手册的核心价值在于：</p>
+<ol><li>技技术术硬硬核核性性：深入解析字节跳动自主大模型（Doubao 系列）、Agent 技术架构、</li></ol>
+<p>工具集成方法，提供可复用的技术方案（如多模型 fallback 机制、混合决策模式），帮</p>
+<p>助技术团队快速掌握 Agent 开发关键技术。</p>
+<ol><li>业业务务实实操操性性：结合飞书、抖音电商、教育等业务线的实际案例，详细拆解 Agent 在</li></ol>
+<p>各场景的核心功能实现（如智能文档协作、自动化会议、智能客服），提供 “需求分析 - 技</p>
+<p>术实现 - 效果评估” 的全流程实操指导，确保业务团队能落地应用。</p>
+<ol><li>合合规规安安全全性性：围绕数据安全、内容合规、法律法规遵循，提供具体的风险应对策略</li></ol>
+<p>（如数据分级管控、内容审核机制），帮助团队在 Agent 建设中规避合规风险，确保业</p>
+<p>务合法合规运转。</p>
+<p>1111..22 对对字字节节跳跳动动业业务务线线的的建建议议</p>
+<ol><li>场场景景优优先先，，小小步步快快跑跑：各业务线在开展 Agent 项目时，优先选择高频、高痛的场景</li></ol>
+<p>（如客服咨询、会议安排），启动小型试点项目，快速验证效果后再逐步推广，避免盲目</p>
+<p>投入。</p>
+<ol><li>技技术术协协同同，，资资源源共共享享：加强跨业务线的 Agent 技术交流，共享成熟的技术方案（如</li></ol>
+<p>飞书的协同层架构、抖音电商的多模型机制），避免重复造轮子；同时，充分利用公司内</p>
+<p>部的大模型、数据、工具资源（如 Coze 平台、ByteStore），降低开发成本。</p>
+<ol><li>关关注注用用户户，，持持续续迭迭代代：将用户反馈作为 Agent 优化的核心依据，建立常态化的用户</li></ol>
+<p>调研机制（如访谈、问卷、反馈收集），及时发现 Agent 的问题与不足，通过 “小迭代 +</p>
+<p>快更新” 的方式持续优化，提升用户体验与业务价值。</p>
+<ol><li>合合规规先先行行，，风风险险可可控控：在 Agent 项目启动阶段即引入合规团队，将数据安全、内容</li></ol>
+<p>合规要求融入技术设计与业务流程，建立风险预警与应急响应机制，确保 Agent 在合规</p>
+<p>框架内安全运行。</p>
+<p>1111..33 未未来来展展望望</p>
+<p>随着大模型技术的不断突破和字节跳动业务的持续拓展，Agent 将在更多领域发挥重要</p>
+<p>作用：在技术层面，多模态融合、自主进化、跨场景协同将成为核心发展方向，Agent 将</p>
+<p>从 “单一功能工具” 进化为 “具备复杂推理、自主学习能力的智能伙伴”；在业务层面，</p>
+<p>Agent 将向医疗、金融、工业制造等垂直行业深度渗透，为行业客户提供专业化解决方</p>
+<p>案，同时支撑字节跳动全球化业务的本地化适配；在生态层面，通过完善开发者生态与</p>
+<p>合作伙伴生态，Agent 将成为字节跳动技术对外输出的重要载体，推动行业智能化升级。</p>
+<p>希望各业务线团队能以本手册为指导，结合自身业务实际，积极探索 Agent 的创新应用，</p>
+<p>为字节跳动的智能化发展贡献力量，共同打造全球领先的 Agent 技术与业务生态。</p>
+<p>1122.. 字字节节跳跳动动 AAggeenntt 项项目目落落地地工工具具包包</p>
+<p>1122..11 需需求求分分析析工工具具集集</p>
+<p>1122..11..11 业业务务痛痛点点调调研研模模板板</p>
+<p>为帮助各业务线快速梳理 Agent 应用场景的核心痛点，设计标准化调研模板，包含以下</p>
+<p>核心模块：</p>
+<p>● 业业务务场场景景信信息息：场景名称（如 “电商大促客服咨询”）、涉及角色（如 “商家客服、</p>
+<p>平台运营、消费者”）、日均业务量（如 “10 万 + 咨询量”）、现有流程耗时（如 “人工响</p>
+<p>应平均 15 分钟”）；</p>
+<p>● 痛痛点点描描述述：按 “频率 - 影响范围 - 损失程度” 分级，例：“大促期间（频率：每年 6</p>
+<p>次），客服咨询量激增导致 30% 用户等待超 30 分钟（影响范围），直接流失率达 15%</p>
+<p>（损失程度）”；</p>
+<p>● 需需求求优优先先级级评评估估：采用 RICE 模型（Reach 覆盖人数、Impact 影响程度、</p>
+<p>Confidence 置信度、Effort 实现成本）打分，优先级 =（Reach×Impact×Confidence）</p>
+<p>/Effort，得分≥8 分列为高优先级需求。</p>
+<p>1122..11..22 用用户户需需求求访访谈谈提提纲纲</p>
+<p>针对不同角色（如员工、商家、消费者）设计差异化访谈提纲，核心问题示例：</p>
+<p>● 面面向向员员工工（（办办公公场场景景））：“当前完成会议安排 / 文档协作需哪些步骤？最耗时的环节</p>
+<p>是什么？若有智能工具，你最希望它解决哪类问题？”</p>
+<p>● 面面向向商商家家（（电电商商场场景景））：“日常运营中，商品优化 / 库存管理 / 客服响应哪项投入精</p>
+<p>力最多？曾因哪些问题导致损失（如超卖、客户投诉）？”</p>
+<p>● 面面向向消消费费者者（（服服务务场场景景））：“与平台客服交互时，最不满意的体验是什么（如响应慢、</p>
+<p>回答不准确）？希望获得怎样的智能服务？”</p>
+<p>1122..22 开开发发落落地地工工具具集集</p>
+<p>1122..22..11 AAggeenntt 架架构构设设计计模模板板</p>
+<p>提供标准化架构设计模板，包含 “模块划分 - 接口定义 - 数据流向” 三部分：</p>
+<p>● 模模块块划划分分：参考飞书 / 抖音案例，默认包含 “感知层（数据采集）、推理层（模型 + 规</p>
+<p>则）、执行层（工具调用）、协同层（信息同步）”，各业务线可根据场景增删模块（如教</p>
+<p>育场景新增 “知识校验层”）；</p>
+<p>● 接接口口定定义义：明确模块间 API 接口格式，例：智能任务管理 Agent 与飞书项目的接</p>
+<p>口需包含 “任务 ID（String）、优先级（Int）、截止时间（Timestamp）、责任人 ID</p>
+<p>（String）” 等字段，支持 JSON 格式传输；</p>
+<p>● 数数据据流流向向图图：用 Mermaid 语法绘制标准流程图，例：</p>
+<p>1122..22..22 测测试试用用例例库库模模板板</p>
+<p>按 “功能 - 性能 - 合规” 三类场景构建测试用例库，每个用例需包含 “测试目标、前置</p>
+<p>条件、操作步骤、预期结果、判断标准”：</p>
+<p>● 功功能能测测试试用用例例（（智智能能客客服服 AAggeenntt））：</p>
+<p>● 测试目标：验证 “商品尺码推荐” 功能准确性；</p>
+<p>● 前置条件：用户输入 “160cm/50kg，想买连衣裙”；</p>
+<p>● 操作步骤：调用 Agent 尺码推荐接口；</p>
+<p>● 预期结果：推荐 “M 码，附 80% 同体型用户选择数据”；</p>
+<p>● 判断标准：推荐结果与历史用户数据匹配度≥90%。</p>
+<p>● 性性能能测测试试用用例例（（大大促促场场景景））：</p>
+<p>● 测试目标：验证并发 10 万次 / 小时咨询时的响应时间；</p>
+<p>● 前置条件：模拟 10 万用户同时发送客服咨询；</p>
+<p>● 操作步骤：通过 BytePressure 工具发起压测；</p>
+<p>● 预期结果：平均响应时间≤1 秒，错误率≤0.1%；</p>
+<p>● 判断标准：连续 3 次压测均满足预期。</p>
+<p>1122..33 运运营营监监控控工工具具集集</p>
+<p>1122..33..11 运运营营数数据据看看板板模模板板</p>
+<p>基于 DataV 搭建标准化看板，包含核心指标及可视化方式：</p>
+<p>● 业业务务价价值值指指标标：效率提升率（折线图）、成本降低金额（柱状图）、用户满意度（仪表</p>
+<p>盘）；</p>
+<p>● 技技术术性性能能指指标标：响应时间（折线图）、错误率（饼图）、缓存命中率（仪表盘）；</p>
+<p>● 用用户户行行为为指指标标：Agent 使用率（折线图）、功能点击 TOP3（条形图）、用户反馈关</p>
+<p>键词云（词云图）。</p>
+<p>看板需支持按 “日 / 周 / 月” 切换时间维度，自动计算同比 / 环比数据。</p>
+<p>1122..33..22 用用户户反反馈馈收收集集模模板板</p>
+<p>在 Agent 界面嵌入反馈入口，提供 “星级评分 + 文本输入” 双渠道，反馈模板需包含：</p>
+<p>● 基础信息：反馈时间（自动填充）、用户 ID（脱敏显示）、使用场景（下拉选择，如 “会</p>
+<p>议安排 / 客服咨询”）；</p>
+<p>● 核心反馈：星级评分（1-5 星）、问题类型（单选，如 “功能无效 / 响应慢 / 内容错</p>
+<p>误”）、详细描述（文本框，限制 500 字内）；</p>
+<p>● 优化建议：开放文本框，支持用户提出具体需求（如 “希望会议纪要能自动生成待</p>
+<p>办清单”）。</p>
+<p>1133.. 字字节节跳跳动动 AAggeenntt 常常见见问问题题解解答答（（FFAAQQ））</p>
+<p>1133..11 技技术术类类问问题题</p>
+<p>1133..11..11 如如何何选选择择适适合合业业务务的的大大模模型型？？</p>
+<p>需结合 “业务场景复杂度 - 响应速度要求 - 成本预算” 三要素决策：</p>
+<p>● 简单场景（如常见问题解答、数据统计）：优先使用规则引擎或轻量级模型（如</p>
+<p>Doubao-Lite），成本低、响应快（≤0.5 秒）；</p>
+<p>● 中等复杂度场景（如商品优化、文档协作）：选择 Doubao-Seed-1.6，支持多模态</p>
+<p>理解，平衡准确性与速度；</p>
+<p>● 高复杂度场景（如复杂推理、个性化辅导）：使用 Doubao-Seed-1.6-thinking，具备</p>
+<p>深度推理能力，适合需要逻辑分析的场景（如教育解题、金融风险评估）。</p>
+<p>例：抖音电商的 “库存预测” 需分析历史销售 + 实时数据，选择 Doubao-Seed-1.6 即</p>
+<p>可满足需求；而教育场景的 “数学压轴题讲解” 需复杂推理，需使用</p>
+<p>Doubao-Seed-1.6-thinking。</p>
+<p>1133..11..22 AAggeenntt 如如何何实实现现与与外外部部系系统统的的实实时时数数据据同同步步？？</p>
+<p>采用 “主动推送 + 被动拉取” 双机制：</p>
+<p>● 主动推送：外部系统（如商家 ERP、飞书项目）通过 WebHook 将数据变更实时</p>
+<p>推送至 Agent 的协同层，例：当商家 ERP 库存减少时，触发 WebHook 推送 “商品</p>
+<p>ID + 最新库存” 至动态库存管理 Agent；</p>
+<p>● 被动拉取：Agent 通过定时任务（如每 5 分钟）调用外部系统 API 拉取数据，适</p>
+<p>用于数据更新频率低的场景（如商品基础信息），需在 API 请求中加入 “Last-Modified”</p>
+<p>参数，仅拉取增量数据，减少带宽消耗。</p>
+<p>同步过程中需使用 TLS 1.3 加密，同时在 Agent 端设置数据校验机制（如 MD5 哈希</p>
+<p>比对），确保数据完整性。</p>
+<p>1133..22 业业务务类类问问题题</p>
+<p>1133..22..11 中中小小业业务务线线资资源源有有限限，，如如何何低低成成本本启启动动 AAggeenntt 项项目目？？</p>
+<p>可采用 “轻量化试点 - 资源复用 - 逐步扩展” 策略：</p>
+<p>● 轻量化试点：选择 1 个高频痛点场景（如 “会议安排”），基于 Coze 平台调用现成</p>
+<p>插件（如飞书日历插件、语音转文字插件），无需从零开发，2-3 周即可上线；</p>
+<p>● 资源复用：优先使用公司共享资源，如调用公共大模型 API（无需自建模型）、复用</p>
+<p>飞书 / 抖音的现有数据中台（无需单独采集数据）；</p>
+<p>● 逐步扩展：试点成功后，基于现有架构新增功能模块（如从 “会议安排” 扩展至 “会</p>
+<p>议纪要生成”），避免一次性投入过大。</p>
+<p>例：某教育中小团队仅用 2 周，基于 Coze 平台集成 “题库插件 + 答疑插件”，上线简</p>
+<p>易版智能答疑 Agent，后续再逐步优化功能。</p>
+<p>1133..22..22 AAggeenntt 与与现现有有业业务务流流程程冲冲突突时时，，该该优优先先调调整整 AAggeenntt 还还是是流流程程？？</p>
+<p>需按 “冲突影响范围 - 调整成本” 评估：</p>
+<p>● 若冲突仅影响单个团队（如某部门的任务审核流程），且调整 Agent 功能成本低（如</p>
+<p>增加 “自定义审核节点” 配置），优先调整 Agent；</p>
+<p>● 若冲突影响全业务线（如电商平台的售后流程），且 Agent 调整需重构核心模块（成</p>
+<p>本高、周期长），则联合业务团队优化现有流程，需确保流程优化后不影响其他业务功能。</p>
+<p>例：飞书某研发团队的 “三级验收流程” 与智能任务管理 Agent 冲突，因调整 Agent</p>
+<p>仅需新增 1 个配置项（成本低），最终选择调整 Agent；而抖音电商的 “售后退款流程”</p>
+<p>涉及全平台商家，调整 Agent 需重构客服响应逻辑，最终选择优化流程，将 “退款审核”</p>
+<p>环节从 3 步简化为 2 步。</p>
+<p>1133..33 合合规规类类问问题题</p>
+<p>1133..33..11 采采集集用用户户数数据据时时，，如如何何平平衡衡 ““数数据据需需求求”” 与与 ““隐隐私私保保护护””？？</p>
+<p>需严格遵循 “最小必要 + 分层授权” 原则：</p>
+<p>● 最小必要：仅采集 Agent 运行必需的数据，例：智能客服 Agent 仅需采集 “用户</p>
+<p>咨询内容 + 订单 ID”，无需采集用户的浏览历史（非必需）；</p>
+<p>● 分层授权：将数据采集分为 “基础授权 + 敏感授权”，基础授权（如咨询内容）在用</p>
+<p>户首次使用时获取，敏感授权（如手机号）需单独弹窗提示，明确告知 “采集目的 + 使</p>
+<p>用范围 + 保存期限”，用户同意后方可采集；</p>
+<p>● 数据脱敏：采集后立即对敏感数据脱敏，例：手机号存储为 “13855667788””，，身身份份证证号号</p>
+<p>存存储储为为 ““1111001100111234”，仅在必要场景（如售后联系）通过权限申请临时获取完整数据。</p>
+<p>1133..33..22 AAggeenntt 生生成成内内容容包包含含违违规规信信息息时时，，如如何何快快速速处处置置？？</p>
+<p>启动 “三级应急响应” 机制：</p>
+<p>● 一级响应（单条违规）：AI 审核工具（ByteContentCheck）自动拦截违规内容，替</p>
+<p>换为 “该内容需进一步审核” 提示，同时将违规案例推送至运营团队；</p>
+<p>● 二级响应（批量违规）：若 1 小时内违规内容超 10 条，自动暂停 Agent 的生成功</p>
+<p>能，切换至人工审核模式，运营团队需在 2 小时内分析违规原因（如提示词漏洞）并修</p>
+<p>复；</p>
+<p>● 三级响应（重大违规）：若违规内容涉及 “虚假宣传、违法信息”，立即暂停 Agent 服</p>
+<p>务，合规团队介入调查，24 小时内出具整改方案，整改完成后需通过 3 轮合规测试方</p>
+<p>可恢复服务。</p>
+<p>1144.. 字字节节跳跳动动跨跨业业务务线线 AAggeenntt 协协作作案案例例</p>
+<p>1144..11 飞飞书书 ×× 抖抖音音电电商商：：跨跨场场景景协协同同 AAggeenntt</p>
+<p>1144..11..11 协协作作背背景景</p>
+<p>抖音电商商家需在飞书进行内部协作（如制定营销方案），同时在抖音平台开展运营（如</p>
+<p>直播带货），但两地数据割裂（如飞书的营销计划与抖音的直播数据无法同步），导致商</p>
+<p>家运营效率低。为此，飞书与抖音电商团队联合开发跨场景协同 Agent，实现 “办公协</p>
+<p>作 - 电商运营” 数据互通。</p>
+<p>1144..11..22 协协作作机机制制与与功功能能实实现现</p>
+<p>● 跨跨团团队队协协作作架架构构：成立联合项目组，飞书团队负责 “办公数据输出”（如营销计划、</p>
+<p>任务进度），抖音电商团队负责 “电商数据输入”（如直播销量、用户反馈），合规团队负</p>
+<p>责 “数据跨域安全审核”；</p>
+<p>● 核核心心功功能能：</p>
+<ol><li>数据同步：飞书的营销计划 Agent 将 “直播主题 + 时间 + 目标销量” 同步至</li></ol>
+<p>抖音电商的个性化营销 Agent，个性化营销 Agent 基于该信息筛选高意向用户；</p>
+<ol><li>效果反馈：抖音电商的直播数据（如实际销量、用户评论）实时同步至飞书的</li></ol>
+<p>智能任务管理 Agent，自动更新 “营销任务进度”，并生成数据报表（如 “目标销量</p>
+<p>完成率 85%，未达标原因：用户对价格敏感”）；</p>
+<ol><li>协同决策：当直播销量未达预期时，跨场景协同 Agent 聚合飞书的任务数据与</li></ol>
+<p>抖音的用户反馈，生成优化建议（如 “建议在飞书调整营销方案，增加限时折扣”）。</p>
+<p>1144..11..33 协协作作效效果果</p>
+<p>该 Agent 上线后，抖音电商商家的 “办公 - 运营” 数据同步时间从 2 小时缩短至 5</p>
+<p>分钟，营销任务完成率提升 30%，直播用户转化率提升 18%。同时，沉淀出跨业务线</p>
+<p>Agent 协作的标准流程：“需求对齐→数据接口定义→安全审核→功能联调→联合运营”，</p>
+<p>为其他业务线提供参考。</p>
+<p>1144..22 教教育育 ×× 飞飞书书：：知知识识管管理理协协同同 AAggeenntt</p>
+<p>1144..22..11 协协作作背背景景</p>
+<p>教育业务线的教师需在飞书存储教学资料（如课件、题库），同时在教育平台开展教学（如</p>
+<p>布置作业、答疑），但飞书的资料无法直接用于教育平台的教学场景（如课件需转换格式</p>
+<p>才能插入课程），且学生的学习数据（如错题）无法同步至飞书的教师备课系统，影响教</p>
+<p>学效率。</p>
+<p>1144..22..22 协协作作机机制制与与功功能能实实现现</p>
+<p>● 跨跨团团队队分分工工：教育团队负责提供教学场景需求（如 “课件格式转换”“错题同步”），</p>
+<p>飞书团队负责开发 Agent 的协同层（实现飞书文档与教育平台的数据互通），大模型团</p>
+<p>队负责优化 “知识提取” 能力（从飞书课件中提取知识点）；</p>
+<p>● 核核心心功功能能：</p>
+<ol><li>资料格式自动转换：教师在飞书上传 PPT 课件后，知识管理协同 Agent 自动</li></ol>
+<p>将其转换为教育平台支持的 “交互式课件”（含动画、练习题插入功能），无需人工操</p>
+<p>作；</p>
+<ol><li>学习数据同步：学生在教育平台的错题数据（如 “错题 ID + 错误原因”）实时</li></ol>
+<p>同步至飞书的教师备课 Agent，Agent 自动生成 “错题分析报表”，标注高频错误知</p>
+<p>识点；</p>
+<ol><li>个性化备课建议：Agent 结合飞书的教学资料与教育平台的学生数据，为教师</li></ol>
+<p>推荐备课重点（如 “本周学生几何证明题错误率高，建议在课件中增加相关例题”）。</p>
+<p>1144..22..33 协协作作经经验验</p>
+<p>跨业务线协作需注意三点：</p>
+<ol><li>统一数据标准：提前定义数据字段（如 “课件 ID”“错题类型”），确保飞书与教育平</li></ol>
+<p>台的数据可互通；</p>
+<ol><li>明确权责边界：飞书团队负责协同层稳定性，教育团队负责业务需求准确性，避免</li></ol>
+<p>推诿；</p>
+<ol><li>建立快速沟通通道：成立专项沟通群，每日同步进度，遇到冲突时 2 小时内召开协</li></ol>
+<p>调会，确保项目推进效率。</p>
+<p>1155.. 补补充充结结语语：：AAggeenntt 落落地地的的关关键键成成功功要要素素</p>
+<p>结合字节跳动多业务线实践，Agent 项目成功落地需把握三大核心要素：</p>
+<ol><li>业业务务价价值值导导向向：始终以 “解决实际痛点、创造可量化价值” 为目标，避免追求技术炫</li></ol>
+<p>技。例如，飞书 Agent 的核心价值是 “缩短办公时间”，抖音电商 Agent 是 “提升商家</p>
+<p>销售额”，所有功能设计需围绕核心价值展开；</p>
+<ol><li>资资源源高高效效复复用用：充分利用公司内部的大模型、数据中台、开发工具等共享资源，减</li></ol>
+<p>少重复建设。中小业务线可优先基于 Coze 平台、公共 API 启动项目，降低开发成本；</p>
+<ol><li>全全链链路路协协同同：从需求分析到上线运营，需业务、技术、合规、运营团队全程参与，</li></ol>
+<p>尤其是合规团队需提前介入（如数据采集阶段），避免后期因合规问题返工。</p>
+<p>各业务线在落地 Agent 时，可参考本手册的工具、案例与方法，结合自身场景灵活调整，</p>
+<p>同时积极参与跨业务线交流（如 Agent 技术沙龙），共享经验、规避风险，共同推动字</p>
+<p>节跳动 Agent 技术与业务的深度融合，实现 “智能化驱动业务增长” 的最终目标。</p>
+<p>1166.. 字字节节跳跳动动 AAggeenntt 项项目目验验收收标标准准</p>
+<p>1166..11 验验收收维维度度与与核核心心指指标标</p>
+<p>1166..11..11 业业务务价价值值验验收收</p>
+<p>围绕 “效率提升、成本降低、体验优化” 三大核心目标，制定量化验收指标，各业务线需</p>
+<p>结合场景明确基准值与目标值：</p>
+<p>● 效效率率提提升升指指标标：</p>
+<p>● 办公场景：会议安排时间缩短率（目标≥70%）、文档协作完成时间缩短率（目标</p>
+<p>≥50%）；</p>
+<p>● 电商场景：客服咨询响应时间缩短率（目标≥80%）、库存补货决策时间缩短率（目</p>
+<p>标≥60%）；</p>
+<p>● 教育场景：学生作业批改时间缩短率（目标≥75%）、教师备课时间缩短率（目标</p>
+<p>≥40%）。</p>
+<p>● 成成本本降降低低指指标标：</p>
+<p>● 人力成本：人工客服岗位减少数量（电商大促场景目标≥30%）、人工审核岗位减少</p>
+<p>数量（内容场景目标≥45%）；</p>
+<p>● 资源成本：服务器资源消耗降低率（高并发场景目标≥20%）、数据存储成本降低率</p>
+<p>（长期运营场景目标≥15%）。</p>
+<p>● 体体验验优优化化指指标标：</p>
+<p>● 用户满意度：员工 / 商家 / 消费者对 Agent 的满意度评分（目标≥4.5/5.0）；</p>
+<p>● 复购 / 复用率：电商用户复购率提升（目标≥10%）、办公员工 Agent 复用率（目</p>
+<p>标≥90%）。</p>
+<p>1166..11..22 技技术术性性能能验验收收</p>
+<p>从 “稳定性、响应速度、兼容性” 三个维度设置硬性标准，未达标项目需整改后重新验收：</p>
+<p>● 稳稳定定性性：</p>
+<p>● 服务可用性：Agent 全年服务可用率（目标≥99.99%），单次故障恢复时间（目标≤1</p>
+<p>小时）；</p>
+<p>● 错误率：功能错误率（目标≤0.1%）、数据同步错误率（目标≤0.05%）、模型生成错</p>
+<p>误率（目标≤0.5%）。</p>
+<p>● 响响应应速速度度：</p>
+<p>● 实时交互场景（如客服咨询）：平均响应时间（目标≤1 秒），99 分位响应时间（目标</p>
+<p>≤3 秒）；</p>
+<p>● 非实时场景（如报表生成）：任务完成时间（目标≤5 分钟），大数据量场景（如千万</p>
+<p>级数据统计）目标≤30 分钟。</p>
+<p>● 兼兼容容性性：</p>
+<p>● 设备兼容：支持手机（iOS/Android）、电脑（Windows/macOS）、平板等终端，</p>
+<p>兼容率（目标≥98%）；</p>
+<p>● 系统兼容：与飞书 / 抖音 / 教育平台等内部系统的接口兼容率（目标 100%），与</p>
+<p>外部工具（如 ERP、物流系统）兼容率（目标≥95%）。</p>
+<p>1166..11..33 合合规规安安全全验验收收</p>
+<p>严格对照国内外法律法规及内部制度，逐项验证合规要求落实情况，核心验收项包括：</p>
+<p>● 数数据据合合规规：</p>
+<p>● 数据采集：是否遵循 “最小必要” 原则，敏感数据是否获得单独授权（验收方式：抽</p>
+<p>查 100 条数据采集记录）；</p>
+<p>● 数据存储：敏感数据是否加密存储（AES-256/RSA-2048 标准），数据备份是否符</p>
+<p>合异地容灾要求（验收方式：检查存储日志 + 备份测试）；</p>
+<p>● 数据使用：是否存在超范围使用数据情况，敏感数据展示是否脱敏（验收方式：模</p>
+<p>拟用户操作 + 数据流向审计）。</p>
+<p>● 内内容容合合规规：</p>
+<p>● 生成内容：是否包含违规信息（如虚假宣传、低俗内容），合规审核通过率（目标</p>
+<p>≥99.9%）（验收方式：随机抽查 1000 条生成内容）；</p>
+<p>● 日志追溯：生成内容日志是否留存≥6 个月，包含 “生成时间、用户、内容、审核结</p>
+<p>果” 等信息（验收方式：检查日志系统）。</p>
+<p>1166..22 验验收收流流程程与与结结果果判判定定</p>
+<p>1166..22..11 验验收收流流程程</p>
+<p>采用 “自评 - 初审 - 终审” 三级验收流程，明确各环节责任方与时间节点：</p>
+<ol><li>项项目目组组自自评评（验收前 7 天）：</li></ol>
+<p>● 责任方：业务 + 技术 + 运营团队；</p>
+<p>● 输出物：《Agent 项目自评报告》（含业务价值、技术性能、合规安全达标情况，</p>
+<p>附数据支撑）；</p>
+<p>● 要求：逐项对照验收指标，标注 “达标 / 待整改”，待整改项需说明原因及整改方案。</p>
+<ol><li>跨跨部部门门初初审审（验收前 3 天）：</li></ol>
+<p>● 责任方：公司技术委员会（含大模型、工程专家）、合规部、运营部；</p>
+<p>● 流程：审核自评报告→现场验证（如压测、功能演示、合规检查）→出具《初审意</p>
+<p>见》；</p>
+<p>● 结果：通过（无待整改项）、有条件通过（≤3 项待整改项）、不通过（＞3 项待整改</p>
+<p>项或重大合规问题）。</p>
+<ol><li>终终验验评评审审（验收当天）：</li></ol>
+<p>● 责任方：业务线负责人、技术负责人、公司合规负责人；</p>
+<p>● 流程：项目组汇报→初审意见复核→投票表决（需 2/3 以上同意）；</p>
+<p>● 输出物：《Agent 项目终验报告》，明确 “通过验收” 或 “暂停验收（整改后重审）”。</p>
+<p>1166..22..22 结结果果判判定定与与后后续续处处理理</p>
+<p>● 通通过过验验收收：项目正式上线运营，运营团队接手日常监控，技术团队进入维护阶段（提</p>
+<p>供 1 个月免费运维支持）；</p>
+<p>● 有有条条件件通通过过：项目组需在 7 天内完成整改，运营团队跟踪整改效果，15 天内提交</p>
+<p>《整改验收报告》，无需重新召开终验会；</p>
+<p>● 暂暂停停验验收收：项目组需重新梳理问题，制定整改计划（明确责任人与时间节点），整改</p>
+<p>完成后重新发起初审，初审通过方可再次申请终验。</p>
+<p>1177.. 字字节节跳跳动动 AAggeenntt 长长期期迭迭代代规规划划方方法法</p>
+<p>1177..11 迭迭代代需需求求优优先先级级排排序序</p>
+<p>1177..11..11 需需求求来来源源与与分分类类</p>
+<p>建立 “全渠道需求收集” 机制，确保迭代需求覆盖业务、用户、技术多维度：</p>
+<p>● 需需求求来来源源：</p>
+<p>● 业务团队：基于业务目标（如 “提升电商复购率”）提出的功能需求（如 “个性化优</p>
+<p>惠券推送”）；</p>
+<p>● 用户反馈：通过反馈模板、访谈、问卷收集的员工 / 商家 / 消费者需求（如 “希望</p>
+<p>Agent 支持多语言交互”）；</p>
+<p>● 技术团队：基于性能优化、安全加固提出的需求（如 “模型压缩以降低资源消耗”）；</p>
+<p>● 合规团队：基于法律法规更新提出的整改需求（如 “新增数据跨境传输合规校验”）。</p>
+<p>● 需需求求分分类类：</p>
+<p>● 核心需求：影响业务正常运转的必需需求（如 “修复客服 Agent 响应超时漏洞”）；</p>
+<p>● 优化需求：提升体验或效率的非必需需求（如 “优化会议纪要生成格式”）；</p>
+<p>● 创新需求：探索新场景或新能力的需求（如 “Agent 支持 VR 场景交互”）。</p>
+<p>1177..11..22 优优先先级级排排序序模模型型</p>
+<p>采用 “业务价值 - 实现成本 - 紧急程度” 三维评估模型，满分 10 分，得分越高优先级</p>
+<p>越高：</p>
+<p>● 业业务务价价值值（（44 分分））：</p>
+<p>● 高（3-4 分）：能显著提升核心指标（如销售额提升≥20%、成本降低≥30%）；</p>
+<p>● 中（1-2 分）：对指标有一定提升（如销售额提升 5%-20%）；</p>
+<p>● 低（0 分）：指标提升不明显（＜5%）或无直接影响。</p>
+<p>● 实实现现成成本本（（33 分分））：</p>
+<p>● 低（2-3 分）：复用现有资源，开发周期≤2 周（如配置插件、调整参数）；</p>
+<p>● 中（1 分）：需少量定制开发，周期 2-4 周（如新增简单模块）；</p>
+<p>● 高（0 分）：需重构核心架构，周期＞4 周（如更换模型、重构数据链路）。</p>
+<p>● 紧紧急急程程度度（（33 分分））：</p>
+<p>● 高（2-3 分）：合规要求（如法律新规生效前）、重大故障修复（如服务不可用）；</p>
+<p>● 中（1 分）：业务高峰期前（如电商大促前）、用户反馈集中的问题；</p>
+<p>● 低（0 分）：无时间限制的优化或创新需求。</p>
+<p>1177..22 迭迭代代周周期期与与规规划划模模板板</p>
+<p>1177..22..11 迭迭代代周周期期设设定定</p>
+<p>根据需求类型与业务节奏，采用 “双周小迭代 + 季度大迭代” 的混合模式：</p>
+<p>● 双双周周小小迭迭代代：</p>
+<p>● 适用需求：核心需求（紧急故障修复）、低成本优化需求（如调整 UI 交互、优化提</p>
+<p>示文案）；</p>
+<p>● 周期：2 周（1 周开发 + 1 周测试验收）；</p>
+<p>● 输出：小版本更新（如 V1.0.1、V1.0.2），聚焦 “快速解决问题、持续优化体验”。</p>
+<p>● 季季度度大大迭迭代代：</p>
+<p>● 适用需求：高成本优化需求（如模型升级、架构调整）、创新需求（如新增跨场景功</p>
+<p>能）；</p>
+<p>●</p>
+<p>周期：12 周（6 周需求分析 + 开发、4 周测试、2 周验收上线）；</p>
+<p>● 输出：大版本更新（如 V1.1.0、V1.2.0），聚焦 “能力升级、场景拓展”。</p>
+<p>1177..22..22  迭迭代代规规划划模模板板</p>
+<p>制定标准化《Agent 迭代规划表》，包含 “需求信息、时间节点、责任方、验收标准” 四</p>
+<p>大模块，示例如下：</p>
+<table><thead><tr><th>需</th><th>需 需</th><th>优 开</th><th>关 责</th><th>验</th></tr></thead><tbody><tr><td>求</td><td>求 求</td><td>先 发</td><td>键 任</td><td>收</td></tr><tr class="alt"><td>ID</td><td>名 类</td><td>级 周</td><td>节 团</td><td>标</td></tr><tr><td></td><td>称 型</td><td>得 期</td><td>点 队</td><td>准</td></tr><tr class="alt"><td></td><td></td><td>分</td><td>（开</td><td></td></tr></tbody></table>
+<p>始</p>
+<p>/</p>
+<p>结</p>
+<p>束）</p>
+<table><thead><tr><th>RE</th><th>客 优</th><th>7  3</th><th>202 技</th><th>支</th></tr></thead><tbody><tr><td>Q-2</td><td>服  化</td><td>分 周</td><td>5. 0 术</td><td>持</td></tr><tr class="alt"><td>025</td><td>Age 需</td><td></td><td>1. 0 +</td><td>10</td></tr><tr><td>01</td><td>nt  求</td><td></td><td>5-2 运</td><td>种</td></tr></tbody></table>
+<table><thead><tr><th></th><th>多</th><th></th><th>025. 营</th><th>语</th></tr></thead><tbody><tr><td></td><td>语</td><td></td><td>01.</td><td>言，</td></tr><tr class="alt"><td></td><td>言</td><td></td><td>25</td><td>翻</td></tr><tr><td></td><td>支</td><td></td><td></td><td>译</td></tr><tr class="alt"><td></td><td>持</td><td></td><td></td><td>准</td></tr></tbody></table>
+<p>确</p>
+<p>率</p>
+<p>≥95%</p>
+<table><thead><tr><th>RE</th><th>修 核 10</th><th>1</th><th>202 技</th><th>数</th></tr></thead><tbody><tr><td>Q-2</td><td>复 心 分</td><td>周</td><td>5. 0 术</td><td>据</td></tr><tr class="alt"><td>025</td><td>库 需</td><td></td><td>1. 1 +</td><td>同</td></tr><tr><td>02</td><td>存 求</td><td></td><td>0-2 电</td><td>步</td></tr><tr class="alt"><td></td><td>同</td><td></td><td>025. 商</td><td>错</td></tr><tr><td></td><td>步</td><td></td><td>01. 业</td><td>误</td></tr><tr class="alt"><td></td><td>错</td><td></td><td>17 务</td><td>率</td></tr><tr><td></td><td>误</td><td></td><td></td><td>≤0.</td></tr><tr class="alt"><td></td><td>漏</td><td></td><td></td><td>05%</td></tr></tbody></table>
+<table><thead><tr><th></th><th>洞</th><th></th><th></th><th>，</th></tr></thead><tbody></tbody></table>
+<p>连</p>
+<p>续</p>
+<p>3</p>
+<p>天</p>
+<p>无</p>
+<p>故</p>
+<p>障</p>
+<table><thead><tr><th>RE</th><th>Age 创 5</th><th>8</th><th>202 技</th><th>支</th></tr></thead><tbody><tr><td>Q-2</td><td>nt  新 分</td><td>周</td><td>5. 0 术</td><td>持</td></tr><tr class="alt"><td>025</td><td>VR  需</td><td></td><td>2. 0 +</td><td>VR</td></tr><tr><td>03</td><td>交 求</td><td></td><td>1-2 教</td><td>场</td></tr><tr class="alt"><td></td><td>互</td><td></td><td>025. 育</td><td>景</td></tr><tr><td></td><td>功</td><td></td><td>03. 业</td><td>下</td></tr><tr class="alt"><td></td><td>能</td><td></td><td>28 务</td><td>知</td></tr></tbody></table>
+<p>识</p>
+<p>点</p>
+<p>讲</p>
+<p>解，</p>
+<p>用</p>
+<p>户</p>
+<p>体</p>
+<p>验</p>
+<p>评</p>
+<p>分</p>
+<p>≥4.</p>
+<p>3</p>
+<p>1177..33 迭迭代代效效果果评评估估与与复复盘盘</p>
+<p>1177..33..11 迭迭代代效效果果评评估估指指标标</p>
+<p>从 “目标达成率、用户反馈、技术指标” 三个维度评估迭代效果：</p>
+<p>● 目目标标达达成成率率：迭代前设定的业务目标（如 “客服满意度提升 5%”）实际完成比例（目</p>
+<p>标≥90%）；</p>
+<p>● 用用户户反反馈馈：迭代后用户对新增 / 优化功能的满意度（目标≥4.2/5.0），负面反馈占比</p>
+<p>（目标≤5%）；</p>
+<p>● 技技术术指指标标：迭代后 Agent 的响应速度、错误率、资源消耗等是否优于迭代前（如响</p>
+<p>应速度提升≥10%）。</p>
+<p>1177..33..22 复复盘盘流流程程与与输输出出</p>
+<p>迭代结束后 1 周内召开复盘会，采用 “4F 复盘法”（Facts 事实、Feelings 感受、</p>
+<p>Findings 发现、Future 计划），输出可落地的改进方案：</p>
+<ol><li>FFaaccttss（（事事实实））：客观陈述迭代过程（如 “需求开发延期 2 天，因模型调优耗时超预</li></ol>
+<p>期”）、结果数据（如 “客服满意度提升 3%，未达 5% 目标”）；</p>
+<ol><li>FFeeeelliinnggss（（感感受受））：团队成员分享迭代中的问题与难点（如 “跨团队沟通延迟导致需</li></ol>
+<p>求理解偏差”）；</p>
+<ol><li>FFiinnddiinnggss（（发发现现））：提炼关键问题与根因（如 “模型调优缺乏提前评估，跨团队沟通</li></ol>
+<p>无固定机制”）；</p>
+<ol><li>FFuuttuurree（（计计划划））：制定改进措施（如 “模型调优前增加技术评估环节，建立跨团队周</li></ol>
+<p>会沟通机制”），明确责任人与完成时间。</p>
+<p>1188.. 字字节节跳跳动动 AAggeenntt 全全球球化化适适配配实实操操指指南南</p>
+<p>1188..11 语语言言与与文文化化适适配配</p>
+<p>1188..11..11 多多语语言言支支持持方方案案</p>
+<p>针对不同国家和地区的语言需求，采用 “核心语言优先 + 小语种逐步覆盖” 策略，确保</p>
+<p>Agent 交互自然流畅：</p>
+<p>● 核核心心语语言言（（1100 种种））：英语、日语、韩语、西班牙语、法语、德语、俄语、阿拉伯语、</p>
+<p>葡萄牙语、印尼语，优先实现 “理解 + 生成” 全功能支持；</p>
+<p>● 小小语语种种（（3300++））：通过 “机器翻译 + 人工校对” 模式，先支持文本交互，再逐步优化</p>
+<p>语音交互（如泰语、越南语、土耳其语）。</p>
+<p>● 技技术术实实现现：</p>
+<p>● 基于 Doubao-Seed-1.6 的多语言能力，新增 “语言检测模块”，自动识别用户输入</p>
+<p>语言（准确率目标≥99%）；</p>
+<p>● 建立多语言语料库，每个语种包含 “日常交互、业务术语、文化禁忌” 三类数据（如</p>
+<p>英语需区分英式 / 美式表达，阿拉伯语需适配从右到左的文本展示）；</p>
+<p>● 语音交互场景集成字节跳动自研的多语言 ASR/TTS 引擎，确保语音识别准确率</p>
+<p>（目标≥95%）、语音合成自然度（目标≥4.5/5.0）。</p>
+<p>1188..11..22 文文化化适适配配要要点点</p>
+<p>避免因文化差异导致用户误解或不满，需重点关注以下维度：</p>
+<p>● 交交互互风风格格：</p>
+<p>● 欧美地区：注重简洁直接，Agent 响应需避免冗余表述，多使用 “您的需求已收到，</p>
+<p>将在 1 分钟内处理” 等高效话术；</p>
+<p>● 东亚地区（日韩）：注重礼貌谦逊，需使用敬语（如日语 “でございます” 结尾），避</p>
+<p>免过于随意的表达；</p>
+<p>● 中东地区：需符合当地宗教文化（如避免提及猪肉、酒精相关内容），交互时间需避</p>
+<p>开宗教节日（如斋月）。</p>
+<p>● 视视觉觉与与符符号号：</p>
+<p>● 颜色适配：西方文化中 “红色” 代表警告，东方文化中代表喜庆，Agent 界面颜色</p>
+<p>需按地区调整（如欧美用蓝色表示安全，东亚可用红色）；</p>
+<p>● 符号适配：避免使用宗教敏感符号（如十字架、星月标志），手势符号需符合当地习</p>
+<p>惯（如 “OK” 手势在部分国家代表侮辱）。</p>
+<p>1188..22 法法律律法法规规与与合合规规适适配配</p>
+<p>1188..22..11 主主要要国国家家 // 地地区区合合规规要要求求</p>
+<p>针对全球化业务重点区域，梳理核心合规要求，确保 Agent 运营合法：</p>
+<p>● 欧欧盟盟（（GGDDPPRR））：</p>
+<p>● 数据权利：用户拥有 “数据访问、更正、删除、携带” 四项核心权利，Agent 需提供</p>
+<p>便捷的操作入口（如 “我的数据管理” 页面）；</p>
+<p>● 数据跨境：若数据需传输至欧盟境外（如中国），需通过 “标准合同条款（SCC）” 或</p>
+<p>“充分性认定” 机制，确保数据安全。</p>
+<p>● 美美国国（（CCCCPPAA//CCPPRRAA））：</p>
+<p>● 消费者权利：用户可要求企业 “披露数据收集范围、删除个人数据、拒绝数据出售”，</p>
+<p>Agent 需在隐私政策中明确告知数据用途；</p>
+<p>● 数据安全：需采取 “合理安全措施” 保护数据，如加密存储、访问控制，定期开展安</p>
+<p>全评估。</p>
+<p>● 东东南南亚亚（（印印尼尼 PPDDPP LLaaww））：</p>
+<p>● 数据本地化：个人数据需存储在印尼境内服务器，Agent 需在当地部署数据节点；</p>
+<p>● 政府备案：需向印尼通信与信息部（Kominfo）备案数据处理活动，接受监管检查。</p>
+<p>1188..22..22 合合规规适适配配落落地地步步骤骤</p>
+<ol><li>合合规规调调研研（进入新市场前 3 个月）：</li></ol>
+<p>● 联合合规团队与当地法律顾问，梳理目标市场的法律法规（如数据保护、内容审核、</p>
+<p>隐私政策要求），输出《Agent 全球化合规清单》；</p>
+<ol><li>功功能能改改造造（进入前 2 个月）：</li></ol>
+<p>● 数据处理：根据当地要求调整数据采集范围（如欧盟市场不采集非必需的位置信息）、</p>
+<p>存储地点（如印尼市场本地化存储）；</p>
+<p>● 内容审核：新增当地语言的合规词库（如欧盟禁止 “虚假环保宣传”，需新增相关关</p>
+<p>键词拦截）；</p>
+<ol><li>测测试试验验收收（进入前 1 个月）：</li></ol>
+<p>● 邀请当地用户进行合规测试，验证 Agent 是否符合文化习惯与法律要求；</p>
+<p>● 由当地法律顾问开展合规审查，出具《合规验收报告》，确保无重大合规风险。</p>
+<p>1188..33 基基础础设设施施与与服服务务适适配配</p>
+<p>1188..33..11 服服务务器器部部署署与与网网络络优优化化</p>
+<p>确保全球用户都能获得流畅的 Agent 使用体验，需优化基础设施布局：</p>
+<p>● 服服务务器器部部署署：</p>
+<p>● 采用 “区域中心 + 边缘节点” 架构，在北美、欧洲、亚太（新加坡）、中东（迪拜）</p>
+<p>设立区域中心，覆盖周边市场；</p>
+<p>● 边缘节点部署 Agent 的 “轻量功能模块”（如简单咨询响应、数据缓存），核心功能</p>
+<p>（如模型推理）由区域中心处理，降低网络延迟。</p>
+<p>● 网网络络优优化化：</p>
+<p>● 集成字节跳动全球 CDN 网络（ByteCDN），加速静态资源（如界面图片、语音文件）</p>
+<p>加载，加载时间（目标≤1 秒）；</p>
+<p>● 针对网络条件较差的地区（如部分非洲国家），优化数据传输格式（如压缩文本数据、</p>
+<p>减少图片分辨率），确保 Agent 在弱网环境下可正常使用。</p>
+<p>1188..33..22 本本地地化化服服务务支支持持</p>
+<p>为全球用户提供及时的技术支持，建立 “本地化 + 全球化” 结合的服务体系：</p>
+<p>● 支支持持语语言言：提供目标市场的本地语言支持（如欧美支持英语 / 西班牙语，日韩支持</p>
+<p>日语 / 韩语），支持 “在线客服 + 邮件 + 电话” 三种渠道；</p>
+<p>● 支支持持时时间间：按区域设置服务时间（如北美支持北京时间 20:00 - 次日 4:00，欧洲支</p>
+<p>持北京时间 14:00-22:00），确保用户反馈 2 小时内响应；</p>
+<p>● 问问题题解解决决：建立全球化问题知识库，将常见问题（如 “如何修改个人数据”“Agent 无</p>
+<p>法响应怎么办”）翻译成当地语言，方便用户自助查询，降低人工支持压力。</p>
+<p>1199.. 最最终终结结语语：：构构建建字字节节跳跳动动 AAggeenntt 生生态态的的长长期期愿愿景景</p>
+<p>经过多业务线实践与迭代，字节跳动 Agent 已从 “单一场景工具” 进化为 “跨业务协同</p>
+<p>的智能中枢”。未来，我们将围绕三大长期愿景，持续推动 Agent 技术与业务的深度融</p>
+<p>合：</p>
+<ol><li>全全场场景景智智能能协协同同：打破业务线壁垒，构建 “一账号通全场景” 的 Agent 生态 ——</li></ol>
+<p>用户在抖音浏览商品后，飞书 Agent 自动同步购物需求；在飞书制定旅行计划后，抖音</p>
+<p>Agent 自动推荐目的地短视频；在教育平台学习后，飞书 Agent 自动整理知识点笔记，</p>
+<p>实现 “数据互通、服务无缝”。</p>
+<ol><li>自自主主进进化化的的智智能能体体：通过强化学习、自监督学习技术，让 Agent 具备 “自主感知环</li></ol>
+<p>境变化、自主优化能力”—— 电商 Agent 可实时学习市场趋势，自动调整营销策略；教</p>
+<p>育 Agent 可跟踪学生学习进度，动态优化辅导方案；办公 Agent 可适应团队协作模式</p>
+<p>变化，自动调整功能逻辑，减少人工干预。</p>
+<ol><li>全全球球化化的的技技术术与与生生态态输输出出：将字节跳动 Agent 的实践经验（如多模态融合、合规管</li></ol>
+<p>理、跨业务协作）转化为标准化解决方案，通过 “技术开源 + 生态合作”，赋能全球企业</p>
+<p>与开发者 —— 开放 Doubao 大模型的 Agent 开发接口，提供全球化合规工具包，与</p>
+<p>硬件厂商（如智能汽车、智能家居）合作，让字节跳动 Agent 技术服务全球用户，推动</p>
+<p>行业智能化升级。</p>
+<p>各业务线团队是这一愿景的核心建设者，希望大家以本手册为起点，结合自身业务特性</p>
+<p>创新实践，同时积极参与跨业务线交流与协作，共享经验、攻克难题。相信在全体团队</p>
+<p>的共同努力下，字节跳动将成为全球 Agent 技术与生态的引领者，用智能技术为用户、</p>
+<p>为行业、为社会创造更大价值。</p>
+</section>
+</main>
+
+</body>
+</html>

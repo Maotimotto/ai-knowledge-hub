@@ -1,0 +1,1868 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 记忆系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #f7f7f5;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 100;
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0075de;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 8px;
+}
+.sidebar-section {
+  padding: 8px 0;
+}
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 16px 2px;
+}
+.sidebar-link {
+  display: block;
+  padding: 4px 16px 4px 24px;
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sidebar-link:hover {
+  background: rgba(0,117,222,0.08);
+  color: #0075de;
+}
+
+/* Main Content */
+.content {
+  margin-left: 280px;
+  padding: 40px 60px;
+  max-width: 900px;
+}
+
+/* Typography */
+h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 40px;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 8px;
+}
+h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+/* Links */
+a {
+  color: #0075de;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.wikilink {
+  color: #0075de;
+  background: rgba(0,117,222,0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Code */
+code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #f6f5f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.code-block {
+  background: #f6f5f4;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  margin: 0;
+}
+.code-block code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th {
+  background: #f7f7f5;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+tr.alt {
+  background: #fafafa;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #0075de;
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: #f0f7ff;
+  color: #333;
+}
+
+/* Lists */
+ul, ol {
+  margin: 8px 0 12px 24px;
+}
+li {
+  margin-bottom: 4px;
+}
+
+/* Diagram */
+.diagram-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.diagram-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* TOC */
+.toc-container {
+  background: #f7f7f5;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0 24px;
+}
+.toc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+.toc-item {
+  padding: 2px 0;
+}
+.toc-item a {
+  font-size: 13px;
+  color: #555;
+}
+.toc-item a:hover {
+  color: #0075de;
+}
+
+/* Section */
+.doc-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.doc-section:last-child {
+  border-bottom: none;
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-title">Agent 记忆系统</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">Agent 记忆系统</div>
+<a href="#短期记忆与对话管理" class="sidebar-link">短期记忆与对话管理 进阶</a>
+<a href="#长期记忆与向量存储" class="sidebar-link">长期记忆与向量存储 进阶</a>
+<a href="#MemGPT与记忆架构" class="sidebar-link">MemGPT与记忆架构 高级</a>
+<a href="#记忆检索与衰减策略" class="sidebar-link">记忆检索与衰减策略 高级</a>
+</div>
+</nav>
+
+<main class="content">
+<div class="diagram-container">
+<svg viewBox="0 0 900 500" xmlns="http://www.w3.org/2000/svg" class="diagram-svg">
+<style>
+  .box { fill: #ffffff; stroke: #0075de; stroke-width: 2; rx: 8; }
+  .box-inner { fill: #f0f7ff; stroke: #0075de; stroke-width: 1; rx: 4; }
+  .arrow { stroke: #0075de; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+  .arrow-dash { stroke: #888; stroke-width: 1.5; fill: none; stroke-dasharray: 6,4; marker-end: url(#arrowhead-gray); }
+  .label { font-family: Inter, sans-serif; font-size: 14px; fill: #1a1a1a; text-anchor: middle; }
+  .label-sm { font-family: Inter, sans-serif; font-size: 11px; fill: #666; text-anchor: middle; }
+  .title { font-family: Inter, sans-serif; font-size: 16px; fill: #0075de; font-weight: bold; text-anchor: middle; }
+</style>
+<defs>
+  <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0075de"/></marker>
+  <marker id="arrowhead-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#888"/></marker>
+</defs>
+
+<!-- Title -->
+<text x="450" y="30" class="title">Agent 记忆架构：短期 → 工作 → 长期 记忆流</text>
+
+<!-- Short-term Memory -->
+<rect x="30" y="60" width="220" height="180" class="box"/>
+<text x="140" y="85" class="label" font-weight="bold">短期记忆 (Short-Term)</text>
+<rect x="50" y="100" width="180" height="35" class="box-inner"/>
+<text x="140" y="122" class="label-sm">滑动窗口 Sliding Window</text>
+<rect x="50" y="145" width="180" height="35" class="box-inner"/>
+<text x="140" y="167" class="label-sm">对话摘要 Summary</text>
+<rect x="50" y="190" width="180" height="35" class="box-inner"/>
+<text x="140" y="212" class="label-sm">Token 管理 & 压缩</text>
+
+<!-- Working Memory -->
+<rect x="340" y="60" width="220" height="180" class="box"/>
+<text x="450" y="85" class="label" font-weight="bold">工作记忆 (Working)</text>
+<rect x="360" y="100" width="180" height="35" class="box-inner"/>
+<text x="450" y="122" class="label-sm">In-Context Memory</text>
+<rect x="360" y="145" width="180" height="35" class="box-inner"/>
+<text x="450" y="167" class="label-sm">System Instructions</text>
+<rect x="360" y="190" width="180" height="35" class="box-inner"/>
+<text x="450" y="212" class="label-sm">用户画像 & 偏好</text>
+
+<!-- Long-term Memory -->
+<rect x="650" y="60" width="220" height="180" class="box"/>
+<text x="760" y="85" class="label" font-weight="bold">长期记忆 (Long-Term)</text>
+<rect x="670" y="100" width="180" height="35" class="box-inner"/>
+<text x="760" y="122" class="label-sm">向量数据库 ChromaDB</text>
+<rect x="670" y="145" width="180" height="35" class="box-inner"/>
+<text x="760" y="167" class="label-sm">知识图谱 Neo4j</text>
+<rect x="670" y="190" width="180" height="35" class="box-inner"/>
+<text x="760" y="212" class="label-sm">SQLite / Redis 缓存</text>
+
+<!-- Arrows -->
+<path d="M250,150 L340,150" class="arrow"/>
+<path d="M560,150 L650,150" class="arrow"/>
+<text x="295" y="140" class="label-sm">Swap</text>
+<text x="605" y="140" class="label-sm">Store</text>
+
+<!-- Retrieval Pipeline -->
+<rect x="100" y="280" width="700" height="80" class="box" fill="#f8f9fa"/>
+<text x="450" y="305" class="label" font-weight="bold">记忆检索管线 (Memory Retrieval Pipeline)</text>
+<text x="450" y="325" class="label-sm">BM25 + 向量检索 → 时间衰减 → 重要性加权 → Top-K</text>
+<text x="450" y="345" class="label-sm">Score = α·Relevance + β·Temporal + γ·Importance + δ·Frequency</text>
+
+<!-- Decay curve -->
+<rect x="100" y="390" width="340" height="90" class="box" fill="#fff8f0"/>
+<text x="270" y="415" class="label" font-weight="bold">时间衰减策略</text>
+<text x="270" y="435" class="label-sm">指数衰减 e^(-λt) | 线性衰减 1-t/T</text>
+<text x="270" y="455" class="label-sm">对数衰减 1/(1+ln(1+t)) | 阶梯衰减</text>
+
+<!-- Memory Consolidation -->
+<rect x="460" y="390" width="340" height="90" class="box" fill="#f0fff0"/>
+<text x="630" y="415" class="label" font-weight="bold">记忆整合 (Consolidation)</text>
+<text x="630" y="435" class="label-sm">去重合并 → 低重要性遗忘 → 更新权重</text>
+<text x="630" y="455" class="label-sm">MemGPT: Agent 自主管理记忆</text>
+</svg>
+</div>
+<section id="短期记忆与对话管理" class="doc-section">
+<h1>短期记忆与对话管理 进阶</h1>
+<span class="difficulty-badge" style="background:#f39c1220;color:#f39c12;border:1px solid #f39c1240">进阶</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--滑动窗口记忆（Sliding-Window）">2. 滑动窗口记忆（Sliding Window）</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-实现原理">2.1 实现原理</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-代码实现">2.2 代码实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-3-LangChain-实现">2.3 LangChain 实现</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--对话摘要记忆（Conversation-Summary）">3. 对话摘要记忆（Conversation Summary）</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-架构流程">3.1 架构流程</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-代码实现">3.2 代码实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-3-手动摘要实现">3.3 手动摘要实现</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--Token-压缩策略">4. Token 压缩策略</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-策略对比">4.1 策略对比</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-Token-计数与截断">4.2 Token 计数与截断</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--LangChain-记忆类型对比">5. LangChain 记忆类型对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--生产环境最佳实践">6. 生产环境最佳实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-多层记忆架构">6.1 多层记忆架构</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-对话状态持久化">6.2 对话状态持久化</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--常见问题与解决方案">7. 常见问题与解决方案</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的对话管理">场景一：评论监控机器人的对话管理</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成流水线的状态跟踪">场景二：视频生成流水线的状态跟踪</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的会话管理">场景三：Hermes Agent 的会话管理</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>短期记忆是 Agent 记忆系统的<strong>第一层</strong>，负责维护单次会话内的上下文连贯性。它是所有对话式 Agent 的基础能力。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 08-提示词工程 ← prompt 中的上下文管理
+├── 12-Agent记忆系统 ← 记忆层（你在这里）
+│   ├── 01-短期记忆与对话管理 ✅ ← 会话内上下文
+│   ├── 02-长期记忆与向量存储 ← 跨会话持久化
+│   ├── 03-MemGPT与记忆架构 ← OS式分层管理
+│   └── 04-记忆检索与衰减策略 ← 检索与遗忘算法
+├── 11-Agent框架对比 ← 各框架的记忆实现
+├── 14-高级Prompt模式 ← ReAct 中的上下文管理
+└── 10-智能体项目 ← 记忆系统的实战应用</code></pre></div>
+<p><strong>学习价值</strong>：短期记忆是 Agent 对话质量的基石。理解滑动窗口、摘要压缩、Token管理等策略，能帮助构建既节省成本又保持上下文的对话系统。</p>
+<h2>1. 概述</h2>
+<p>短期记忆（Short-Term Memory）是 Agent 对话系统的核心组件，负责在单次会话中维护上下文连贯性。</p>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────────┐
+│              短期记忆架构                          │
+│                                                   │
+│  用户输入 → [记忆管理器] → [上下文窗口] → LLM      │
+│                ↑              │                    │
+│                │         ┌────▼────┐               │
+│                │         │ 历史消息 │               │
+│                │         │ msg_1   │               │
+│                │         │ msg_2   │               │
+│                │         │ ...     │               │
+│                │         │ msg_n   │               │
+│                │         └─────────┘               │
+│                │                                   │
+│          ┌─────┴──────┐                            │
+│          │  淘汰策略   │                            │
+│          │ • 滑动窗口  │                            │
+│          │ • 摘要压缩  │                            │
+│          │ • Token限制 │                            │
+│          └────────────┘                            │
+└─────────────────────────────────────────────────┘</code></pre></div>
+<h2>2. 滑动窗口记忆（Sliding Window）</h2>
+<p>保留最近 K 轮对话，丢弃超出窗口的历史消息。</p>
+<h3>2.1 实现原理</h3>
+<div class="code-block"><pre><code>窗口大小 K=3 时的消息流：
+
+时间 →
+[msg1, msg2, msg3, msg4, msg5, msg6, msg7]
+                                ┌───────────┐
+                                │ 保留窗口   │
+                                │ [msg5]     │
+                                │ [msg6]     │
+                                │ [msg7]     │
+                                └───────────┘
+[msg1, msg2, msg3, msg4] → 丢弃</code></pre></div>
+<h3>2.2 代码实现</h3>
+<div class="code-block"><pre><code class="language-python">from collections import deque
+from dataclasses import dataclass, field
+from typing import List
+
+@dataclass
+class Message:
+    role: str       # &quot;user&quot; | &quot;assistant&quot; | &quot;system&quot;
+    content: str
+    timestamp: float = 0.0
+
+class SlidingWindowMemory:
+    &quot;&quot;&quot;滑动窗口短期记忆&quot;&quot;&quot;
+
+    def __init__(self, window_size: int = 10, system_prompt: str = &quot;&quot;):
+        self.window_size = window_size
+        self.system_prompt = system_prompt
+        self.messages: deque[Message] = deque(maxlen=window_size)
+
+    def add_message(self, role: str, content: str):
+        self.messages.append(Message(role=role, content=content))
+
+    def get_context(self) -&gt; List[dict]:
+        context = []
+        if self.system_prompt:
+            context.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: self.system_prompt})
+        for msg in self.messages:
+            context.append({&quot;role&quot;: msg.role, &quot;content&quot;: msg.content})
+        return context
+
+    def clear(self):
+        self.messages.clear()
+
+# 使用示例
+memory = SlidingWindowMemory(window_size=6, system_prompt=&quot;你是一个友好的助手&quot;)
+memory.add_message(&quot;user&quot;, &quot;你好，我叫张三&quot;)
+memory.add_message(&quot;assistant&quot;, &quot;你好张三！有什么可以帮你的？&quot;)
+memory.add_message(&quot;user&quot;, &quot;我想学习Python&quot;)
+context = memory.get_context()</code></pre></div>
+<h3>2.3 LangChain 实现</h3>
+<div class="code-block"><pre><code class="language-python">from langchain.memory import ConversationBufferWindowMemory
+
+# k=5 表示保留最近 5 轮对话
+memory = ConversationBufferWindowMemory(k=5, return_messages=True)
+
+# 添加对话
+memory.save_context(
+    {&quot;input&quot;: &quot;我叫张三，是一名工程师&quot;},
+    {&quot;output&quot;: &quot;你好张三！很高兴认识你。&quot;}
+)
+memory.save_context(
+    {&quot;input&quot;: &quot;我想了解机器学习&quot;},
+    {&quot;output&quot;: &quot;机器学习是AI的一个分支...&quot;}
+)
+
+# 获取记忆变量
+messages = memory.load_memory_variables({})
+print(messages[&quot;history&quot;])</code></pre></div>
+<h2>3. 对话摘要记忆（Conversation Summary）</h2>
+<p>当对话过长时，用 LLM 将历史对话压缩为摘要，节省 token 开销。</p>
+<h3>3.1 架构流程</h3>
+<div class="code-block"><pre><code>长对话历史                    摘要压缩
+┌──────────────┐          ┌──────────────┐
+│ user: 我叫张三 │   LLM    │ 摘要:         │
+│ bot: 你好!    │  ──────→ │ • 用户张三,    │
+│ user: 我是工程师│  Summary │   工程师      │
+│ bot: 了解了   │          │ • 想学ML和NLP  │
+│ user: 学ML    │          │ • 推荐了课程   │
+│ bot: 推荐课程  │          └──────┬───────┘
+│ user: 还有NLP  │                 │
+│ bot: NLP是... │          新对话时拼接摘要+最新消息
+└──────────────┘</code></pre></div>
+<h3>3.2 代码实现</h3>
+<div class="code-block"><pre><code class="language-python">from langchain.memory import ConversationSummaryBufferMemory
+from langchain_openai import ChatOpenAI
+
+llm = ChatOpenAI(model=&quot;gpt-4o-mini&quot;, temperature=0)
+
+# 当 token 数超过阈值时自动摘要
+memory = ConversationSummaryBufferMemory(
+    llm=llm,
+    max_token_limit=500,   # 超过 500 token 时触发摘要
+    return_messages=True
+)
+
+# 对话过程中自动管理记忆
+memory.save_context({&quot;input&quot;: &quot;你好&quot;}, {&quot;output&quot;: &quot;你好！&quot;})
+memory.save_context({&quot;input&quot;: &quot;我在做NLP项目&quot;}, {&quot;output&quot;: &quot;很棒！NLP是热门方向。&quot;})
+
+# 查看当前摘要
+print(memory.load_memory_variables({}))</code></pre></div>
+<h3>3.3 手动摘要实现</h3>
+<div class="code-block"><pre><code class="language-python">from openai import OpenAI
+
+client = OpenAI()
+
+def summarize_conversation(messages: list, max_tokens: int = 200) -&gt; str:
+    &quot;&quot;&quot;将对话历史压缩为摘要&quot;&quot;&quot;
+    conversation_text = &quot;\n&quot;.join(
+        f&quot;{m[&#x27;role&#x27;]}: {m[&#x27;content&#x27;]}&quot; for m in messages
+    )
+    response = client.chat.completions.create(
+        model=&quot;gpt-4o-mini&quot;,
+        messages=[
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;请将以下对话压缩为简洁摘要，保留关键信息：用户名字、偏好、关键决定。&quot;},
+            {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: conversation_text}
+        ],
+        max_tokens=max_tokens,
+        temperature=0
+    )
+    return response.choices[0].message.content
+
+class SummaryMemory:
+    def __init__(self, llm, recent_k: int = 4):
+        self.llm = llm
+        self.recent_k = recent_k
+        self.summary: str = &quot;&quot;
+        self.messages: list = []
+
+    def add(self, role: str, content: str):
+        self.messages.append({&quot;role&quot;: role, &quot;content&quot;: content})
+        if len(self.messages) &gt; self.recent_k * 2:
+            old_messages = self.messages[:-self.recent_k * 2]
+            self.messages = self.messages[-self.recent_k * 2:]
+            new_summary = summarize_conversation(old_messages)
+            if self.summary:
+                self.summary = f&quot;{self.summary}\n{new_summary}&quot;
+            else:
+                self.summary = new_summary
+
+    def get_context(self) -&gt; list:
+        ctx = []
+        if self.summary:
+            ctx.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: f&quot;之前的对话摘要：{self.summary}&quot;})
+        ctx.extend(self.messages)
+        return ctx</code></pre></div>
+<h2>4. Token 压缩策略</h2>
+<h3>4.1 策略对比</h3>
+<table><thead><tr><th>策略</th><th>原理</th><th>优点</th><th>缺点</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>滑动窗口</strong></td><td>保留最近K轮</td><td>简单高效</td><td>丢失早期信息</td><td>短对话</td></tr><tr class="alt"><td><strong>摘要压缩</strong></td><td>LLM生成摘要</td><td>保留关键信息</td><td>有延迟和成本</td><td>长对话</td></tr><tr><td><strong>Token截断</strong></td><td>按token数截断</td><td>精确控制成本</td><td>可能截断语句</td><td>成本敏感</td></tr><tr class="alt"><td><strong>重要性过滤</strong></td><td>按重要性保留</td><td>保留关键信息</td><td>需要评估模型</td><td>专业场景</td></tr><tr><td><strong>混合策略</strong></td><td>摘要+滑动窗口</td><td>平衡效果</td><td>实现复杂</td><td>生产环境</td></tr></tbody></table>
+<h3>4.2 Token 计数与截断</h3>
+<div class="code-block"><pre><code class="language-python">import tiktoken
+
+class TokenManagedMemory:
+    def __init__(self, model: str = &quot;gpt-4o&quot;, max_tokens: int = 4000):
+        self.encoding = tiktoken.encoding_for_model(model)
+        self.max_tokens = max_tokens
+        self.messages: list = []
+        self.system_prompt = &quot;&quot;
+
+    def count_tokens(self, messages: list) -&gt; int:
+        total = 0
+        for msg in messages:
+            total += 4  # 每条消息的固定开销
+            total += len(self.encoding.encode(msg[&quot;content&quot;]))
+        total += 2  # priming
+        return total
+
+    def add_message(self, role: str, content: str):
+        self.messages.append({&quot;role&quot;: role, &quot;content&quot;: content})
+        self._trim_to_fit()
+
+    def _trim_to_fit(self):
+        &quot;&quot;&quot;从最早的消息开始移除，直到满足 token 限制&quot;&quot;&quot;
+        while self.count_tokens(self.get_context()) &gt; self.max_tokens and len(self.messages) &gt; 1:
+            self.messages.pop(0)
+
+    def get_context(self) -&gt; list:
+        ctx = []
+        if self.system_prompt:
+            ctx.append({&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: self.system_prompt})
+        ctx.extend(self.messages)
+        return ctx</code></pre></div>
+<h2>5. LangChain 记忆类型对比</h2>
+<table><thead><tr><th>记忆类</th><th>核心逻辑</th><th>Token 效率</th><th>信息保留</th><th>复杂度</th></tr></thead><tbody><tr><td><code class="inline">ConversationBufferMemory</code></td><td>保存全部历史</td><td>低</td><td>完整</td><td>⭐</td></tr><tr class="alt"><td><code class="inline">ConversationBufferWindowMemory</code></td><td>滑动窗口</td><td>中</td><td>部分</td><td>⭐⭐</td></tr><tr><td><code class="inline">ConversationTokenBufferMemory</code></td><td>Token限制</td><td>高</td><td>部分</td><td>⭐⭐</td></tr><tr class="alt"><td><code class="inline">ConversationSummaryMemory</code></td><td>LLM摘要</td><td>高</td><td>压缩</td><td>⭐⭐⭐</td></tr><tr><td><code class="inline">ConversationSummaryBufferMemory</code></td><td>摘要+缓冲</td><td>高</td><td>混合</td><td>⭐⭐⭐</td></tr><tr class="alt"><td><code class="inline">ConversationEntityMemory</code></td><td>实体提取</td><td>中</td><td>结构化</td><td>⭐⭐⭐⭐</td></tr></tbody></table>
+<h2>6. 生产环境最佳实践</h2>
+<h3>6.1 多层记忆架构</h3>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────┐
+│           生产级对话管理系统               │
+│                                          │
+│  Layer 1: System Prompt (固定)           │
+│  ─────────────────────────────           │
+│  Layer 2: 用户画像/长期偏好 (持久化)       │
+│  ─────────────────────────────           │
+│  Layer 3: 对话摘要 (LLM压缩)             │
+│  ─────────────────────────────           │
+│  Layer 4: 最近N轮原始对话 (滑动窗口)      │
+│  ─────────────────────────────           │
+│  Layer 5: 当前用户输入                    │
+└─────────────────────────────────────────┘</code></pre></div>
+<h3>6.2 对话状态持久化</h3>
+<div class="code-block"><pre><code class="language-python">import json
+import redis
+
+class PersistentMemory:
+    &quot;&quot;&quot;基于 Redis 的持久化对话记忆&quot;&quot;&quot;
+
+    def __init__(self, session_id: str, window_size: int = 10):
+        self.session_id = session_id
+        self.window_size = window_size
+        self.redis = redis.Redis(host=&quot;localhost&quot;, port=6379, decode_responses=True)
+        self.key = f&quot;chat:session:{session_id}&quot;
+
+    def add_message(self, role: str, content: str):
+        self.redis.rpush(self.key, json.dumps({&quot;role&quot;: role, &quot;content&quot;: content}))
+        # 只保留最近的消息
+        total = self.redis.llen(self.key)
+        if total &gt; self.window_size * 2:
+            self.redis.lpop(self.key)
+            self.redis.lpop(self.key)
+
+    def get_context(self) -&gt; list:
+        raw = self.redis.lrange(self.key, 0, -1)
+        return [json.loads(m) for m in raw]
+
+    def clear(self):
+        self.redis.delete(self.key)
+
+    def get_summary(self) -&gt; str:
+        summary_key = f&quot;{self.key}:summary&quot;
+        return self.redis.get(summary_key) or &quot;&quot;
+
+    def save_summary(self, summary: str):
+        summary_key = f&quot;{self.key}:summary&quot;
+        self.redis.set(summary_key, summary, ex=86400 * 7)  # 7天过期</code></pre></div>
+<h2>7. 常见问题与解决方案</h2>
+<table><thead><tr><th>问题</th><th>原因</th><th>解决方案</th></tr></thead><tbody><tr><td>上下文丢失</td><td>窗口太小</td><td>增大窗口+摘要压缩</td></tr><tr class="alt"><td>Token超限</td><td>对话过长</td><td>TokenManagedMemory</td></tr><tr><td>重复问答</td><td>记忆中无用户偏好</td><td>实体提取+长期记忆</td></tr><tr class="alt"><td>响应延迟</td><td>摘要生成耗时</td><td>异步摘要+缓存</td></tr><tr><td>成本过高</td><td>全量历史</td><td>滑动窗口+关键信息提取</td></tr></tbody></table>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的对话管理</h3>
+<p>评论监控机器人需要维护与用户的多轮对话上下文。使用滑动窗口记忆保留最近 N 轮交互，结合摘要压缩保留用户偏好（如"用户关注B站游戏区评论"），避免重复询问。</p>
+<h3>场景二：视频生成流水线的状态跟踪</h3>
+<p>视频生成是多步骤流程，需要在短期记忆中维护当前步骤状态（选题完成→脚本中→素材搜集中）。使用 TokenManagedMemory 控制成本，只保留当前步骤和最近结果。</p>
+<h3>场景三：Hermes Agent 的会话管理</h3>
+<p>Hermes Agent 的 session 管理类似 PersistentMemory 模式——基于 Redis 的多轮对话持久化。理解短期记忆原理能帮助优化 Hermes 的上下文窗口利用率。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>长期记忆</th><th><a class="wikilink" href="#02-长期记忆与向量存储">02-长期记忆与向量存储</a></th><th>短期记忆的补充：跨会话持久化</th></tr></thead><tbody><tr><td>MemGPT</td><td><a class="wikilink" href="#03-MemGPT与记忆架构">03-MemGPT与记忆架构</a></td><td>OS式分层管理：短期记忆=In-Context层</td></tr><tr class="alt"><td>检索策略</td><td><a class="wikilink" href="#04-记忆检索与衰减策略">04-记忆检索与衰减策略</a></td><td>记忆的检索与衰减算法</td></tr><tr><td>CoT 推理</td><td><a class="wikilink" href="#02-思维链CoT">02-思维链CoT</a></td><td>推理链的上下文管理</td></tr><tr class="alt"><td>框架记忆</td><td><a class="wikilink" href="#CrewAI多智能体协作">CrewAI多智能体协作</a></td><td>CrewAI 内置三层记忆系统</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#02-Agent-SDK开发指南">02-Agent-SDK开发指南</a></td><td>SDK 中的多轮对话实现</td></tr></tbody></table>
+</section>
+<section id="长期记忆与向量存储" class="doc-section">
+<h1>长期记忆与向量存储 进阶</h1>
+<span class="difficulty-badge" style="background:#f39c1220;color:#f39c12;border:1px solid #f39c1240">进阶</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--向量存储记忆">2. 向量存储记忆</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-核心原理">2.1 核心原理</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-ChromaDB-实现">2.2 ChromaDB 实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-3-LangChain-向量记忆">2.3 LangChain 向量记忆</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--知识图谱记忆">3. 知识图谱记忆</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-架构设计">3.1 架构设计</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-NetworkX-实现">3.2 NetworkX 实现</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--持久化存储方案">4. 持久化存储方案</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-存储方案对比">4.1 存储方案对比</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-SQLite-结构化记忆">4.2 SQLite 结构化记忆</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-3-Redis-缓存层">4.3 Redis 缓存层</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--混合存储架构（生产推荐）">5. 混合存储架构（生产推荐）</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--记忆生命周期管理">6. 记忆生命周期管理</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的用户画像存储">场景一：评论监控机器人的用户画像存储</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成素材库的记忆化">场景二：视频生成素材库的记忆化</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的知识库持久化">场景三：Hermes Agent 的知识库持久化</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>长期记忆是 Agent 记忆系统的<strong>第二层</strong>，通过向量数据库和结构化存储实现跨会话的信息持久化，是构建"有记忆的 AI 助手"的关键技术。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 08-提示词工程 ← 基础
+├── 07-MCP协议 ← 工具层：向量数据库可作为 MCP Server
+├── 12-Agent记忆系统 ← 记忆层（你在这里）
+│   ├── 01-短期记忆与对话管理 ← 会话内
+│   ├── 02-长期记忆与向量存储 ✅ ← 跨会话持久化
+│   ├── 03-MemGPT与记忆架构 ← OS式分层
+│   └── 04-记忆检索与衰减策略 ← 检索算法
+├── 09-图数据库 ← 知识图谱记忆的存储后端
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：向量存储是 RAG 和 Agent 记忆的核心技术。掌握 ChromaDB、SQLite、Redis 等存储方案的选型，能构建生产级的混合记忆架构。</p>
+<h2>1. 概述</h2>
+<p>长期记忆（Long-Term Memory）使 Agent 能够跨会话保留和检索信息，是构建智能助手的关键能力。</p>
+<div class="code-block"><pre><code>┌──────────────────────────────────────────────────────┐
+│                  长期记忆架构                           │
+│                                                       │
+│   用户交互                                             │
+│      │                                                │
+│      ▼                                                │
+│   ┌──────┐    存储     ┌──────────┐                   │
+│   │ Agent │───────────→│ 向量数据库 │ (语义检索)        │
+│   │      │            │ ChromaDB  │                   │
+│   │      │            └──────────┘                   │
+│   │      │                                           │
+│   │      │            ┌──────────┐                   │
+│   │      │───────────→│ 关系数据库 │ (结构化存储)       │
+│   │      │            │ SQLite   │                   │
+│   │      │            └──────────┘                   │
+│   │      │                                           │
+│   │      │            ┌──────────┐                   │
+│   │      │───────────→│ 图数据库   │ (知识图谱)        │
+│   │      │            │ Neo4j    │                   │
+│   │      │            └──────────┘                   │
+│   └──────┘                                           │
+└──────────────────────────────────────────────────────┘</code></pre></div>
+<h2>2. 向量存储记忆</h2>
+<h3>2.1 核心原理</h3>
+<p>将文本通过 Embedding 模型转为高维向量，存入向量数据库，检索时通过余弦相似度匹配。</p>
+<div class="code-block"><pre><code>文本 → Embedding → [0.12, -0.34, 0.56, ...] → 向量数据库
+                                                    │
+用户查询 → Embedding → [0.11, -0.35, 0.55, ...] ──┘
+                                                    │
+                                          余弦相似度匹配
+                                                    │
+                                            返回最相关记忆</code></pre></div>
+<h3>2.2 ChromaDB 实现</h3>
+<div class="code-block"><pre><code class="language-python">import chromadb
+from chromadb.utils import embedding_functions
+
+class VectorMemory:
+    &quot;&quot;&quot;基于 ChromaDB 的向量记忆&quot;&quot;&quot;
+
+    def __init__(self, collection_name: str = &quot;agent_memory&quot;):
+        self.client = chromadb.PersistentClient(path=&quot;./memory_db&quot;)
+        self.ef = embedding_functions.OpenAIEmbeddingFunctions(
+            model_name=&quot;text-embedding-3-small&quot;
+        )
+        self.collection = self.client.get_or_create_collection(
+            name=collection_name,
+            embedding_function=self.ef
+        )
+
+    def add_memory(self, text: str, metadata: dict = None):
+        &quot;&quot;&quot;存储一条记忆&quot;&quot;&quot;
+        doc_id = f&quot;mem_{self.collection.count() + 1}&quot;
+        self.collection.add(
+            documents=[text],
+            metadatas=[metadata or {}],
+            ids=[doc_id]
+        )
+
+    def search(self, query: str, top_k: int = 5) -&gt; list:
+        &quot;&quot;&quot;语义检索记忆&quot;&quot;&quot;
+        results = self.collection.query(
+            query_texts=[query],
+            n_results=top_k
+        )
+        return [
+            {&quot;text&quot;: doc, &quot;score&quot;: score, &quot;metadata&quot;: meta}
+            for doc, score, meta in zip(
+                results[&quot;documents&quot;][0],
+                results[&quot;distances&quot;][0],
+                results[&quot;metadatas&quot;][0]
+            )
+        ]
+
+    def get_context_for_query(self, query: str, top_k: int = 3) -&gt; str:
+        &quot;&quot;&quot;为 LLM 构建记忆上下文&quot;&quot;&quot;
+        memories = self.search(query, top_k)
+        if not memories:
+            return &quot;&quot;
+        context = &quot;相关记忆：\n&quot;
+        for m in memories:
+            context += f&quot;- {m[&#x27;text&#x27;]}\n&quot;
+        return context
+
+# 使用示例
+memory = VectorMemory(&quot;user_preferences&quot;)
+memory.add_memory(&quot;用户喜欢用Python编程&quot;, {&quot;category&quot;: &quot;preference&quot;})
+memory.add_memory(&quot;用户对机器学习感兴趣&quot;, {&quot;category&quot;: &quot;interest&quot;})
+memory.add_memory(&quot;用户上次问了关于Transformer的问题&quot;, {&quot;category&quot;: &quot;history&quot;})
+
+results = memory.search(&quot;推荐什么编程语言？&quot;)
+# → 返回与&quot;编程语言&quot;语义最相关的记忆</code></pre></div>
+<h3>2.3 LangChain 向量记忆</h3>
+<div class="code-block"><pre><code class="language-python">from langchain.memory import VectorStoreRetrieverMemory
+from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import Chroma
+
+# 初始化向量存储
+embedding = OpenAIEmbeddings()
+vectorstore = Chroma(embedding_function=embedding, persist_directory=&quot;./chroma_db&quot;)
+retriever = vectorstore.as_retriever(search_kwargs={&quot;k&quot;: 5})
+
+# 创建向量记忆
+memory = VectorStoreRetrieverMemory(
+    retriever=retriever,
+    memory_key=&quot;relevant_history&quot;,
+    return_messages=True
+)
+
+# 保存对话
+memory.save_context(
+    {&quot;input&quot;: &quot;我最喜欢的颜色是蓝色&quot;},
+    {&quot;output&quot;: &quot;好的，记住了你喜欢蓝色。&quot;}
+)
+
+# 加载相关记忆
+result = memory.load_memory_variables({&quot;prompt&quot;: &quot;我喜欢什么颜色？&quot;})
+print(result[&quot;relevant_history&quot;])</code></pre></div>
+<h2>3. 知识图谱记忆</h2>
+<h3>3.1 架构设计</h3>
+<div class="code-block"><pre><code>知识图谱记忆结构：
+
+    (张三)───喜欢──→(Python)
+      │                │
+    是用户            是编程语言
+      │                │
+      ▼                ▼
+   (工程师)        (机器学习)
+      │                │
+    使用             需要
+      │                │
+      └──→(TensorFlow)←┘
+
+检索方式：
+• 实体查询：张三喜欢什么？
+• 关系查询：张三和机器学习的关系？
+• 路径查询：张三→?→TensorFlow</code></pre></div>
+<h3>3.2 NetworkX 实现</h3>
+<div class="code-block"><pre><code class="language-python">import networkx as nx
+from typing import List, Tuple
+
+class KnowledgeGraphMemory:
+    &quot;&quot;&quot;基于 NetworkX 的知识图谱记忆&quot;&quot;&quot;
+
+    def __init__(self):
+        self.graph = nx.DiGraph()
+
+    def add_triple(self, subject: str, predicate: str, obj: str, metadata: dict = None):
+        &quot;&quot;&quot;添加三元组 (主语, 谓语, 宾语)&quot;&quot;&quot;
+        self.graph.add_node(subject, type=&quot;entity&quot;)
+        self.graph.add_node(obj, type=&quot;entity&quot;)
+        self.graph.add_edge(subject, obj, relation=predicate, **(metadata or {}))
+
+    def query_entity(self, entity: str) -&gt; List[dict]:
+        &quot;&quot;&quot;查询实体相关的所有关系&quot;&quot;&quot;
+        results = []
+        if entity not in self.graph:
+            return results
+        for _, target, data in self.graph.edges(entity, data=True):
+            results.append({
+                &quot;subject&quot;: entity,
+                &quot;predicate&quot;: data.get(&quot;relation&quot;, &quot;&quot;),
+                &quot;object&quot;: target
+            })
+        for source, _, data in self.graph.in_edges(entity, data=True):
+            results.append({
+                &quot;subject&quot;: source,
+                &quot;predicate&quot;: data.get(&quot;relation&quot;, &quot;&quot;),
+                &quot;object&quot;: entity
+            })
+        return results
+
+    def get_subgraph_context(self, entity: str, depth: int = 2) -&gt; str:
+        &quot;&quot;&quot;获取实体的子图上下文&quot;&quot;&quot;
+        if entity not in self.graph:
+            return &quot;&quot;
+        neighbors = nx.ego_graph(self.graph, entity, radius=depth)
+        facts = []
+        for u, v, data in neighbors.edges(data=True):
+            facts.append(f&quot;{u} --[{data.get(&#x27;relation&#x27;, &#x27;&#x27;)}]--&gt; {v}&quot;)
+        return &quot;\n&quot;.join(facts) if facts else &quot;&quot;
+
+# 使用示例
+kg = KnowledgeGraphMemory()
+kg.add_triple(&quot;张三&quot;, &quot;职业&quot;, &quot;工程师&quot;)
+kg.add_triple(&quot;张三&quot;, &quot;喜欢&quot;, &quot;Python&quot;)
+kg.add_triple(&quot;张三&quot;, &quot;研究&quot;, &quot;机器学习&quot;)
+kg.add_triple(&quot;Python&quot;, &quot;用于&quot;, &quot;机器学习&quot;)
+
+# 查询
+print(kg.query_entity(&quot;张三&quot;))
+# [{&#x27;subject&#x27;: &#x27;张三&#x27;, &#x27;predicate&#x27;: &#x27;职业&#x27;, &#x27;object&#x27;: &#x27;工程师&#x27;}, ...]
+
+print(kg.get_subgraph_context(&quot;张三&quot;, depth=2))
+# 张三 --[职业]--&gt; 工程师
+# 张三 --[喜欢]--&gt; Python
+# Python --[用于]--&gt; 机器学习</code></pre></div>
+<h2>4. 持久化存储方案</h2>
+<h3>4.1 存储方案对比</h3>
+<table><thead><tr><th>特性</th><th>SQLite</th><th>Redis</th><th>ChromaDB</th><th>PostgreSQL+pgvector</th></tr></thead><tbody><tr><td><strong>类型</strong></td><td>关系型</td><td>内存KV</td><td>向量数据库</td><td>关系型+向量</td></tr><tr class="alt"><td><strong>持久化</strong></td><td>文件</td><td>可配置</td><td>文件</td><td>服务端</td></tr><tr><td><strong>向量搜索</strong></td><td>❌</td><td>❌</td><td>✅ 原生</td><td>✅ 扩展</td></tr><tr class="alt"><td><strong>结构化查询</strong></td><td>✅ 强</td><td>❌</td><td>❌</td><td>✅ 强</td></tr><tr><td><strong>并发性能</strong></td><td>低</td><td>极高</td><td>中</td><td>高</td></tr><tr class="alt"><td><strong>部署复杂度</strong></td><td>⭐</td><td>⭐⭐</td><td>⭐</td><td>⭐⭐⭐</td></tr><tr><td><strong>适用场景</strong></td><td>本地开发</td><td>缓存层</td><td>语义检索</td><td>生产环境</td></tr></tbody></table>
+<h3>4.2 SQLite 结构化记忆</h3>
+<div class="code-block"><pre><code class="language-python">import sqlite3
+import json
+import time
+from typing import Optional
+
+class SQLiteMemory:
+    &quot;&quot;&quot;基于 SQLite 的结构化长期记忆&quot;&quot;&quot;
+
+    def __init__(self, db_path: str = &quot;memory.db&quot;):
+        self.conn = sqlite3.connect(db_path)
+        self._init_db()
+
+    def _init_db(self):
+        self.conn.execute(&quot;&quot;&quot;
+            CREATE TABLE IF NOT EXISTS memories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                memory_type TEXT NOT NULL,  -- &#x27;fact&#x27;, &#x27;preference&#x27;, &#x27;event&#x27;
+                content TEXT NOT NULL,
+                metadata TEXT,
+                importance REAL DEFAULT 0.5,
+                created_at REAL,
+                last_accessed REAL,
+                access_count INTEGER DEFAULT 0
+            )
+        &quot;&quot;&quot;)
+        self.conn.execute(&quot;&quot;&quot;
+            CREATE INDEX IF NOT EXISTS idx_session ON memories(session_id)
+        &quot;&quot;&quot;)
+        self.conn.commit()
+
+    def store(self, session_id: str, memory_type: str, content: str,
+              importance: float = 0.5, metadata: dict = None):
+        now = time.time()
+        self.conn.execute(
+            &quot;INSERT INTO memories (session_id, memory_type, content, metadata, importance, created_at, last_accessed) VALUES (?,?,?,?,?,?,?)&quot;,
+            (session_id, memory_type, content, json.dumps(metadata or {}), importance, now, now)
+        )
+        self.conn.commit()
+
+    def retrieve(self, session_id: str, memory_type: Optional[str] = None,
+                 limit: int = 10) -&gt; list:
+        query = &quot;SELECT * FROM memories WHERE session_id = ?&quot;
+        params = [session_id]
+        if memory_type:
+            query += &quot; AND memory_type = ?&quot;
+            params.append(memory_type)
+        query += &quot; ORDER BY importance DESC, last_accessed DESC LIMIT ?&quot;
+        params.append(limit)
+
+        rows = self.conn.execute(query, params).fetchall()
+        return [
+            {&quot;id&quot;: r[0], &quot;type&quot;: r[2], &quot;content&quot;: r[3],
+             &quot;metadata&quot;: json.loads(r[4]), &quot;importance&quot;: r[5]}
+            for r in rows
+        ]
+
+# 使用
+db = SQLiteMemory(&quot;agent_memory.db&quot;)
+db.store(&quot;user_123&quot;, &quot;preference&quot;, &quot;用户喜欢简洁的回答风格&quot;, importance=0.8)
+db.store(&quot;user_123&quot;, &quot;fact&quot;, &quot;用户的项目截止日期是6月15日&quot;, importance=0.9)
+memories = db.retrieve(&quot;user_123&quot;, memory_type=&quot;preference&quot;)</code></pre></div>
+<h3>4.3 Redis 缓存层</h3>
+<div class="code-block"><pre><code class="language-python">import redis
+import json
+from datetime import timedelta
+
+class RedisMemoryCache:
+    &quot;&quot;&quot;Redis 作为记忆的缓存层，加速热数据访问&quot;&quot;&quot;
+
+    def __init__(self, host=&quot;localhost&quot;, port=6379):
+        self.redis = redis.Redis(host=host, port=port, decode_responses=True)
+
+    def cache_memory(self, key: str, data: dict, ttl_hours: int = 24):
+        self.redis.setex(
+            f&quot;mem:{key}&quot;,
+            timedelta(hours=ttl_hours),
+            json.dumps(data, ensure_ascii=False)
+        )
+
+    def get_cached(self, key: str) -&gt; dict:
+        raw = self.redis.get(f&quot;mem:{key}&quot;)
+        return json.loads(raw) if raw else None
+
+    def cache_search_results(self, query_hash: str, results: list, ttl_minutes: int = 30):
+        &quot;&quot;&quot;缓存向量检索结果，避免重复查询&quot;&quot;&quot;
+        self.redis.setex(
+            f&quot;search:{query_hash}&quot;,
+            timedelta(minutes=ttl_minutes),
+            json.dumps(results, ensure_ascii=False)
+        )</code></pre></div>
+<h2>5. 混合存储架构（生产推荐）</h2>
+<div class="code-block"><pre><code>┌──────────────────────────────────────────────┐
+│              混合记忆存储架构                    │
+│                                               │
+│   查询层                                       │
+│   ┌─────────────┐                             │
+│   │  查询路由器   │                             │
+│   └──┬───┬───┬──┘                             │
+│      │   │   │                                │
+│   ┌──▼─┐│┌──▼──────┐┌──────────┐             │
+│   │Redis││ChromaDB  ││ SQLite   │             │
+│   │缓存 ││向量检索   ││ 结构化   │             │
+│   │热数据││语义搜索   ││ 事实偏好 │             │
+│   └────┘│└─────────┘└──────────┘             │
+│         │                                     │
+│   ┌─────▼──────┐                              │
+│   │ 融合+排序   │                              │
+│   │ RRF算法    │                              │
+│   └────────────┘                              │
+└──────────────────────────────────────────────┘</code></pre></div>
+<div class="code-block"><pre><code class="language-python">class HybridMemory:
+    &quot;&quot;&quot;混合存储：向量检索 + 结构化查询 + Redis 缓存&quot;&quot;&quot;
+
+    def __init__(self):
+        self.vector = VectorMemory(&quot;hybrid&quot;)
+        self.sqlite = SQLiteMemory(&quot;hybrid.db&quot;)
+        self.cache = RedisMemoryCache()
+
+    def store(self, session_id: str, text: str, memory_type: str, importance: float = 0.5):
+        # 同时存入向量库和结构化库
+        self.vector.add_memory(text, {&quot;session_id&quot;: session_id, &quot;type&quot;: memory_type})
+        self.sqlite.store(session_id, memory_type, text, importance)
+
+    def retrieve(self, session_id: str, query: str, top_k: int = 5) -&gt; list:
+        # 1. 先查缓存
+        cached = self.cache.get_cached(f&quot;{session_id}:{query}&quot;)
+        if cached:
+            return cached
+
+        # 2. 向量检索 + 结构化检索
+        vector_results = self.vector.search(query, top_k)
+        structured_results = self.sqlite.retrieve(session_id, limit=top_k)
+
+        # 3. 融合结果（简单合并去重）
+        seen = set()
+        merged = []
+        for r in vector_results:
+            if r[&quot;text&quot;] not in seen:
+                seen.add(r[&quot;text&quot;])
+                merged.append(r)
+        for r in structured_results:
+            if r[&quot;content&quot;] not in seen:
+                seen.add(r[&quot;content&quot;])
+                merged.append({&quot;text&quot;: r[&quot;content&quot;], &quot;metadata&quot;: r})
+
+        # 4. 缓存结果
+        self.cache.cache_memory(f&quot;{session_id}:{query}&quot;, merged[:top_k])
+        return merged[:top_k]</code></pre></div>
+<h2>6. 记忆生命周期管理</h2>
+<div class="code-block"><pre><code>新建 → 活跃 → 衰减 → 归档/遗忘
+ │      │       │       │
+ ▼      ▼       ▼       ▼
+写入   频繁     访问减少  删除或
+向量DB  被检索   相似度降  冷存储</code></pre></div>
+<div class="code-block"><pre><code class="language-python">def manage_memory_lifecycle(db: SQLiteMemory, session_id: str):
+    &quot;&quot;&quot;记忆生命周期管理&quot;&quot;&quot;
+    # 1. 衰减：降低长时间未访问的记忆重要性
+    db.conn.execute(&quot;&quot;&quot;
+        UPDATE memories
+        SET importance = importance * 0.95
+        WHERE session_id = ? AND last_accessed &lt; ?
+    &quot;&quot;&quot;, (session_id, time.time() - 86400 * 7))  # 7天未访问
+
+    # 2. 淘汰：删除低重要性记忆
+    db.conn.execute(&quot;&quot;&quot;
+        DELETE FROM memories
+        WHERE session_id = ? AND importance &lt; 0.1
+    &quot;&quot;&quot;, (session_id,))
+
+    # 3. 合并：合并相似记忆（简化示例）
+    # 实际需要语义相似度判断
+    db.conn.commit()</code></pre></div>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的用户画像存储</h3>
+<p>用向量数据库存储用户历史评论偏好（如"用户喜欢游戏内容"、"用户关注UP主XXX"），跨会话检索用户画像，实现个性化回复策略。SQLite 存储结构化的评论统计数据。</p>
+<h3>场景二：视频生成素材库的记忆化</h3>
+<p>用 ChromaDB 存储历史视频素材的语义描述，新项目生成时语义检索匹配素材。Redis 缓存热素材，SQLite 管理素材元数据（来源、时长、标签）。</p>
+<h3>场景三：Hermes Agent 的知识库持久化</h3>
+<p>Hermes Agent 的 ~/knowledge-base/ 本质上就是一个长期记忆系统。用向量存储增强后，可以实现语义检索知识库，而非仅靠文件名匹配。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>短期记忆</th><th><a class="wikilink" href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a></th><th>互补：会话内 vs 跨会话</th></tr></thead><tbody><tr><td>MemGPT</td><td><a class="wikilink" href="#03-MemGPT与记忆架构">03-MemGPT与记忆架构</a></td><td>Archival Memory 即长期记忆层</td></tr><tr class="alt"><td>检索策略</td><td><a class="wikilink" href="#04-记忆检索与衰减策略">04-记忆检索与衰减策略</a></td><td>向量检索的评分与排序算法</td></tr><tr><td>图数据库</td><td><a class="wikilink" href="#01-知识图谱基础">01-知识图谱基础</a></td><td>知识图谱作为结构化长期记忆</td></tr><tr class="alt"><td>RAG 技术</td><td><a class="wikilink" href="#01-N-Shot-Prompting">01-N-Shot-Prompting</a></td><td>向量检索 + Prompt 的结合</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>ChromaDB + 通义千问 Embedding 实战</td></tr></tbody></table>
+</section>
+<section id="MemGPT与记忆架构" class="doc-section">
+<h1>MemGPT与记忆架构 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--三层记忆架构">2. 三层记忆架构</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-架构总览">2.1 架构总览</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-各层详解">2.2 各层详解</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--Letta-框架实现">3. Letta 框架实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-安装与基本使用">3.1 安装与基本使用</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-自定义记忆管理">3.2 自定义记忆管理</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--核心机制：自主记忆管理">4. 核心机制：自主记忆管理</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-Function-Calling-驱动的记忆操作">4.1 Function Calling 驱动的记忆操作</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-可用的记忆操作函数">4.2 可用的记忆操作函数</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--自编辑记忆（Self-Editing-Memory）">5. 自编辑记忆（Self-Editing Memory）</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-核心理念">5.1 核心理念</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-模拟实现">5.2 模拟实现</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--MemGPT-vs-传统记忆方案对比">6. MemGPT vs 传统记忆方案对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--实际应用场景">7. 实际应用场景</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的分层记忆">场景一：评论监控机器人的分层记忆</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成的项目记忆">场景二：视频生成的项目记忆</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的记忆增强">场景三：Hermes Agent 的记忆增强</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>MemGPT（Letta）是 Agent 记忆系统的<strong>高级架构</strong>，受操作系统虚拟内存启发，通过分层内存管理突破 LLM 上下文窗口限制。它代表了 Agent 记忆的前沿方向。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 12-Agent记忆系统 ← 记忆层（你在这里）
+│   ├── 01-短期记忆与对话管理 ← 基础记忆
+│   ├── 02-长期记忆与向量存储 ← 存储技术
+│   ├── 03-MemGPT与记忆架构 ✅ ← 高级架构
+│   └── 04-记忆检索与衰减策略 ← 检索算法
+├── 14-高级Prompt模式 ← Agent 的推理能力
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：MemGPT 的"自主记忆管理"理念——让 Agent 自己决定存什么、丢什么——是构建真正智能助手的关键。理解三层记忆架构（In-Context/Recall/Archival）能帮助设计生产级 Agent 的记忆系统。</p>
+<h2>1. 概述</h2>
+<p>MemGPT（现更名为 Letta）是一种受操作系统虚拟内存启发的 Agent 记忆架构，通过分层内存管理突破 LLM 上下文窗口限制。</p>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────────────┐
+│               MemGPT 核心思想                         │
+│                                                      │
+│   传统 LLM：固定上下文窗口                              │
+│   ┌──────────────────────┐                           │
+│   │ [全部上下文塞入窗口]    │ ← 窗口满了就丢失           │
+│   └──────────────────────┘                           │
+│                                                      │
+│   MemGPT：分层内存管理                                 │
+│   ┌──────────┐  换入/换出  ┌──────────┐              │
+│   │ 主内存    │ ←────────→ │ 外部存储  │              │
+│   │ (上下文)  │            │ (无限)    │              │
+│   └──────────┘            └──────────┘              │
+│        │                                             │
+│   Agent 自主决定：保留什么、丢弃什么、何时检索           │
+└─────────────────────────────────────────────────────┘</code></pre></div>
+<h2>2. 三层记忆架构</h2>
+<h3>2.1 架构总览</h3>
+<div class="code-block"><pre><code>┌────────────────────────────────────────────────────┐
+│                 MemGPT 三层记忆                      │
+│                                                     │
+│  ┌─────────────────────────────────┐               │
+│  │  In-Context Memory (主上下文)     │  ← LLM 直接  │
+│  │  ┌───────────────────────────┐  │    可见       │
+│  │  │ System Instructions       │  │               │
+│  │  ├───────────────────────────┤  │               │
+│  │  │ Working Context (工作上下文)│  │               │
+│  │  │  • 用户画像               │  │               │
+│  │  │  • 当前任务状态            │  │               │
+│  │  │  • 自定义数据              │  │               │
+│  │  ├───────────────────────────┤  │               │
+│  │  │ FIFO Queue (最近消息)      │  │               │
+│  │  │  msg_n, msg_n-1, ...      │  │               │
+│  │  └───────────────────────────┘  │               │
+│  └───────────────┬─────────────────┘               │
+│                  │ 换入/换出                         │
+│  ┌───────────────▼─────────────────┐               │
+│  │  Recall Memory (回忆记忆)         │  ← 持久化     │
+│  │  • 完整对话历史                   │    全部消息    │
+│  │  • 可搜索检索                     │               │
+│  └───────────────┬─────────────────┘               │
+│                  │                                  │
+│  ┌───────────────▼─────────────────┐               │
+│  │  Archival Memory (归档记忆)       │  ← 长期知识   │
+│  │  • 事实和知识                     │    向量存储    │
+│  │  • 用户偏好                       │               │
+│  │  • 外部文档                       │               │
+│  └─────────────────────────────────┘               │
+└────────────────────────────────────────────────────┘</code></pre></div>
+<h3>2.2 各层详解</h3>
+<table><thead><tr><th>层级</th><th>类比</th><th>容量</th><th>访问速度</th><th>存储方式</th><th>内容</th></tr></thead><tbody><tr><td><strong>In-Context</strong></td><td>CPU 寄存器/缓存</td><td>小（4K-128K tokens）</td><td>即时</td><td>原生上下文</td><td>系统指令+工作状态+最近消息</td></tr><tr class="alt"><td><strong>Recall</strong></td><td>磁盘/SSD</td><td>大（无限）</td><td>中（搜索）</td><td>数据库</td><td>全部对话历史</td></tr><tr><td><strong>Archival</strong></td><td>外部存储</td><td>大（无限）</td><td>慢（检索）</td><td>向量数据库</td><td>事实知识</td></tr></tbody></table>
+<h2>3. Letta 框架实现</h2>
+<h3>3.1 安装与基本使用</h3>
+<div class="code-block"><pre><code class="language-bash">pip install letai-client
+# 或使用 REST API
+pip install letta</code></pre></div>
+<div class="code-block"><pre><code class="language-python">from letta import create_client
+from letta.schemas.memory import ChatMemory
+
+# 创建客户端
+client = create_client()
+
+# 创建 Agent（自动配置三层记忆）
+agent_state = client.create_agent(
+    name=&quot;my_assistant&quot;,
+    memory=ChatMemory(
+        human=&quot;用户名：张三\n偏好：简洁回答，喜欢技术细节&quot;,
+        persona=&quot;你是一个专业的AI助手，擅长编程和技术问题&quot;
+    ),
+    embedding_config={
+        &quot;embedding_model&quot;: &quot;text-embedding-3-small&quot;,
+        &quot;embedding_dim&quot;: 1536
+    }
+)
+
+# 发送消息
+response = client.user_message(
+    agent_id=agent_state.id,
+    message=&quot;帮我写一个Python快速排序&quot;
+)
+print(response)</code></pre></div>
+<h3>3.2 自定义记忆管理</h3>
+<div class="code-block"><pre><code class="language-python">from letta.schemas.memory import BaseMemory, Memory
+
+class CustomMemory(BaseMemory):
+    &quot;&quot;&quot;自定义记忆结构&quot;&quot;&quot;
+    user_name: str = &quot;&quot;
+    current_task: str = &quot;&quot;
+    preferences: str = &quot;&quot;
+    important_facts: str = &quot;&quot;
+
+# 创建 Agent 时使用自定义记忆
+agent = client.create_agent(
+    name=&quot;custom_agent&quot;,
+    memory=CustomMemory(
+        user_name=&quot;张三&quot;,
+        current_task=&quot;&quot;,
+        preferences=&quot;简洁风格,代码优先&quot;,
+        important_facts=&quot;&quot;
+    )
+)
+
+# 更新工作上下文
+client.update_agent_memory_block(
+    agent_id=agent.id,
+    label=&quot;current_task&quot;,
+    value=&quot;正在开发一个Web爬虫项目&quot;
+)</code></pre></div>
+<h2>4. 核心机制：自主记忆管理</h2>
+<h3>4.1 Function Calling 驱动的记忆操作</h3>
+<p>MemGPT 的核心创新：Agent 通过函数调用<strong>自主管理</strong>记忆。</p>
+<div class="code-block"><pre><code>┌──────────────────────────────────────────────┐
+│           Agent 自主记忆管理                    │
+│                                               │
+│  用户: &quot;我喜欢用TypeScript而不是JavaScript&quot;      │
+│                                               │
+│  Agent 思考: 这是用户偏好，应该保存               │
+│      │                                        │
+│      ▼                                        │
+│  Agent 调用: core_memory_replace(              │
+│      label=&quot;preferences&quot;,                     │
+│      old=&quot;简洁风格&quot;,                           │
+│      new=&quot;简洁风格, 偏好TypeScript&quot;             │
+│  )                                            │
+│                                               │
+│  Agent 调用: archival_memory_insert(           │
+│      content=&quot;用户明确偏好TypeScript&quot;            │
+│  )                                            │
+│                                               │
+│  Agent 回复: &quot;好的，已记住你更喜欢TypeScript&quot;     │
+└──────────────────────────────────────────────┘</code></pre></div>
+<h3>4.2 可用的记忆操作函数</h3>
+<div class="code-block"><pre><code class="language-python"># MemGPT/Letta Agent 可调用的记忆操作函数
+
+# === In-Context Memory 操作 ===
+def core_memory_append(label: str, content: str):
+    &quot;&quot;&quot;向工作上下文追加内容&quot;&quot;&quot;
+    pass
+
+def core_memory_replace(label: str, old_content: str, new_content: str):
+    &quot;&quot;&quot;替换工作上下文中的内容&quot;&quot;&quot;
+    pass
+
+# === Recall Memory 操作 ===
+def conversation_search(query: str, page: int = 0):
+    &quot;&quot;&quot;搜索对话历史&quot;&quot;&quot;
+    pass
+
+def conversation_search_date(start_date: str, end_date: str, page: int = 0):
+    &quot;&quot;&quot;按日期搜索对话&quot;&quot;&quot;
+    pass
+
+# === Archival Memory 操作 ===
+def archival_memory_insert(content: str):
+    &quot;&quot;&quot;向归档记忆插入新内容&quot;&quot;&quot;
+    pass
+
+def archival_memory_search(query: str, page: int = 0):
+    &quot;&quot;&quot;搜索归档记忆&quot;&quot;&quot;
+    pass
+
+# === 换入/换出操作 ===
+def pause_heartbeats():
+    &quot;&quot;&quot;暂停自动心跳，将控制权返回用户&quot;&quot;&quot;
+    pass</code></pre></div>
+<h2>5. 自编辑记忆（Self-Editing Memory）</h2>
+<h3>5.1 核心理念</h3>
+<p>Agent 能够<strong>主动判断</strong>哪些信息重要、何时更新记忆、如何组织知识。</p>
+<div class="code-block"><pre><code>自编辑记忆决策流程：
+
+输入消息
+    │
+    ▼
+┌─────────────┐
+│ 是否包含新的  │──是──→ 更新 Working Context
+│ 用户偏好？   │        core_memory_replace()
+└──────┬──────┘
+       │否
+       ▼
+┌─────────────┐
+│ 是否包含     │──是──→ 写入 Archival Memory
+│ 重要事实？   │        archival_memory_insert()
+└──────┬──────┘
+       │否
+       ▼
+┌─────────────┐
+│ 上下文是否   │──是──→ 总结并移除旧消息
+│ 接近上限？   │        summarize + FIFO pop
+└──────┬──────┘
+       │否
+       ▼
+  正常回复</code></pre></div>
+<h3>5.2 模拟实现</h3>
+<div class="code-block"><pre><code class="language-python">from openai import OpenAI
+import json
+
+client = OpenAI()
+
+class SelfEditingMemoryAgent:
+    &quot;&quot;&quot;自编辑记忆 Agent&quot;&quot;&quot;
+
+    def __init__(self, model: str = &quot;gpt-4o&quot;):
+        self.model = model
+        self.system_instructions = &quot;你是一个有记忆的助手。&quot;
+        self.working_context = {
+            &quot;user_name&quot;: &quot;&quot;,
+            &quot;preferences&quot;: &quot;&quot;,
+            &quot;current_task&quot;: &quot;&quot;,
+        }
+        self.message_queue = []  # FIFO
+        self.max_queue_size = 10
+        self.archival_store = []  # 简化版，实际用向量DB
+
+    def _build_prompt(self) -&gt; list:
+        context_str = json.dumps(self.working_context, ensure_ascii=False)
+        return [
+            {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: f&quot;&quot;&quot;{self.system_instructions}
+
+## 工作上下文
+{context_str}
+
+## 可用函数
+- core_memory_append(label, content): 更新工作上下文
+- archival_memory_insert(content): 存入长期记忆
+- archival_memory_search(query): 搜索长期记忆
+&quot;&quot;&quot;},
+            *self.message_queue
+        ]
+
+    def _execute_memory_action(self, action: dict):
+        func = action.get(&quot;function&quot;)
+        args = json.loads(action.get(&quot;arguments&quot;, &quot;{}&quot;))
+
+        if func == &quot;core_memory_append&quot;:
+            label = args[&quot;label&quot;]
+            if label in self.working_context:
+                self.working_context[label] += f&quot;; {args[&#x27;content&#x27;]}&quot;
+        elif func == &quot;core_memory_replace&quot;:
+            self.working_context[args[&quot;label&quot;]] = args[&quot;new_content&quot;]
+        elif func == &quot;archival_memory_insert&quot;:
+            self.archival_store.append(args[&quot;content&quot;])
+
+    def _manage_context(self):
+        &quot;&quot;&quot;FIFO 管理：上下文快满时摘要最旧的消息&quot;&quot;&quot;
+        if len(self.message_queue) &gt;= self.max_queue_size:
+            old = self.message_queue[:2]
+            summary = self._summarize(old)
+            self.message_queue = self.message_queue[2:]
+            self.archival_store.append(summary)
+
+    def _summarize(self, messages: list) -&gt; str:
+        text = &quot;\n&quot;.join(f&quot;{m[&#x27;role&#x27;]}: {m[&#x27;content&#x27;]}&quot; for m in messages)
+        resp = client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;将对话压缩为一句话摘要&quot;},
+                {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: text}
+            ],
+            max_tokens=100
+        )
+        return resp.choices[0].message.content
+
+    def chat(self, user_message: str) -&gt; str:
+        self._manage_context()
+        self.message_queue.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_message})
+
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=self._build_prompt(),
+            tools=self._get_tools()
+        )
+
+        msg = response.choices[0].message
+
+        # 处理函数调用
+        if msg.tool_calls:
+            for tc in msg.tool_calls:
+                self._execute_memory_action({
+                    &quot;function&quot;: tc.function.name,
+                    &quot;arguments&quot;: tc.function.arguments
+                })
+            self.message_queue.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: msg.content or &quot;(执行了记忆操作)&quot;})
+            return &quot;已更新记忆。&quot;
+
+        self.message_queue.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: msg.content})
+        return msg.content
+
+    def _get_tools(self) -&gt; list:
+        return [
+            {&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {
+                &quot;name&quot;: &quot;core_memory_append&quot;,
+                &quot;description&quot;: &quot;追加到工作上下文&quot;,
+                &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {
+                    &quot;label&quot;: {&quot;type&quot;: &quot;string&quot;},
+                    &quot;content&quot;: {&quot;type&quot;: &quot;string&quot;}
+                }, &quot;required&quot;: [&quot;label&quot;, &quot;content&quot;]}
+            }},
+            {&quot;type&quot;: &quot;function&quot;, &quot;function&quot;: {
+                &quot;name&quot;: &quot;archival_memory_insert&quot;,
+                &quot;description&quot;: &quot;存入长期记忆&quot;,
+                &quot;parameters&quot;: {&quot;type&quot;: &quot;object&quot;, &quot;properties&quot;: {
+                    &quot;content&quot;: {&quot;type&quot;: &quot;string&quot;}
+                }, &quot;required&quot;: [&quot;content&quot;]}
+            }}
+        ]
+
+# 使用
+agent = SelfEditingMemoryAgent()
+print(agent.chat(&quot;我叫张三，喜欢Python&quot;))
+# Agent 可能调用 core_memory_append 更新 user_name
+print(agent.chat(&quot;帮我写个排序算法&quot;))
+print(agent.chat(&quot;记得我喜欢什么语言吗？&quot;))
+# Agent 检索 working_context 中的记忆回答</code></pre></div>
+<h2>6. MemGPT vs 传统记忆方案对比</h2>
+<table><thead><tr><th>特性</th><th>传统记忆</th><th>MemGPT/Letta</th></tr></thead><tbody><tr><td><strong>记忆管理</strong></td><td>预设规则</td><td>Agent 自主决策</td></tr><tr class="alt"><td><strong>上下文利用</strong></td><td>固定策略</td><td>动态优化</td></tr><tr><td><strong>长期记忆</strong></td><td>独立模块</td><td>内置三层架构</td></tr><tr class="alt"><td><strong>信息更新</strong></td><td>被动存储</td><td>主动编辑替换</td></tr><tr><td><strong>溢出处理</strong></td><td>截断/摘要</td><td>OS式换入换出</td></tr><tr class="alt"><td><strong>对话质量</strong></td><td>随长度下降</td><td>稳定保持</td></tr><tr><td><strong>实现复杂度</strong></td><td>低</td><td>中高</td></tr></tbody></table>
+<h2>7. 实际应用场景</h2>
+<div class="code-block"><pre><code>场景1: 个人助手
+├── In-Context: 当前对话 + 用户偏好
+├── Recall: 过去所有对话记录
+└── Archival: 用户习惯、日程、联系人
+
+场景2: 客服机器人
+├── In-Context: 当前工单 + 客户信息
+├── Recall: 历史工单对话
+└── Archival: 产品知识库、FAQ
+
+场景3: 编程助手
+├── In-Context: 当前项目上下文 + 编码规范
+│   ├── Recall: 之前的代码讨论
+│   └── Archival: 文档、API参考、项目结构</code></pre></div>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的分层记忆</h3>
+<p>用 MemGPT 三层架构管理评论监控：In-Context 层存储当前监控任务和用户偏好；Recall 层保存历史对话和评论分析记录；Archival 层存储用户画像和历史统计数据。Agent 自主决定何时更新用户画像。</p>
+<h3>场景二：视频生成的项目记忆</h3>
+<p>视频生成项目需要长期积累经验：In-Context 存当前项目状态，Recall 存历史项目的脚本和素材选择，Archival 存储最佳实践和模板库。新项目时 Agent 自动检索相关经验。</p>
+<h3>场景三：Hermes Agent 的记忆增强</h3>
+<p>Hermes Agent 的 skills/knowledge 体系类似 Archival Memory，但缺少自主管理能力。引入 MemGPT 的 core_memory_replace 机制，让 Hermes 自动更新用户偏好和常用知识。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>短期记忆</th><th><a class="wikilink" href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a></th><th>In-Context 层的底层实现</th></tr></thead><tbody><tr><td>长期记忆</td><td><a class="wikilink" href="#02-长期记忆与向量存储">02-长期记忆与向量存储</a></td><td>Archival 层的存储技术</td></tr><tr class="alt"><td>检索策略</td><td><a class="wikilink" href="#04-记忆检索与衰减策略">04-记忆检索与衰减策略</a></td><td>三层记忆的检索与调度</td></tr><tr><td>推理模式</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>自编辑记忆 vs 自我反思</td></tr><tr class="alt"><td>框架记忆</td><td><a class="wikilink" href="#CrewAI多智能体协作">CrewAI多智能体协作</a></td><td>CrewAI 三层记忆 vs MemGPT 三层</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融系统的记忆管理实践</td></tr></tbody></table>
+</section>
+<section id="记忆检索与衰减策略" class="doc-section">
+<h1>记忆检索与衰减策略 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--相关性评分（Relevance-Scoring）">2. 相关性评分（Relevance Scoring）</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-1-余弦相似度">2.1 余弦相似度</a></div><div class="toc-item" style="padding-left:20px"><a href="#2-2-混合检索（BM25-+-向量）">2.2 混合检索（BM25 + 向量）</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--时间衰减（Temporal-Decay）">3. 时间衰减（Temporal Decay）</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-1-衰减函数对比">3.1 衰减函数对比</a></div><div class="toc-item" style="padding-left:20px"><a href="#3-2-实现代码">3.2 实现代码</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--重要性权重（Importance-Weighting）">4. 重要性权重（Importance Weighting）</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-多维重要性评估">4.1 多维重要性评估</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-LLM-辅助重要性评估">4.2 LLM 辅助重要性评估</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--记忆整合（Memory-Consolidation）">5. 记忆整合（Memory Consolidation）</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-整合流程">5.1 整合流程</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-整合实现">5.2 整合实现</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--综合检索系统">6. 综合检索系统</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-完整的记忆检索-Pipeline">6.1 完整的记忆检索 Pipeline</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-检索策略对比">6.2 检索策略对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--最佳实践总结">7. 最佳实践总结</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的智能检索">场景一：评论监控机器人的智能检索</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成素材的记忆整合">场景二：视频生成素材的记忆整合</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的知识库优化">场景三：Hermes Agent 的知识库优化</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>记忆检索与衰减策略是 Agent 记忆系统的<strong>算法层</strong>，决定了如何从海量记忆中找到最相关信息，以及如何处理不再重要的记忆。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 12-Agent记忆系统 ← 记忆层（你在这里）
+│   ├── 01-短期记忆与对话管理 ← 存储层
+│   ├── 02-长期记忆与向量存储 ← 存储层
+│   ├── 03-MemGPT与记忆架构 ← 架构层
+│   └── 04-记忆检索与衰减策略 ✅ ← 算法层
+├── 13-Agent评估与基准 ← 评估记忆检索质量
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：掌握多维评分（相关性×时间衰减×重要性×访问频率）和混合检索（BM25+向量）算法，是构建高质量 Agent 记忆系统的核心竞争力。</p>
+<h2>1. 概述</h2>
+<p>记忆检索与衰减策略决定了 Agent 如何从大量存储的记忆中找到最相关的信息，以及如何处理不再重要的记忆。</p>
+<div class="code-block"><pre><code>┌──────────────────────────────────────────────────────┐
+│              记忆检索与衰减系统                          │
+│                                                       │
+│   用户查询: &quot;推荐一个Python Web框架&quot;                    │
+│        │                                              │
+│        ▼                                              │
+│   ┌──────────┐                                        │
+│   │ 候选记忆池 │  (数百条记忆)                           │
+│   └────┬─────┘                                        │
+│        │                                              │
+│   ┌────▼──────────────────────────────┐               │
+│   │         多维评分系统                │               │
+│   │                                   │               │
+│   │  相关性得分 × α                    │               │
+│   │  时间衰减   × β        → 综合得分   │               │
+│   │  重要性权重 × γ                    │               │
+│   │  访问频率   × δ                    │               │
+│   └────┬──────────────────────────────┘               │
+│        │                                              │
+│   ┌────▼─────┐                                        │
+│   │ Top-K 选择│ → 返回最相关的 K 条记忆                  │
+│   └──────────┘                                        │
+└──────────────────────────────────────────────────────┘</code></pre></div>
+<h2>2. 相关性评分（Relevance Scoring）</h2>
+<h3>2.1 余弦相似度</h3>
+<div class="code-block"><pre><code class="language-python">import numpy as np
+from openai import OpenAI
+
+client = OpenAI()
+
+def get_embedding(text: str) -&gt; list:
+    resp = client.embeddings.create(model=&quot;text-embedding-3-small&quot;, input=text)
+    return resp.data[0].embedding
+
+def cosine_similarity(a: list, b: list) -&gt; float:
+    a, b = np.array(a), np.array(b)
+    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+class RelevanceScorer:
+    &quot;&quot;&quot;记忆相关性评分器&quot;&quot;&quot;
+
+    def __init__(self):
+        self.embedding_cache = {}
+
+    def score(self, query: str, memory_text: str) -&gt; float:
+        q_emb = self._get_cached_embedding(query)
+        m_emb = self._get_cached_embedding(memory_text)
+        return cosine_similarity(q_emb, m_emb)
+
+    def _get_cached_embedding(self, text: str) -&gt; list:
+        if text not in self.embedding_cache:
+            self.embedding_cache[text] = get_embedding(text)
+        return self.embedding_cache[text]
+
+    def rank(self, query: str, memories: list, top_k: int = 5) -&gt; list:
+        scored = [(m, self.score(query, m[&quot;text&quot;])) for m in memories]
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return scored[:top_k]
+
+# 使用
+scorer = RelevanceScorer()
+memories = [
+    {&quot;text&quot;: &quot;用户喜欢Flask框架&quot;},
+    {&quot;text&quot;: &quot;用户的项目截止日期是6月15日&quot;},
+    {&quot;text&quot;: &quot;用户擅长后端开发&quot;},
+    {&quot;text&quot;: &quot;Django是全功能Web框架&quot;},
+]
+results = scorer.rank(&quot;推荐Python Web框架&quot;, memories)
+for mem, score in results:
+    print(f&quot;{score:.3f} | {mem[&#x27;text&#x27;]}&quot;)</code></pre></div>
+<h3>2.2 混合检索（BM25 + 向量）</h3>
+<div class="code-block"><pre><code class="language-python">from rank_bm25 import BM25Okapi
+import jieba
+
+class HybridRetriever:
+    &quot;&quot;&quot;BM25 + 向量 混合检索&quot;&quot;&quot;
+
+    def __init__(self, alpha: float = 0.7):
+        self.alpha = alpha  # 向量权重
+        self.scorer = RelevanceScorer()
+
+    def bm25_score(self, query: str, documents: list) -&gt; list:
+        tokenized = [list(jieba.cut(doc[&quot;text&quot;])) for doc in documents]
+        query_tokens = list(jieba.cut(query))
+        bm25 = BM25Okapi(tokenized)
+        scores = bm25.get_scores(query_tokens)
+        # 归一化到 [0, 1]
+        max_s = max(scores) if max(scores) &gt; 0 else 1
+        return [s / max_s for s in scores]
+
+    def search(self, query: str, documents: list, top_k: int = 5) -&gt; list:
+        # BM25 得分
+        bm25_scores = self.bm25_score(query, documents)
+
+        # 向量得分
+        vec_scores = [self.scorer.score(query, doc[&quot;text&quot;]) for doc in documents]
+
+        # 加权融合
+        final = []
+        for i, doc in enumerate(documents):
+            combined = self.alpha * vec_scores[i] + (1 - self.alpha) * bm25_scores[i]
+            final.append((doc, combined))
+
+        final.sort(key=lambda x: x[1], reverse=True)
+        return final[:top_k]</code></pre></div>
+<h2>3. 时间衰减（Temporal Decay）</h2>
+<h3>3.1 衰减函数对比</h3>
+<div class="code-block"><pre><code>记忆强度
+  │
+1 │■
+  │ ■ 指数衰减
+  │  ■■
+  │    ■■■
+  │       ■■■■
+  │  ··············  线性衰减
+  │     ··········
+  │         ······
+  │             ···
+  │  ────────────────  无衰减（恒定）
+  └─────────────────→ 时间</code></pre></div>
+<table><thead><tr><th>衰减函数</th><th>公式</th><th>特点</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>指数衰减</strong></td><td><code class="inline">e^(-λt)</code></td><td>前期快速下降</td><td>对话记忆</td></tr><tr class="alt"><td><strong>线性衰减</strong></td><td><code class="inline">1 - t/T</code></td><td>均匀下降</td><td>定期任务</td></tr><tr><td><strong>对数衰减</strong></td><td><code class="inline">1/(1+ln(1+t))</code></td><td>缓慢下降</td><td>重要事实</td></tr><tr class="alt"><td><strong>阶梯衰减</strong></td><td>分段常数</td><td>阶段性</td><td>项目记忆</td></tr></tbody></table>
+<h3>3.2 实现代码</h3>
+<div class="code-block"><pre><code class="language-python">import math
+import time
+from datetime import datetime
+
+class TemporalDecay:
+    &quot;&quot;&quot;时间衰减计算&quot;&quot;&quot;
+
+    @staticmethod
+    def exponential(created_at: float, half_life_days: float = 7.0) -&gt; float:
+        &quot;&quot;&quot;指数衰减：每 half_life_days 天衰减一半&quot;&quot;&quot;
+        age_days = (time.time() - created_at) / 86400
+        decay_rate = math.log(2) / half_life_days
+        return math.exp(-decay_rate * age_days)
+
+    @staticmethod
+    def linear(created_at: float, max_days: float = 30.0) -&gt; float:
+        &quot;&quot;&quot;线性衰减：max_days 天后衰减到 0&quot;&quot;&quot;
+        age_days = (time.time() - created_at) / 86400
+        return max(0.0, 1.0 - age_days / max_days)
+
+    @staticmethod
+    def logarithmic(created_at: float, scale: float = 10.0) -&gt; float:
+        &quot;&quot;&quot;对数衰减：缓慢下降&quot;&quot;&quot;
+        age_days = (time.time() - created_at) / 86400
+        return 1.0 / (1.0 + math.log(1.0 + age_days / scale))
+
+    @staticmethod
+    def stepped(created_at: float, thresholds: list = None) -&gt; float:
+        &quot;&quot;&quot;阶梯衰减&quot;&quot;&quot;
+        if thresholds is None:
+            thresholds = [(7, 1.0), (14, 0.7), (30, 0.4), (90, 0.1)]
+        age_days = (time.time() - created_at) / 86400
+        for max_days, score in thresholds:
+            if age_days &lt;= max_days:
+                return score
+        return 0.05
+
+# 使用示例
+decay = TemporalDecay()
+one_week_ago = time.time() - 7 * 86400
+one_month_ago = time.time() - 30 * 86400
+
+print(f&quot;指数衰减(1周前): {decay.exponential(one_week_ago):.3f}&quot;)  # 0.500
+print(f&quot;指数衰减(1月前): {decay.exponential(one_month_ago):.3f}&quot;)  # 0.024
+print(f&quot;线性衰减(1周前): {decay.linear(one_week_ago):.3f}&quot;)        # 0.767
+print(f&quot;对数衰减(1周前): {decay.logarithmic(one_week_ago):.3f}&quot;)   # 0.712</code></pre></div>
+<h2>4. 重要性权重（Importance Weighting）</h2>
+<h3>4.1 多维重要性评估</h3>
+<div class="code-block"><pre><code class="language-python">from dataclasses import dataclass
+
+@dataclass
+class MemoryItem:
+    text: str
+    created_at: float
+    last_accessed: float
+    access_count: int = 0
+    importance: float = 0.5      # 人工标注或 LLM 评估
+    emotional_valence: float = 0  # 情感强度
+    memory_type: str = &quot;fact&quot;     # fact/preference/event/emotion
+
+class ImportanceScorer:
+    &quot;&quot;&quot;多维重要性评估&quot;&quot;&quot;
+
+    # 记忆类型权重
+    TYPE_WEIGHTS = {
+        &quot;preference&quot;: 0.9,   # 用户偏好最重要
+        &quot;fact&quot;: 0.7,         # 事实次之
+        &quot;event&quot;: 0.5,        # 事件
+        &quot;emotion&quot;: 0.6,      # 情感
+        &quot;chat&quot;: 0.3,         # 普通对话
+    }
+
+    def score(self, memory: MemoryItem) -&gt; float:
+        &quot;&quot;&quot;综合重要性得分 (0-1)&quot;&quot;&quot;
+        # 1. 基础重要性
+        base = memory.importance
+
+        # 2. 类型权重
+        type_w = self.TYPE_WEIGHTS.get(memory.memory_type, 0.5)
+
+        # 3. 访问频率加成（频繁被访问 = 更重要）
+        freq_bonus = min(memory.access_count / 10, 0.3)
+
+        # 4. 情感加成
+        emotion_bonus = abs(memory.emotional_valence) * 0.2
+
+        # 5. 最近访问加成
+        recency_bonus = 0.1 if (time.time() - memory.last_accessed) &lt; 3600 else 0
+
+        total = base * 0.4 + type_w * 0.3 + freq_bonus + emotion_bonus + recency_bonus
+        return min(total, 1.0)
+
+    def rank_by_importance(self, memories: list) -&gt; list:
+        scored = [(m, self.score(m)) for m in memories]
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return scored</code></pre></div>
+<h3>4.2 LLM 辅助重要性评估</h3>
+<div class="code-block"><pre><code class="language-python">from openai import OpenAI
+
+client = OpenAI()
+
+def assess_importance_llm(text: str) -&gt; dict:
+    &quot;&quot;&quot;用 LLM 评估记忆重要性&quot;&quot;&quot;
+    response = client.chat.completions.create(
+        model=&quot;gpt-4o-mini&quot;,
+        messages=[{
+            &quot;role&quot;: &quot;system&quot;,
+            &quot;content&quot;: &quot;&quot;&quot;评估以下信息的重要性，返回JSON：
+{
+    &quot;importance&quot;: 0.0-1.0,  // 重要性分数
+    &quot;type&quot;: &quot;fact|preference|event|emotion|chat&quot;,
+    &quot;reason&quot;: &quot;评估理由&quot;
+}&quot;&quot;&quot;
+        }, {
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: text
+        }],
+        response_format={&quot;type&quot;: &quot;json_object&quot;},
+        temperature=0
+    )
+    import json
+    return json.loads(response.choices[0].message.content)
+
+# 示例
+result = assess_importance_llm(&quot;用户说他的项目下周五截止，非常重要&quot;)
+# {&quot;importance&quot;: 0.9, &quot;type&quot;: &quot;event&quot;, &quot;reason&quot;: &quot;包含明确的截止日期&quot;}</code></pre></div>
+<h2>5. 记忆整合（Memory Consolidation）</h2>
+<h3>5.1 整合流程</h3>
+<div class="code-block"><pre><code>原始记忆                     整合后
+┌──────────────┐          ┌──────────────┐
+│ mem1: 用户喜欢Python     │
+│ mem2: 用户用Python写爬虫  │ → 合并为一条
+│ mem3: Python项目截止6月   │    综合记忆
+└──────────────┘          └──────────────┘
+
+┌──────────────┐
+│ mem4: 今天天气不错        │
+│ mem5: 午饭吃了面条        │ → 低重要性，遗忘
+└──────────────┘
+
+┌──────────────┐
+│ mem6: 用户对AI感兴趣      │
+│ mem7: 用户在学Transformer │ → 更新为更精确
+└──────────────┘          的记忆</code></pre></div>
+<h3>5.2 整合实现</h3>
+<div class="code-block"><pre><code class="language-python">class MemoryConsolidator:
+    &quot;&quot;&quot;记忆整合器&quot;&quot;&quot;
+
+    def __init__(self, similarity_threshold: float = 0.85):
+        self.threshold = similarity_threshold
+        self.scorer = RelevanceScorer()
+        self.importance = ImportanceScorer()
+
+    def consolidate(self, memories: list) -&gt; list:
+        &quot;&quot;&quot;执行记忆整合&quot;&quot;&quot;
+        # 1. 去重：合并高度相似的记忆
+        merged = self._merge_similar(memories)
+        # 2. 遗忘：移除低重要性记忆
+        filtered = self._forget_low_importance(merged)
+        # 3. 更新重要性
+        updated = self._update_importance(filtered)
+        return updated
+
+    def _merge_similar(self, memories: list) -&gt; list:
+        &quot;&quot;&quot;合并语义相似的记忆&quot;&quot;&quot;
+        if len(memories) &lt;= 1:
+            return memories
+
+        merged = []
+        used = set()
+
+        for i, m1 in enumerate(memories):
+            if i in used:
+                continue
+            group = [m1]
+            for j, m2 in enumerate(memories):
+                if j &lt;= i or j in used:
+                    continue
+                sim = self.scorer.score(m1[&quot;text&quot;], m2[&quot;text&quot;])
+                if sim &gt; self.threshold:
+                    group.append(m2)
+                    used.add(j)
+
+            if len(group) &gt; 1:
+                merged_text = self._merge_texts([g[&quot;text&quot;] for g in group])
+                merged.append({
+                    &quot;text&quot;: merged_text,
+                    &quot;importance&quot;: max(g.get(&quot;importance&quot;, 0.5) for g in group),
+                    &quot;created_at&quot;: min(g.get(&quot;created_at&quot;, time.time()) for g in group)
+                })
+            else:
+                merged.append(m1)
+            used.add(i)
+
+        return merged
+
+    def _merge_texts(self, texts: list) -&gt; str:
+        &quot;&quot;&quot;用 LLM 合并相似文本&quot;&quot;&quot;
+        response = client.chat.completions.create(
+            model=&quot;gpt-4o-mini&quot;,
+            messages=[{
+                &quot;role&quot;: &quot;system&quot;,
+                &quot;content&quot;: &quot;将以下相似信息合并为一条简洁完整的记忆，去除重复：&quot;
+            }, {
+                &quot;role&quot;: &quot;user&quot;,
+                &quot;content&quot;: &quot;\n&quot;.join(f&quot;- {t}&quot; for t in texts)
+            }],
+            max_tokens=200,
+            temperature=0
+        )
+        return response.choices[0].message.content
+
+    def _forget_low_importance(self, memories: list, threshold: float = 0.2) -&gt; list:
+        &quot;&quot;&quot;遗忘低重要性记忆&quot;&quot;&quot;
+        return [m for m in memories if m.get(&quot;importance&quot;, 0.5) &gt;= threshold]
+
+    def _update_importance(self, memories: list) -&gt; list:
+        &quot;&quot;&quot;更新记忆重要性（衰减旧记忆）&quot;&quot;&quot;
+        for m in memories:
+            decay = TemporalDecay.exponential(
+                m.get(&quot;created_at&quot;, time.time()),
+                half_life_days=14
+            )
+            m[&quot;adjusted_importance&quot;] = m.get(&quot;importance&quot;, 0.5) * decay
+        return memories</code></pre></div>
+<h2>6. 综合检索系统</h2>
+<h3>6.1 完整的记忆检索 Pipeline</h3>
+<div class="code-block"><pre><code class="language-python">class MemoryRetrievalPipeline:
+    &quot;&quot;&quot;完整的记忆检索管线&quot;&quot;&quot;
+
+    def __init__(self):
+        self.retriever = HybridRetriever(alpha=0.7)
+        self.decay = TemporalDecay()
+        self.importance = ImportanceScorer()
+        self.consolidator = MemoryConsolidator()
+
+    def retrieve(self, query: str, memories: list, top_k: int = 5,
+                 weights: dict = None) -&gt; list:
+        &quot;&quot;&quot;
+        综合检索：相关性 + 时间衰减 + 重要性
+
+        weights: {&quot;relevance&quot;: 0.5, &quot;temporal&quot;: 0.2, &quot;importance&quot;: 0.3}
+        &quot;&quot;&quot;
+        if weights is None:
+            weights = {&quot;relevance&quot;: 0.5, &quot;temporal&quot;: 0.2, &quot;importance&quot;: 0.3}
+
+        scored = []
+        for mem in memories:
+            # 相关性得分
+            relevance = self.retriever.scorer.score(query, mem[&quot;text&quot;])
+
+            # 时间衰减
+            temporal = self.decay.exponential(
+                mem.get(&quot;created_at&quot;, time.time()),
+                half_life_days=7
+            )
+
+            # 重要性
+            importance = mem.get(&quot;importance&quot;, 0.5)
+
+            # 加权综合
+            final_score = (
+                weights[&quot;relevance&quot;] * relevance +
+                weights[&quot;temporal&quot;] * temporal +
+                weights[&quot;importance&quot;] * importance
+            )
+
+            scored.append({
+                **mem,
+                &quot;scores&quot;: {
+                    &quot;relevance&quot;: round(relevance, 3),
+                    &quot;temporal&quot;: round(temporal, 3),
+                    &quot;importance&quot;: round(importance, 3),
+                    &quot;final&quot;: round(final_score, 3)
+                }
+            })
+
+        scored.sort(key=lambda x: x[&quot;scores&quot;][&quot;final&quot;], reverse=True)
+        return scored[:top_k]
+
+# 使用示例
+pipeline = MemoryRetrievalPipeline()
+
+memories = [
+    {&quot;text&quot;: &quot;用户喜欢Flask框架&quot;, &quot;created_at&quot;: time.time() - 86400, &quot;importance&quot;: 0.8, &quot;memory_type&quot;: &quot;preference&quot;},
+    {&quot;text&quot;: &quot;用户项目截止6月15日&quot;, &quot;created_at&quot;: time.time() - 3600, &quot;importance&quot;: 0.9, &quot;memory_type&quot;: &quot;event&quot;},
+    {&quot;text&quot;: &quot;今天聊了天气&quot;, &quot;created_at&quot;: time.time() - 7200, &quot;importance&quot;: 0.2, &quot;memory_type&quot;: &quot;chat&quot;},
+    {&quot;text&quot;: &quot;Django是Python全功能Web框架&quot;, &quot;created_at&quot;: time.time() - 172800, &quot;importance&quot;: 0.6, &quot;memory_type&quot;: &quot;fact&quot;},
+]
+
+results = pipeline.retrieve(&quot;推荐Python Web框架&quot;, memories, top_k=3)
+for r in results:
+    print(f&quot;[{r[&#x27;scores&#x27;][&#x27;final&#x27;]}] {r[&#x27;text&#x27;]}&quot;)
+    print(f&quot;  relevance={r[&#x27;scores&#x27;][&#x27;relevance&#x27;]} temporal={r[&#x27;scores&#x27;][&#x27;temporal&#x27;]} importance={r[&#x27;scores&#x27;][&#x27;importance&#x27;]}&quot;)</code></pre></div>
+<h3>6.2 检索策略对比</h3>
+<table><thead><tr><th>策略</th><th>延迟</th><th>准确性</th><th>适用场景</th></tr></thead><tbody><tr><td>纯向量检索</td><td>低</td><td>中</td><td>实时对话</td></tr><tr class="alt"><td>BM25+向量混合</td><td>中</td><td>高</td><td>知识库问答</td></tr><tr><td>时间衰减+相关性</td><td>低</td><td>高</td><td>个人助手</td></tr><tr class="alt"><td>全维度综合评分</td><td>中</td><td>最高</td><td>生产环境</td></tr><tr><td>图谱+向量</td><td>高</td><td>最高</td><td>复杂推理</td></tr></tbody></table>
+<h2>7. 最佳实践总结</h2>
+<div class="code-block"><pre><code>┌────────────────────────────────────────────┐
+│          记忆检索策略选型指南                 │
+│                                             │
+│  简单场景（&lt;100条记忆）                      │
+│  → 全量遍历 + 相关性排序                     │
+│                                             │
+│  中等场景（100-10K条）                       │
+│  → 向量检索 Top-K + 时间衰减重排             │
+│                                             │
+│  大规模场景（&gt;10K条）                        │
+│  → 分层过滤：类型筛选 → 向量召回             │
+│    → 多维精排 → 缓存热结果                   │
+│                                             │
+│  生产环境关键指标：                           │
+│  • P99 延迟 &lt; 200ms                        │
+│  • 召回率 &gt; 95%                             │
+│  • 定期整合减少冗余（每日/每周）              │
+└────────────────────────────────────────────┘</code></pre></div>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的智能检索</h3>
+<p>评论数据量大时，用混合检索（BM25 关键词 + 向量语义）快速找到相关历史评论。时间衰减策略让近期评论权重更高，重要性权重让负面评论优先处理。</p>
+<h3>场景二：视频生成素材的记忆整合</h3>
+<p>视频素材库积累大量素材描述后，用记忆整合算法去重合并相似素材（如"海边日落"和"海滩黄昏"），用遗忘机制清理低质量素材，保持素材库的高质量。</p>
+<h3>场景三：Hermes Agent 的知识库优化</h3>
+<p>Hermes 的 ~/knowledge-base/ 可以用记忆衰减策略自动标记过时知识（如旧版本 API 文档），用重要性权重让核心知识（如架构设计）优先被检索到。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>短期记忆</th><th><a class="wikilink" href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a></th><th>检索策略在对话管理中的应用</th></tr></thead><tbody><tr><td>长期记忆</td><td><a class="wikilink" href="#02-长期记忆与向量存储">02-长期记忆与向量存储</a></td><td>向量检索是记忆检索的核心技术</td></tr><tr class="alt"><td>MemGPT</td><td><a class="wikilink" href="#03-MemGPT与记忆架构">03-MemGPT与记忆架构</a></td><td>MemGPT 的自主检索决策</td></tr><tr><td>评估方法</td><td><a class="wikilink" href="#03-LLM-as-Judge评估方法">03-LLM-as-Judge评估方法</a></td><td>LLM 辅助记忆重要性评估</td></tr><tr class="alt"><td>推理模式</td><td><a class="wikilink" href="#01-ReAct推理行动循环">01-ReAct推理行动循环</a></td><td>ReAct 中的记忆检索时机</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融知识库的检索优化</td></tr></tbody></table>
+</section>
+</main>
+
+</body>
+</html>

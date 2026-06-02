@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>高级 Prompt 模式</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Inter', 'Noto Sans SC', -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #f7f7f5;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  overflow-y: auto;
+  padding: 20px 0;
+  z-index: 100;
+}
+.sidebar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0075de;
+  padding: 0 16px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  margin-bottom: 8px;
+}
+.sidebar-section {
+  padding: 8px 0;
+}
+.sidebar-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 16px 2px;
+}
+.sidebar-link {
+  display: block;
+  padding: 4px 16px 4px 24px;
+  font-size: 13px;
+  color: #333;
+  text-decoration: none;
+  transition: background 0.15s;
+}
+.sidebar-link:hover {
+  background: rgba(0,117,222,0.08);
+  color: #0075de;
+}
+
+/* Main Content */
+.content {
+  margin-left: 280px;
+  padding: 40px 60px;
+  max-width: 900px;
+}
+
+/* Typography */
+h1 {
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 16px;
+  color: #1a1a1a;
+}
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 40px;
+  margin-bottom: 12px;
+  color: #1a1a1a;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+  padding-bottom: 8px;
+}
+h3 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+/* Paragraphs */
+p {
+  margin-bottom: 12px;
+  line-height: 1.7;
+}
+
+/* Links */
+a {
+  color: #0075de;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+.wikilink {
+  color: #0075de;
+  background: rgba(0,117,222,0.08);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Code */
+code.inline {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  background: #f6f5f4;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+.code-block {
+  background: #f6f5f4;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+.code-block pre {
+  padding: 16px;
+  overflow-x: auto;
+  margin: 0;
+}
+.code-block code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  font-size: 14px;
+}
+th {
+  background: #f7f7f5;
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+}
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+tr.alt {
+  background: #fafafa;
+}
+
+/* Blockquotes */
+blockquote {
+  border-left: 3px solid #0075de;
+  padding: 8px 16px;
+  margin: 12px 0;
+  background: #f0f7ff;
+  color: #333;
+}
+
+/* Lists */
+ul, ol {
+  margin: 8px 0 12px 24px;
+}
+li {
+  margin-bottom: 4px;
+}
+
+/* Diagram */
+.diagram-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: #fafafa;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+}
+.diagram-svg {
+  width: 100%;
+  height: auto;
+}
+
+/* Difficulty Badge */
+.difficulty-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* TOC */
+.toc-container {
+  background: #f7f7f5;
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0 24px;
+}
+.toc-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+.toc-item {
+  padding: 2px 0;
+}
+.toc-item a {
+  font-size: 13px;
+  color: #555;
+}
+.toc-item a:hover {
+  color: #0075de;
+}
+
+/* Section */
+.doc-section {
+  margin-bottom: 60px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid rgba(0,0,0,0.1);
+}
+.doc-section:last-child {
+  border-bottom: none;
+}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<div class="sidebar-title">高级 Prompt 模式</div>
+<div class="sidebar-section">
+<div class="sidebar-section-title">高级 Prompt 模式</div>
+<a href="#ReAct推理行动循环" class="sidebar-link">ReAct: Reasoning + Acting 推理行动循环 进阶</a>
+<a href="#Plan-and-Execute模式" class="sidebar-link">Plan-and-Execute 规划执行模式 进阶</a>
+<a href="#Reflexion自我反思" class="sidebar-link">Reflexion 自我反思模式 高级</a>
+<a href="#Tree-of-Thoughts思维树" class="sidebar-link">Tree-of-Thoughts 思维树 高级</a>
+<a href="#LATS语言Agent树搜索" class="sidebar-link">LATS: Language Agent Tree Search 语言Agent树搜索 高级</a>
+</div>
+</nav>
+
+<main class="content">
+<section id="ReAct推理行动循环" class="doc-section">
+<h1>ReAct: Reasoning + Acting 推理行动循环 进阶</h1>
+<span class="difficulty-badge" style="background:#f39c1220;color:#f39c12;border:1px solid #f39c1240">进阶</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--核心思想">2. 核心思想</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--标准-ReAct-提示格式">3. 标准 ReAct 提示格式</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--LangChain-实现">4. LangChain 实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-使用内置-ReAct-Agent">4.1 使用内置 ReAct Agent</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-自定义-ReAct-Agent（LangGraph）">4.2 自定义 ReAct Agent（LangGraph）</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-3-循环控制流程图">4.3 循环控制流程图</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--完整示例：多工具-ReAct-Agent">5. 完整示例：多工具 ReAct Agent</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--ReAct-的优势与局限">6. ReAct 的优势与局限</a></div><div class="toc-item" style="padding-left:20px"><a href="#优势">优势</a></div><div class="toc-item" style="padding-left:20px"><a href="#局限">局限</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--最佳实践">7. 最佳实践</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--与其他模式的对比">8. 与其他模式的对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控机器人的-ReAct-循环">场景一：评论监控机器人的 ReAct 循环</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成的多步推理">场景二：视频生成的多步推理</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的-ReAct-本质">场景三：Hermes Agent 的 ReAct 本质</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--参考资料">9. 参考资料</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>ReAct 是 Agent 推理模式的<strong>基石范式</strong>，将推理（Thought）与行动（Action）交织循环，是所有现代 Agent 框架的底层推理机制。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 08-提示词工程 ← 基础：CoT 是 ReAct 的推理组件
+├── 07-MCP协议 ← 工具层：ReAct 的 Action 通过 MCP 调用
+├── 14-高级Prompt模式 ← 推理层（你在这里）
+│   ├── 01-ReAct推理行动循环 ✅ ← 基石范式
+│   ├── 02-Plan-and-Execute模式 ← 全局规划
+│   ├── 03-Reflexion自我反思 ← 迭代改进
+│   ├── 04-Tree-of-Thoughts思维树 ← 树搜索
+│   └── 05-LATS语言Agent树搜索 ← MCTS+Agent
+├── 12-Agent记忆系统 ← ReAct 中的上下文管理
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：ReAct 是理解所有 Agent 框架推理机制的基础。CrewAI、AutoGen、LangChain 的 Agent 底层都使用 ReAct 循环。掌握 ReAct 就掌握了 Agent 开发的核心。</p>
+<h2>1. 概述</h2>
+<p>ReAct（Reasoning + Acting）由 Yao et al. (2022) 提出，将<strong>推理（Thought）</strong>与<strong>行动（Action）</strong>交织在一个循环中，让 LLM 能够像人类一样"边想边做"。</p>
+<p><strong>论文</strong>: <em>ReAct: Synergizing Reasoning and Acting in Language Models</em> (ICLR 2023)</p>
+<h2>2. 核心思想</h2>
+<p>传统方法存在两种极端：</p>
+<ul><li><strong>纯推理（Chain-of-Thought）</strong>: 只思考不行动，无法获取外部信息</li><li><strong>纯行动（Act-only）</strong>: 只执行不推理，容易陷入错误循环</li></ul>
+<p>ReAct 将两者结合：</p>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────┐
+│              ReAct 循环                      │
+│                                             │
+│   Thought → Action → Observation → Thought  │
+│     ↑                              │        │
+│     └──────────────────────────────┘        │
+│                                             │
+│   Thought:   推理当前状态，规划下一步         │
+│   Action:    调用工具/执行操作               │
+│   Observation: 获取操作结果                  │
+└─────────────────────────────────────────────┘</code></pre></div>
+<h2>3. 标准 ReAct 提示格式</h2>
+<div class="code-block"><pre><code>Question: 奥巴马的妻子出生在哪个城市？
+
+Thought 1: 我需要搜索奥巴马的妻子是谁。
+Action 1: Search[奥巴马的妻子]
+Observation 1: 米歇尔·奥巴马，1964年1月17日出生于伊利诺伊州芝加哥。
+
+Thought 2: 米歇尔·奥巴马出生在芝加哥。
+Action 2: Finish[芝加哥]
+Observation 2: 结束。</code></pre></div>
+<h2>4. LangChain 实现</h2>
+<h3>4.1 使用内置 ReAct Agent</h3>
+<div class="code-block"><pre><code class="language-python">from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain_community.tools import TavilySearchResults
+from langchain import hub
+
+# 初始化 LLM 和工具
+llm = ChatOpenAI(model=&quot;gpt-4o&quot;)
+tools = [TavilySearchResults(max_results=3)]
+
+# 使用 ReAct prompt 模板
+prompt = hub.pull(&quot;hwchase17/react&quot;)
+
+# 创建 ReAct Agent
+agent = create_react_agent(llm, tools, prompt)
+executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    verbose=True,
+    max_iterations=10,      # 防止无限循环
+    handle_parsing_errors=True
+)
+
+result = executor.invoke({&quot;input&quot;: &quot;2024年诺贝尔物理学奖得主是谁？他们的研究贡献是什么？&quot;})
+print(result[&quot;output&quot;])</code></pre></div>
+<h3>4.2 自定义 ReAct Agent（LangGraph）</h3>
+<div class="code-block"><pre><code class="language-python">from langgraph.graph import StateGraph, END
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+from typing import TypedDict, Annotated, Sequence
+import operator
+
+class AgentState(TypedDict):
+    messages: Annotated[Sequence, operator.add]
+    intermediate_steps: list
+
+def reasoning_node(state: AgentState) -&gt; AgentState:
+    &quot;&quot;&quot;Thought: 推理节点 — 分析当前状态，决定下一步&quot;&quot;&quot;
+    messages = state[&quot;messages&quot;]
+    steps = state.get(&quot;intermediate_steps&quot;, [])
+
+    # 构造推理 prompt
+    scratchpad = &quot;&quot;
+    for action, observation in steps:
+        scratchpad += f&quot;Action: {action.tool}({action.tool_input})\n&quot;
+        scratchpad += f&quot;Observation: {observation}\n&quot;
+
+    prompt = f&quot;&quot;&quot;你是一个 ReAct Agent。根据问题和历史步骤推理。
+
+{scratchpad}
+
+请输出下一步行动（JSON格式）:
+{{&quot;action&quot;: &quot;tool_name&quot;, &quot;action_input&quot;: &quot;input&quot;}}
+或直接回答: {{&quot;action&quot;: &quot;finish&quot;, &quot;action_input&quot;: &quot;最终答案&quot;}}&quot;&quot;&quot;
+
+    response = llm.invoke([messages[-1], HumanMessage(content=prompt)])
+    return {&quot;messages&quot;: [response]}
+
+def action_node(state: AgentState) -&gt; AgentState:
+    &quot;&quot;&quot;Action + Observation: 执行工具并观察结果&quot;&quot;&quot;
+    last_msg = state[&quot;messages&quot;][-1]
+    action = parse_action(last_msg.content)  # 解析 JSON
+
+    if action[&quot;action&quot;] == &quot;finish&quot;:
+        return {&quot;messages&quot;: [AIMessage(content=action[&quot;action_input&quot;])]}
+
+    # 执行工具
+    tool = tool_map[action[&quot;action&quot;]]
+    result = tool.invoke(action[&quot;action_input&quot;])
+
+    return {
+        &quot;intermediate_steps&quot;: [(action, result)]
+    }
+
+def should_continue(state: AgentState) -&gt; str:
+    last = state[&quot;messages&quot;][-1]
+    if isinstance(last, AIMessage) and &quot;finish&quot; not in last.content.lower():
+        return &quot;reason&quot;
+    return END
+
+# 构建 LangGraph
+graph = StateGraph(AgentState)
+graph.add_node(&quot;reason&quot;, reasoning_node)
+graph.add_node(&quot;act&quot;, action_node)
+graph.set_entry_point(&quot;reason&quot;)
+graph.add_conditional_edges(&quot;reason&quot;, should_continue, {&quot;reason&quot;: &quot;act&quot;, END: END})
+graph.add_edge(&quot;act&quot;, &quot;reason&quot;)
+
+app = graph.compile()</code></pre></div>
+<h3>4.3 循环控制流程图</h3>
+<div class="code-block"><pre><code>          ┌──────────┐
+          │  开始     │
+          └────┬─────┘
+               ▼
+     ┌─────────────────┐
+     │  Thought: 推理   │◄─────────────┐
+     └────────┬────────┘              │
+              ▼                       │
+     ┌─────────────────┐              │
+     │  是否需要行动？   │              │
+     └──┬──────────┬───┘              │
+     是 │          │ 否               │
+        ▼          ▼                  │
+  ┌──────────┐  ┌──────────┐         │
+  │Action:   │  │ 直接回答  │         │
+  │调用工具   │  └────┬─────┘         │
+  └────┬─────┘       ▼               │
+       ▼         ┌──────────┐        │
+  ┌──────────┐   │   结束    │        │
+  │Observation│  └──────────┘        │
+  │获取结果   │                       │
+  └────┬─────┘                       │
+       │  将结果追加到上下文           │
+       └──────────────────────────────┘</code></pre></div>
+<h2>5. 完整示例：多工具 ReAct Agent</h2>
+<div class="code-block"><pre><code class="language-python">from langchain_core.tools import tool
+from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import create_react_agent
+
+@tool
+def search_wikipedia(query: str) -&gt; str:
+    &quot;&quot;&quot;搜索维基百科获取信息&quot;&quot;&quot;
+    import requests
+    resp = requests.get(f&quot;https://zh.wikipedia.org/api/rest_v1/page/summary/{query}&quot;)
+    return resp.json().get(&quot;extract&quot;, &quot;未找到相关信息&quot;)
+
+@tool
+def calculator(expression: str) -&gt; str:
+    &quot;&quot;&quot;计算数学表达式&quot;&quot;&quot;
+    try:
+        return str(eval(expression))
+    except Exception as e:
+        return f&quot;计算错误: {e}&quot;
+
+@tool
+def python_repl(code: str) -&gt; str:
+    &quot;&quot;&quot;执行 Python 代码&quot;&quot;&quot;
+    import subprocess
+    result = subprocess.run(
+        [&quot;python3&quot;, &quot;-c&quot;, code], capture_output=True, text=True, timeout=10
+    )
+    return result.stdout or result.stderr
+
+# 使用 LangGraph 内置 ReAct Agent
+llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+agent = create_react_agent(llm, [search_wikipedia, calculator, python_repl])
+
+result = await agent.ainvoke({
+    &quot;messages&quot;: [(&quot;user&quot;, &quot;地球到太阳的平均距离是多少公里？光从太阳到地球需要多少分钟？&quot;)]
+})</code></pre></div>
+<h2>6. ReAct 的优势与局限</h2>
+<h3>优势</h3>
+<table><thead><tr><th>维度</th><th>说明</th></tr></thead><tbody><tr><td>可解释性</td><td>每一步推理过程清晰可见</td></tr><tr class="alt"><td>可靠性</td><td>接地气 —— 用真实数据而非模型幻觉</td></tr><tr><td>灵活性</td><td>可组合任意工具</td></tr><tr class="alt"><td>容错性</td><td>可根据 Observation 修正方向</td></tr></tbody></table>
+<h3>局限</h3>
+<table><thead><tr><th>问题</th><th>描述</th></tr></thead><tbody><tr><td>效率低</td><td>每步都需要 LLM 调用，延迟高</td></tr><tr class="alt"><td>单步视野</td><td>没有全局规划，可能走弯路</td></tr><tr><td>token 消耗</td><td>中间步骤积累大量上下文</td></tr><tr class="alt"><td>循环风险</td><td>可能反复调用同一工具</td></tr></tbody></table>
+<h2>7. 最佳实践</h2>
+<ol><li><strong>限制迭代次数</strong>: 设置 <code class="inline">max_iterations=8-15</code></li><li><strong>工具描述要精确</strong>: 工具的 docstring 直接影响 Agent 选择</li><li><strong>加入回退机制</strong>: 检测循环并强制终止</li><li><strong>压缩历史</strong>: 当中间步骤过多时，用摘要替代完整历史</li><li><strong>流式输出</strong>: 使用 <code class="inline">stream()</code> 实时展示推理过程</li></ol>
+<h2>8. 与其他模式的对比</h2>
+<div class="code-block"><pre><code>┌────────────┬──────────────┬──────────────┬──────────────┐
+│   模式      │  推理方式     │  规划能力     │  适用场景     │
+├────────────┼──────────────┼──────────────┼──────────────┤
+│ ReAct      │ 逐步推理      │ 无全局规划    │ 简单多步任务   │
+│ Plan&amp;Exec  │ 先规划再执行   │ 强全局规划    │ 复杂多步任务   │
+│ Reflexion  │ 推理+自我反思  │ 迭代改进      │ 需要高准确性   │
+│ ToT        │ 树状搜索      │ 多路径探索    │ 创意/推理题    │
+└────────────┴──────────────┴──────────────┴──────────────┘</code></pre></div>
+<h2>落地实践</h2>
+<h3>场景一：评论监控机器人的 ReAct 循环</h3>
+<div class="code-block"><pre><code>Thought: 用户要求监控B站某UP主的评论 → 需要先获取最新视频
+Action: search_videos(uploader=&quot;xxx&quot;)
+Observation: 找到3个新视频
+Thought: 需要获取每个视频的评论
+Action: get_comments(video_id=&quot;v1&quot;)
+Observation: 获取到50条评论
+Thought: 对评论进行情感分析
+Action: analyze_sentiment(comments)</code></pre></div>
+<h3>场景二：视频生成的多步推理</h3>
+<p>用 ReAct 模式实现视频生成：Thought（分析选题热度）→ Action（搜索热门话题）→ Observation（获取数据）→ Thought（生成脚本大纲）→ Action（调用 LLM 生成脚本）→ ...</p>
+<h3>场景三：Hermes Agent 的 ReAct 本质</h3>
+<p>Hermes Agent 的 tool_call → result → next_action 循环就是 ReAct 模式的实现。理解 ReAct 有助于优化 Hermes 的工具调用策略和错误恢复机制。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>CoT 推理</th><th><a class="wikilink" href="#02-思维链CoT">02-思维链CoT</a></th><th>ReAct 的推理组件来自 CoT</th></tr></thead><tbody><tr><td>规划执行</td><td><a class="wikilink" href="#02-Plan-and-Execute模式">02-Plan-and-Execute模式</a></td><td>ReAct 的局限：无全局规划</td></tr><tr class="alt"><td>自我反思</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>Reflexion = ReAct + 反思记忆</td></tr><tr><td>思维树</td><td><a class="wikilink" href="#04-Tree-of-Thoughts思维树">04-Tree-of-Thoughts思维树</a></td><td>ToT 突破 ReAct 的线性限制</td></tr><tr class="alt"><td>框架实现</td><td><a class="wikilink" href="#CrewAI多智能体协作">CrewAI多智能体协作</a></td><td>CrewAI Agent 底层使用 ReAct</td></tr><tr><td>记忆管理</td><td><a class="wikilink" href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a></td><td>ReAct 循环中的上下文管理</td></tr><tr class="alt"><td>实战项目</td><td><a class="wikilink" href="#02-Agent-SDK开发指南">02-Agent-SDK开发指南</a></td><td>SDK 中的 ReAct 执行循环</td></tr></tbody></table>
+<h2>9. 参考资料</h2>
+<ul><li><a href="https://arxiv.org/abs/2210.03629">ReAct 论文</a></li><li><a href="https://python.langchain.com/docs/modules/agents/">LangChain ReAct Agent 文档</a></li><li><a href="https://langchain-ai.github.io/langgraph/">LangGraph ReAct Agent</a></li></ul>
+</section>
+<section id="Plan-and-Execute模式" class="doc-section">
+<h1>Plan-and-Execute 规划执行模式 进阶</h1>
+<span class="difficulty-badge" style="background:#f39c1220;color:#f39c12;border:1px solid #f39c1240">进阶</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--与-ReAct-的核心区别">2. 与 ReAct 的核心区别</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--架构设计">3. 架构设计</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--LangGraph-实现">4. LangGraph 实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-完整实现">4.1 完整实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-使用-LangChain-Plan-and-Execute-包">4.2 使用 LangChain Plan-and-Execute 包</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--动态重规划策略">5. 动态重规划策略</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--Planner-选择策略">6. Planner 选择策略</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--ReAct-vs-Plan-and-Execute-对比">7. ReAct vs Plan-and-Execute 对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--适用场景">8. 适用场景</a></div><div class="toc-item" style="padding-left:20px"><a href="#适合-Plan-and-Execute">适合 Plan-and-Execute</a></div><div class="toc-item" style="padding-left:20px"><a href="#不适合">不适合</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--最佳实践">9. 最佳实践</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控的-Plan-and-Execute">场景一：评论监控的 Plan-and-Execute</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成的全局规划">场景二：视频生成的全局规划</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的任务规划">场景三：Hermes Agent 的任务规划</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#10--参考资料">10. 参考资料</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>Plan-and-Execute 是 Agent 推理模式的<strong>进阶范式</strong>，将任务分解为规划和执行两个阶段，解决 ReAct 缺乏全局视野的问题。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 14-高级Prompt模式 ← 推理层（你在这里）
+│   ├── 01-ReAct推理行动循环 ← 基石：边想边做
+│   ├── 02-Plan-and-Execute模式 ✅ ← 进阶：先想后做
+│   ├── 03-Reflexion自我反思 ← 迭代改进
+│   ├── 04-Tree-of-Thoughts思维树 ← 树搜索
+│   └── 05-LATS语言Agent树搜索 ← MCTS+Agent
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：Plan-and-Execute 适合复杂的多步骤任务（如视频生成流水线、数据分析 pipeline）。掌握 Planner-Executor-Replanner 架构，能构建更可靠的 Agent 系统。</p>
+<h2>1. 概述</h2>
+<p>Plan-and-Execute 模式将任务分解为<strong>规划（Plan）</strong>和<strong>执行（Execute）</strong>两个阶段，由一个 Planner 负责制定计划，一个 Executor 负责逐步执行，实现"先想清楚再动手"。</p>
+<p><strong>论文</strong>: <em>Plan-and-Solve Prompting</em> (Wang et al., 2023) 和 <em>BabyAGI</em> (Nakajima, 2023)</p>
+<h2>2. 与 ReAct 的核心区别</h2>
+<div class="code-block"><pre><code>ReAct 模式（边想边做）:
+  Thought → Action → Obs → Thought → Action → Obs → ...
+  特点: 无全局规划，每步决定下一步
+
+Plan-and-Execute 模式（先想后做）:
+  ┌──────────────────────────────────────┐
+  │  Phase 1: Plan                       │
+  │  输入 → Planner → [Step1, Step2, ...]│
+  └──────────────────┬───────────────────┘
+                     ▼
+  ┌──────────────────────────────────────┐
+  │  Phase 2: Execute                    │
+  │  Step1 → Executor → Result1          │
+  │  Step2 → Executor → Result2          │
+  │  ...                                 │
+  └──────────────────┬───────────────────┘
+                     ▼
+  ┌──────────────────────────────────────┐
+  │  Phase 3: Synthesize                 │
+  │  所有结果 → Synthesizer → 最终答案    │
+  └──────────────────────────────────────┘</code></pre></div>
+<h2>3. 架构设计</h2>
+<div class="code-block"><pre><code>                    ┌─────────────┐
+                    │    用户输入   │
+                    └──────┬──────┘
+                           ▼
+                  ┌─────────────────┐
+                  │    Planner      │
+                  │  (大模型/强推理) │
+                  └────────┬────────┘
+                           │ 生成计划
+                           ▼
+              ┌────────────────────────┐
+              │  Plan: [S1, S2, S3...] │
+              └───────────┬────────────┘
+                          ▼
+              ┌───────────────────────┐
+              │     Step Scheduler    │◄─── 重新规划
+              └───────────┬───────────┘
+                          ▼
+              ┌───────────────────────┐
+              │      Executor         │
+              │  (执行当前步骤 + 工具) │
+              └───────────┬───────────┘
+                          ▼
+              ┌───────────────────────┐
+              │     Re-planner?       │
+              │  是否需要调整计划？     │
+              └────┬──────────┬──────┘
+               需要 │          │ 不需要
+                   ▼          ▼
+              重新规划    ┌──────────┐
+                         │ 结果汇总  │
+                         └──────────┘</code></pre></div>
+<h2>4. LangGraph 实现</h2>
+<h3>4.1 完整实现</h3>
+<div class="code-block"><pre><code class="language-python">from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated, List, Union
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+import operator
+
+# ============ 状态定义 ============
+class PlanExecuteState(TypedDict):
+    input: str                    # 用户输入
+    plan: List[str]               # 计划步骤列表
+    current_step: int             # 当前执行到第几步
+    past_steps: Annotated[List[tuple], operator.add]  # (步骤, 结果) 历史
+    response: str                 # 最终响应
+
+# ============ Planner 节点 ============
+planner_prompt = &quot;&quot;&quot;你是一个任务规划专家。给定一个目标，将其分解为可执行的步骤。
+
+目标: {goal}
+
+请输出一个 JSON 格式的计划:
+{{&quot;steps&quot;: [&quot;步骤1描述&quot;, &quot;步骤2描述&quot;, &quot;步骤3描述&quot;, ...]}}
+
+要求:
+1. 每个步骤应该是独立可执行的
+2. 步骤之间有清晰的依赖关系
+3. 总步骤数不超过 10 步
+&quot;&quot;&quot;
+
+def plan_node(state: PlanExecuteState) -&gt; dict:
+    &quot;&quot;&quot;生成执行计划&quot;&quot;&quot;
+    llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+    response = llm.invoke([
+        SystemMessage(content=planner_prompt.format(goal=state[&quot;input&quot;]))
+    ])
+    plan = parse_json(response.content)[&quot;steps&quot;]
+    return {&quot;plan&quot;: plan, &quot;current_step&quot;: 0}
+
+# ============ Executor 节点 ============
+executor_prompt = &quot;&quot;&quot;你是一个任务执行器。根据当前步骤和历史结果执行任务。
+
+原始目标: {goal}
+
+历史执行结果:
+{history}
+
+当前需要执行的步骤: {step}
+
+请执行这个步骤，输出结果。如果有可用工具，请调用工具。&quot;&quot;&quot;
+
+def execute_node(state: PlanExecuteState) -&gt; dict:
+    &quot;&quot;&quot;执行当前步骤&quot;&quot;&quot;
+    llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+    plan = state[&quot;plan&quot;]
+    step_idx = state[&quot;current_step&quot;]
+
+    if step_idx &gt;= len(plan):
+        return {&quot;response&quot;: &quot;所有步骤已完成&quot;}
+
+    current = plan[step_idx]
+    history = &quot;\n&quot;.join(
+        f&quot;- {s}: {r}&quot; for s, r in state.get(&quot;past_steps&quot;, [])
+    )
+
+    response = llm.invoke([
+        HumanMessage(content=executor_prompt.format(
+            goal=state[&quot;input&quot;], history=history, step=current
+        ))
+    ])
+
+    return {
+        &quot;past_steps&quot;: [(current, response.content)],
+        &quot;current_step&quot;: step_idx + 1
+    }
+
+# ============ Re-planner 节点 ============
+replanner_prompt = &quot;&quot;&quot;你是计划审查员。根据已执行的步骤，决定是否需要修改剩余计划。
+
+原始目标: {goal}
+当前计划: {plan}
+已执行步骤: {past_steps}
+
+选项:
+1. 继续执行剩余计划 - 输出 {{&quot;action&quot;: &quot;continue&quot;}}
+2. 修改计划 - 输出 {{&quot;action&quot;: &quot;replan&quot;, &quot;new_steps&quot;: [...]}}
+3. 直接给出答案 - 输出 {{&quot;action&quot;: &quot;finish&quot;, &quot;answer&quot;: &quot;...&quot;}}
+&quot;&quot;&quot;
+
+def replan_node(state: PlanExecuteState) -&gt; dict:
+    &quot;&quot;&quot;审查并可能调整计划&quot;&quot;&quot;
+    llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+    response = llm.invoke([
+        HumanMessage(content=replanner_prompt.format(
+            goal=state[&quot;input&quot;],
+            plan=state[&quot;plan&quot;][state[&quot;current_step&quot;]:],
+            past_steps=state.get(&quot;past_steps&quot;, [])
+        ))
+    ])
+    decision = parse_json(response.content)
+
+    if decision[&quot;action&quot;] == &quot;finish&quot;:
+        return {&quot;response&quot;: decision[&quot;answer&quot;]}
+    elif decision[&quot;action&quot;] == &quot;replan&quot;:
+        return {&quot;plan&quot;: decision[&quot;new_steps&quot;], &quot;current_step&quot;: 0}
+    return {}
+
+# ============ 条件路由 ============
+def should_end(state: PlanExecuteState) -&gt; str:
+    if state.get(&quot;response&quot;):
+        return END
+    if state[&quot;current_step&quot;] &gt;= len(state[&quot;plan&quot;]):
+        return &quot;replan&quot;
+    return &quot;replan&quot;  # 每步执行后都检查是否需要重新规划
+
+def after_replan(state: PlanExecuteState) -&gt; str:
+    if state.get(&quot;response&quot;):
+        return END
+    return &quot;execute&quot;
+
+# ============ 构建图 ============
+graph = StateGraph(PlanExecuteState)
+graph.add_node(&quot;plan&quot;, plan_node)
+graph.add_node(&quot;execute&quot;, execute_node)
+graph.add_node(&quot;replan&quot;, replan_node)
+
+graph.set_entry_point(&quot;plan&quot;)
+graph.add_edge(&quot;plan&quot;, &quot;execute&quot;)
+graph.add_conditional_edges(&quot;execute&quot;, should_end, {&quot;replan&quot;: &quot;replan&quot;, END: END})
+graph.add_conditional_edges(&quot;replan&quot;, after_replan, {&quot;execute&quot;: &quot;execute&quot;, END: END})
+
+app = graph.compile()
+
+# ============ 运行 ============
+result = app.invoke({
+    &quot;input&quot;: &quot;帮我调研2024年大语言模型的最新进展，并写一份200字的总结&quot;
+})
+print(result[&quot;response&quot;])</code></pre></div>
+<h3>4.2 使用 LangChain Plan-and-Execute 包</h3>
+<div class="code-block"><pre><code class="language-python">from langchain_experimental.plan_and_execute import (
+    PlanAndExecute,
+    load_agent_executor,
+    load_chat_planner,
+)
+
+llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+planner = load_chat_planner(llm)
+executor = load_agent_executor(llm, tools, verbose=True)
+
+agent = PlanAndExecute(
+    planner=planner,
+    executor=executor,
+    verbose=True,
+    max_iterations=15
+)
+
+result = agent.invoke({
+    &quot;input&quot;: &quot;比较 Python 和 Rust 的性能差异，给出基准测试数据&quot;
+})</code></pre></div>
+<h2>5. 动态重规划策略</h2>
+<div class="code-block"><pre><code>执行 Step 2 后发现新信息
+          │
+          ▼
+    ┌──────────┐
+    │ Re-planner│
+    └─────┬────┘
+          │
+    ┌─────┼──────────────┐──────────────┐
+    ▼     ▼              ▼              ▼
+  继续   插入新步骤      替换后续步骤    直接完成
+  执行   [S2.5, S3...]   [新S3, 新S4]   返回答案</code></pre></div>
+<p>重规划的关键原则：</p>
+<ol><li><strong>最小修改</strong>: 只调整受影响的步骤</li><li><strong>保留已完成</strong>: 已执行步骤的结果不丢弃</li><li><strong>目标一致</strong>: 修改后的计划仍指向原始目标</li></ol>
+<h2>6. Planner 选择策略</h2>
+<table><thead><tr><th>场景</th><th>推荐 Planner</th><th>原因</th></tr></thead><tbody><tr><td>简单任务（<3步）</td><td>单次 LLM 调用</td><td>低延迟，够用</td></tr><tr class="alt"><td>中等任务（3-8步）</td><td>ReAct + 规划 prompt</td><td>平衡灵活性</td></tr><tr><td>复杂任务（>8步）</td><td>专用规划模型/多轮</td><td>需要深度思考</td></tr><tr class="alt"><td>需要领域知识</td><td>RAG + Planner</td><td>接入知识库</td></tr></tbody></table>
+<h2>7. ReAct vs Plan-and-Execute 对比</h2>
+<div class="code-block"><pre><code>┌─────────────────┬────────────────────┬────────────────────┐
+│     维度         │      ReAct         │  Plan-and-Execute  │
+├─────────────────┼────────────────────┼────────────────────┤
+│ 规划方式         │ 隐式（每步推理）     │ 显式（预先规划）     │
+│ 全局视野         │ ❌ 只看当前步        │ ✅ 有全局计划        │
+│ 容错能力         │ ✅ 每步可调整        │ ✅ 可重规划          │
+│ 延迟             │ 较低                │ 较高（规划阶段）      │
+│ Token 消耗       │ 中等                │ 较高                │
+│ 适合任务         │ 探索性、简单任务     │ 结构化、复杂任务     │
+│ 实现复杂度       │ 低                  │ 中                  │
+│ 可解释性         │ ✅ 逐步可见          │ ✅ 计划+执行均可见    │
+└─────────────────┴────────────────────┴────────────────────┘</code></pre></div>
+<h2>8. 适用场景</h2>
+<h3>适合 Plan-and-Execute</h3>
+<ul><li>多步骤研究任务（调研 → 分析 → 总结）</li><li>数据处理流水线（采集 → 清洗 → 分析 → 可视化）</li><li>代码项目生成（设计 → 编码 → 测试）</li><li>旅行规划、项目管理</li></ul>
+<h3>不适合</h3>
+<ul><li>简单问答（直接调用工具即可）</li><li>需要高度交互的任务（更适合 ReAct）</li><li>步骤完全未知的探索性任务</li></ul>
+<h2>9. 最佳实践</h2>
+<ol><li><strong>计划粒度适中</strong>: 步骤不要太粗也不要太细</li><li><strong>加入 Re-planning</strong>: 初始计划不可能完美，允许动态调整</li><li><strong>限制计划长度</strong>: 一般不超过 10 步</li><li><strong>并行执行</strong>: 无依赖的步骤可并行（LangGraph 支持）</li><li><strong>错误恢复</strong>: 某步失败时自动重试或跳过</li></ol>
+<h2>落地实践</h2>
+<h3>场景一：评论监控的 Plan-and-Execute</h3>
+<div class="code-block"><pre><code>Plan: [1.配置监控目标 2.定时采集评论 3.情感分析 4.生成报告 5.发送通知]
+Execute: Step 1 → Step 2 → 发现新视频 → Replan: [2.5 获取新视频评论] → 继续</code></pre></div>
+<h3>场景二：视频生成的全局规划</h3>
+<p>Plan-and-Execute 天然适合视频生成：Planner 生成完整流水线（选题→脚本→素材→配音→合成），Executor 逐步执行，Re-planner 根据中间结果调整（如素材不足时更换风格）。</p>
+<h3>场景三：Hermes Agent 的任务规划</h3>
+<p>Hermes Agent 处理复杂任务时，可以用 Plan-and-Execute 模式：先用 LLM 生成执行计划，再逐步调用工具执行，遇到意外时重新规划。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>ReAct</th><th><a class="wikilink" href="#01-ReAct推理行动循环">01-ReAct推理行动循环</a></th><th>对比：ReAct 无全局规划 vs Plan-Execute 有</th></tr></thead><tbody><tr><td>Reflexion</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>结合：Plan-Execute + 反思改进</td></tr><tr class="alt"><td>框架实现</td><td><a class="wikilink" href="#MetaGPT软件开发智能体">MetaGPT软件开发智能体</a></td><td>MetaGPT 的 SOP 就是 Plan-Execute</td></tr><tr><td>框架实现</td><td><a class="wikilink" href="#AutoGen对话式多智能体">AutoGen对话式多智能体</a></td><td>AutoGen 的 Planner Agent</td></tr><tr class="alt"><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融系统的业务流程规划</td></tr></tbody></table>
+<h2>10. 参考资料</h2>
+<ul><li><a href="https://arxiv.org/abs/2305.04091">Plan-and-Solve Prompting</a></li><li><a href="https://langchain-ai.github.io/langgraph/tutorials/plan-and-execute/">LangGraph Plan-and-Execute Tutorial</a></li><li><a href="https://github.com/yoheinakajima/babyagi">BabyAGI</a></li></ul>
+</section>
+<section id="Reflexion自我反思" class="doc-section">
+<h1>Reflexion 自我反思模式 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--核心思想">2. 核心思想</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--架构">3. 架构</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--LangGraph-实现">4. LangGraph 实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-1-完整实现">4.1 完整实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#4-2-带记忆的-Reflexion">4.2 带记忆的 Reflexion</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--评估器设计">5. 评估器设计</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-不同任务类型的评估策略">5.1 不同任务类型的评估策略</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-带单元测试的代码评估">5.2 带单元测试的代码评估</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--Reflexion-的记忆机制">6. Reflexion 的记忆机制</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--与其他模式的关系">7. 与其他模式的关系</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--实验结果（论文数据）">8. 实验结果（论文数据）</a></div><div class="toc-item" style="padding-left:20px"><a href="#HumanEval-代码生成">HumanEval 代码生成</a></div><div class="toc-item" style="padding-left:20px"><a href="#AlfWorld-决策任务">AlfWorld 决策任务</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--最佳实践">9. 最佳实践</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论回复的自我改进">场景一：评论回复的自我改进</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频脚本的迭代优化">场景二：视频脚本的迭代优化</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的错误恢复">场景三：Hermes Agent 的错误恢复</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#10--参考资料">10. 参考资料</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>Reflexion 是 Agent 推理模式的<strong>迭代改进范式</strong>，通过自我反思将失败经验转化为语言化记忆，实现"从错误中学习"。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 14-高级Prompt模式 ← 推理层（你在这里）
+│   ├── 01-ReAct推理行动循环 ← 基石
+│   ├── 02-Plan-and-Execute模式 ← 规划
+│   ├── 03-Reflexion自我反思 ✅ ← 迭代改进
+│   ├── 04-Tree-of-Thoughts思维树 ← 树搜索
+│   └── 05-LATS语言Agent树搜索 ← MCTS+Agent
+├── 12-Agent记忆系统 ← 反思记忆的存储
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：Reflexion 将 Agent 的单次尝试变为迭代改进，在代码生成（HumanEval Pass@1 从67%提升到91%）和决策任务（成功率75%→97%）上有显著效果。</p>
+<h2>1. 概述</h2>
+<p>Reflexion（Shinn et al., 2023）让 Agent 在执行任务后进行<strong>自我反思</strong>，将失败经验转化为语言化的记忆，指导后续尝试。核心理念：<strong>"从错误中学习"</strong>。</p>
+<p><strong>论文</strong>: <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em> (NeurIPS 2023)</p>
+<h2>2. 核心思想</h2>
+<p>传统 Agent 的问题：执行失败后重试，仍会犯同样的错误。</p>
+<p>Reflexion 的解法：</p>
+<div class="code-block"><pre><code>传统模式:
+  尝试1: 失败 → 重试 → 失败 → 重试 → 失败（无记忆）
+
+Reflexion 模式:
+  尝试1: 失败 → 反思: &quot;我错在哪&quot; → 存入记忆
+  尝试2: 读取记忆 + 重试 → 改进 → 失败 → 反思 → 存入记忆
+  尝试3: 读取所有反思 + 重试 → 成功 ✓</code></pre></div>
+<h2>3. 架构</h2>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Reflexion 循环                        │
+│                                                         │
+│  ┌──────────┐    ┌──────────┐    ┌──────────────────┐   │
+│  │ Actor    │───▶│Evaluator │───▶│ Self-Reflection  │   │
+│  │ 执行任务  │    │ 评估结果  │    │ 反思失败原因     │   │
+│  └──────────┘    └────┬─────┘    └────────┬─────────┘   │
+│       ▲               │                   │             │
+│       │          通过？│              存入记忆            │
+│       │          ┌────┴────┐               │             │
+│       │          │         │               │             │
+│       │         是        否               │             │
+│       │          │         │               │             │
+│       │          ▼         └───────────────┘             │
+│       │       ┌──────┐           │                      │
+│       │       │ 完成  │           ▼                      │
+│       │       └──────┘    ┌──────────────┐              │
+│       │                   │ 短期记忆      │              │
+│       └───────────────────│ (反思笔记)    │              │
+│                           └──────────────┘              │
+└─────────────────────────────────────────────────────────┘
+
+三个核心组件:
+┌─────────────┬──────────────────────────────────────────┐
+│ Actor       │ 执行任务的 Agent（如 ReAct Agent）        │
+│ Evaluator   │ 评估执行结果（打分/判断对错）              │
+│ Reflector   │ 生成语言化反思，总结失败教训               │
+└─────────────┴──────────────────────────────────────────┘</code></pre></div>
+<h2>4. LangGraph 实现</h2>
+<h3>4.1 完整实现</h3>
+<div class="code-block"><pre><code class="language-python">from langgraph.graph import StateGraph, END
+from typing import TypedDict, List, Optional
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+
+class ReflexionState(TypedDict):
+    task: str                          # 原始任务
+    attempt: int                       # 当前尝试次数
+    max_attempts: int                  # 最大尝试次数
+    trajectory: str                    # 当前执行轨迹
+    result: str                        # 执行结果
+    is_correct: bool                   # 是否正确
+    reflections: List[str]             # 历次反思记录
+    best_result: Optional[str]         # 最佳结果
+
+llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0)
+
+# ============ Actor: 执行任务 ============
+def actor_node(state: ReflexionState) -&gt; dict:
+    reflections = &quot;\n&quot;.join(f&quot;- {r}&quot; for r in state.get(&quot;reflections&quot;, []))
+    prompt = f&quot;&quot;&quot;你是一个智能助手。请完成以下任务。
+
+任务: {state[&quot;task&quot;]}
+
+{&quot;历史反思（请避免重复这些错误）:&quot; + chr(10) + reflections if reflections else &quot;&quot;}
+
+请仔细思考并执行任务。&quot;&quot;&quot;
+
+    response = llm.invoke([HumanMessage(content=prompt)])
+    return {
+        &quot;trajectory&quot;: response.content,
+        &quot;attempt&quot;: state[&quot;attempt&quot;] + 1
+    }
+
+# ============ Evaluator: 评估结果 ============
+def evaluator_node(state: ReflexionState) -&gt; dict:
+    prompt = f&quot;&quot;&quot;评估以下任务的执行结果是否正确。
+
+任务: {state[&quot;task&quot;]}
+执行结果: {state[&quot;trajectory&quot;]}
+
+请判断结果是否正确，输出 JSON:
+{{&quot;is_correct&quot;: true/false, &quot;score&quot;: 0-100, &quot;feedback&quot;: &quot;简要评价&quot;}}&quot;&quot;&quot;
+
+    response = llm.invoke([HumanMessage(content=prompt)])
+    eval_result = parse_json(response.content)
+
+    return {
+        &quot;is_correct&quot;: eval_result[&quot;is_correct&quot;],
+        &quot;result&quot;: state[&quot;trajectory&quot;]
+    }
+
+# ============ Reflector: 自我反思 ============
+def reflector_node(state: ReflexionState) -&gt; dict:
+    prompt = f&quot;&quot;&quot;你之前的执行失败了，请深入反思原因。
+
+任务: {state[&quot;task&quot;]}
+你的回答: {state[&quot;trajectory&quot;]}
+评估反馈: 结果不正确
+
+请反思:
+1. 哪里出错了？
+2. 为什么出错？
+3. 下次应该如何改进？
+
+输出一段简洁的反思（2-3句话）。&quot;&quot;&quot;
+
+    response = llm.invoke([HumanMessage(content=prompt)])
+    reflections = state.get(&quot;reflections&quot;, []) + [response.content]
+
+    return {&quot;reflections&quot;: reflections}
+
+# ============ 路由 ============
+def after_evaluate(state: ReflexionState) -&gt; str:
+    if state[&quot;is_correct&quot;]:
+        return END
+    if state[&quot;attempt&quot;] &gt;= state[&quot;max_attempts&quot;]:
+        return END
+    return &quot;reflect&quot;
+
+def after_reflect(state: ReflexionState) -&gt; str:
+    return &quot;actor&quot;
+
+# ============ 构建图 ============
+graph = StateGraph(ReflexionState)
+graph.add_node(&quot;actor&quot;, actor_node)
+graph.add_node(&quot;evaluate&quot;, evaluator_node)
+graph.add_node(&quot;reflect&quot;, reflector_node)
+
+graph.set_entry_point(&quot;actor&quot;)
+graph.add_edge(&quot;actor&quot;, &quot;evaluate&quot;)
+graph.add_conditional_edges(&quot;evaluate&quot;, after_evaluate, {
+    END: END, &quot;reflect&quot;: &quot;reflect&quot;
+})
+graph.add_conditional_edges(&quot;reflect&quot;, after_reflect, {&quot;actor&quot;: &quot;actor&quot;})
+
+app = graph.compile()
+
+# ============ 运行 ============
+result = app.invoke({
+    &quot;task&quot;: &quot;用 Python 实现一个 LRU Cache，要求 O(1) 的 get 和 put 操作&quot;,
+    &quot;attempt&quot;: 0,
+    &quot;max_attempts&quot;: 3,
+    &quot;reflections&quot;: [],
+    &quot;is_correct&quot;: False,
+    &quot;trajectory&quot;: &quot;&quot;,
+    &quot;result&quot;: &quot;&quot;,
+    &quot;best_result&quot;: None
+})</code></pre></div>
+<h3>4.2 带记忆的 Reflexion</h3>
+<div class="code-block"><pre><code class="language-python">import chromadb
+from langchain_openai import OpenAIEmbeddings
+
+class ReflexionMemory:
+    &quot;&quot;&quot;基于向量数据库的反思记忆&quot;&quot;&quot;
+
+    def __init__(self):
+        self.client = chromadb.Client()
+        self.collection = self.client.create_collection(&quot;reflections&quot;)
+        self.embeddings = OpenAIEmbeddings()
+
+    def store(self, task: str, reflection: str, outcome: str):
+        &quot;&quot;&quot;存储反思&quot;&quot;&quot;
+        self.collection.add(
+            documents=[reflection],
+            metadatas=[{&quot;task&quot;: task, &quot;outcome&quot;: outcome}],
+            ids=[f&quot;ref_{self.collection.count()}&quot;]
+        )
+
+    def retrieve(self, task: str, k: int = 3) -&gt; List[str]:
+        &quot;&quot;&quot;检索相关反思&quot;&quot;&quot;
+        results = self.collection.query(
+            query_texts=[task],
+            n_results=k
+        )
+        return results[&quot;documents&quot;][0] if results[&quot;documents&quot;] else []
+
+# 在 reflector_node 中使用
+memory = ReflexionMemory()
+
+def reflector_with_memory(state: ReflexionState) -&gt; dict:
+    # 检索相关历史反思
+    similar_reflections = memory.retrieve(state[&quot;task&quot;])
+
+    prompt = f&quot;&quot;&quot;基于当前任务和相关历史经验进行反思。
+
+任务: {state[&quot;task&quot;]}
+执行结果: {state[&quot;trajectory&quot;]}
+相关历史经验: {similar_reflections}
+
+请输出改进反思。&quot;&quot;&quot;
+
+    response = llm.invoke([HumanMessage(content=prompt)])
+    memory.store(state[&quot;task&quot;], response.content, &quot;failure&quot;)
+
+    reflections = state.get(&quot;reflections&quot;, []) + [response.content]
+    return {&quot;reflections&quot;: reflections}</code></pre></div>
+<h2>5. 评估器设计</h2>
+<h3>5.1 不同任务类型的评估策略</h3>
+<div class="code-block"><pre><code>┌──────────────┬────────────────────────────────────┐
+│  任务类型     │  评估方法                           │
+├──────────────┼────────────────────────────────────┤
+│ 代码生成      │ 运行单元测试，检查输出              │
+│ 数学推理      │ 对比标准答案，逐步验证              │
+│ 问答任务      │ 精确匹配 / F1 分数                 │
+│ 摘要/写作     │ LLM 评估（打分）                   │
+│ 工具使用      │ 检查工具调用序列是否合理             │
+└──────────────┴────────────────────────────────────┘</code></pre></div>
+<h3>5.2 带单元测试的代码评估</h3>
+<div class="code-block"><pre><code class="language-python">def code_evaluator(state: ReflexionState) -&gt; dict:
+    &quot;&quot;&quot;通过执行代码评估结果&quot;&quot;&quot;
+    import subprocess, tempfile
+
+    code = extract_code(state[&quot;trajectory&quot;])
+    test_cases = state.get(&quot;test_cases&quot;, [])
+
+    test_code = code + &quot;\n\n&quot; + &quot;\n&quot;.join(test_cases)
+
+    with tempfile.NamedTemporaryFile(suffix=&quot;.py&quot;, mode=&quot;w&quot;) as f:
+        f.write(test_code)
+        f.flush()
+        result = subprocess.run(
+            [&quot;python3&quot;, f.name], capture_output=True, text=True, timeout=10
+        )
+
+    passed = result.returncode == 0
+    return {
+        &quot;is_correct&quot;: passed,
+        &quot;result&quot;: result.stdout if passed else result.stderr
+    }</code></pre></div>
+<h2>6. Reflexion 的记忆机制</h2>
+<div class="code-block"><pre><code>短期记忆 (Working Memory):
+┌─────────────────────────────────────────┐
+│  当前任务的反思历史                       │
+│  - 第1次: &quot;我忘了处理边界情况&quot;            │
+│  - 第2次: &quot;递归终止条件写错了&quot;            │
+│  生命周期: 仅当前任务                     │
+└─────────────────────────────────────────┘
+
+长期记忆 (Long-term Memory):
+┌─────────────────────────────────────────┐
+│  跨任务的反思知识库（向量数据库）          │
+│  - &quot;排序问题要注意稳定性&quot;                 │
+│  - &quot;Python GIL 影响多线程性能&quot;            │
+│  生命周期: 持久化，跨任务复用              │
+└─────────────────────────────────────────┘</code></pre></div>
+<h2>7. 与其他模式的关系</h2>
+<div class="code-block"><pre><code>Reflexion = ReAct + 评估 + 反思记忆
+
+┌──────────────────────────────────────────────────┐
+│                                                  │
+│  ReAct（单次尝试）                                │
+│    └── + Evaluator → Agent + 评估                │
+│         └── + Reflection → Reflexion（多次改进）  │
+│              └── + 树搜索 → LATS                  │
+│                                                  │
+└──────────────────────────────────────────────────┘</code></pre></div>
+<h2>8. 实验结果（论文数据）</h2>
+<h3>HumanEval 代码生成</h3>
+<table><thead><tr><th>方法</th><th>Pass@1</th></tr></thead><tbody><tr><td>GPT-4 (直接)</td><td>67.0%</td></tr><tr class="alt"><td>GPT-4 + Reflexion</td><td><strong>91.0%</strong></td></tr><tr><td>Codex-001</td><td>47.0%</td></tr><tr class="alt"><td>Codex-001 + Reflexion</td><td><strong>80.1%</strong></td></tr></tbody></table>
+<h3>AlfWorld 决策任务</h3>
+<table><thead><tr><th>方法</th><th>成功率</th></tr></thead><tbody><tr><td>ReAct</td><td>75%</td></tr><tr class="alt"><td>Reflexion</td><td><strong>97%</strong></td></tr></tbody></table>
+<h2>9. 最佳实践</h2>
+<ol><li><strong>限制反思次数</strong>: 通常 2-5 次足够，过多会浪费 token</li><li><strong>反思要具体</strong>: 避免"我下次要更仔细"这种泛泛反思</li><li><strong>评估要客观</strong>: 尽量用自动化评估（测试、匹配）而非纯 LLM 判断</li><li><strong>记忆要持久</strong>: 跨任务的反思最有价值</li><li><strong>结合 RAG</strong>: 从知识库检索相关经验辅助反思</li></ol>
+<h2>落地实践</h2>
+<h3>场景一：评论回复的自我改进</h3>
+<p>Agent 生成评论回复后，Evaluator 检查回复是否得体、合规。如果不合格，Reflector 反思原因（如"语气太生硬"），下次生成时参考反思结果改进。</p>
+<h3>场景二：视频脚本的迭代优化</h3>
+<p>视频脚本生成后用 LLM-as-Judge 评估，不合格时反思（如"开头不够吸引人"），重新生成时避免同样问题。限制 3 次迭代，平衡质量和成本。</p>
+<h3>场景三：Hermes Agent 的错误恢复</h3>
+<p>Hermes Agent 执行工具失败时，记录失败原因和反思，下次遇到类似任务时参考历史反思避免重复错误。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>ReAct</th><th><a class="wikilink" href="#01-ReAct推理行动循环">01-ReAct推理行动循环</a></th><th>Reflexion = ReAct + 评估 + 反思</th></tr></thead><tbody><tr><td>评估方法</td><td><a class="wikilink" href="#03-LLM-as-Judge评估方法">03-LLM-as-Judge评估方法</a></td><td>Reflexion 的 Evaluator 设计</td></tr><tr class="alt"><td>记忆系统</td><td><a class="wikilink" href="#03-MemGPT与记忆架构">03-MemGPT与记忆架构</a></td><td>自编辑记忆 vs 反思记忆</td></tr><tr><td>思维树</td><td><a class="wikilink" href="#04-Tree-of-Thoughts思维树">04-Tree-of-Thoughts思维树</a></td><td>ToT 的评估器设计参考</td></tr><tr class="alt"><td>LATS</td><td><a class="wikilink" href="#05-LATS语言Agent树搜索">05-LATS语言Agent树搜索</a></td><td>LATS = Reflexion + MCTS</td></tr><tr><td>实战项目</td><td><a class="wikilink" href="#02-Agent-SDK开发指南">02-Agent-SDK开发指南</a></td><td>SDK 中的错误处理与重试</td></tr></tbody></table>
+<h2>10. 参考资料</h2>
+<ul><li><a href="https://arxiv.org/abs/2303.11366">Reflexion 论文</a></li><li><a href="https://github.com/noahshinn/reflexion">Reflexion GitHub</a></li><li><a href="https://langchain-ai.github.io/langgraph/how-tos/">LangGraph Reflexion Agent</a></li></ul>
+</section>
+<section id="Tree-of-Thoughts思维树" class="doc-section">
+<h1>Tree-of-Thoughts 思维树 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--核心思想">2. 核心思想</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--ToT-vs-CoT-vs-Self-Consistency">3. ToT vs CoT vs Self-Consistency</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--三大组件">4. 三大组件</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--BFS-vs-DFS-搜索策略">5. BFS vs DFS 搜索策略</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-1-BFS（广度优先）">5.1 BFS（广度优先）</a></div><div class="toc-item" style="padding-left:20px"><a href="#5-2-DFS（深度优先）">5.2 DFS（深度优先）</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--完整实现">6. 完整实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-ToT-框架实现">6.1 ToT 框架实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-使用示例">6.2 使用示例</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--可视化思维树">7. 可视化思维树</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--适用场景分析">8. 适用场景分析</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--成本与优化">9. 成本与优化</a></div><div class="toc-item" style="padding-left:20px"><a href="#Token-消耗估算">Token 消耗估算</a></div><div class="toc-item" style="padding-left:20px"><a href="#优化策略">优化策略</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论舆情分析的多路径推理">场景一：评论舆情分析的多路径推理</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频选题的创意探索">场景二：视频选题的创意探索</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的复杂推理">场景三：Hermes Agent 的复杂推理</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#10--参考资料">10. 参考资料</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>ToT 是 Agent 推理模式的<strong>树搜索范式</strong>，将推理过程建模为思维树，允许 LLM 在多条推理路径上搜索、评估和回溯，突破 CoT 的线性限制。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 08-提示词工程 ← CoT 是 ToT 的基础
+├── 14-高级Prompt模式 ← 推理层（你在这里）
+│   ├── 01-ReAct推理行动循环 ← 线性推理
+│   ├── 02-Plan-and-Execute模式 ← 规划推理
+│   ├── 03-Reflexion自我反思 ← 迭代推理
+│   ├── 04-Tree-of-Thoughts思维树 ✅ ← 树搜索
+│   └── 05-LATS语言Agent树搜索 ← MCTS+Agent
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：ToT 适合需要探索性推理的任务（数学证明、创意生成、策略规划）。BFS 和 DFS 两种搜索策略覆盖不同的问题特征。</p>
+<h2>1. 概述</h2>
+<p>Tree-of-Thoughts（ToT）由 Yao et al. (2023) 提出，将推理过程建模为一棵<strong>思维树</strong>，允许 LLM 在多个推理路径上进行搜索、评估和回溯，突破了 Chain-of-Thought 的线性思维限制。</p>
+<p><strong>论文</strong>: <em>Tree of Thoughts: Deliberate Problem Solving with Large Language Models</em> (NeurIPS 2023)</p>
+<h2>2. 核心思想</h2>
+<div class="code-block"><pre><code>Chain-of-Thought（线性思维）:
+  Thought1 → Thought2 → Thought3 → Answer
+  问题: 一旦走错，无法回头
+
+Tree-of-Thoughts（树状思维）:
+                    Thought1
+                   /    |    \
+              T2_a      T2_b      T2_c        ← 推理分支
+             /   \       |       /   \
+          T3_a  T3_b   T3_c   T3_d  T3_e     ← 更多分支
+           ✓     ✗      ✓      ✗     ✓       ← 评估剪枝
+          选中                    选中  选中
+
+  关键: 探索多条路径，评估后选择最优路径继续</code></pre></div>
+<h2>3. ToT vs CoT vs Self-Consistency</h2>
+<div class="code-block"><pre><code>┌───────────────────────────────────────────────────────────┐
+│  CoT (线性):                                              │
+│  Q → T1 → T2 → T3 → A                                    │
+│                                                           │
+│  Self-Consistency (并行线性):                              │
+│  Q → T1a → T2a → A1                                       │
+│  Q → T1b → T2b → A2  → 投票 → A_final                    │
+│  Q → T1c → T2c → A3                                       │
+│                                                           │
+│  Tree-of-Thoughts (树搜索):                                │
+│  Q → T1 → [评估] → 选择最优 → T2 → [评估] → ... → A       │
+│     ↘ T1&#x27; → [评估] →                                       │
+│       ↘ T1&#x27;&#x27; → [淘汰]                                      │
+│                                                           │
+│  关键区别: ToT 在每一步都做评估和选择，而非生成后投票       │
+└───────────────────────────────────────────────────────────┘</code></pre></div>
+<h2>4. 三大组件</h2>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────┐
+│  1. Thought Generator（思维生成器）          │
+│     在每个节点生成多个候选思维               │
+│     策略:                                    │
+│     - Sample: 采样 k 个独立思维              │
+│     - Propose: 一次性提出 k 个思维           │
+├─────────────────────────────────────────────┤
+│  2. State Evaluator（状态评估器）            │
+│     评估每个思维的&quot;前景&quot;                     │
+│     方法:                                    │
+│     - Value: 直接给价值打分                  │
+│     - Vote: 对比多个思维投票                 │
+├─────────────────────────────────────────────┤
+│  3. Search Algorithm（搜索算法）             │
+│     决定如何遍历思维树                       │
+│     - BFS: 广度优先搜索                     │
+│     - DFS: 深度优先搜索                     │
+└─────────────────────────────────────────────┘</code></pre></div>
+<h2>5. BFS vs DFS 搜索策略</h2>
+<h3>5.1 BFS（广度优先）</h3>
+<div class="code-block"><pre><code>层级 0:        [根节点]
+               /  |  \
+层级 1:     [A]  [B]  [C]      ← 评估: A=0.8, B=0.3, C=0.7
+              保留A和C，剪枝B
+             / \      |
+层级 2:   [A1] [A2] [C1]       ← 评估: A1=0.9, A2=0.4, C1=0.6
+            保留A1，剪枝其余
+            |
+层级 3:   [A1a]                  ← 最终答案
+
+适用: 每层候选少，需要全局视角</code></pre></div>
+<h3>5.2 DFS（深度优先）</h3>
+<div class="code-block"><pre><code>                    [根]
+                   / | \
+                [A] [B] [C]
+               /
+            [A1] ← 评估: 前景好，继续深入
+            /
+         [A1a] ← 评估: 前景不好，回溯!
+            ↩ 回到 [A]
+              \
+            [A2] ← 评估: 前景好，继续
+            /
+         [A2a] ← 找到答案！
+
+适用: 解空间深，需要探索到底</code></pre></div>
+<h2>6. 完整实现</h2>
+<h3>6.1 ToT 框架实现</h3>
+<div class="code-block"><pre><code class="language-python">from langchain_openai import ChatOpenAI
+from typing import List, Tuple
+from dataclasses import dataclass, field
+import heapq
+
+@dataclass
+class ThoughtNode:
+    &quot;&quot;&quot;思维树节点&quot;&quot;&quot;
+    content: str
+    depth: int
+    score: float = 0.0
+    parent: &#x27;ThoughtNode&#x27; = None
+    children: List[&#x27;ThoughtNode&#x27;] = field(default_factory=list)
+
+    def __lt__(self, other):
+        return self.score &gt; other.score  # 最大堆
+
+class TreeOfThoughts:
+    def __init__(
+        self,
+        llm: ChatOpenAI,
+        bfs_width: int = 3,       # BFS 每层保留的节点数
+        max_depth: int = 5,       # 最大深度
+        threshold: float = 0.5,   # 评估阈值
+    ):
+        self.llm = llm
+        self.bfs_width = bfs_width
+        self.max_depth = max_depth
+        self.threshold = threshold
+
+    def generate_thoughts(self, problem: str, current_path: List[str], k: int = 3) -&gt; List[str]:
+        &quot;&quot;&quot;生成 k 个候选思维&quot;&quot;&quot;
+        path_str = &quot; → &quot;.join(current_path) if current_path else &quot;（开始）&quot;
+        prompt = f&quot;&quot;&quot;问题: {problem}
+
+当前推理路径: {path_str}
+
+请提出 {k} 个不同的下一步推理思路，每个思路只写1-2句话。
+输出格式（每行一个）:
+1. 思路1
+2. 思路2
+3. 思路3&quot;&quot;&quot;
+
+        response = self.llm.invoke([{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}])
+        thoughts = parse_numbered_list(response.content)
+        return thoughts[:k]
+
+    def evaluate_thought(self, problem: str, thought: str, path: List[str]) -&gt; float:
+        &quot;&quot;&quot;评估一个思维的价值 (0-1)&quot;&quot;&quot;
+        path_str = &quot; → &quot;.join(path + [thought])
+        prompt = f&quot;&quot;&quot;问题: {problem}
+
+推理路径: {path_str}
+
+请评估这条推理路径的前景（0-100分）。考虑:
+1. 是否在朝正确方向前进？
+2. 逻辑是否合理？
+3. 距离答案还有多远？
+
+只输出一个数字。&quot;&quot;&quot;
+
+        response = self.llm.invoke([{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: prompt}])
+        try:
+            score = float(response.content.strip()) / 100.0
+        except:
+            score = 0.5
+        return score
+
+    def solve_bfs(self, problem: str) -&gt; str:
+        &quot;&quot;&quot;BFS 搜索&quot;&quot;&quot;
+        root = ThoughtNode(content=&quot;ROOT&quot;, depth=0, score=1.0)
+        current_nodes = [root]
+
+        for depth in range(self.max_depth):
+            all_candidates = []
+
+            for node in current_nodes:
+                path = self._get_path(node)
+                thoughts = self.generate_thoughts(problem, path)
+
+                for thought in thoughts:
+                    score = self.evaluate_thought(problem, thought, path)
+                    child = ThoughtNode(
+                        content=thought,
+                        depth=depth + 1,
+                        score=score,
+                        parent=node
+                    )
+                    node.children.append(child)
+
+                    if score &gt;= self.threshold:
+                        all_candidates.append(child)
+
+            if not all_candidates:
+                break
+
+            # 保留得分最高的 bfs_width 个
+            all_candidates.sort(key=lambda n: n.score, reverse=True)
+            current_nodes = all_candidates[:self.bfs_width]
+
+            # 检查是否有&quot;足够好&quot;的叶子节点
+            best = current_nodes[0]
+            if best.score &gt; 0.9:
+                return self._collect_answer(best)
+
+        # 返回最佳路径
+        best = max(current_nodes, key=lambda n: n.score)
+        return self._collect_answer(best)
+
+    def solve_dfs(self, problem: str, node: ThoughtNode = None, path: List[str] = None) -&gt; str:
+        &quot;&quot;&quot;DFS 搜索&quot;&quot;&quot;
+        if node is None:
+            node = ThoughtNode(content=&quot;ROOT&quot;, depth=0, score=1.0)
+            path = []
+
+        if node.depth &gt;= self.max_depth:
+            return self._collect_answer(node)
+
+        thoughts = self.generate_thoughts(problem, path)
+
+        for thought in thoughts:
+            score = self.evaluate_thought(problem, thought, path)
+
+            if score &lt; self.threshold:
+                continue  # 剪枝
+
+            child = ThoughtNode(
+                content=thought, depth=node.depth + 1,
+                score=score, parent=node
+            )
+            node.children.append(child)
+
+            result = self.solve_dfs(problem, child, path + [thought])
+            if result:
+                return result
+
+        return None
+
+    def _get_path(self, node: ThoughtNode) -&gt; List[str]:
+        path = []
+        while node.parent:
+            path.append(node.content)
+            node = node.parent
+        return list(reversed(path))
+
+    def _collect_answer(self, node: ThoughtNode) -&gt; str:
+        path = self._get_path(node)
+        return &quot;\n&quot;.join(f&quot;Step {i+1}: {t}&quot; for i, t in enumerate(path))</code></pre></div>
+<h3>6.2 使用示例</h3>
+<div class="code-block"><pre><code class="language-python">llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0.7)  # 需要多样性
+tot = TreeOfThoughts(llm, bfs_width=3, max_depth=4)
+
+# 数学推理
+result = tot.solve_bfs(&quot;&quot;&quot;
+一个商店打8折后又打9折，最终价格是原价的多少？
+如果最终价格是360元，原价是多少？
+&quot;&quot;&quot;)
+print(result)
+
+# 创意写作
+result = tot.solve_dfs(&quot;&quot;&quot;
+用5个不相关的词（宇航员、钢琴、雨、钥匙、蝴蝶）
+写一个有逻辑连贯性的短故事（100字以内）。
+&quot;&quot;&quot;)
+print(result)</code></pre></div>
+<h2>7. 可视化思维树</h2>
+<div class="code-block"><pre><code class="language-python">def visualize_tree(node: ThoughtNode, prefix: str = &quot;&quot;, is_last: bool = True):
+    &quot;&quot;&quot;打印思维树&quot;&quot;&quot;
+    connector = &quot;└── &quot; if is_last else &quot;├── &quot;
+    score_bar = &quot;█&quot; * int(node.score * 10)
+    if node.content != &quot;ROOT&quot;:
+        print(f&quot;{prefix}{connector}[{node.score:.2f}|{score_bar}] {node.content[:50]}&quot;)
+
+    prefix += &quot;    &quot; if is_last else &quot;│   &quot;
+    for i, child in enumerate(node.children):
+        visualize_tree(child, prefix, i == len(node.children) - 1)
+
+# 输出示例:
+# [0.85|████████] 首先计算折扣: 0.8 × 0.9 = 0.72
+#     └── [0.90|█████████] 所以最终价格是原价的72%
+#         └── [0.95|█████████] 360 = 0.72 × 原价, 原价 = 500元
+#     └── [0.30|███] 尝试用代数方程...</code></pre></div>
+<h2>8. 适用场景分析</h2>
+<div class="code-block"><pre><code>适合 ToT 的任务:
+  ✅ 需要探索性推理（数学证明、逻辑推理）
+  ✅ 创意生成（需要多样性和选择）
+  ✅ 策略规划（博弈、游戏）
+  ✅ 谜题求解（数独、24点）
+  ✅ 约束满足问题
+
+不适合 ToT 的任务:
+  ❌ 简单问答（CoT 足够）
+  ❌ 事实检索（无需推理树）
+  ❌ 代码执行（需要实际运行验证）
+  ❌ 实时对话（延迟太高）</code></pre></div>
+<h2>9. 成本与优化</h2>
+<h3>Token 消耗估算</h3>
+<div class="code-block"><pre><code>ToT (BFS, width=3, depth=4):
+  每层生成: 3 × 3 = 9 个思维 × 评估
+  总 LLM 调用: ~36 次（生成18 + 评估18）
+  Token: ~36 × 500 = 18,000 tokens
+
+对比:
+  CoT: 1 次调用, ~500 tokens
+  Self-Consistency (5次): 5 次调用, ~2,500 tokens
+
+ToT 成本约是 CoT 的 36 倍！</code></pre></div>
+<h3>优化策略</h3>
+<ol><li><strong>自适应宽度</strong>: 根据问题难度动态调整</li><li><strong>快速评估器</strong>: 用小模型评估，大模型生成</li><li><strong>缓存</strong>: 相似思维路径复用评估结果</li><li><strong>阈值剪枝</strong>: 严格的阈值减少无效探索</li></ol>
+<h2>落地实践</h2>
+<h3>场景一：评论舆情分析的多路径推理</h3>
+<p>用 ToT 分析评论舆情：生成多条分析路径（情感维度/话题维度/用户维度），评估每条路径的分析质量，选择最优路径深入分析。</p>
+<h3>场景二：视频选题的创意探索</h3>
+<p>用 ToT 的 DFS 模式探索视频选题：从大方向（科技/生活/娱乐）出发，每个方向生成多个细分选题，评估热度和可行性，回溯找到最优选题。</p>
+<h3>场景三：Hermes Agent 的复杂推理</h3>
+<p>Hermes Agent 处理复杂任务时，可以用 ToT 探索多条执行路径，评估后选择最优方案执行。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>CoT 推理</th><th><a class="wikilink" href="#02-思维链CoT">02-思维链CoT</a></th><th>ToT = CoT 的树状扩展</th></tr></thead><tbody><tr><td>ReAct</td><td><a class="wikilink" href="#01-ReAct推理行动循环">01-ReAct推理行动循环</a></td><td>ToT 突破 ReAct 的线性限制</td></tr><tr class="alt"><td>LATS</td><td><a class="wikilink" href="#05-LATS语言Agent树搜索">05-LATS语言Agent树搜索</a></td><td>LATS = ToT + 环境交互</td></tr><tr><td>Reflexion</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>ToT 的评估器设计参考</td></tr><tr class="alt"><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融分析的多路径推理</td></tr></tbody></table>
+<h2>10. 参考资料</h2>
+<ul><li><a href="https://arxiv.org/abs/2305.10601">Tree of Thoughts 论文</a></li><li><a href="https://github.com/princeton-nlp/tree-of-thought-llm">ToT GitHub (原始实现)</a></li><li><a href="https://python.langchain.com/docs/">LangChain ToT 实现</a></li></ul>
+</section>
+<section id="LATS语言Agent树搜索" class="doc-section">
+<h1>LATS: Language Agent Tree Search 语言Agent树搜索 高级</h1>
+<span class="difficulty-badge" style="background:#e74c3c20;color:#e74c3c;border:1px solid #e74c3c40">高级</span>
+<div class="toc-container">
+<div class="toc-title">目录</div>
+<div class="toc-item" style="padding-left:0px"><a href="#全局定位">全局定位</a></div><div class="toc-item" style="padding-left:0px"><a href="#1--概述">1. 概述</a></div><div class="toc-item" style="padding-left:0px"><a href="#2--核心思想">2. 核心思想</a></div><div class="toc-item" style="padding-left:0px"><a href="#3--MCTS-基础回顾">3. MCTS 基础回顾</a></div><div class="toc-item" style="padding-left:20px"><a href="#UCT-公式（选择策略）">UCT 公式（选择策略）</a></div><div class="toc-item" style="padding-left:0px"><a href="#4--LATS-的创新：用-LLM-替代-MCTS-组件">4. LATS 的创新：用 LLM 替代 MCTS 组件</a></div><div class="toc-item" style="padding-left:0px"><a href="#5--LATS-架构">5. LATS 架构</a></div><div class="toc-item" style="padding-left:0px"><a href="#6--实现">6. 实现</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-1-核心数据结构">6.1 核心数据结构</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-2-LATS-引擎">6.2 LATS 引擎</a></div><div class="toc-item" style="padding-left:20px"><a href="#6-3-使用示例">6.3 使用示例</a></div><div class="toc-item" style="padding-left:0px"><a href="#7--LATS-vs-其他模式对比">7. LATS vs 其他模式对比</a></div><div class="toc-item" style="padding-left:0px"><a href="#8--LATS-的独特优势">8. LATS 的独特优势</a></div><div class="toc-item" style="padding-left:0px"><a href="#9--适用场景">9. 适用场景</a></div><div class="toc-item" style="padding-left:0px"><a href="#10--性能数据（论文）">10. 性能数据（论文）</a></div><div class="toc-item" style="padding-left:20px"><a href="#WebShop-任务（网页购物-Agent）">WebShop 任务（网页购物 Agent）</a></div><div class="toc-item" style="padding-left:20px"><a href="#HotPotQA（多跳问答）">HotPotQA（多跳问答）</a></div><div class="toc-item" style="padding-left:0px"><a href="#11--优化建议">11. 优化建议</a></div><div class="toc-item" style="padding-left:0px"><a href="#落地实践">落地实践</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景一：评论监控的智能决策">场景一：评论监控的智能决策</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景二：视频生成的最优路径搜索">场景二：视频生成的最优路径搜索</a></div><div class="toc-item" style="padding-left:20px"><a href="#场景三：Hermes-Agent-的高级推理">场景三：Hermes Agent 的高级推理</a></div><div class="toc-item" style="padding-left:0px"><a href="#知识串联">知识串联</a></div><div class="toc-item" style="padding-left:0px"><a href="#12--参考资料">12. 参考资料</a></div>
+</div>
+<h2>全局定位</h2>
+<blockquote>LATS 是 Agent 推理模式的<strong>最强大范式</strong>，将蒙特卡洛树搜索（MCTS）与 LLM Agent 结合，统一了推理、行动和规划三大能力。</blockquote>
+<div class="code-block"><pre><code>05-Agent开发
+├── 14-高级Prompt模式 ← 推理层（你在这里）
+│   ├── 01-ReAct推理行动循环 ← 基石
+│   ├── 02-Plan-and-Execute模式 ← 规划
+│   ├── 03-Reflexion自我反思 ← 反思
+│   ├── 04-Tree-of-Thoughts思维树 ← 树搜索
+│   └── 05-LATS语言Agent树搜索 ✅ ← MCTS+Agent 终极形态
+└── 10-智能体项目 ← 实战应用</code></pre></div>
+<p><strong>学习价值</strong>：LATS 统一了推理、行动、规划三大范式，在 WebShop（+14%）和 HotPotQA（+6.5%）上超越所有基线。理解 LATS 能帮助设计最高质量的 Agent 推理系统。</p>
+<h2>1. 概述</h2>
+<p>LATS（Language Agent Tree Search）由 Zhou et al. (2023) 提出，将<strong>蒙特卡洛树搜索（MCTS）</strong>与 LLM Agent 结合，通过环境反馈和自我反思驱动的树搜索，实现更强的决策能力。</p>
+<p><strong>论文</strong>: <em>Language Agent Tree Search Unifies Reasoning, Acting, and Planning in Language Models</em> (ICML 2024)</p>
+<h2>2. 核心思想</h2>
+<p>LATS 统一了三大范式：</p>
+<div class="code-block"><pre><code>┌──────────────────────────────────────────────────────┐
+│                                                      │
+│   Reasoning (推理)     Acting (行动)    Planning (规划)│
+│   CoT, ToT            ReAct            Plan&amp;Execute  │
+│      \                  |                 /          │
+│       \                 |                /           │
+│        \                |               /            │
+│         ▼               ▼              ▼             │
+│         ┌───────────────────────────────┐            │
+│         │           LATS                │            │
+│         │   MCTS + LLM + Environment    │            │
+│         │   统一推理、行动、规划          │            │
+│         └───────────────────────────────┘            │
+│                                                      │
+└──────────────────────────────────────────────────────┘</code></pre></div>
+<h2>3. MCTS 基础回顾</h2>
+<p>蒙特卡洛树搜索的四个阶段：</p>
+<div class="code-block"><pre><code>               ① 选择 (Selection)
+                    │
+                    ▼
+               [Root Node]
+              /     |     \
+           [A]    [B]    [C]
+          /  \     |
+        [A1] [A2] [B1]     ② 扩展 (Expansion)
+                            选择最有前景的节点
+                            扩展一个新子节点
+                    │
+                    ▼
+                [New Node]
+                    │
+                    ▼
+            ③ 模拟 (Simulation)
+            从新节点开始随机/启发式
+            模拟到终态，获得奖励
+                    │
+                    ▼
+            ④ 回传 (Backpropagation)
+            将奖励沿路径回传，
+            更新节点统计信息</code></pre></div>
+<h3>UCT 公式（选择策略）</h3>
+<div class="code-block"><pre><code>UCT(i) = Q(i)/N(i) + c × √(ln(N(parent)) / N(i))
+
+其中:
+  Q(i) = 节点 i 的累计奖励
+  N(i) = 节点 i 的访问次数
+  c    = 探索常数（通常 √2）
+
+第一项: 利用（选择高奖励的节点）
+第二项: 探索（选择访问少的节点）</code></pre></div>
+<h2>4. LATS 的创新：用 LLM 替代 MCTS 组件</h2>
+<div class="code-block"><pre><code>传统 MCTS                    LATS
+┌───────────────────┬──────────────────────────────┐
+│ 状态转移函数        │ LLM + 工具调用（Action）      │
+│ 随机模拟 (Rollout)  │ LLM 推理 + 环境交互           │
+│ 奖励函数            │ 环境反馈 + LLM 评估 (Value)   │
+│ 策略函数            │ LLM Prior（思维生成）          │
+│ 回传更新            │ 统计 + 语言化反思（Reflection）│
+└───────────────────┴──────────────────────────────┘</code></pre></div>
+<h2>5. LATS 架构</h2>
+<div class="code-block"><pre><code>┌─────────────────────────────────────────────────────────┐
+│                    LATS 主循环                            │
+│                                                         │
+│  ┌──────────────┐                                       │
+│  │   Selection   │  使用 UCT + LLM 选择最佳叶子节点     │
+│  └──────┬───────┘                                       │
+│         ▼                                               │
+│  ┌──────────────┐                                       │
+│  │  Expansion    │  LLM 生成多个候选行动                │
+│  │  (思维生成)   │  每个行动创建一个子节点               │
+│  └──────┬───────┘                                       │
+│         ▼                                               │
+│  ┌──────────────┐                                       │
+│  │  Simulation   │  执行行动 → 环境返回反馈             │
+│  │  (环境交互)   │  LLM 评估结果的价值                  │
+│  └──────┬───────┘                                       │
+│         ▼                                               │
+│  ┌──────────────┐                                       │
+│  │ Backprop      │  更新路径上所有节点的统计             │
+│  │ (反思+回传)   │  生成语言化反思存入节点               │
+│  └──────┬───────┘                                       │
+│         │                                               │
+│         ▼                                               │
+│  ┌──────────────┐                                       │
+│  │ 终止条件？    │  达到最大轮次 / 找到解决方案           │
+│  └──────────────┘                                       │
+└─────────────────────────────────────────────────────────┘</code></pre></div>
+<h2>6. 实现</h2>
+<h3>6.1 核心数据结构</h3>
+<div class="code-block"><pre><code class="language-python">from dataclasses import dataclass, field
+from typing import List, Optional, Dict, Any
+import math
+import random
+
+@dataclass
+class LATSNode:
+    &quot;&quot;&quot;LATS 树节点&quot;&quot;&quot;
+    state: str                          # 当前状态描述
+    action: Optional[str] = None        # 导致此状态的行动
+    parent: Optional[&#x27;LATSNode&#x27;] = None
+    children: List[&#x27;LATSNode&#x27;] = field(default_factory=list)
+
+    # MCTS 统计
+    visit_count: int = 0
+    total_value: float = 0.0
+    prior_score: float = 0.5            # LLM 先验评分
+
+    # LATS 特有
+    reflection: str = &quot;&quot;                # 语言化反思
+    environment_feedback: str = &quot;&quot;      # 环境反馈
+    is_terminal: bool = False
+    depth: int = 0
+
+    @property
+    def avg_value(self) -&gt; float:
+        return self.total_value / self.visit_count if self.visit_count &gt; 0 else 0.0
+
+    def uct_score(self, c: float = 1.414) -&gt; float:
+        &quot;&quot;&quot;计算 UCT 分数&quot;&quot;&quot;
+        if self.visit_count == 0:
+            return float(&#x27;inf&#x27;)
+
+        exploitation = self.avg_value
+        exploration = c * math.sqrt(
+            math.log(self.parent.visit_count) / self.visit_count
+        )
+        prior = self.prior_score / (1 + self.visit_count)
+
+        return exploitation + exploration + prior</code></pre></div>
+<h3>6.2 LATS 引擎</h3>
+<div class="code-block"><pre><code class="language-python">from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage, SystemMessage
+
+class LATSEngine:
+    def __init__(
+        self,
+        llm: ChatOpenAI,
+        tools: List[Any],
+        max_iterations: int = 20,
+        max_children: int = 3,
+        max_depth: int = 10,
+    ):
+        self.llm = llm
+        self.tools = {t.name: t for t in tools}
+        self.max_iterations = max_iterations
+        self.max_children = max_children
+        self.max_depth = max_depth
+
+    def solve(self, problem: str) -&gt; str:
+        &quot;&quot;&quot;主入口: 用 LATS 求解问题&quot;&quot;&quot;
+        root = LATSNode(state=f&quot;问题: {problem}&quot;, depth=0)
+
+        for i in range(self.max_iterations):
+            # 1. Selection: 选择最佳叶子节点
+            leaf = self._select(root)
+
+            # 2. 检查是否已解决
+            if leaf.is_terminal and self._is_solution(leaf):
+                return self._extract_solution(leaf)
+
+            # 3. Expansion: 扩展子节点
+            children = self._expand(leaf, problem)
+
+            if not children:
+                continue
+
+            # 4. Simulation: 模拟评估
+            for child in children:
+                value = self._simulate(child, problem)
+
+                # 5. Backpropagation: 回传
+                self._backpropagate(child, value)
+
+        # 返回最佳路径
+        best_leaf = self._get_best_leaf(root)
+        return self._extract_solution(best_leaf)
+
+    def _select(self, node: LATSNode) -&gt; LATSNode:
+        &quot;&quot;&quot;选择 UCT 分数最高的叶子节点&quot;&quot;&quot;
+        current = node
+        while current.children:
+            current = max(current.children, key=lambda n: n.uct_score())
+        return current
+
+    def _expand(self, node: LATSNode, problem: str) -&gt; List[LATSNode]:
+        &quot;&quot;&quot;LLM 生成多个候选行动&quot;&quot;&quot;
+        # 获取祖先反思
+        reflections = self._get_ancestor_reflections(node)
+
+        prompt = f&quot;&quot;&quot;问题: {problem}
+
+当前状态: {node.state}
+历史反思: {reflections if reflections else &quot;无&quot;}
+
+请提出 {self.max_children} 个不同的下一步行动。
+每个行动可以是:
+- 一个推理步骤（Thought）
+- 一个工具调用（Action: tool_name(input)）
+- 一个结论（Finish: answer）
+
+输出格式（每行一个）:
+1. 行动1
+2. 行动2
+3. 行动3&quot;&quot;&quot;
+
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        actions = parse_numbered_list(response.content)
+
+        children = []
+        for action in actions[:self.max_children]:
+            child = LATSNode(
+                state=f&quot;{node.state}\n→ {action}&quot;,
+                action=action,
+                parent=node,
+                depth=node.depth + 1
+            )
+            # LLM 先验评分
+            child.prior_score = self._get_prior_score(problem, child.state)
+            node.children.append(child)
+            children.append(child)
+
+        return children
+
+    def _simulate(self, node: LATSNode, problem: str) -&gt; float:
+        &quot;&quot;&quot;执行行动并评估&quot;&quot;&quot;
+        action = node.action
+
+        # 如果是工具调用
+        if action.startswith(&quot;Action:&quot;):
+            tool_call = parse_tool_call(action)
+            try:
+                result = self.tools[tool_call[&quot;name&quot;]].invoke(tool_call[&quot;input&quot;])
+                node.environment_feedback = str(result)
+                node.state += f&quot;\n  结果: {result}&quot;
+            except Exception as e:
+                node.environment_feedback = f&quot;错误: {e}&quot;
+                return 0.1  # 低分
+
+        # 如果是最终答案
+        if action.startswith(&quot;Finish:&quot;):
+            node.is_terminal = True
+            # LLM 评估答案质量
+            return self._evaluate_solution(problem, action[7:].strip())
+
+        # LLM 评估当前状态价值
+        return self._evaluate_state(problem, node.state)
+
+    def _backpropagate(self, node: LATSNode, value: float):
+        &quot;&quot;&quot;回传价值并生成反思&quot;&quot;&quot;
+        current = node
+        while current:
+            current.visit_count += 1
+            current.total_value += value
+
+            # 如果价值低，生成反思
+            if value &lt; 0.3 and current.children:
+                current.reflection = self._generate_reflection(current, value)
+
+            current = current.parent
+
+    def _generate_reflection(self, node: LATSNode, value: float) -&gt; str:
+        &quot;&quot;&quot;生成语言化反思&quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;以下推理路径的评估结果较差（分数: {value:.2f}）:
+
+{node.state}
+
+请简要反思为什么这条路径不好，以及应该避免什么（2-3句话）。&quot;&quot;&quot;
+
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        return response.content
+
+    def _evaluate_state(self, problem: str, state: str) -&gt; float:
+        &quot;&quot;&quot;LLM 评估当前状态价值&quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;评估以下推理状态解决问题的前景（0-100分）。
+
+问题: {problem}
+当前推理: {state}
+
+只输出一个数字。&quot;&quot;&quot;
+
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        try:
+            return float(response.content.strip()) / 100.0
+        except:
+            return 0.5
+
+    def _evaluate_solution(self, problem: str, answer: str) -&gt; float:
+        &quot;&quot;&quot;评估最终答案&quot;&quot;&quot;
+        prompt = f&quot;&quot;&quot;评估答案是否正确（0-100分）。
+
+问题: {problem}
+答案: {answer}
+
+只输出一个数字。&quot;&quot;&quot;
+
+        response = self.llm.invoke([HumanMessage(content=prompt)])
+        try:
+            return float(response.content.strip()) / 100.0
+        except:
+            return 0.5
+
+    def _get_ancestor_reflections(self, node: LATSNode) -&gt; str:
+        &quot;&quot;&quot;收集祖先节点的反思&quot;&quot;&quot;
+        reflections = []
+        current = node
+        while current:
+            if current.reflection:
+                reflections.append(current.reflection)
+            current = current.parent
+        return &quot;\n&quot;.join(reversed(reflections))
+
+    def _get_best_leaf(self, node: LATSNode) -&gt; LATSNode:
+        &quot;&quot;&quot;找到最佳叶子节点&quot;&quot;&quot;
+        if not node.children:
+            return node
+        return max(
+            (self._get_best_leaf(c) for c in node.children),
+            key=lambda n: n.avg_value
+        )
+
+    def _extract_solution(self, node: LATSNode) -&gt; str:
+        &quot;&quot;&quot;提取解决方案路径&quot;&quot;&quot;
+        path = []
+        current = node
+        while current.parent:
+            path.append(current.action)
+            current = current.parent
+        return &quot;\n&quot;.join(reversed(path))
+
+    def _is_solution(self, node: LATSNode) -&gt; bool:
+        return node.is_terminal and node.avg_value &gt; 0.8
+
+    def _get_prior_score(self, problem: str, state: str) -&gt; float:
+        return 0.5  # 简化: 等先验</code></pre></div>
+<h3>6.3 使用示例</h3>
+<div class="code-block"><pre><code class="language-python">from langchain_community.tools import DuckDuckGoSearchRun, Calculator
+
+llm = ChatOpenAI(model=&quot;gpt-4o&quot;, temperature=0.7)
+tools = [DuckDuckGoSearchRun(), Calculator()]
+
+lats = LATSEngine(llm, tools, max_iterations=15, max_children=3)
+result = lats.solve(&quot;2024年巴黎奥运会中国代表团获得了多少枚金牌？金牌数排第几？&quot;)
+print(result)</code></pre></div>
+<h2>7. LATS vs 其他模式对比</h2>
+<div class="code-block"><pre><code>┌────────────┬────────┬────────┬────────┬────────┐
+│            │  CoT   │  ReAct │  ToT   │  LATS  │
+├────────────┼────────┼────────┼────────┼────────┤
+│ 推理能力    │  ★★☆   │  ★★★   │  ★★★★  │  ★★★★★ │
+│ 环境交互    │  ✗     │  ✓     │  ✗     │  ✓     │
+│ 多路径探索  │  ✗     │  ✗     │  ✓     │  ✓     │
+│ 自我反思    │  ✗     │  ✗     │  ✗     │  ✓     │
+│ 规划能力    │  ✗     │  ✗     │  ★★★   │  ★★★★  │
+│ Token 消耗  │  低    │  中    │  高    │  很高   │
+│ 延迟       │  低    │  中    │  高    │  很高   │
+│ 复杂度      │  ★     │  ★★    │  ★★★   │  ★★★★  │
+└────────────┴────────┴────────┴────────┴────────┘</code></pre></div>
+<h2>8. LATS 的独特优势</h2>
+<ol><li><strong>统一框架</strong>: 同时支持推理、行动和规划</li><li><strong>环境反馈</strong>: 不仅靠 LLM 自评，还从真实环境获取反馈</li><li><strong>反思驱动</strong>: 失败路径生成反思，指导后续搜索</li><li><strong>自适应探索</strong>: UCT 平衡利用已知好路径 vs 探索新路径</li><li><strong>可扩展</strong>: 可添加任意工具和环境</li></ol>
+<h2>9. 适用场景</h2>
+<div class="code-block"><pre><code>最适合 LATS:
+  🔬 科学推理: 需要假设-验证循环
+  🧮 数学证明: 需要探索多条证明路径
+  🎮 博弈决策: 搜索空间大，需要评估
+  🔍 复杂问答: 需要多步工具调用 + 验证
+  📝 代码调试: 尝试-反馈-反思循环
+
+不适合 LATS:
+  ❌ 简单任务（杀鸡用牛刀）
+  ❌ 实时对话（延迟不可接受）
+  ❌ 无环境反馈的任务（退化为 ToT）</code></pre></div>
+<h2>10. 性能数据（论文）</h2>
+<h3>WebShop 任务（网页购物 Agent）</h3>
+<table><thead><tr><th>方法</th><th>成功率</th><th>平均得分</th></tr></thead><tbody><tr><td>ReAct</td><td>30.1%</td><td>56.1</td></tr><tr class="alt"><td>Reflexion</td><td>35.2%</td><td>60.5</td></tr><tr><td>ToT</td><td>28.5%</td><td>52.3</td></tr><tr class="alt"><td><strong>LATS</strong></td><td><strong>44.2%</strong></td><td><strong>67.5</strong></td></tr></tbody></table>
+<h3>HotPotQA（多跳问答）</h3>
+<table><thead><tr><th>方法</th><th>F1</th></tr></thead><tbody><tr><td>CoT</td><td>61.4</td></tr><tr class="alt"><td>ReAct</td><td>67.3</td></tr><tr><td>Reflexion</td><td>70.1</td></tr><tr class="alt"><td><strong>LATS</strong></td><td><strong>73.8</strong></td></tr></tbody></table>
+<h2>11. 优化建议</h2>
+<ol><li><strong>限制树大小</strong>: 设置最大节点数防止内存爆炸</li><li><strong>并行模拟</strong>: 多个子节点可并行评估</li><li><strong>缓存</strong>: 相同状态的评估结果缓存</li><li><strong>早停</strong>: 连续 N 次无提升则停止</li><li><strong>温度控制</strong>: 扩展时高温度（探索），评估时低温度（稳定）</li></ol>
+<h2>落地实践</h2>
+<h3>场景一：评论监控的智能决策</h3>
+<p>用 LATS 的 MCTS 搜索最优评论处理策略：Selection 选择最有价值的评论 → Expansion 生成多种处理方案 → Simulation 执行并评估效果 → Backpropagation 更新策略。</p>
+<h3>场景二：视频生成的最优路径搜索</h3>
+<p>用 LATS 搜索最优视频生成路径：每个节点是一个生成决策（选题/风格/时长），通过环境反馈（预览效果）和 LLM 评估驱动搜索，找到最优组合。</p>
+<h3>场景三：Hermes Agent 的高级推理</h3>
+<p>对于特别复杂的任务（如跨多个知识库的综合分析），LATS 可以帮助 Hermes 探索多条分析路径，结合环境反馈选择最优方案。</p>
+<h2>知识串联</h2>
+<table><thead><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></thead><tbody></tbody></table>
+<p>---------|---------|---------|</p>
+<table><thead><tr><th>ReAct</th><th><a class="wikilink" href="#01-ReAct推理行动循环">01-ReAct推理行动循环</a></th><th>LATS 统一了 ReAct 的行动能力</th></tr></thead><tbody><tr><td>Reflexion</td><td><a class="wikilink" href="#03-Reflexion自我反思">03-Reflexion自我反思</a></td><td>LATS 的反思驱动来自 Reflexion</td></tr><tr class="alt"><td>ToT</td><td><a class="wikilink" href="#04-Tree-of-Thoughts思维树">04-Tree-of-Thoughts思维树</a></td><td>LATS = ToT + 环境交互 + 反思</td></tr><tr><td>评估方法</td><td><a class="wikilink" href="#03-LLM-as-Judge评估方法">03-LLM-as-Judge评估方法</a></td><td>LATS 的状态评估器设计</td></tr><tr class="alt"><td>实战项目</td><td><a class="wikilink" href="#01-多MCP协同智能体系统实战">01-多MCP协同智能体系统实战</a></td><td>多 Agent 系统中的高级推理</td></tr></tbody></table>
+<h2>12. 参考资料</h2>
+<ul><li><a href="https://arxiv.org/abs/2310.04406">LATS 论文</a></li><li><a href="https://github.com/davidxu90/LATS">LATS GitHub</a></li><li><a href="https://en.wikipedia.org/wiki/Monte_Carlo_tree_search">MCTS 维基百科</a></li><li><a href="https://langchain-ai.github.io/langgraph/">LangGraph LATS Tutorial</a></li></ul>
+</section>
+</main>
+
+</body>
+</html>

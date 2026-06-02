@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP协议 - AI大模型知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;line-height:1.7;color:#333;background:#fff}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;min-width:260px;background:#fff;border-right:1px solid rgba(0,0,0,0.1);position:sticky;top:0;height:100vh;overflow-y:auto;padding:0}
+.sidebar-header{padding:20px;border-bottom:1px solid rgba(0,0,0,0.06)}
+.sidebar-logo{font-size:18px;font-weight:700;color:#0075de;text-decoration:none;display:block}
+.sidebar-subtitle{font-size:12px;color:#888;display:block;margin-top:2px}
+.sidebar-section{padding:12px 0}
+.sidebar-link{display:block;padding:6px 20px;color:#333;text-decoration:none;font-size:14px;border-left:3px solid transparent;transition:all 0.15s}
+.sidebar-link:hover{background:#f6f5f4}
+.sidebar-link.active{border-left-color:#0075de;color:#0075de;background:#f0f7ff;font-weight:500}
+.sidebar-link.root-link{font-weight:600;font-size:15px;padding:8px 20px}
+.sidebar-group .section-link{padding-left:28px;font-size:13px}
+.main{flex:1;padding:40px 60px;max-width:900px;min-width:0}
+.breadcrumb{font-size:13px;color:#888;margin-bottom:16px}
+.breadcrumb a{color:#0075de;text-decoration:none}
+.breadcrumb span{margin:0 6px}
+.page-title{font-size:44px;font-weight:700;color:#1a1a1a;margin-bottom:8px;line-height:1.2}
+.page-desc{font-size:16px;color:#666;margin-bottom:32px}
+h1{font-size:32px;font-weight:700;color:#1a1a1a;margin:32px 0 12px}
+h2{font-size:28px;font-weight:600;color:#1a1a1a;margin:28px 0 10px}
+h3{font-size:20px;font-weight:600;color:#333;margin:20px 0 8px}
+h4{font-size:17px;font-weight:600;color:#444;margin:16px 0 6px}
+h5,h6{font-size:15px;font-weight:600;color:#555;margin:12px 0 4px}
+p{margin:8px 0}
+a{color:#0075de;text-decoration:none}
+a:hover{text-decoration:underline}
+.wikilink{color:#0075de;background:#f0f7ff;padding:1px 4px;border-radius:3px;font-size:inherit}
+pre{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:6px;padding:16px;margin:12px 0;overflow-x:auto;font-family:'JetBrains Mono','Courier New',monospace;font-size:13px;line-height:1.5}
+code.inline{background:#f6f5f4;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:14px}
+.kw{color:#7c3aed}
+.str{color:#059669}
+.cmt{color:#9ca3af;font-style:italic}
+.num{color:#d97706}
+.table-wrapper{overflow-x:auto;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f6f5f4;font-weight:600;text-align:left;padding:10px 12px;border:1px solid rgba(0,0,0,0.1)}
+td{padding:8px 12px;border:1px solid rgba(0,0,0,0.1)}
+tr.even td{background:#fff}
+tr.odd td{background:#fafafa}
+blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:12px 0;background:#f0f7ff;color:#444;font-size:14px}
+hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
+.list-item{margin:3px 0;font-size:15px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;color:#fff;font-weight:500;vertical-align:middle;margin-left:8px}
+.toc-box{background:#f6f5f4;border:1px solid rgba(0,0,0,0.1);border-radius:8px;padding:16px 20px;margin:20px 0}
+.toc-box h3{font-size:15px;margin:0 0 8px;color:#333}
+.toc-box ul{list-style:none;padding:0}
+.toc-box li{margin:3px 0}
+.toc-box a{font-size:13px;color:#555}
+.toc-box a:hover{color:#0075de}
+.local-toc{background:#fafafa;border:1px solid rgba(0,0,0,0.06);border-radius:6px;padding:12px 16px;margin:12px 0}
+.local-toc h3{font-size:13px;margin:0 0 6px;color:#666}
+.local-toc ul{list-style:none;padding:0}
+.local-toc li{margin:2px 0}
+.local-toc a{font-size:13px;color:#555}
+.file-section{margin:40px 0;padding-top:20px;border-top:1px solid rgba(0,0,0,0.06)}
+.file-section:first-of-type{border-top:none}
+.file-header{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.file-title{margin:0;font-size:22px}
+.related-box{background:#f0f7ff;border:1px solid #0075de22;border-radius:8px;padding:16px 20px;margin:20px 0}
+.related-box h3{font-size:14px;margin:0 0 8px;color:#0075de}
+.project-link{display:block;font-size:14px;margin:4px 0}
+.diagram{width:100%;max-width:700px;margin:16px 0;border:1px solid rgba(0,0,0,0.06);border-radius:8px;background:#fff}
+@media(max-width:768px){.layout{flex-direction:column}.sidebar{width:100%;min-width:0;height:auto;position:relative}.main{padding:20px}}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<div class="sidebar-header">
+<a href="index.html" class="sidebar-logo">AI知识库</a>
+<span class="sidebar-subtitle">AI大模型</span>
+</div>
+<div class="sidebar-section">
+<a href="index.html" class="sidebar-link root-link">AI大模型 知识体系</a><div class="sidebar-group"><a href="nlp-basics.html" class="sidebar-link section-link">NLP基础</a></div><div class="sidebar-group"><a href="transformer.html" class="sidebar-link section-link">Transformer架构</a></div><div class="sidebar-group"><a href="tech-stack.html" class="sidebar-link section-link">大模型技术栈</a></div><div class="sidebar-group"><a href="rag.html" class="sidebar-link section-link">RAG技术</a></div><div class="sidebar-group"><a href="agent.html" class="sidebar-link section-link">Agent开发</a></div><div class="sidebar-group"><a href="agent-overview.html" class="sidebar-link section-link">Agent开发详解</a></div><div class="sidebar-group"><a href="agent-mcp.html" class="sidebar-link section-link active">MCP协议</a></div><div class="sidebar-group"><a href="agent-prompt.html" class="sidebar-link section-link">提示词工程</a></div><div class="sidebar-group"><a href="langgraph.html" class="sidebar-link section-link">LangGraph</a></div><div class="sidebar-group"><a href="finetune.html" class="sidebar-link section-link">模型微调</a></div>
+</div>
+</aside>
+<main class="main">
+<div class="breadcrumb"><a href="index.html">AI大模型</a><span>/</span><a href="agent.html">Agent开发</a><span>/</span>MCP协议</div>
+<h1 class="page-title">MCP协议</h1>
+<p class="page-desc">Model Context Protocol: 协议概述, 多MCP协同, SSE传输, Streamable-HTTP, Function Call对比</p>
+
+<svg class="diagram" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="ah2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#0075de"/></marker></defs>
+<rect x="100" y="20" width="500" height="55" rx="8" fill="#f0f7ff" stroke="#0075de" stroke-width="2"/>
+<text x="350" y="53" text-anchor="middle" font-size="16" font-weight="600" fill="#0075de">MCP Client (Host Application)</text>
+<line x1="350" y1="75" x2="350" y2="105" stroke="#0075de" stroke-width="2" marker-end="url(#ah2)"/>
+<rect x="100" y="105" width="500" height="55" rx="8" fill="#e8f4fd" stroke="#0075de" stroke-width="2"/>
+<text x="350" y="138" text-anchor="middle" font-size="16" font-weight="600" fill="#0075de">Transport Layer (stdio / SSE / Streamable-HTTP)</text>
+<line x1="350" y1="160" x2="350" y2="190" stroke="#0075de" stroke-width="2" marker-end="url(#ah2)"/>
+<rect x="100" y="190" width="500" height="55" rx="8" fill="#dbeafe" stroke="#0075de" stroke-width="2"/>
+<text x="350" y="223" text-anchor="middle" font-size="16" font-weight="600" fill="#0075de">MCP Server (Tool Provider)</text>
+<line x1="350" y1="245" x2="350" y2="275" stroke="#0075de" stroke-width="2" marker-end="url(#ah2)"/>
+<rect x="100" y="275" width="500" height="55" rx="8" fill="#bfdbfe" stroke="#0075de" stroke-width="2"/>
+<text x="350" y="308" text-anchor="middle" font-size="16" font-weight="600" fill="#1e40af">Tools / Resources / Prompts</text>
+</svg><div class="toc-box"><h3>Table of Contents</h3><ul><li><a href="#mcp协议概述">MCP协议概述</a></li><li><a href="#多mcp协同系统架构">多MCP协同系统架构</a></li><li><a href="#mcp的sse协议">MCP的SSE协议</a></li><li><a href="#mcp的streamable-http">MCP的Streamable-HTTP</a></li><li><a href="#prompt调用vs原生function-call">Prompt调用vs原生Function Call</a></li></ul></div><div class="file-section" id="mcp协议概述">
+<div class="file-header">
+<h2 class="file-title">MCP协议概述</h2>
+<span class="badge" style="background:#eab308">intermediate</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#mcp-协议概述-model-context-protocol-进阶">MCP 协议概述 (Model Context Protocol) ⭐⭐进阶</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#mcp-的两种调用模式">MCP 的两种调用模式</a></li><li><a href="#mcp-三类传输协议">MCP 三类传输协议</a></li><li><a href="#sse-代码示例">SSE 代码示例</a></li><li><a href="#streamable-http-代码示例">Streamable-HTTP 代码示例</a></li><li><a href="#面试高频问题">面试高频问题</a></li><li><a href="#落地实践">落地实践</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#关联笔记">关联笔记</a></li></ul></div>
+<h1 id="mcp-协议概述-model-context-protocol-进阶">MCP 协议概述 (Model Context Protocol) ⭐⭐进阶</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>MCP 是 Agent 开发知识体系中的<strong>工具集成层</strong>，提供标准化的模型上下文协议，让 AI Agent 能够即插即用地调用各种外部工具和数据源。</blockquote>
+<pre><code>05-Agent开发
+├── 08-提示词工程 ← 基础层
+├── 07-MCP协议 ← 工具层（你在这里）
+│   ├── 01-MCP协议概述 ✅ ← 核心概念
+│   ├── 02-多MCP协同系统架构 ← 多Server协作
+│   ├── 03-MCP的SSE协议 ← 传输层：SSE
+│   ├── 04-MCP的Streamable-HTTP ← 传输层：HTTP
+│   └── 05-MCP的Prompt调用vs原生Function-Call ← 调用模式
+├── 11-Agent框架对比 ← 框架的 MCP 集成
+└── 10-智能体项目 ← MCP 实战</code></pre>
+<p><strong>学习价值</strong>：MCP 是 AI Agent 工具调用的"USB-C 标准"。理解 MCP 的协议设计、传输方式和 Function Call 机制，是构建可扩展 Agent 系统的基础。</p>
+<blockquote>来源: 知识星球/AI基础的概念/MCP/<br>整理时间: 2026-05-30</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p>MCP（Model Context Protocol）是一个<strong>标准的模型上下文协议</strong>，为 AI 大模型提供"万能接口"，使其能够与不同的数据源和工具进行无缝交互。类比 USB-C 接口。</p>
+<h3 id="mcp-的价值">MCP 的价值</h3>
+<div class="list-item" style="padding-left:0px"><strong>标准化</strong>: 替代碎片化的 Agent 代码集成，建立通用接口规范</div>
+<div class="list-item" style="padding-left:0px"><strong>即插即用</strong>: 通过开源项目建立 AI Agent 生态</div>
+<div class="list-item" style="padding-left:0px"><strong>跨模型兼容</strong>: 一套 MCP Server 可对接不同厂商 LLM</div>
+<h2 id="mcp-的两种调用模式">MCP 的两种调用模式</h2>
+<h3 id="1-prompt-调用老办法">1. Prompt 调用（老办法）</h3>
+<p>通过自然语言"暗示"让 AI 模仿返回 JSON。问题：易幻觉、无法约束参数类型、换模型失效。</p>
+<h3 id="2-原生-function-call现代办法">2. 原生 Function Call（现代办法）</h3>
+<p>通过协议握手输出结构化指令。优势：确定性（只输出JSON）、Schema约束、省Token。</p>
+<pre><code>mcp_tool_definition = {
+    <span class="str">&quot;name&quot;</span>: <span class="str">&quot;translate_service&quot;</span>,
+    <span class="str">&quot;description&quot;</span>: <span class="str">&quot;将中文翻译成英文&quot;</span>,
+    <span class="str">&quot;parameters&quot;</span>: {
+        <span class="str">&quot;type&quot;</span>: <span class="str">&quot;object&quot;</span>,
+        <span class="str">&quot;properties&quot;</span>: {<span class="str">&quot;text&quot;</span>: {<span class="str">&quot;type&quot;</span>: <span class="str">&quot;string&quot;</span>}},
+        <span class="str">&quot;required&quot;</span>: [<span class="str">&quot;text&quot;</span>]
+    }
+}</code></pre>
+<h2 id="mcp-三类传输协议">MCP 三类传输协议</h2>
+<h3 id="1-stdio标准输入输出">1. stdio（标准输入输出）</h3>
+<p>子进程模式，stdin/stdout通信。适用：本地插件。限制：无法跨服务器。</p>
+<h3 id="2-sseserver-sent-events">2. SSE（Server-Sent Events）</h3>
+<p>单向长连接推送。基于HTTP，防火墙友好，内置断线重连。适用：云端AI助手。</p>
+<h3 id="3-streamable-http流式http">3. Streamable-HTTP（流式HTTP）</h3>
+<p>将响应拆分为JSON块持续发送，支持stateless模式（目前最优）。适用：复杂Agent交互。</p>
+<div class="table-wrapper"><table><tr><th>维度</th><th>stdio</th><th>SSE</th><th>Streamable-HTTP</th></tr><tr class="odd"><td>物理距离</td><td>同一台电脑</td><td>可跨服务器</td><td>可跨服务器</td></tr><tr class="even"><td>长连接</td><td>不需要</td><td>需要</td><td>不强制</td></tr><tr class="odd"><td>最佳场景</td><td>本地插件</td><td>远程工具调用</td><td>复杂Agent交互</td></tr></table></div>
+<h2 id="sse-代码示例">SSE 代码示例</h2>
+<pre><code><span class="kw">from</span> flask <span class="kw">import</span> Flask, Response
+<span class="kw">import</span> time
+
+app = Flask(__name__)
+@app.route(<span class="str">&#x27;/mcp/updates&#x27;</span>)
+<span class="kw">def</span> mcp_stream():
+    <span class="kw">def</span> generate():
+        <span class="kw">for</span> msg <span class="kw">in</span> [<span class="str">&quot;正在启动工具...&quot;</span>, <span class="str">&quot;分析完毕...&quot;</span>]:
+            yield f<span class="str">&quot;data: {msg}\n\n&quot;</span>
+            time.sleep(<span class="num">1</span>.<span class="num">5</span>)
+    <span class="kw">return</span> Response(generate(), mimetype=<span class="str">&#x27;text/event-stream&#x27;</span>)</code></pre>
+<h2 id="streamable-http-代码示例">Streamable-HTTP 代码示例</h2>
+<pre><code><span class="kw">import</span> json, time
+
+<span class="kw">def</span> generate_mcp_stream():
+    <span class="str">&quot;&quot;</span><span class="str">&quot;模拟 MCP Server 流式返回工具调用结果&quot;</span><span class="str">&quot;&quot;</span>
+    chunks = [
+        {<span class="str">&quot;type&quot;</span>: <span class="str">&quot;thought&quot;</span>, <span class="str">&quot;content&quot;</span>: <span class="str">&quot;正在检索数据库...&quot;</span>},
+        {<span class="str">&quot;type&quot;</span>: <span class="str">&quot;tool_call&quot;</span>, <span class="str">&quot;tool&quot;</span>: <span class="str">&quot;search_db&quot;</span>, <span class="str">&quot;args&quot;</span>: {<span class="str">&quot;id&quot;</span>: <span class="num">101</span>}},
+        {<span class="str">&quot;type&quot;</span>: <span class="str">&quot;result&quot;</span>, <span class="str">&quot;data&quot;</span>: <span class="str">&quot;用户等级：金牌会员&quot;</span>}
+    ]
+    <span class="kw">for</span> chunk <span class="kw">in</span> chunks:
+        yield json.dumps(chunk, ensure_ascii=<span class="kw">False</span>) + <span class="str">&quot;\n&quot;</span>
+        time.sleep(<span class="num">1</span>)</code></pre>
+<h2 id="面试高频问题">面试高频问题</h2>
+<p><strong>Q: 为什么不用 WebSocket 而用 SSE？</strong> 单向足够，SSE更简单，断线自动重连。</p>
+<p><strong>Q: Prompt 也能调用，为什么还要 Function Call？</strong> 标准化。Prompt是私有方案，Function Call提供通用接口规范。</p>
+<h2 id="落地实践">落地实践</h2>
+<h3 id="场景一评论监控机器人的-mcp-工具封装">场景一：评论监控机器人的 MCP 工具封装</h3>
+<p>将评论采集、情感分析、自动回复封装为独立 MCP Server，通过统一的 MCP Client 调用。新平台接入只需新增 MCP Server，无需修改 Agent 代码。</p>
+<h3 id="场景二视频生成流水线的-mcp-服务化">场景二：视频生成流水线的 MCP 服务化</h3>
+<p>将视频生成的每个环节（脚本生成、素材搜索、配音、合成）封装为 MCP Server，通过多 MCP 协同实现流水线编排。</p>
+<h3 id="场景三hermes-agent-的-mcp-生态">场景三：Hermes Agent 的 MCP 生态</h3>
+<p>Hermes Agent 的 skill 系统本质上就是 MCP 的理念——标准化的工具接口。理解 MCP 有助于为 Hermes 开发更多可复用的 skill。</p>
+<h2 id="知识串联">知识串联</h2>
+<div class="table-wrapper"><table><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></table></div>
+<p>---------|---------|---------|</p>
+<div class="table-wrapper"><table><tr><th>多MCP协同</th><th><a class="wikilink" href="#02-多mcp协同系统架构">02-多MCP协同系统架构</a></th><th>多 Server 的架构设计</th></tr><tr class="odd"><td>Streamable-HTTP</td><td><a class="wikilink" href="#04-mcp的streamable-http">04-MCP的Streamable-HTTP</a></td><td>MCP 的最优传输方式</td></tr><tr class="even"><td>Function Call</td><td><a class="wikilink" href="#05-mcp的prompt调用vs原生function-call">05-MCP的Prompt调用vs原生Function-Call</a></td><td>MCP 的调用模式选择</td></tr><tr class="odd"><td>框架集成</td><td><a class="wikilink" href="#openai-agents-sdk深入">OpenAI-Agents-SDK深入</a></td><td>SDK 原生 MCP 支持</td></tr><tr class="even"><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融系统的 MCP 实战</td></tr></table></div>
+<h2 id="关联笔记">关联笔记</h2>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-07-mcp协议-02-多mcp协同系统架构">多MCP协同系统架构</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-10-智能体项目-01-金融智能咨询系统">金融智能咨询系统</a></div>
+</div>
+<div class="file-section" id="多mcp协同系统架构">
+<div class="file-header">
+<h2 class="file-title">多MCP协同系统架构</h2>
+<span class="badge" style="background:#ef4444">advanced</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#多-mcp-协同系统架构-高级">多 MCP 协同系统架构 ⭐⭐⭐高级</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#系统架构">系统架构</a></li><li><a href="#多mcp会话管理">多MCP会话管理</a></li><li><a href="#更新工具映射">更新工具映射</a></li><li><a href="#连接多个mcp-server">连接多个MCP Server</a></li><li><a href="#agent-sdk--mcp-集成">Agent SDK + MCP 集成</a></li><li><a href="#在-mcp-server-上下文中定义-agent">在 MCP Server 上下文中定义 Agent</a></li><li><a href="#mcp工具并行-vs-串行调用">MCP工具并行 vs 串行调用</a></li><li><a href="#mcp-server-开发模板">MCP Server 开发模板</a></li><li><a href="#面试高频问题">面试高频问题</a></li><li><a href="#落地实践">落地实践</a></li><li><a href="#知识串联">知识串联</a></li><li><a href="#关联笔记">关联笔记</a></li></ul></div>
+<h1 id="多-mcp-协同系统架构-高级">多 MCP 协同系统架构 ⭐⭐⭐高级</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>多 MCP 协同是 MCP 协议的<strong>架构进阶</strong>，解决一个 Agent 同时调用多个 MCP Server 的工程问题，是构建复杂 Agent 系统的关键技术。</blockquote>
+<pre><code>05-Agent开发
+├── 07-MCP协议 ← 工具层（你在这里）
+│   ├── 01-MCP协议概述 ← 基础概念
+│   ├── 02-多MCP协同系统架构 ✅ ← 多Server架构
+│   ├── 03-MCP的SSE协议 ← 传输层
+│   ├── 04-MCP的Streamable-HTTP ← 传输层
+│   └── 05-MCP的Prompt调用vs原生Function-Call ← 调用模式
+├── 11-Agent框架对比 ← 框架的多MCP支持
+└── 10-智能体项目 ← 多MCP实战</code></pre>
+<p><strong>学习价值</strong>：多 MCP 协同是生产级 Agent 系统的核心架构。掌握统一上下文会话管理、Agent Handoff、工具并行/串行调用等技术，能构建可扩展的多工具 Agent 系统。</p>
+<blockquote>来源: 知识星球/推荐的项目/多MCP协同智能体系统/<br>整理时间: 2026-05-30</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p>多MCP协同系统指<strong>一个MCP Client同时连接多个MCP Server</strong>，将不同业务工具封装为独立MCP服务，通过统一上下文管理器管理会话状态，交由多智能体系统调度。</p>
+<h2 id="系统架构">系统架构</h2>
+<pre><code>用户输入 → Switch Agent（业务分流）
+  ├── Investment Agent ← 投资建议MCP (股价查询/预测/报告)
+  ├── Article Check Agent ← 文章风险扫描MCP (规范性/专业性审查)
+  ├── Consult Agent ← 金融咨询MCP (本地RAG/网络检索)
+  └── Turn Human Agent ← 转人工MCP (场景路由)</code></pre>
+<h3 id="关键设计原则">关键设计原则</h3>
+<div class="list-item" style="padding-left:0px">MCP Server独立部署，独立端口</div>
+<div class="list-item" style="padding-left:0px">Agent绑定对应MCP Server</div>
+<div class="list-item" style="padding-left:0px">Agent间通过handoff（移交策略）实现语义级流转</div>
+<div class="list-item" style="padding-left:0px">所有MCP Server会话在同一session中管理</div>
+<h2 id="多mcp会话管理">多MCP会话管理</h2>
+<p>构建<strong>统一上下文会话管理器</strong>，连接所有MCP Server后取出所有工具，走Function Calling流程：</p>
+<pre><code><span class="kw">class</span> MCPSSEClient:
+    <span class="kw">def</span> __init__(self):
+        self.exit_stack = AsyncExitStack()
+        self.sessions = {}
+        self.tools_map = {}  <span class="cmt"># 工具名 -&gt; (Server ID, URL)</span>
+
+    <span class="kw">async</span> <span class="kw">def</span> connect_to_server(self, server_id, endpoint_url):
+        sse_transport = <span class="kw">await</span> self.exit_stack.enter_async_context(
+            sse_client(endpoint_url))
+        read_stream, write_stream = sse_transport
+        session = <span class="kw">await</span> self.exit_stack.enter_async_context(
+            ClientSession(read_stream, write_stream))
+        <span class="kw">await</span> session.initialize()
+        self.sessions[server_id] = {<span class="str">&quot;session&quot;</span>: session}
+=======
+        <span class="cmt"># 更新工具映射</span>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/agent-<span class="num">3</span>-nlp-ml
+        response = <span class="kw">await</span> session.list_tools()
+        <span class="kw">for</span> tool <span class="kw">in</span> response.tools:
+            self.tools_map[tool.name] = (server_id, endpoint_url)
+
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+<span class="cmt"># 连接多个MCP Server</span>
+<span class="kw">await</span> client.connect_to_server(<span class="str">&quot;stock_server&quot;</span>, <span class="str">&quot;http://server:7336/sse&quot;</span>)
+<span class="kw">await</span> client.connect_to_server(<span class="str">&quot;turn_human_server&quot;</span>, <span class="str">&quot;http://server:7335/sse&quot;</span>)
+<span class="kw">await</span> client.connect_to_server(<span class="str">&quot;policy_reply_server&quot;</span>, <span class="str">&quot;http://server:7337/sse&quot;</span>)</code></pre>
+<h2 id="agent-sdk--mcp-集成">Agent SDK + MCP 集成</h2>
+<pre><code><span class="kw">from</span> agents.mcp <span class="kw">import</span> MCPServerSse
+
+stock_server = MCPServerSse(
+    params={<span class="str">&quot;url&quot;</span>: <span class="str">&quot;http://server:8336/sse&quot;</span>},
+    cache_tools_list=<span class="kw">True</span>, client_session_timeout_seconds=<span class="num">200</span>)
+
+=======
+<span class="cmt"># 在 MCP Server 上下文中定义 Agent</span>
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/agent-<span class="num">3</span>-nlp-ml
+<span class="kw">async</span> <span class="kw">with</span> stock_server:
+    investment_agent = Agent(
+        name=<span class="str">&quot;Investment Agent&quot;</span>,
+        instructions=<span class="str">&quot;你是一名投资顾问...&quot;</span>,
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+        model_settings=ModelSettings(tool_choice=<span class="str">&quot;required&quot;</span>),
+        mcp_servers=[stock_server])
+
+    switch_agent = Agent(
+        name=<span class="str">&quot;Switch Agent&quot;</span>,
+        handoffs=[investment_agent, consult_agent, article_check_agent])</code></pre>
+<h2 id="mcp工具并行-vs-串行调用">MCP工具并行 vs 串行调用</h2>
+<div class="list-item" style="padding-left:0px"><strong>串行</strong>: 分先后调用。如先"规范性审查"再"写审查报告"</div>
+<div class="list-item" style="padding-left:0px"><strong>并行</strong>: 同时调用。如同时调用"规范性审查"和"专业性审查"</div>
+<h2 id="mcp-server-开发模板">MCP Server 开发模板</h2>
+<pre><code><span class="kw">from</span> mcp.server.fastmcp <span class="kw">import</span> FastMCP
+
+mcp = FastMCP(<span class="str">&quot;my_server&quot;</span>, host=<span class="str">&quot;0.0.0.0&quot;</span>, port=<span class="num">7336</span>)
+
+@mcp.tool()
+<span class="kw">async</span> <span class="kw">def</span> my_tool(param: str) -&gt; str:
+    <span class="str">&quot;&quot;</span><span class="str">&quot;工具描述：告诉LLM这个工具做什么&quot;</span><span class="str">&quot;&quot;</span>
+    <span class="kw">return</span> <span class="kw">await</span> business_logic(param)
+
+<span class="kw">if</span> __name__ == <span class="str">&quot;__main__&quot;</span>:
+    mcp.run(transport=<span class="str">&#x27;sse&#x27;</span>)</code></pre>
+<h2 id="面试高频问题">面试高频问题</h2>
+<p><strong>Q: 多MCP协同难点？</strong> 1)多Server需同一session 2)Agent间需两两handoff策略 3)子流程需instruction编排</p>
+<p><strong>Q: 如何保证QPS？</strong> 全异步+FastAPI多线程，压测560+并发。</p>
+<p><strong>Q: 历史消息管理？</strong> 存数据库，只存AI回复和用户问题，中间工具调用日志不存。</p>
+<h2 id="落地实践">落地实践</h2>
+<h3 id="场景一评论监控的多平台-mcp-架构">场景一：评论监控的多平台 MCP 架构</h3>
+<pre><code>用户输入 → Switch Agent
+  ├── B站评论MCP ← 采集/分析/回复
+  ├── 抖音评论MCP ← 采集/分析/回复
+  ├── 微博评论MCP ← 采集/分析/回复
+  └── 统一报告MCP ← 跨平台数据汇总</code></pre>
+<h3 id="场景二视频生成的多服务-mcp-编排">场景二：视频生成的多服务 MCP 编排</h3>
+<p>将脚本生成、素材搜索、配音合成、视频拼接分别封装为 MCP Server，通过 Agent SDK 的 MCPServerSse 统一管理，实现流水线式视频生产。</p>
+<h3 id="场景三hermes-agent-的多-mcp-集成">场景三：Hermes Agent 的多 MCP 集成</h3>
+<p>Hermes Agent 可以同时连接多个 MCP Server（如 GitHub MCP、文件系统 MCP、网络搜索 MCP），通过统一的 session 管理实现跨工具协作。</p>
+<h2 id="知识串联">知识串联</h2>
+<div class="table-wrapper"><table><tr><th>关联主题</th><th>关联文档</th><th>关联说明</th></tr></table></div>
+<p>---------|---------|---------|</p>
+<div class="table-wrapper"><table><tr><th>MCP基础</th><th><a class="wikilink" href="#01-mcp协议概述">01-MCP协议概述</a></th><th>多MCP协同的基础概念</th></tr><tr class="odd"><td>SDK集成</td><td><a class="wikilink" href="#openai-agents-sdk深入">OpenAI-Agents-SDK深入</a></td><td>SDK 的 MCPServerSse 集成</td></tr><tr class="even"><td>SDK开发</td><td><a class="wikilink" href="#02-agent-sdk开发指南">02-Agent-SDK开发指南</a></td><td>SDK + MCP 的开发实战</td></tr><tr class="odd"><td>实战项目</td><td><a class="wikilink" href="#01-金融智能咨询系统">01-金融智能咨询系统</a></td><td>金融系统的多MCP架构</td></tr><tr class="even"><td>实战问答</td><td><a class="wikilink" href="#01-多mcp协同智能体系统实战">01-多MCP协同智能体系统实战</a></td><td>多MCP的面试问答</td></tr></table></div>
+<h2 id="关联笔记">关联笔记</h2>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-07-mcp协议-01-mcp协议概述">MCP协议概述</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-10-智能体项目-01-金融智能咨询系统">金融智能咨询系统</a></div>
+<div class="list-item" style="padding-left:0px"><a class="wikilink" href="#ai大模型-05-agent开发-10-智能体项目-02-agent-sdk开发指南">Agent SDK开发指南</a></div>
+</div>
+<div class="file-section" id="mcp的sse协议">
+<div class="file-header">
+<h2 class="file-title">MCP的SSE协议</h2>
+<span class="badge" style="background:#eab308">intermediate</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#mcp-sse-传输层协议-server-sent-events-进阶">MCP SSE 传输层协议 (Server-Sent Events) ⭐⭐进阶</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#为什么-mcp-偏爱-sse">为什么 MCP 偏爱 SSE？</a></li><li><a href="#实战场景">实战场景</a></li><li><a href="#stdio-vs-sse-对比">stdio vs SSE 对比</a></li><li><a href="#面试要点">面试要点</a></li><li><a href="#sse-标准格式">SSE 标准格式</a></li><li><a href="#总结">总结</a></li></ul></div>
+<h1 id="mcp-sse-传输层协议-server-sent-events-进阶">MCP SSE 传输层协议 (Server-Sent Events) ⭐⭐进阶</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>SSE 是 MCP 协议的<strong>传输层实现</strong>之一，提供基于 HTTP 的单向长连接推送，是目前 MCP 远程调用的主流传输方式。</blockquote>
+<pre><code>07-MCP协议
+├── 01-MCP协议概述 ← 核心概念
+├── 02-多MCP协同系统架构 ← 架构设计
+├── 03-MCP的SSE协议 ✅ ← 传输层：SSE
+├── 04-MCP的Streamable-HTTP ← 传输层：HTTP（更新）
+└── 05-MCP的Prompt调用vs原生Function-Call ← 调用模式</code></pre>
+<p><strong>学习价值</strong>：SSE 是当前 MCP 远程调用的标准传输方式，防火墙友好、断线自动重连。理解 SSE 的工作原理有助于部署和调试 MCP 服务。</p>
+<blockquote>来源：知识星球/AI基础的概念/MCP</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p><strong>SSE (Server-Sent Events)</strong> 是一种允许服务器主动向客户端发送数据的<strong>单向、长连接</strong>通信协议。它是 MCP 官方推荐的两种传输方式之一（另一种是本地的标准输入输出 stdio）。</p>
+<h3 id="直觉类比">直觉类比</h3>
+<div class="table-wrapper"><table><tr><th>协议</th><th>类比</th></tr><tr class="odd"><td>传统 HTTP（轮询）</td><td>没安全感的小孩，每隔一秒问"饭好了吗？"</td></tr><tr class="even"><td>WebSocket</td><td>两个人打跨洋电话，你一言我一语，线路搭建复杂</td></tr><tr class="odd"><td>SSE</td><td><strong>直播间</strong>——订阅后，服务器一有新消息就源源不断地推送</td></tr></table></div>
+<h2 id="为什么-mcp-偏爱-sse">为什么 MCP 偏爱 SSE？</h2>
+<div class="list-item" style="padding-left:0px"><strong>轻量级呼吸</strong>：AI 调用外部工具往往需要时间，SSE 允许服务器"分批"把进度传回来，不用断开重连</div>
+<div class="list-item" style="padding-left:0px"><strong>防火墙友好</strong>：基于标准 HTTP 协议，绝大多数公司的防火墙不会拦截，部署成本极低</div>
+<div class="list-item" style="padding-left:0px"><strong>解决"死等"痛点</strong>：AI 可以看到工具运行的实时流，大大提升交互体验</div>
+<h2 id="实战场景">实战场景</h2>
+<div class="list-item" style="padding-left:0px"><strong>长时间运行的工具</strong>：调用 MCP 工具分析 500 页 PDF 时，服务器不断发送 <code class="inline">{"progress": "20%"}</code>，UI 显示进度条</div>
+<div class="list-item" style="padding-left:0px"><strong>实时数据流检索 (RAG)</strong>：每当有新数据，MCP Server 直接推送到上下文，AI 实时更新回答</div>
+<h2 id="stdio-vs-sse-对比">stdio vs SSE 对比</h2>
+<div class="table-wrapper"><table><tr><th>维度</th><th>stdio（标准输入输出）</th><th>SSE（Server-Sent Events）</th></tr><tr class="odd"><td>物理距离</td><td>工具和 AI 在<strong>同一台电脑</strong>上</td><td>工具和 AI 可以在<strong>不同的服务器</strong>上</td></tr><tr class="even"><td>复杂度</td><td>极低（像读写文件）</td><td>中等（需要 HTTP 环境）</td></tr><tr class="odd"><td>应用场景</td><td>个人电脑本地插件</td><td>云端 AI 助手、企业级服务</td></tr></table></div>
+<h2 id="面试要点">面试要点</h2>
+<p><strong>Q：为什么 MCP 不直接用 WebSocket，而要用 SSE？</strong></p>
+<div class="list-item" style="padding-left:0px">重点是"单向足够"。AI 调用工具后，主要是等待服务器返回结果。SSE 实现更简单，断线自动重连能力强，且对服务器压力小。</div>
+<p><strong>Q：SSE 如果断线了，数据会丢吗？</strong></p>
+<div class="list-item" style="padding-left:0px">SSE 协议内置了 <code class="inline">Last-Event-ID</code> 机制。客户端重连时会告诉服务器最后收到的消息编号，服务器从该编号之后继续推送。</div>
+<h2 id="sse-标准格式">SSE 标准格式</h2>
+<pre><code>data: 消息内容\n\n</code></pre>
+<p>必须以 <code class="inline">data: </code> 开头，以 <code class="inline">\n\n</code> 结尾。</p>
+<h2 id="总结">总结</h2>
+<blockquote>本地开发选 stdio，跨服务调用选 SSE。它是 AI 时代的"单行道快线"，让服务器端的变更能像水流一样顺滑地注入到 AI 的感知中。</blockquote>
+</div>
+<div class="file-section" id="mcp的streamable-http">
+<div class="file-header">
+<h2 class="file-title">MCP的Streamable-HTTP</h2>
+<span class="badge" style="background:#eab308">intermediate</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#mcp-streamable-http-流式-http-传输-进阶">MCP Streamable-HTTP (流式 HTTP 传输) ⭐⭐进阶</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#为什么需要-streamable-http">为什么需要 Streamable-HTTP？</a></li><li><a href="#实战场景">实战场景</a></li><li><a href="#sse-vs-streamable-http-对比">SSE vs Streamable-HTTP 对比</a></li><li><a href="#面试要点">面试要点</a></li><li><a href="#总结">总结</a></li></ul></div>
+<h1 id="mcp-streamable-http-流式-http-传输-进阶">MCP Streamable-HTTP (流式 HTTP 传输) ⭐⭐进阶</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>Streamable-HTTP 是 MCP 协议的<strong>最新传输层标准</strong>，将 HTTP 响应拆分为 JSON 块持续发送，支持无状态模式，是 2025 年处理 Agent 长时交互的工业标准。</blockquote>
+<pre><code>07-MCP协议
+├── 01-MCP协议概述 ← 核心概念
+├── 03-MCP的SSE协议 ← 传输层：SSE（传统）
+├── 04-MCP的Streamable-HTTP ✅ ← 传输层：HTTP（最新最优）
+└── 05-MCP的Prompt调用vs原生Function-Call ← 调用模式</code></pre>
+<p><strong>学习价值</strong>：Streamable-HTTP 是 MCP 传输层的演进方向，比 SSE 更灵活（支持无状态模式），比 WebSocket 更简单（无需握手升级）。新项目应优先选择 Streamable-HTTP。</p>
+<blockquote>来源：知识星球/AI基础的概念/MCP</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<p><strong>Streamable-HTTP</strong> 是一种将 HTTP 响应拆分为多个独立、可解析的 <strong>JSON 块 (Chunks)</strong> 持续发送给客户端的技术。它是 2025 年处理 Agent 长时对话的工业标准。</p>
+<h3 id="直觉类比">直觉类比</h3>
+<div class="list-item" style="padding-left:0px"><strong>传统 HTTP</strong>：像去餐馆点餐，厨师必须把"前菜+主食+甜点"全部装进一个大食盒，打包封死才递给你</div>
+<div class="list-item" style="padding-left:0px"><strong>Streamable-HTTP</strong>：像吃<strong>回转寿司</strong>。厨师每做好一个 JSON 盘子，就顺着传送带转到你面前，你不需要等整顿饭做完</div>
+<h2 id="为什么需要-streamable-http">为什么需要 Streamable-HTTP？</h2>
+<div class="list-item" style="padding-left:0px"><strong>告别"响应焦虑"</strong>：大模型生成 500 字可能需要 10 秒，通过 Streamable-HTTP，第 0.5 秒客户端就能看到第一个词，体感速度提升 20 倍</div>
+<div class="list-item" style="padding-left:0px"><strong>结构化数据边传边算</strong>：MCP 不仅传输文字，还传输工具调用的参数（JSON），允许客户端在接收到一半 JSON 时就开始预热环境</div>
+<div class="list-item" style="padding-left:0px"><strong>节省连接资源</strong>：比 WebSockets 更省心，本质上还是 HTTP，不需要复杂的握手升级，能轻松穿透各类代理服务器（Nginx, Cloudflare）</div>
+<h2 id="实战场景">实战场景</h2>
+<div class="list-item" style="padding-left:0px"><strong>AI 代码生成器</strong>：代码像打字机一样一点点蹦出来，每行生成的代码都能实时通过流式传输进行语法校验</div>
+<div class="list-item" style="padding-left:0px"><strong>多步骤 Agent 思考链</strong>：每完成一个任务，结果就立即"流"给用户，用户能看到 AI 思考的每一步过程</div>
+<h2 id="sse-vs-streamable-http-对比">SSE vs Streamable-HTTP 对比</h2>
+<div class="table-wrapper"><table><tr><th>维度</th><th>SSE (Server-Sent Events)</th><th>Streamable-HTTP (Chunked JSON)</th></tr><tr class="odd"><td>消息类型</td><td>纯文本/事件流（适合推送到浏览器）</td><td>结构化二进制/JSON 块（适合程序解析）</td></tr><tr class="even"><td>控制力</td><td>较弱，主要是通知性质</td><td>强，支持双向控制流的模拟</td></tr><tr class="odd"><td>MCP 语境</td><td>用于简单的状态更新广播</td><td>用于复杂的模型推理与工具交互</td></tr></table></div>
+<h2 id="面试要点">面试要点</h2>
+<p><strong>Q：Streamable-HTTP 传输 JSON 时，如果流断了，JSON 解析报错怎么办？</strong></p>
+<div class="list-item" style="padding-left:0px">在 MCP 实现中，不传输一个巨大的完整 JSON，而是传输 <strong>NDJSON (Newline-Delimited JSON)</strong>。每一行都是一个完整的、可独立解析的小 JSON 对象。即使流断了，之前的块也是有效的。</div>
+<p><strong>Q：为什么不直接用标准的 HTTP Chunked Encoding？</strong></p>
+<div class="list-item" style="padding-left:0px">Streamable-HTTP 实际上就是建立在 Chunked Encoding 之上的应用层协议。它通过特定的"结束标记"和"心跳机制"保证了在不稳定网络下的 AI 交互可靠性。</div>
+<h2 id="总结">总结</h2>
+<blockquote>别让你的 AI 憋大招。无论是为了用户体验，还是为了程序内部的流水线作业，只要涉及到长时交互，请务必启用 Streamable-HTTP。<br><br>- Streamable-HTTP = 像回转寿司一样分批传递数据的 HTTP<br>- 核心价值 = 降低延迟感，支持结构化数据的实时消费<br>- 工程细节 = 常配合 NDJSON（每行一个 JSON）使用，防止解析崩溃</blockquote>
+</div>
+<div class="file-section" id="prompt调用vs原生function-call">
+<div class="file-header">
+<h2 class="file-title">Prompt调用vs原生Function Call</h2>
+<span class="badge" style="background:#eab308">intermediate</span>
+</div>
+<div class="local-toc"><h3>TOC</h3><ul><li><a href="#mcp-中-prompt-调用-vs-原生-function-call-进阶">MCP 中 Prompt 调用 vs 原生 Function Call ⭐⭐进阶</a></li><li><a href="#全局定位">全局定位</a></li><li><a href="#核心概念">核心概念</a></li><li><a href="#为什么从-prompt-调用进化到-function-call">为什么从 Prompt 调用进化到 Function Call？</a></li><li><a href="#使用场景选择">使用场景选择</a></li><li><a href="#面试要点">面试要点</a></li><li><a href="#mcp-工具定义示例">MCP 工具定义示例</a></li><li><a href="#总结">总结</a></li></ul></div>
+<h1 id="mcp-中-prompt-调用-vs-原生-function-call-进阶">MCP 中 Prompt 调用 vs 原生 Function Call ⭐⭐进阶</h1>
+<h2 id="全局定位">全局定位</h2>
+<blockquote>本文档是 MCP 协议层的<strong>调用模式选型指南</strong>，对比 Prompt 调用和原生 Function Call 两种工具调用方式，帮助开发者做出正确选择。</blockquote>
+<pre><code>07-MCP协议
+├── 01-MCP协议概述 ← 核心概念
+├── 05-MCP的Prompt调用vs原生Function-Call ✅ ← 调用模式选型
+└── 08-提示词工程 ← Prompt 调用的基础</code></pre>
+<p><strong>学习价值</strong>：理解 Prompt 调用（语义驱动、易幻觉）vs Function Call（协议驱动、高可靠）的本质区别，是构建稳定 Agent 系统的关键决策。</p>
+<blockquote>来源：知识星球/AI基础的概念/MCP</blockquote>
+<h2 id="核心概念">核心概念</h2>
+<div class="list-item" style="padding-left:0px"><strong>Prompt 调用</strong>：靠"语言暗示"让 AI 模仿返回格式（手绘的假存折去取钱）</div>
+<div class="list-item" style="padding-left:0px"><strong>Function Call</strong>：靠"协议握手"让 AI 从底层逻辑上输出结构化指令（拿着银行卡去 ATM 机）</div>
+<p>这是面试官最喜欢的"原理层"问题，用来区分只会写 Prompt 的调包侠和理解大模型底层逻辑的工程师。</p>
+<h2 id="为什么从-prompt-调用进化到-function-call">为什么从 Prompt 调用进化到 Function Call？</h2>
+<div class="list-item" style="padding-left:0px"><strong>确定性（JSON 格式控制）</strong>：Prompt 调用经常"幻觉"——让它返回 JSON，它偏要在前面加一句"好的，这是你要的 JSON："，导致后端程序崩溃。Function Call 在模型微调阶段就强化了<strong>必须只输出 JSON</strong></div>
+<div class="list-item" style="padding-left:0px"><strong>Schema 约束</strong>：Function Call 强制要求参数类型。如果函数需要 <code class="inline">int</code>，模型不会给你发 <code class="inline">string</code></div>
+<div class="list-item" style="padding-left:0px"><strong>节省 Token</strong>：Function Call 是经过优化的结构化传输，不需要在 Prompt 里反复唠叨工具的使用说明</div>
+<h2 id="使用场景选择">使用场景选择</h2>
+<div class="table-wrapper"><table><tr><th>场景</th><th>推荐方式</th><th>原因</th></tr><tr class="odd"><td>自动化流水线（如删除数据库条目）</td><td>Function Call</td><td>容错率为 0，必须确保参数准确</td></tr><tr class="even"><td>快速原型开发</td><td>Prompt 调用</td><td>不想写复杂的 JSON Schema</td></tr><tr class="odd"><td>逻辑极其简单</td><td>Prompt 调用</td><td>如"如果用户骂人，就回复表情包"</td></tr></table></div>
+<h2 id="面试要点">面试要点</h2>
+<p><strong>Q：既然 Prompt 也能实现，为什么 MCP 要专门搞一套 Function Call 协议？</strong></p>
+<div class="list-item" style="padding-left:0px">重点在于<strong>"标准化"</strong>。Prompt 调用是"私有方案"，换个模型可能就失效了。MCP 的 Function Call 提供了一套全行业通用的接口规范，实现了工具的即插即用。</div>
+<p><strong>Q：Function Call 一定比 Prompt 准确吗？</strong></p>
+<div class="list-item" style="padding-left:0px">不一定。Function Call 的准确度取决于模型的 <strong>Tool-use 能力</strong>。小型模型（如 7B 以下）在处理复杂的 Function Call 时依然会出错，此时反而需要更强的 Prompt 引导。</div>
+<h2 id="mcp-工具定义示例">MCP 工具定义示例</h2>
+<pre><code>mcp_tool_definition = {
+    <span class="str">&quot;name&quot;</span>: <span class="str">&quot;translate_service&quot;</span>,
+    <span class="str">&quot;description&quot;</span>: <span class="str">&quot;将中文翻译成英文的专业工具&quot;</span>,
+    <span class="str">&quot;parameters&quot;</span>: {
+        <span class="str">&quot;type&quot;</span>: <span class="str">&quot;object&quot;</span>,
+        <span class="str">&quot;properties&quot;</span>: {
+            <span class="str">&quot;text&quot;</span>: {<span class="str">&quot;type&quot;</span>: <span class="str">&quot;string&quot;</span>, <span class="str">&quot;description&quot;</span>: <span class="str">&quot;待翻译的文本&quot;</span>}
+        },
+        <span class="str">&quot;required&quot;</span>: [<span class="str">&quot;text&quot;</span>]
+    }
+}</code></pre>
+<h2 id="总结">总结</h2>
+<blockquote><strong>Prompt 是灵魂的沟通，Function Call 是肉体的契约。</strong> 在构建工程级 AI 应用（如 MCP Client）时，永远优先选择 Function Call 来确保系统的稳定性，只在需要灵活定义行为模式时使用 Prompt。<br><br>- Prompt 调用：基于自然语言的语义理解，易出错，难解析<br>- Function Call：基于协议的结构化输出，高可靠，易集成<br>- MCP 的角色：把两种方式都"封装"好了，让你不再纠结底层实现，只需关注业务逻辑</blockquote>
+</div>
+<div class="related-box">
+<h3>Related Project</h3>
+<a class="project-link" href="https://github.com/Maotimotto/ai-knowledge-hub/tree/main/small-projects/agent-task-planner" target="_blank">Agent Task Planner - Multi-Agent Task Planning Demo</a>
+</div>
+</main>
+</div>
+<script>
+document.querySelectorAll('.sidebar-link').forEach(l => {
+    if(l.getAttribute('href') === 'agent-mcp.html') l.classList.add('active');
+});
+</script>
+</body>
+</html>

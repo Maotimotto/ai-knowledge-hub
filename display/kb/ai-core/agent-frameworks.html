@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent框架对比 - Agent开发 Part 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--font-sans:'Inter','Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--text);background:var(--bg);line-height:1.75;display:flex}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fbfbfa;font-size:14px;z-index:10}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none}
+.sidebar li{margin-bottom:2px}
+.sidebar a{display:block;padding:6px 10px;border-radius:6px;color:var(--text);text-decoration:none;transition:background .15s}
+.sidebar a:hover{background:rgba(0,117,222,0.08)}
+.sidebar a.active{background:rgba(0,117,222,0.12);color:var(--accent);font-weight:500}
+.sidebar .dir-label{font-weight:600;color:var(--accent);padding:8px 10px 4px;font-size:13px}
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:40px 60px 80px;max-width:960px}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px;letter-spacing:-0.02em}
+h2{font-size:28px;font-weight:700;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin-bottom:12px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:rgba(0,117,222,0.04);border-radius:0 6px 6px 0;font-size:15px}
+ul,ol{margin:8px 0 16px 24px}
+li{margin-bottom:4px}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+strong{font-weight:600}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-difficulty{background:#fef3c7;color:#92400e}
+.badge-freq{background:#fce7f3;color:#9d174d}
+.badge-section{background:rgba(0,117,222,0.1);color:var(--accent);font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle}
+code{font-family:var(--font-mono);font-size:14px;background:var(--code-bg);padding:2px 6px;border-radius:4px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px 20px;overflow-x:auto;margin:16px 0;line-height:1.6}
+pre code{background:none;padding:0;font-size:13.5px}
+.code-lang{font-size:11px;color:#9b9a97;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th{background:var(--code-bg);font-weight:600;text-align:left;padding:8px 12px;border:1px solid var(--border)}
+td{padding:8px 12px;border:1px solid var(--border)}
+tr:nth-child(even) td{background:#fafafa}
+.toc{background:#f8f8f7;border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{margin-bottom:4px}
+.toc a{font-size:14px;color:var(--text)}
+.toc a:hover{color:var(--accent)}
+.file-section{margin:48px 0;padding-top:32px;border-top:2px solid var(--accent)}
+.file-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.file-header h2{margin:0;border:none;padding:0}
+.meta{color:#9b9a97;font-size:13px;margin-bottom:24px}
+.wiki-link{color:var(--accent);font-weight:500;cursor:pointer}
+.wiki-link:hover{text-decoration:underline}
+.arch-diagram{background:#f8f8f7;border:1px solid var(--border);border-radius:8px;padding:20px;margin:16px 0;font-family:var(--font-mono);font-size:13px;line-height:1.8;white-space:pre;overflow-x:auto}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:16px 0}
+.feature-cell{padding:10px;border:1px solid var(--border);border-radius:6px;text-align:center;font-size:13px}
+.feature-cell.header{background:var(--accent);color:white;font-weight:600;font-size:12px}
+.feature-cell.name{background:var(--code-bg);font-weight:600;font-size:12px}
+.star-5{color:#059669}.star-4{color:#0075de}.star-3{color:#d97706}.star-2{color:#dc2626}
+.pros{color:#059669}.cons{color:#dc2626}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<h3>Agent开发 Part 2</h3>
+<div class="dir-label">09-图数据库</div>
+<ul><li><a href="agent-graph-db.html">图数据库知识库</a></li></ul>
+<div class="dir-label" style="margin-top:16px">10-智能体项目</div>
+<ul><li><a href="agent-projects.html">智能体项目文档</a></li></ul>
+<div class="dir-label" style="margin-top:16px">11-Agent框架对比</div>
+<ul>
+<li><a href="#file-sdk" class="active">OpenAI Agents SDK</a></li>
+<li><a href="#file-autogen">AutoGen</a></li>
+<li><a href="#file-crewai">CrewAI</a></li>
+<li><a href="#file-metagpt">MetaGPT</a></li>
+<li><a href="#file-matrix">框架横向对比矩阵</a></li>
+</ul>
+</nav>
+
+<main class="main">
+<h1>Agent 框架对比</h1>
+<p class="meta">AI大模型 &gt; Agent开发 &gt; 11-Agent框架对比 &mdash; 共5篇文档</p>
+
+<div class="toc">
+<h4>目录</h4>
+<ul>
+<li><a href="#file-sdk">OpenAI Agents SDK 深入解析</a></li>
+<li><a href="#file-autogen">AutoGen 对话式多智能体框架</a></li>
+<li><a href="#file-crewai">CrewAI 多智能体协作框架</a></li>
+<li><a href="#file-metagpt">MetaGPT 软件开发智能体框架</a></li>
+<li><a href="#file-matrix">Agent 框架横向对比矩阵</a></li>
+</ul>
+</div>
+
+<!-- SVG: Framework Comparison Matrix -->
+<div style="margin:24px 0;text-align:center">
+<svg viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,sans-serif;max-width:100%;height:auto">
+<defs>
+<filter id="sh2" x="-3%" y="-3%" width="106%" height="106%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.08"/></filter>
+</defs>
+<!-- Title -->
+<text x="430" y="28" text-anchor="middle" font-size="16" font-weight="700" fill="#37352f">Agent 框架特性矩阵对比</text>
+
+<!-- Header row -->
+<rect x="20" y="50" width="130" height="36" rx="4" fill="#f6f5f4" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="85" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="#9b9a97">特性维度</text>
+
+<rect x="160" y="50" width="130" height="36" rx="4" fill="#0075de" filter="url(#sh2)"/>
+<text x="225" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="white">Agents SDK</text>
+
+<rect x="300" y="50" width="130" height="36" rx="4" fill="#7c3aed" filter="url(#sh2)"/>
+<text x="365" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="white">AutoGen</text>
+
+<rect x="440" y="50" width="130" height="36" rx="4" fill="#059669" filter="url(#sh2)"/>
+<text x="505" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="white">CrewAI</text>
+
+<rect x="580" y="50" width="130" height="36" rx="4" fill="#d97706" filter="url(#sh2)"/>
+<text x="645" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="white">MetaGPT</text>
+
+<rect x="720" y="50" width="120" height="36" rx="4" fill="#dc2626" filter="url(#sh2)"/>
+<text x="780" y="73" text-anchor="middle" font-size="11" font-weight="600" fill="white">LangGraph</text>
+
+<!-- Data rows -->
+<g font-size="11" fill="#37352f">
+<!-- Row 1: Core concept -->
+<rect x="20" y="96" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="118" text-anchor="middle" font-weight="500">核心理念</text>
+<rect x="160" y="96" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="118" text-anchor="middle">轻量原语</text>
+<rect x="300" y="96" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="118" text-anchor="middle">对话驱动</text>
+<rect x="440" y="96" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="118" text-anchor="middle">角色协作</text>
+<rect x="580" y="96" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="118" text-anchor="middle">SOP流程</text>
+<rect x="720" y="96" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="118" text-anchor="middle">图编排</text>
+
+<!-- Row 2: Learning curve -->
+<rect x="20" y="138" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="160" text-anchor="middle" font-weight="500">学习曲线</text>
+<rect x="160" y="138" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="160" text-anchor="middle" fill="#059669" font-weight="600">★★ 低</text>
+<rect x="300" y="138" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="160" text-anchor="middle" fill="#d97706" font-weight="600">★★★ 中</text>
+<rect x="440" y="138" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="160" text-anchor="middle" fill="#059669" font-weight="600">★★ 低</text>
+<rect x="580" y="138" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="160" text-anchor="middle" fill="#d97706" font-weight="600">★★★ 中</text>
+<rect x="720" y="138" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="160" text-anchor="middle" fill="#dc2626" font-weight="600">★★★★ 高</text>
+
+<!-- Row 3: Multi-Agent -->
+<rect x="20" y="180" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="202" text-anchor="middle" font-weight="500">多Agent支持</text>
+<rect x="160" y="180" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="202" text-anchor="middle" fill="#0075de" font-weight="600">Handoff</text>
+<rect x="300" y="180" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="202" text-anchor="middle" fill="#059669" font-weight="600">GroupChat</text>
+<rect x="440" y="180" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="202" text-anchor="middle" fill="#059669" font-weight="600">Crew/Task</text>
+<rect x="580" y="180" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="202" text-anchor="middle" fill="#0075de" font-weight="600">SOP订阅</text>
+<rect x="720" y="180" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="202" text-anchor="middle" fill="#059669" font-weight="600">Graph拓扑</text>
+
+<!-- Row 4: Memory -->
+<rect x="20" y="222" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="244" text-anchor="middle" font-weight="500">记忆系统</text>
+<rect x="160" y="222" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="244" text-anchor="middle" fill="#dc2626">无内置</text>
+<rect x="300" y="222" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="244" text-anchor="middle" fill="#d97706">对话历史</text>
+<rect x="440" y="222" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="244" text-anchor="middle" fill="#059669" font-weight="600">三层记忆</text>
+<rect x="580" y="222" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="244" text-anchor="middle" fill="#d97706">消息池</text>
+<rect x="720" y="222" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="244" text-anchor="middle" fill="#059669" font-weight="600">Checkpointer</text>
+
+<!-- Row 5: Code exec -->
+<rect x="20" y="264" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="286" text-anchor="middle" font-weight="500">代码执行</text>
+<rect x="160" y="264" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="286" text-anchor="middle" fill="#dc2626">无</text>
+<rect x="300" y="264" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="286" text-anchor="middle" fill="#059669" font-weight="600">Docker沙箱</text>
+<rect x="440" y="264" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="286" text-anchor="middle" fill="#0075de">CodeInterp</text>
+<rect x="580" y="264" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="286" text-anchor="middle" fill="#0075de">内置执行</text>
+<rect x="720" y="264" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="286" text-anchor="middle" fill="#d97706">集成</text>
+
+<!-- Row 6: Structured output -->
+<rect x="20" y="306" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="328" text-anchor="middle" font-weight="500">结构化输出</text>
+<rect x="160" y="306" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="328" text-anchor="middle" fill="#059669" font-weight="600">原生Pydantic</text>
+<rect x="300" y="306" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="328" text-anchor="middle" fill="#d97706">0.4支持</text>
+<rect x="440" y="306" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="328" text-anchor="middle" fill="#d97706">有限</text>
+<rect x="580" y="306" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="328" text-anchor="middle" fill="#059669" font-weight="600">强制模板</text>
+<rect x="720" y="306" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="328" text-anchor="middle" fill="#059669" font-weight="600">继承LC</text>
+
+<!-- Row 7: Guardrail -->
+<rect x="20" y="348" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="370" text-anchor="middle" font-weight="500">安全护栏</text>
+<rect x="160" y="348" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="370" text-anchor="middle" fill="#059669" font-weight="600">Guardrail</text>
+<rect x="300" y="348" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="370" text-anchor="middle" fill="#d97706">Human-in-Loop</text>
+<rect x="440" y="348" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="370" text-anchor="middle" fill="#dc2626">有限</text>
+<rect x="580" y="348" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="370" text-anchor="middle" fill="#dc2626">无</text>
+<rect x="720" y="348" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="370" text-anchor="middle" fill="#059669" font-weight="600">interrupt</text>
+
+<!-- Row 8: Tracing -->
+<rect x="20" y="390" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="412" text-anchor="middle" font-weight="500">追踪/可观测</text>
+<rect x="160" y="390" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="412" text-anchor="middle" fill="#059669" font-weight="600">内置Tracing</text>
+<rect x="300" y="390" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="412" text-anchor="middle" fill="#d97706">基础日志</text>
+<rect x="440" y="390" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="412" text-anchor="middle" fill="#d97706">基础日志</text>
+<rect x="580" y="390" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="412" text-anchor="middle" fill="#d97706">基础日志</text>
+<rect x="720" y="390" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="412" text-anchor="middle" fill="#059669" font-weight="600">LangSmith</text>
+
+<!-- Row 9: Production -->
+<rect x="20" y="432" width="130" height="34" rx="2" fill="#f6f5f4"/><text x="85" y="454" text-anchor="middle" font-weight="500">生产就绪度</text>
+<rect x="160" y="432" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="225" y="454" text-anchor="middle" fill="#0075de" font-weight="600">★★★★</text>
+<rect x="300" y="432" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="365" y="454" text-anchor="middle" fill="#d97706" font-weight="600">★★★</text>
+<rect x="440" y="432" width="130" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="505" y="454" text-anchor="middle" fill="#d97706" font-weight="600">★★★</text>
+<rect x="580" y="432" width="130" height="34" rx="2" fill="#fafafa" stroke="rgba(0,0,0,0.06)"/><text x="645" y="454" text-anchor="middle" fill="#dc2626" font-weight="600">★★</text>
+<rect x="720" y="432" width="120" height="34" rx="2" fill="white" stroke="rgba(0,0,0,0.06)"/><text x="780" y="454" text-anchor="middle" fill="#059669" font-weight="600">★★★★★</text>
+
+<!-- Legend -->
+<text x="430" y="498" text-anchor="middle" font-size="11" fill="#9b9a97">Agent框架特性矩阵: 绿色=优势 | 蓝色=中等 | 橙色=有限 | 红色=不足</text>
+</svg>
+</div>
+
+<hr>
+
+<!-- ==================== FILE 1: OpenAI Agents SDK ==================== -->
+<div class="file-section" id="file-sdk">
+<div class="file-header">
+<span class="badge-section">SDK</span>
+<h2>OpenAI Agents SDK 深入解析</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">OpenAI 官方轻量级多智能体框架 | 核心特性: Handoff 转交机制</div>
+
+<h3>概述</h3>
+<p>OpenAI Agents SDK（原 Swarm 框架的生产版）是 OpenAI 官方推出的轻量级多智能体框架，于 2025 年 3 月正式发布。它提供了构建 Agent 应用所需的核心原语：<strong>Agent</strong>、<strong>Runner</strong>、<strong>Tool</strong>、<strong>Guardrail</strong> 和 <strong>Handoff</strong>。</p>
+
+<h3>核心架构</h3>
+<div class="arch-diagram">┌──────────────────────────────────────────────────────┐
+│                  OpenAI Agents SDK                     │
+│                                                      │
+│  ┌─────────┐   ┌─────────┐   ┌─────────┐            │
+│  │ Agent A │──►│ Handoff │──►│ Agent B │            │
+│  │(指令+工具)│   │ (转交)   │   │(指令+工具)│            │
+│  └────┬────┘   └─────────┘   └────┬────┘            │
+│       │                            │                  │
+│  ┌────▼────────────────────────────▼────┐            │
+│  │            Runner（执行引擎）          │            │
+│  │   循环：LLM调用 → 工具调用 → 结果组装   │            │
+│  └──────────────────────────────────────┘            │
+│       │              │              │                │
+│  ┌────▼────┐   ┌─────▼────┐   ┌────▼─────┐         │
+│  │  Tool   │   │ Guardrail│   │ Tracing  │         │
+│  │ (工具)   │   │ (护栏)    │   │ (追踪)    │         │
+│  └─────────┘   └──────────┘   └──────────┘         │
+└──────────────────────────────────────────────────────┘</div>
+
+<h3>核心概念</h3>
+
+<h4>3.1 Agent</h4>
+<div class="code-lang">Python</div>
+<pre><code>from agents import Agent
+
+agent = Agent(
+    name="Weather Assistant",
+    instructions="你是一个天气助手，帮助用户查询天气信息。始终用中文回复。",
+    model="gpt-4o",
+    tools=[get_weather, get_forecast],
+    handoffs=[specialist_agent],
+    output_type=WeatherReport,           # 结构化输出（Pydantic 模型）
+    model_settings=ModelSettings(temperature=0.5, max_tokens=4096),
+)</code></pre>
+
+<p><strong>Agent 关键属性</strong>：</p>
+<table>
+<tr><th>属性</th><th>说明</th></tr>
+<tr><td><code>name</code></td><td>Agent 名称，用于日志和追踪</td></tr>
+<tr><td><code>instructions</code></td><td>系统指令，可以是字符串或函数</td></tr>
+<tr><td><code>model</code></td><td>使用的模型名称</td></tr>
+<tr><td><code>tools</code></td><td>工具列表（FunctionTool 等）</td></tr>
+<tr><td><code>handoffs</code></td><td>可转交的目标 Agent 列表</td></tr>
+<tr><td><code>output_type</code></td><td>结构化输出的 Pydantic 模型</td></tr>
+<tr><td><code>input_guardrails</code></td><td>输入护栏列表</td></tr>
+<tr><td><code>output_guardrails</code></td><td>输出护栏列表</td></tr>
+</table>
+
+<h4>3.2 Runner（执行引擎）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from agents import Agent, Runner
+
+# 方式 1：同步执行
+result = Runner.run_sync(starting_agent=agent, input="北京今天天气怎么样？")
+print(result.final_output)
+
+# 方式 2：异步执行
+result = await Runner.run(starting_agent=agent, input="北京今天天气怎么样？")
+
+# 方式 3：流式执行
+result = Runner.run_streamed(starting_agent=agent, input="北京今天天气怎么样？")
+async for event in result.stream_events():
+    if event.type == "raw_response_event" and hasattr(event.data, 'delta'):
+        print(event.data.delta, end="", flush=True)</code></pre>
+
+<p><strong>Runner 执行循环</strong>：</p>
+<ol>
+<li>将 input + instructions + tools 传给 LLM</li>
+<li>LLM 返回响应
+<ul>
+<li>文本回复 → 返回结果</li>
+<li>工具调用 → 执行工具 → 将结果反馈给 LLM → 回到步骤 2</li>
+<li>Handoff → 切换到目标 Agent → 回到步骤 1</li>
+</ul>
+</li>
+<li>重复直到 LLM 返回最终文本或达到最大轮次</li>
+</ol>
+
+<h4>3.4 Handoff（转交）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from agents import Agent, handoff
+
+billing_agent = Agent(
+    name="Billing Agent",
+    instructions="处理账单和支付相关问题。",
+    tools=[check_bill, process_refund],
+)
+
+triage_agent = Agent(
+    name="Triage Agent",
+    instructions="""你是客服分流助手。根据用户问题：
+    - 账单/支付问题 → 转交给 Billing Agent
+    - 技术/故障问题 → 转交给 Technical Support""",
+    handoffs=[billing_agent, technical_agent],
+)</code></pre>
+
+<h4>3.5 Guardrail（护栏）</h4>
+<p>Guardrail 用于在 Agent 处理前后进行输入/输出验证，确保安全性：</p>
+<div class="code-lang">Python</div>
+<pre><code>from agents import input_guardrail, output_guardrail
+
+@input_guardrail
+async def sensitive_content_guardrail(ctx, agent, input):
+    result = await Runner.run(sensitive_checker, input, context=ctx.context)
+    output = result.final_output_as(SensitiveCheckOutput)
+    return GuardrailFunctionOutput(
+        output_info=output,
+        tripwire_triggered=output.is_sensitive,
+    )
+
+safe_agent = Agent(
+    name="Safe Assistant",
+    instructions="你是一个安全的助手。",
+    input_guardrails=[sensitive_content_guardrail],
+    output_guardrails=[output_safety_guardrail],
+)</code></pre>
+
+<h3>优缺点</h3>
+<ul>
+<li class="pros"><strong>优点</strong>: 官方支持、轻量简洁、Handoff机制优雅、内置追踪、结构化输出、Guardrail系统、流式支持</li>
+<li class="cons"><strong>缺点</strong>: OpenAI绑定、功能覆盖面较窄、无内置记忆、社区较小、不适合复杂图工作流</li>
+</ul>
+
+<h3>适用场景</h3>
+<table>
+<tr><th>场景</th><th>说明</th></tr>
+<tr><td>客服系统</td><td>Triage → 专业 Agent 的 Handoff 模式</td></tr>
+<tr><td>信息提取</td><td>结构化输出提取结构化数据</td></tr>
+<tr><td>安全对话</td><td>Guardrail 确保输入输出安全</td></tr>
+<tr><td>多步工作流</td><td>多 Agent 协作完成复杂任务</td></tr>
+</table>
+</div>
+
+<!-- ==================== FILE 2: AutoGen ==================== -->
+<div class="file-section" id="file-autogen">
+<div class="file-header">
+<span class="badge-section">AutoGen</span>
+<h2>AutoGen 对话式多智能体框架</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">微软研究院开源 | 核心特点: 对话驱动的多智能体协作</div>
+
+<h3>概述</h3>
+<p>AutoGen 是微软研究院开源的多智能体对话框架，核心理念是通过<strong>Agent 之间的对话</strong>来完成复杂任务。它支持灵活的对话模式——从简单的双 Agent 对话到复杂的群聊协作。</p>
+
+<h3>核心架构</h3>
+<div class="arch-diagram">┌──────────────────────────────────────────────┐
+│            AutoGen 对话框架                    │
+│                                              │
+│  ┌──────────────┐    ┌──────────────────┐    │
+│  │AssistantAgent│    │  UserProxyAgent   │    │
+│  │  (AI 助手)    │◄──►│  (人类代理/执行器)  │    │
+│  └──────────────┘    └──────────────────┘    │
+│         │                      │              │
+│    ┌────▼──────────────────────▼────┐         │
+│    │     GroupChat（群聊模式）        │         │
+│    │  Agent A ↔ Agent B ↔ Agent C   │         │
+│    │         ↕ GroupChatManager      │         │
+│    └────────────────────────────────┘         │
+└──────────────────────────────────────────────┘</div>
+
+<h3>AutoGen 0.2（经典版本）</h3>
+
+<h4>AssistantAgent</h4>
+<div class="code-lang">Python</div>
+<pre><code>import autogen
+
+assistant = autogen.AssistantAgent(
+    name="assistant",
+    llm_config={"model": "gpt-4o", "api_key": "sk-xxx", "temperature": 0},
+    system_message="""你是一个有用的 AI 助手。当你认为任务已完成时，回复 TERMINATE。""",
+)</code></pre>
+
+<h4>UserProxyAgent</h4>
+<div class="code-lang">Python</div>
+<pre><code>user_proxy = autogen.UserProxyAgent(
+    name="user_proxy",
+    human_input_mode="TERMINATE",  # "ALWAYS" | "NEVER" | "TERMINATE"
+    max_consecutive_auto_reply=10,
+    code_execution_config={"work_dir": "coding", "use_docker": True, "timeout": 120},
+)</code></pre>
+
+<p><strong>human_input_mode 说明</strong>：</p>
+<table>
+<tr><th>模式</th><th>说明</th></tr>
+<tr><td><code>ALWAYS</code></td><td>每轮都请求人类输入</td></tr>
+<tr><td><code>TERMINATE</code></td><td>仅在对话终止时请求输入</td></tr>
+<tr><td><code>NEVER</code></td><td>完全自动，不请求人类输入</td></tr>
+</table>
+
+<h4>Group Chat（群聊）</h4>
+<div class="code-lang">Python</div>
+<pre><code>group_chat = autogen.GroupChat(
+    agents=[user_proxy, planner, coder, critic],
+    messages=[], max_round=20,
+    speaker_selection_method="auto",  # auto | round_robin | random
+)
+manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=llm_config)
+
+user_proxy.initiate_chat(manager, message="开发一个带有 REST API 的待办事项应用。")</code></pre>
+
+<h3>AutoGen 0.4（新版 AG2）</h3>
+<div class="code-lang">Python</div>
+<pre><code>from autogen_agentchat.agents import AssistantAgent
+from autogen_agentchat.teams import RoundRobinGroupChat
+from autogen_agentchat.conditions import TextMentionTermination, MaxMessageTermination
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+
+model = OpenAIChatCompletionClient(model="gpt-4o")
+agent = AssistantAgent(name="assistant", model_client=model, tools=[my_tool])
+team = RoundRobinGroupChat(
+    participants=[agent1, agent2],
+    termination_condition=TextMentionTermination("DONE") | MaxMessageTermination(10),
+)
+result = await team.run(task="What is the weather today?")</code></pre>
+
+<h4>新版核心组件</h4>
+<table>
+<tr><th>组件</th><th>说明</th></tr>
+<tr><td><code>RoundRobinGroupChat</code></td><td>轮询式群聊</td></tr>
+<tr><td><code>SelectorGroupChat</code></td><td>选择式群聊（LLM 选择发言者）</td></tr>
+<tr><td><code>SwarmGroupChat</code></td><td>蜂群模式（支持 handoff）</td></tr>
+<tr><td><code>MagenticOneGroupChat</code></td><td>微软 Magentic-One 编排模式</td></tr>
+</table>
+
+<h3>优缺点</h3>
+<ul>
+<li class="pros"><strong>优点</strong>: 对话驱动自然、灵活群聊模式、内置代码执行、原生Human-in-the-Loop、微软背书</li>
+<li class="cons"><strong>缺点</strong>: 版本分裂（0.2/0.4差异大）、调试困难、延迟高、确定性差</li>
+</ul>
+
+<h3>适用场景</h3>
+<table>
+<tr><th>场景</th><th>说明</th></tr>
+<tr><td>代码开发</td><td>多角色协作：PM→架构→编码→测试</td></tr>
+<tr><td>数据分析</td><td>数据科学家 + 代码执行 + 结果分析</td></tr>
+<tr><td>文档协作</td><td>写作→审阅→修改的迭代流程</td></tr>
+<tr><td>教育辅导</td><td>教师 Agent + 学生 Agent 的对话式学习</td></tr>
+</table>
+</div>
+
+<!-- ==================== FILE 3: CrewAI ==================== -->
+<div class="file-section" id="file-crewai">
+<div class="file-header">
+<span class="badge-section">CrewAI</span>
+<h2>CrewAI 多智能体协作框架</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">开源 | 核心特点: 角色驱动的声明式多智能体协作</div>
+
+<h3>概述</h3>
+<p>CrewAI 是一个开源的多智能体协作框架，灵感来自真实世界的团队协作模式。它将 AI Agent 建模为具有<strong>角色（Role）</strong>、<strong>目标（Goal）</strong>和<strong>背景故事（Backstory）</strong>的"crew 成员"，通过分工协作完成复杂任务。</p>
+
+<h3>核心架构</h3>
+<div class="arch-diagram">┌─────────────────────────────────────┐
+│              Crew（团队）            │
+│  ┌──────────┐  ┌──────────┐        │
+│  │ Agent A  │  │ Agent B  │  ...   │
+│  │ (角色+目标)│  │ (角色+目标)│        │
+│  └────┬─────┘  └────┬─────┘        │
+│       │              │              │
+│  ┌────▼─────┐  ┌────▼─────┐        │
+│  │ Task 1   │  │ Task 2   │  ...   │
+│  │(描述+期望) │  │(描述+期望) │        │
+│  └──────────┘  └──────────┘        │
+│                                     │
+│  Process: Sequential / Hierarchical │
+└─────────────────────────────────────┘</div>
+
+<h3>核心概念</h3>
+
+<h4>Agent（智能体）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from crewai import Agent
+
+researcher = Agent(
+    role="高级研究分析师",
+    goal="发现关于 {topic} 的最新洞见",
+    backstory="你是一位经验丰富的研究分析师，擅长从海量信息中提取关键洞见。",
+    verbose=True,
+    allow_delegation=False,
+    tools=[search_tool, scrape_tool],
+    llm="gpt-4o",
+    memory=True,
+)</code></pre>
+
+<h4>Task（任务）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from crewai import Task
+
+research_task = Task(
+    description="对 {topic} 进行全面研究，分析最新趋势、关键参与者和技术发展。",
+    expected_output="一份包含 3 个关键发现的段落，附带数据支持",
+    agent=researcher,
+    output_file="research_report.md",
+    context=[prior_task],
+)</code></pre>
+
+<h4>Crew（团队）+ Process（执行流程）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from crewai import Crew, Process
+
+crew = Crew(
+    agents=[researcher, writer, editor],
+    tasks=[research_task, writing_task, editing_task],
+    process=Process.sequential,    # 顺序执行
+    # process=Process.hierarchical,  # 层级式（Manager Agent 协调）
+    memory=True, verbose=True,
+)
+result = crew.kickoff(inputs={"topic": "2025年大语言模型发展趋势"})</code></pre>
+
+<p><strong>Process 类型</strong>：</p>
+<table>
+<tr><th>流程类型</th><th>说明</th></tr>
+<tr><td><code>Process.sequential</code></td><td>任务按顺序依次执行，前一个任务的输出作为后续任务的上下文</td></tr>
+<tr><td><code>Process.hierarchical</code></td><td>由 Manager Agent 自动分配和协调任务</td></tr>
+</table>
+
+<h4>记忆系统</h4>
+<p>CrewAI 内置三层记忆：</p>
+<ul>
+<li><strong>Long-term Memory</strong>: 跨 session 持久化到 SQLite</li>
+<li><strong>Short-term Memory</strong>: 当前 session 内的上下文</li>
+<li><strong>Entity Memory</strong>: 记录涉及的人物/组织等实体</li>
+</ul>
+
+<h3>优缺点</h3>
+<ul>
+<li class="pros"><strong>优点</strong>: 直觉化角色设计、内置三层记忆、丰富工具生态、Flows支持、低学习曲线</li>
+<li class="cons"><strong>缺点</strong>: 大规模场景受限、调试困难、模型依赖、企业级特性不足</li>
+</ul>
+
+<h3>适用场景</h3>
+<table>
+<tr><th>场景</th><th>说明</th></tr>
+<tr><td>内容生产</td><td>研究→写作→审核的流水线</td></tr>
+<tr><td>数据分析</td><td>数据收集→清洗→分析→报告</td></tr>
+<tr><td>市场调研</td><td>竞品分析→趋势总结→策略建议</td></tr>
+<tr><td>代码开发</td><td>需求分析→编码→测试→文档</td></tr>
+</table>
+</div>
+
+<!-- ==================== FILE 4: MetaGPT ==================== -->
+<div class="file-section" id="file-metagpt">
+<div class="file-header">
+<span class="badge-section">MetaGPT</span>
+<h2>MetaGPT 软件开发智能体框架</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">DeepWisdom 开源 | 核心特点: 将软件公司 SOP 映射为多智能体协作</div>
+
+<h3>概述</h3>
+<p>MetaGPT 是一个将人类软件公司运作流程（SOP）映射到多智能体协作的框架。核心理念：<strong>让 AI Agent 像真实软件公司的员工一样，按照标准流程协作完成软件开发</strong>。</p>
+
+<h3>核心架构</h3>
+<div class="arch-diagram">┌─────────────────────────────────────────────────┐
+│              MetaGPT 软件公司                     │
+│                                                 │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
+│  │   PM    │  │Architect │  │Engineer │        │
+│  │产品经理  │──►│ 架构师   │──►│ 工程师   │        │
+│  └─────────┘  └─────────┘  └─────────┘        │
+│       │            │            │               │
+│       ▼            ▼            ▼               │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
+│  │PRD文档   │  │系统设计   │  │代码实现   │        │
+│  └─────────┘  └─────────┘  └─────────┘        │
+│                                    │            │
+│                              ┌─────▼──────┐     │
+│                              │    QA      │     │
+│                              │ 测试工程师   │     │
+│                              └────────────┘     │
+│                                                 │
+│  ┌──────────────────────────────────────┐       │
+│  │  Environment（共享环境/消息总线）       │       │
+│  │  Message Pool ←→ Subscription 机制    │       │
+│  └──────────────────────────────────────┘       │
+└─────────────────────────────────────────────────┘</div>
+
+<h3>核心概念</h3>
+
+<h4>SOP 驱动的工作流</h4>
+<div class="arch-diagram">用户需求 → PM(产品需求) → Architect(技术设计) → Engineer(代码实现) → QA(测试验证)
+              ↓                  ↓                    ↓                ↓
+           PRD.md            design.md            code files       test results
+           数据接口            API 设计             单元测试          bug report</div>
+
+<h4>内置角色</h4>
+<table>
+<tr><th>角色</th><th>职责</th><th>输出</th></tr>
+<tr><td><strong>ProductManager</strong></td><td>需求分析、产品规划</td><td>PRD（产品需求文档）</td></tr>
+<tr><td><strong>Architect</strong></td><td>技术选型、系统设计</td><td>系统设计文档、API 设计</td></tr>
+<tr><td><strong>ProjectManager</strong></td><td>项目管理、任务拆解</td><td>任务列表、进度跟踪</td></tr>
+<tr><td><strong>Engineer</strong></td><td>代码实现</td><td>源代码文件</td></tr>
+<tr><td><strong>QAEngineer</strong></td><td>测试用例、代码审查</td><td>测试代码、Bug 报告</td></tr>
+</table>
+
+<h4>消息机制</h4>
+<p>Agent 之间通过<strong>消息订阅</strong>机制通信：</p>
+<pre><code>Agent A 发布消息 → Message Pool → Agent B（已订阅该消息类型）收到并处理</code></pre>
+
+<h3>快速开始</h3>
+<div class="code-lang">Python</div>
+<pre><code>import asyncio
+from metagpt.team import Team
+
+async def main():
+    team = Team()
+    team.hire([ProductManager(), Architect(), ProjectManager(), Engineer(), QAEngineer()])
+    team.invest(investment=20.0)  # 预算（美元）
+    team.run_project("创建一个命令行贪吃蛇游戏，支持难度选择和分数记录")
+    await team.run()
+
+asyncio.run(main())</code></pre>
+
+<h3>优缺点</h3>
+<ul>
+<li class="pros"><strong>优点</strong>: 工程化流程、角色专业化、完整开发链路、代码质量好、支持增量开发</li>
+<li class="cons"><strong>缺点</strong>: Token消耗大、灵活性不足（仅适合软件开发）、速度慢、配置复杂</li>
+</ul>
+
+<h3>适用场景</h3>
+<table>
+<tr><th>场景</th><th>说明</th></tr>
+<tr><td>软件开发</td><td>完整的从需求到代码的自动化</td></tr>
+<tr><td>数据分析</td><td>Data Interpreter 角色，自动分析数据</td></tr>
+<tr><td>API 开发</td><td>设计→实现→文档→测试</td></tr>
+<tr><td>原型开发</td><td>快速生成 MVP（最小可行产品）</td></tr>
+</table>
+</div>
+
+<!-- ==================== FILE 5: 框架横向对比矩阵 ==================== -->
+<div class="file-section" id="file-matrix">
+<div class="file-header">
+<span class="badge-section">选型</span>
+<h2>Agent 框架横向对比矩阵</h2>
+<span class="badge badge-difficulty">进阶</span>
+</div>
+<div class="meta">框架选型决策指南 | 6大框架多维度对比</div>
+
+<h3>总览对比表</h3>
+<table>
+<tr><th>维度</th><th>CrewAI</th><th>AutoGen</th><th>MetaGPT</th><th>Agents SDK</th><th>LangChain</th><th>LangGraph</th></tr>
+<tr><td><strong>开发者</strong></td><td>CrewAI Inc</td><td>微软研究院</td><td>DeepWisdom</td><td>OpenAI</td><td>LangChain</td><td>LangChain</td></tr>
+<tr><td><strong>核心理念</strong></td><td>角色协作</td><td>对话驱动</td><td>SOP 流程</td><td>轻量原语</td><td>链式调用</td><td>图编排</td></tr>
+<tr><td><strong>首次发布</strong></td><td>2023</td><td>2023</td><td>2023</td><td>2025.3</td><td>2022</td><td>2024</td></tr>
+<tr><td><strong>GitHub Stars</strong></td><td>~25k</td><td>~40k</td><td>~48k</td><td>~20k</td><td>~100k+</td><td>~10k</td></tr>
+</table>
+
+<h3>编程范式</h3>
+<table>
+<tr><th>框架</th><th>范式</th><th>说明</th></tr>
+<tr><td><strong>CrewAI</strong></td><td>声明式</td><td>定义 Agent/Task/Crew，框架自动编排</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>对话式</td><td>Agent 通过消息对话推进任务</td></tr>
+<tr><td><strong>MetaGPT</strong></td><td>流程式</td><td>严格的 SOP 流程，角色订阅消息</td></tr>
+<tr><td><strong>Agents SDK</strong></td><td>命令式</td><td>显式定义 Agent→Runner 执行</td></tr>
+<tr><td><strong>LangChain</strong></td><td>链式</td><td>LCEL 管道式组合</td></tr>
+<tr><td><strong>LangGraph</strong></td><td>图式</td><td>状态机+有向图编排</td></tr>
+</table>
+
+<h3>多 Agent 架构</h3>
+<div class="arch-diagram">CrewAI:     Crew → [Agent1, Agent2, Agent3] → Sequential/Hierarchical
+AutoGen:    GroupChat → [Agent1 ↔ Agent2 ↔ Agent3] → Speaker Selection
+MetaGPT:    Environment → PM → Architect → Engineer → QA (订阅链)
+Agents SDK: Agent → Handoff → Agent (转交链)
+LangChain:  无原生多 Agent，需组合实现
+LangGraph:  Graph → Node(Agent1) ↔ Node(Agent2) ↔ Node(Agent3) (图拓扑)</div>
+
+<h3>详细维度对比</h3>
+
+<h4>学习曲线</h4>
+<table>
+<tr><th>框架</th><th>难度</th><th>说明</th></tr>
+<tr><td><strong>CrewAI</strong></td><td>★★ 低</td><td>API 简洁，角色定义直觉，文档清晰</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>★★★ 中</td><td>概念简单但版本混乱</td></tr>
+<tr><td><strong>MetaGPT</strong></td><td>★★★ 中</td><td>需要理解 SOP 和消息订阅机制</td></tr>
+<tr><td><strong>Agents SDK</strong></td><td>★★ 低</td><td>API 极简，核心概念少，上手快</td></tr>
+<tr><td><strong>LangChain</strong></td><td>★★★★ 高</td><td>抽象层多，概念碎片化</td></tr>
+<tr><td><strong>LangGraph</strong></td><td>★★★★ 高</td><td>需要理解状态机和图编程</td></tr>
+</table>
+
+<h4>多智能体支持</h4>
+<table>
+<tr><th>框架</th><th>评分</th><th>说明</th></tr>
+<tr><td><strong>CrewAI</strong></td><td>★★★★★</td><td>原生多 Agent，角色定义、委派、协作流程完整</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>★★★★★</td><td>多 Agent 是核心特性，群聊模式灵活</td></tr>
+<tr><td><strong>MetaGPT</strong></td><td>★★★★</td><td>固定角色模式，软件开发场景强</td></tr>
+<tr><td><strong>Agents SDK</strong></td><td>★★★★</td><td>Handoff 机制优雅，但无群聊模式</td></tr>
+<tr><td><strong>LangChain</strong></td><td>★★</td><td>非核心特性，需自行组合</td></tr>
+<tr><td><strong>LangGraph</strong></td><td>★★★★★</td><td>图编排天然支持任意复杂拓扑</td></tr>
+</table>
+
+<h4>记忆系统</h4>
+<table>
+<tr><th>框架</th><th>短期</th><th>长期</th><th>实体</th><th>说明</th></tr>
+<tr><td><strong>CrewAI</strong></td><td>✅</td><td>✅</td><td>✅</td><td>内置三层记忆（SQLite + 嵌入）</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>✅</td><td>⚠️</td><td>❌</td><td>对话历史即记忆，持久化需自行实现</td></tr>
+<tr><td><strong>MetaGPT</strong></td><td>✅</td><td>⚠️</td><td>❌</td><td>消息池即短期记忆</td></tr>
+<tr><td><strong>Agents SDK</strong></td><td>✅</td><td>❌</td><td>❌</td><td>无内置记忆</td></tr>
+<tr><td><strong>LangChain</strong></td><td>✅</td><td>✅</td><td>✅</td><td>丰富的 Memory 组件</td></tr>
+<tr><td><strong>LangGraph</strong></td><td>✅</td><td>✅</td><td>✅</td><td>Checkpointer 实现持久化状态</td></tr>
+</table>
+
+<h3>场景选型指南</h3>
+<table>
+<tr><th>场景</th><th>推荐框架</th><th>理由</th></tr>
+<tr><td><strong>快速原型</strong></td><td>CrewAI / Agents SDK</td><td>API 简洁，上手快</td></tr>
+<tr><td><strong>软件开发自动化</strong></td><td>MetaGPT</td><td>SOP 流程天然适合</td></tr>
+<tr><td><strong>客服/分流系统</strong></td><td>OpenAI Agents SDK</td><td>Handoff 机制完美匹配</td></tr>
+<tr><td><strong>复杂工作流</strong></td><td>LangGraph</td><td>图编排最灵活</td></tr>
+<tr><td><strong>研究/实验</strong></td><td>AutoGen</td><td>对话模式适合探索</td></tr>
+<tr><td><strong>生产级应用</strong></td><td>LangGraph / LangChain</td><td>生态成熟，企业支持好</td></tr>
+<tr><td><strong>内容生产</strong></td><td>CrewAI</td><td>角色协作模式直觉</td></tr>
+<tr><td><strong>数据分析</strong></td><td>AutoGen / MetaGPT</td><td>内置代码执行</td></tr>
+</table>
+
+<h3>决策流程图</h3>
+<div class="arch-diagram">需要构建 Agent 应用？
+    │
+    ├── 需要多 Agent 协作？
+    │   ├── 是 → 需要严格流程？
+    │   │       ├── 是 → MetaGPT（软件开发）或 LangGraph（通用）
+    │   │       └── 否 → 需要对话式协作？
+    │   │               ├── 是 → AutoGen
+    │   │               └── 否 → CrewAI 或 Agents SDK
+    │   └── 否 → 单 Agent + 工具
+    │           ├── 需要丰富工具生态 → LangChain
+    │           ├── 需要简洁 API → Agents SDK
+    │           └── 需要图编排 → LangGraph
+    │
+    └── 关键约束？
+        ├── 必须用 OpenAI → Agents SDK
+        ├── 必须有追踪/监控 → LangChain + LangGraph
+        ├── 预算有限 → CrewAI / Agents SDK
+        └── 需要 Human-in-loop → AutoGen / LangGraph</div>
+
+<h3>总结</h3>
+<table>
+<tr><th>如果你需要...</th><th>选择</th></tr>
+<tr><td>最快上手</td><td><strong>CrewAI</strong> 或 <strong>OpenAI Agents SDK</strong></td></tr>
+<tr><td>最灵活的编排</td><td><strong>LangGraph</strong></td></tr>
+<tr><td>最像软件公司</td><td><strong>MetaGPT</strong></td></tr>
+<tr><td>最自然的对话</td><td><strong>AutoGen</strong></td></tr>
+<tr><td>最丰富的生态</td><td><strong>LangChain</strong></td></tr>
+<tr><td>最轻量</td><td><strong>OpenAI Agents SDK</strong></td></tr>
+<tr><td>生产级推荐</td><td><strong>LangGraph</strong> + <strong>LangSmith</strong></td></tr>
+</table>
+
+<blockquote>没有"最好"的框架，只有"最合适"的框架。先明确需求（单 Agent vs 多 Agent、流程型 vs 对话型、生产 vs 实验），再选择框架。也可以组合使用多个框架的优势。</blockquote>
+</div>
+
+<!-- Navigation -->
+<div style="margin-top:64px;padding-top:24px;border-top:2px solid var(--border);display:flex;justify-content:space-between">
+<div><a href="agent-projects.html">← 智能体项目</a></div>
+<div style="text-align:right"><a href="agent-graph-db.html">← 图数据库</a></div>
+</div>
+</main>
+</body>
+</html>

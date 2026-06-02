@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实战技巧与对齐技术 — 模型微调 - AI大模型知识体系</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffffff; --text: #1a1a1a; --text2: #6b7280; --accent: #0075de;
+  --code-bg: #f6f5f4; --border: rgba(0,0,0,0.1); --sidebar-w: 280px;
+  --radius: 6px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body { font-family: 'Inter', 'Noto Sans SC', sans-serif; color: var(--text); background: var(--bg); line-height: 1.7; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0; width: var(--sidebar-w); height: 100vh;
+  background: #fafafa; border-right: 1px solid var(--border); padding: 24px 16px;
+  overflow-y: auto; z-index: 100;
+}
+.sidebar h3 { font-size: 13px; text-transform: uppercase; color: var(--text2); letter-spacing: 0.05em; margin-bottom: 12px; }
+.sidebar ul { list-style: none; }
+.sidebar li { margin-bottom: 4px; }
+.sidebar li a {
+  display: block; padding: 6px 10px; border-radius: var(--radius); font-size: 14px;
+  color: var(--text); transition: background 0.15s;
+}
+.sidebar li a:hover, .sidebar li a.active { background: #e8f0fe; text-decoration: none; }
+.sidebar .sub { padding-left: 14px; }
+.sidebar .badge { display: inline-block; font-size: 10px; padding: 1px 6px; border-radius: 10px; margin-left: 4px; font-weight: 600; }
+.badge-beginner { background: #d1fae5; color: #065f46; }
+.badge-intermediate { background: #fef3c7; color: #92400e; }
+.badge-advanced { background: #fee2e2; color: #991b1b; }
+
+/* ── main ── */
+.main { margin-left: var(--sidebar-w); max-width: 900px; padding: 40px 48px 80px; }
+
+/* ── headings ── */
+h1 { font-size: 44px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; }
+h2 { font-size: 28px; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+h3 { font-size: 22px; font-weight: 600; margin: 32px 0 12px; }
+h4 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; }
+h5 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+
+p { margin-bottom: 14px; }
+ul, ol { margin: 0 0 14px 24px; }
+li { margin-bottom: 4px; }
+blockquote { border-left: 3px solid var(--accent); padding: 8px 16px; margin: 16px 0; background: #f0f7ff; border-radius: 0 var(--radius) var(--radius) 0; color: var(--text2); }
+
+/* ── code ── */
+code { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.9em; background: var(--code-bg); padding: 2px 6px; border-radius: 3px; }
+pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 20px; overflow-x: auto; margin: 16px 0; line-height: 1.5; }
+pre code { background: none; padding: 0; font-size: 14px; }
+/* CSS syntax highlighting in code blocks */
+.kw { color: #8b5cf6; } .fn { color: #2563eb; } .str { color: #16a34a; }
+.cm { color: #9ca3af; font-style: italic; } .num { color: #d97706; }
+
+/* ── tables ── */
+table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 15px; }
+th, td { padding: 10px 14px; text-align: left; border: 1px solid var(--border); }
+th { background: #f8f9fa; font-weight: 600; }
+tr:nth-child(even) { background: #fafbfc; }
+
+/* ── misc ── */
+.tag { display: inline-block; font-size: 12px; padding: 2px 10px; border-radius: 12px; background: #e8f0fe; color: var(--accent); margin: 2px 4px 2px 0; }
+.section-card { background: #f8f9fa; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 16px 0; }
+.toc { background: #f8f9fa; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 24px; margin: 24px 0; }
+.toc h4 { margin-top: 0; }
+.toc ul { list-style: none; margin-left: 0; }
+.toc li { padding: 3px 0; }
+.toc li a { font-size: 15px; }
+svg.diagram { display: block; margin: 24px auto; max-width: 100%; }
+.cross-ref { background: linear-gradient(135deg, #e8f0fe 0%, #f0e6ff 100%); border: 1px solid #c4b5fd; border-radius: var(--radius); padding: 16px 20px; margin: 24px 0; }
+.cross-ref strong { color: var(--accent); }
+.img-placeholder { background: var(--code-bg); border: 1px dashed var(--border); padding: 16px; text-align: center; color: var(--text2); border-radius: var(--radius); margin: 16px 0; font-size: 14px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+strong { font-weight: 600; }
+em { font-style: italic; }
+mark { background: #fef3c7; padding: 1px 4px; border-radius: 2px; }
+
+@media (max-width: 960px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 24px 20px 60px; }
+  h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h3>模型微调</h3>
+  <ul>
+    <li><a href="finetune-overview.html">微调概述与基础</a></li>
+    <li><a href="finetune-lora.html">LoRA与QLoRA</a></li>
+    <li><a href="finetune-techniques.html" class="active">实战技巧与对齐技术</a></li>
+  </ul>
+  <h3 style="margin-top:20px">本页目录</h3>
+  <ul>
+    <li><a href="#training-tips">训练技巧</a></li>
+    <li><a href="#hyperparams">超参数调优</a></li>
+    <li><a href="#unsloth">Unsloth实战</a></li>
+    <li><a href="#rlhf">RLHF全流程</a></li>
+    <li><a href="#rlhf-diagram">RLHF训练循环图</a></li>
+    <li><a href="#dpo">DPO直接偏好优化</a></li>
+    <li><a href="#ppo">PPO算法原理</a></li>
+    <li><a href="#alignment-compare">对齐算法对比</a></li>
+  </ul>
+</nav>
+<div class="main"><h1 id="top">实战技巧与对齐技术</h1>
+<p style="color:var(--text2);font-size:18px;margin-bottom:24px;">训练调参、Unsloth加速、RLHF/DPO/PPO对齐</p>
+<span class="badge badge-intermediate">中级</span>
+<span class="badge badge-advanced">高级</span>
+<span class="tag">梯度累积</span><span class="tag">学习率预热</span><span class="tag">RLHF</span><span class="tag">DPO</span><span class="tag">PPO</span><span class="tag">ORPO</span><span class="tag">KTO</span>
+
+<div class="toc">
+<h4>目录</h4>
+<ul>
+<li><a href="#training-tips">训练技巧与超参数调优</a></li>
+<li><a href="#unsloth">Unsloth 微调实战</a></li>
+<li><a href="#rlhf">RLHF 全流程详解</a></li>
+<li><a href="#rlhf-diagram">RLHF 训练循环图</a></li>
+<li><a href="#dpo">DPO 直接偏好优化</a></li>
+<li><a href="#ppo">PPO 算法原理与实现</a></li>
+<li><a href="#alignment-compare">新一代对齐算法对比</a></li>
+</ul>
+</div>
+<h2 id="training-tips">训练技巧与超参数调优</h2>
+<h3>一、梯度累积（Gradient Accumulation）</h3>
+<h3 id="1-1-什么是梯度累积">1.1 什么是梯度累积</h3>
+<p>当GPU显存不足以支撑大batch size时，通过多个小batch的梯度累积来模拟大batch的效果。</p>
+<p><strong>核心公式</strong>：有效批次大小 = per_device_batch_size × gradient_accumulation_steps</p>
+<p>例如：batch_size=2, accumulation_steps=4 → 等效于 batch_size=8</p>
+<h3 id="1-2-实现方式">1.2 实现方式</h3>
+<pre><code class="language-python">for batch_idx, (input_ids, labels) in enumerate(train_dataloader):
+    outputs = model(input_ids, labels=labels)
+    loss = outputs.loss.mean()
+    loss = loss / args.gradient_accumulation_steps  # 缩放loss
+    loss.backward()
+
+    if (batch_idx + 1) % args.gradient_accumulation_steps == 0:
+        optimizer.step()       # 更新参数
+        scheduler.step()       # 更新学习率
+        optimizer.zero_grad()  # 清空梯度</code></pre>
+<h3 id="1-3-为什么要缩放loss">1.3 为什么要缩放loss</h3>
+<li style="margin-left:0px">多个mini-batch的梯度会累加，如果不缩放，等效学习率会变大</li>
+<li style="margin-left:0px">除以accumulation_steps后，累积梯度的期望值与大batch一致</li>
+<h3>二、学习率预热（Learning Rate Warmup）</h3>
+<h3 id="2-1-什么是学习率预热">2.1 什么是学习率预热</h3>
+<p>训练初期使用较小的学习率，逐步增大到目标学习率，避免初期梯度震荡导致训练不稳定。</p>
+<h3 id="2-2-预热策略">2.2 预热策略</h3>
+<li style="margin-left:0px"><strong>线性预热</strong>：学习率从0线性增长到目标值</li>
+<li style="margin-left:0px"><strong>典型比例</strong>：预热步数占总步数的5%-10%</li>
+<h3 id="2-3-配置方式">2.3 配置方式</h3>
+<pre><code class="language-python"># Unsloth/Transformers配置
+SFTConfig(
+    warmup_steps=10,          # 小数据集10步，大数据集50步
+    lr_scheduler_type=&quot;cosine&quot;,  # 预热后使用cosine衰减
+    learning_rate=2e-4,
+)</code></pre>
+<h3>三、梯度裁剪（Gradient Clipping）</h3>
+<h3 id="3-1-什么是梯度裁剪">3.1 什么是梯度裁剪</h3>
+<p>当梯度值过大时（梯度爆炸），将其裁剪到指定范围内，防止训练发散。</p>
+<h3 id="3-2-实现方式">3.2 实现方式</h3>
+<pre><code class="language-python"># 按范数裁剪（最常用）
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+
+# 按值裁剪
+torch.nn.utils.clip_grad_value_(model.parameters(), clip_value=0.5)</code></pre>
+<h3 id="3-3-配置方式">3.3 配置方式</h3>
+<pre><code class="language-python">SFTConfig(
+    max_grad_norm=1.0,  # 梯度裁剪阈值
+)</code></pre>
+<h3>四、权重衰减（Weight Decay）</h3>
+<h3 id="4-1-什么是权重衰减">4.1 什么是权重衰减</h3>
+<p>L2正则化的一种实现，惩罚大权重值，防止过拟合。</p>
+<h3 id="4-2-配置建议">4.2 配置建议</h3>
+<pre><code class="language-python">SFTConfig(
+    weight_decay=0.01,   # 默认值
+    # weight_decay=1e-4, # 敏感任务
+)</code></pre>
+<li style="margin-left:0px">过小（<1e-5）可能无效</li>
+<li style="margin-left:0px">过大（>0.1）易欠拟合</li>
+<h3>五、学习率调度策略</h3>
+<table>
+<thead><tr><th>策略</th><th>特点</th><th>适用场景</th></tr></thead><tbody>
+<tr><td>linear</td><td>线性衰减，简单通用</td><td>短训练</td></tr>
+<tr><td>cosine</td><td>余弦衰减，平滑</td><td>长序列训练（推荐）</td></tr>
+<tr><td>constant</td><td>恒定学习率</td><td>特殊场景</td></tr>
+</tbody></table>
+<h3>六、优化器选择</h3>
+<table>
+<thead><tr><th>优化器</th><th>特点</th><th>推荐场景</th></tr></thead><tbody>
+<tr><td>adamw_torch</td><td>标准AdamW</td><td>通用</td></tr>
+<tr><td>adamw_8bit</td><td>8-bit量化AdamW</td><td><strong>显存优化首选</strong></td></tr>
+<tr><td>sgd</td><td>随机梯度下降</td><td>特殊需求</td></tr>
+</tbody></table>
+<h3>七、防止过拟合策略</h3>
+<li><strong>数据增强</strong>：同义替换、模板生成、大模型辅助生成</li>
+<li><strong>Dropout</strong>：lora_dropout设0.1-0.3（小数据集）</li>
+<li><strong>权重衰减</strong>：weight_decay=0.01</li>
+<li><strong>早停（Early Stopping）</strong>：监控验证集loss</li>
+<li><strong>减少模型容量</strong>：降低LoRA的r值</li>
+<li><strong>增大训练数据</strong>：数据质量 > 数据数量</li>
+<h3>八、显存优化技巧汇总</h3>
+<table>
+<thead><tr><th>技巧</th><th>显存节省</th><th>说明</th></tr></thead><tbody>
+<tr><td>4-bit量化（QLoRA）</td><td>~70%</td><td>load_in_4bit=True</td></tr>
+<tr><td>LoRA微调</td><td>~60-80%</td><td>仅训练0.1-1%参数</td></tr>
+<tr><td>梯度检查点</td><td>~30%</td><td>use_gradient_checkpointing="unsloth"</td></tr>
+<tr><td>8-bit优化器</td><td>显著</td><td>optim="adamw_8bit"</td></tr>
+<tr><td>梯度累积</td><td>模拟大batch</td><td>gradient_accumulation_steps=4</td></tr>
+<tr><td>混合精度训练</td><td>~50%</td><td>fp16=True 或 bf16=True</td></tr>
+</tbody></table>
+<h2 id="unsloth">Unsloth 微调实战</h2>
+<h3>一、Unsloth 简介</h3>
+<p>Unsloth 是一个高性能微调框架，主要优势：</p>
+<li style="margin-left:0px">4-bit量化加载节省70%显存</li>
+<li style="margin-left:0px">梯度检查点优化节省30%显存</li>
+<li style="margin-left:0px">支持Qwen3、Llama等主流模型的预量化版本</li>
+<h3>二、环境准备</h3>
+<pre><code class="language-bash"># 创建训练环境
+conda create -n sft311 python=3.11
+conda activate sft311
+
+# 安装依赖（unsloth会自动安装最新版PyTorch CUDA版）
+pip install unsloth transformers trl datasets</code></pre>
+<h3 id="下载模型-以modelscope为例">下载模型（以ModelScope为例）</h3>
+<pre><code class="language-python">from modelscope.hub.snapshot_download import snapshot_download
+
+model_dir = snapshot_download(
+    &#x27;unsloth/Qwen3-8B-unsloth-bnb-4bit&#x27;,
+    cache_dir=&#x27;/root/autodl-tmp/pretrained&#x27;
+)</code></pre>
+<h3>三、核心参数说明</h3>
+<h3 id="3-1-fastlanguagemodel-from-pretrained">3.1 FastLanguageModel.from_pretrained</h3>
+<table>
+<thead><tr><th>参数</th><th>说明</th><th>推荐值</th></tr></thead><tbody>
+<tr><td>model_name</td><td>模型名称或本地路径</td><td>"unsloth/Qwen3-8B-unsloth-bnb-4bit"</td></tr>
+<tr><td>load_in_4bit</td><td>4-bit量化加载，显存降70%</td><td>True（显存≤24GB必选）</td></tr>
+<tr><td>bnb_4bit_quant_type</td><td>量化算法</td><td>"nf4"</td></tr>
+<tr><td>bnb_4bit_compute_dtype</td><td>计算数据类型</td><td>bfloat16(A100) / float16(T4)</td></tr>
+<tr><td>max_seq_length</td><td>最大输入长度</td><td>2048（通用）/ 8192（长文本）</td></tr>
+<tr><td>full_finetuning</td><td>是否全参微调</td><td>False（用LoRA）</td></tr>
+</tbody></table>
+<h3 id="3-2-fastlanguagemodel-get-peft-model">3.2 FastLanguageModel.get_peft_model</h3>
+<table>
+<thead><tr><th>参数</th><th>说明</th><th>推荐值</th></tr></thead><tbody>
+<tr><td>r</td><td>LoRA秩，控制可训练参数量</td><td>简单任务8，复杂任务32-64</td></tr>
+<tr><td>target_modules</td><td>适配层选择</td><td>q,k,v,o_proj + gate,up,down_proj</td></tr>
+<tr><td>lora_alpha</td><td>缩放因子</td><td>r 或 2×r</td></tr>
+<tr><td>lora_dropout</td><td>Dropout率</td><td>小数据0.1-0.3，大数据0</td></tr>
+<tr><td>bias</td><td>偏置项训练</td><td>"none"</td></tr>
+<tr><td>use_gradient_checkpointing</td><td>梯度检查点</td><td>"unsloth"（节省30%显存）</td></tr>
+</tbody></table>
+<h3 id="3-3-sftconfig-训练配置">3.3 SFTConfig 训练配置</h3>
+<table>
+<thead><tr><th>参数</th><th>说明</th><th>推荐值</th></tr></thead><tbody>
+<tr><td>per_device_train_batch_size</td><td>单设备批次大小</td><td>2(24GB) / 4(40GB+)</td></tr>
+<tr><td>gradient_accumulation_steps</td><td>梯度累积步数</td><td>4</td></tr>
+<tr><td>warmup_steps</td><td>学习率预热步数</td><td>10(小数据) / 50(大数据)</td></tr>
+<tr><td>learning_rate</td><td>初始学习率</td><td>2e-4（默认）/ 5e-5（敏感任务）</td></tr>
+<tr><td>optim</td><td>优化器</td><td>"adamw_8bit"</td></tr>
+<tr><td>weight_decay</td><td>L2正则化</td><td>0.01</td></tr>
+<tr><td>lr_scheduler_type</td><td>学习率调度</td><td>"cosine" 或 "linear"</td></tr>
+<tr><td>fp16/bf16</td><td>混合精度</td><td>根据GPU自动选择</td></tr>
+</tbody></table>
+<h3>四、完整训练代码</h3>
+<pre><code class="language-python">from unsloth import FastLanguageModel
+import torch
+from datasets import load_dataset
+from trl import SFTTrainer, SFTConfig
+
+# 1. 加载模型与分词器
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name=&quot;/root/autodl-tmp/pretrained/unsloth/Qwen3-8B-unsloth-bnb-4bit&quot;,
+    max_seq_length=2048,
+    device_map=&quot;auto&quot;,
+    dtype=None,
+    load_in_4bit=True,
+    full_finetuning=False
+)
+
+# 2. 添加LoRA Adapter
+model = FastLanguageModel.get_peft_model(
+    model,
+    r=32,
+    target_modules=[&quot;q_proj&quot;, &quot;k_proj&quot;, &quot;v_proj&quot;, &quot;o_proj&quot;,
+                    &quot;gate_proj&quot;, &quot;up_proj&quot;, &quot;down_proj&quot;],
+    lora_alpha=32,
+    lora_dropout=0,
+    bias=&quot;none&quot;,
+    use_gradient_checkpointing=&quot;unsloth&quot;,
+    random_state=3407,
+)
+
+# 3. 加载并格式化数据集
+def convert_to_qwen_format(examples):
+    conversations = []
+    for conv_list in examples[&quot;conversation&quot;]:
+        for conv in conv_list:
+            conversations.append([
+                {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: conv[&#x27;human&#x27;].strip()},
+                {&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: conv[&#x27;assistant&#x27;].strip()}
+            ])
+    return {&quot;conversations&quot;: conversations}
+
+def format_func(examples):
+    formatted_texts = []
+    for conv in examples[&quot;conversations&quot;]:
+        formatted = tokenizer.apply_chat_template(
+            conv, tokenize=False, add_generation_prompt=False,
+        )
+        formatted_texts.append(formatted)
+    return {&quot;text&quot;: formatted_texts}
+
+dataset = load_dataset(&quot;json&quot;, data_files=&quot;data/train.jsonl&quot;, split=&quot;train&quot;)
+dataset = dataset.map(convert_to_qwen_format, batched=True,
+                      remove_columns=dataset.column_names)
+formatted_dataset = dataset.map(format_func, batched=True,
+                                remove_columns=[&quot;conversations&quot;])
+
+# 4. 训练
+trainer = SFTTrainer(
+    model=model,
+    tokenizer=tokenizer,
+    train_dataset=formatted_dataset,
+    args=SFTConfig(
+        dataset_text_field=&quot;text&quot;,
+        per_device_train_batch_size=8,
+        gradient_accumulation_steps=4,
+        warmup_steps=5,
+        num_train_epochs=1,
+        learning_rate=2e-4,
+        logging_steps=1,
+        optim=&quot;adamw_8bit&quot;,
+        weight_decay=0.01,
+        lr_scheduler_type=&quot;linear&quot;,
+        seed=3407,
+        report_to=&quot;none&quot;,
+    ),
+)
+trainer_stats = trainer.train()
+
+# 5. 保存模型
+model.save_pretrained(&quot;outputs/Qwen3-8B-sft-lora-adapter&quot;)
+tokenizer.save_pretrained(&quot;outputs/Qwen3-8B-sft-lora-adapter&quot;)</code></pre>
+<h3>五、推理代码</h3>
+<pre><code class="language-python">from unsloth import FastLanguageModel
+from transformers import TextStreamer
+
+# 加载基础模型
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name=&quot;unsloth/Qwen3-8B-unsloth-bnb-4bit&quot;,
+    max_seq_length=2048,
+    load_in_4bit=True,
+    device_map=&quot;auto&quot;,
+)
+
+# 加载LoRA适配器
+model.load_adapter(&quot;outputs/Qwen3-8B-sft-lora-adapter&quot;)
+FastLanguageModel.for_inference(model)
+model.eval()
+
+# 推理
+messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;你的问题&quot;}]
+input_text = tokenizer.apply_chat_template(
+    messages, tokenize=False, add_generation_prompt=True
+)
+inputs = tokenizer(input_text, return_tensors=&quot;pt&quot;).to(model.device)
+
+# 一次性输出
+outputs = model.generate(**inputs, max_new_tokens=1024)
+response = tokenizer.decode(outputs[0][inputs.input_ids.shape[1]:],
+                            skip_special_tokens=True)
+print(response)
+
+# 流式输出
+streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
+outputs = model.generate(**inputs, max_new_tokens=1024, streamer=streamer)</code></pre>
+<h3>六、生成参数说明</h3>
+<table>
+<thead><tr><th>参数</th><th>作用</th><th>建议值</th></tr></thead><tbody>
+<tr><td>max_new_tokens</td><td>最大生成长度</td><td>1024</td></tr>
+<tr><td>temperature</td><td>随机性调节</td><td>0.3(问答)~0.7(创作)</td></tr>
+<tr><td>top_p</td><td>核采样阈值</td><td>0.9</td></tr>
+<tr><td>repetition_penalty</td><td>重复惩罚</td><td>1.2</td></tr>
+<tr><td>do_sample</td><td>启用采样</td><td>True</td></tr>
+</tbody></table>
+<hr>
+<h2 id="rlhf">RLHF 全流程详解</h2>
+<h3>概述</h3>
+<p>RLHF（Reinforcement Learning from Human Feedback）是将大语言模型与人类偏好对齐的核心技术。InstructGPT（OpenAI, 2022）首次系统化地展示了这一流程，成为 ChatGPT 的技术基础。</p>
+<hr>
+<h3>1. 整体 Pipeline</h3>
+<pre><code class="language-">┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│  预训练模型    │───▶│   SFT 阶段    │───▶│ Reward Model │───▶│  PPO 强化学习 │
+│  (Base LLM)  │    │ (监督微调)    │    │  (奖励模型)   │    │  (对齐优化)   │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘</code></pre>
+<p><strong>三个阶段：</strong></p>
+<li><strong>SFT（Supervised Fine-Tuning）</strong>：用高质量指令-回答对微调基础模型</li>
+<li><strong>Reward Model 训练</strong>：用人类偏好标注训练奖励模型</li>
+<li><strong>PPO 强化学习</strong>：用奖励模型的信号优化策略模型</li>
+<hr>
+<h3>2. 第一阶段：SFT 监督微调</h3>
+<h3 id="2-1-数据准备">2.1 数据准备</h3>
+<p>收集高质量的 <code>(prompt, response)</code> 对，通常由人工标注员撰写：</p>
+<pre><code class="language-python"># 数据格式示例
+sft_dataset = [
+    {
+        &quot;prompt&quot;: &quot;解释量子纠缠&quot;,
+        &quot;response&quot;: &quot;量子纠缠是两个或多个粒子之间的一种关联...&quot;
+    },
+    # ... 数千到数万条
+]</code></pre>
+<h3 id="2-2-训练目标">2.2 训练目标</h3>
+<p>标准的自回归语言模型损失：</p>
+<p>$<code>\mathcal{L}_{\text{SFT}} = -\mathbb{E}_{(x,y) \sim \mathcal{D}_{\text{SFT}}} \left[ \sum_{t=1}^{|y|} \log \pi_\theta(y_t | x, y_{<t}) \right]</code>$</p>
+<h3 id="2-3-instructgpt-的-sft-数据规模">2.3 InstructGPT 的 SFT 数据规模</h3>
+<table>
+<thead><tr><th>参数</th><th>数值</th></tr></thead><tbody>
+<tr><td>SFT 数据量</td><td>~13,000 条提示-回答对</td></tr>
+<tr><td>标注员数量</td><td>40 名承包商</td></tr>
+<tr><td>训练轮数</td><td>2-3 epochs</td></tr>
+</tbody></table>
+<hr>
+<h3>3. 第二阶段：Reward Model 训练</h3>
+<h3 id="3-1-偏好数据收集">3.1 偏好数据收集</h3>
+<p>对同一提示生成多个回答，由人工排序：</p>
+<pre><code class="language-">Prompt: &quot;写一首关于春天的诗&quot;
+  Response A: &quot;春风拂面花盛开...&quot;  ← 人类更喜欢 (排名 1)
+  Response B: &quot;春天来了草绿了...&quot;  ← 排名 2
+  Response C: &quot;Spring is nice...&quot;   ← 排名 3</code></pre>
+<h3 id="3-2-bradley-terry-偏好模型">3.2 Bradley-Terry 偏好模型</h3>
+<p>假设人类偏好遵循 Bradley-Terry 模型：</p>
+<p>$<code>P(y_w \succ y_l | x) = \sigma(r_\phi(x, y_w) - r_\phi(x, y_l))</code>$</p>
+<p>其中 <code>\sigma</code> 是 sigmoid 函数，<code>r_\phi</code> 是奖励模型，<code>y_w</code> 是优选回答，<code>y_l</code> 是劣选回答。</p>
+<h3 id="3-3-reward-model-损失函数">3.3 Reward Model 损失函数</h3>
+<p>$<code>\mathcal{L}_{\text{RM}} = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma(r_\phi(x, y_w) - r_\phi(x, y_l)) \right]</code>$</p>
+<h3 id="3-4-实现代码">3.4 实现代码</h3>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+class RewardModel:
+    &quot;&quot;&quot;基于预训练 LLM 的奖励模型&quot;&quot;&quot;
+    
+    def __init__(self, model_name=&quot;meta-llama/Llama-2-7b-hf&quot;):
+        self.model = AutoModelForSequenceClassification.from_pretrained(
+            model_name, num_labels=1  # 输出标量奖励
+        )
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    def reward(self, prompt, response):
+        &quot;&quot;&quot;计算单个 (prompt, response) 的奖励值&quot;&quot;&quot;
+        inputs = self.tokenizer(
+            prompt + response, return_tensors=&quot;pt&quot;, truncation=True
+        )
+        with torch.no_grad():
+            reward_value = self.model(**inputs).logits[0]
+        return reward_value
+    
+    def train_step(self, prompt, chosen, rejected):
+        &quot;&quot;&quot;一步偏好训练&quot;&quot;&quot;
+        r_chosen = self.model(
+            **self.tokenizer(prompt + chosen, return_tensors=&quot;pt&quot;)
+        ).logits[0]
+        r_rejected = self.model(
+            **self.tokenizer(prompt + rejected, return_tensors=&quot;pt&quot;)
+        ).logits[0]
+        
+        loss = -torch.log(torch.sigmoid(r_chosen - r_rejected))
+        return loss</code></pre>
+<h3 id="3-5-训练技巧">3.5 训练技巧</h3>
+<pre><code class="language-python"># InstructGPT 配置
+training_config = {
+    &quot;learning_rate&quot;: 1e-5,
+    &quot;batch_size&quot;: 64,          # 大 batch 效果更好
+    &quot;epochs&quot;: 1,
+    &quot;model_size&quot;: &quot;6B&quot;,        # RM 通常比 policy 小或等大
+    &quot;lr_scheduler&quot;: &quot;cosine&quot;,
+}
+
+# 重要：对比学习的关键是同一 prompt 的多个回答
+# 偏好对数量远大于 prompt 数（每个 prompt 多对比较）</code></pre>
+<hr>
+<h3>4. 第三阶段：PPO 强化学习</h3>
+<h3 id="4-1-优化目标">4.1 优化目标</h3>
+<p>$<code>\max_{\pi_\theta} \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta(\cdot|x)} \left[ r_\phi(x, y) - \beta \cdot D_{\text{KL}}\left[\pi_\theta(\cdot|x) \| \pi_{\text{ref}}(\cdot|x)\right] \right]</code>$</p>
+<p>其中：</p>
+<li style="margin-left:0px"><code>r_\phi(x, y)</code>：奖励模型给出的奖励</li>
+<li style="margin-left:0px"><code>\pi_{\text{ref}}</code>：参考策略（SFT 后的模型）</li>
+<li style="margin-left:0px"><code>\beta</code>：KL 惩罚系数，防止偏离太远</li>
+<h3 id="4-2-kl-惩罚的作用">4.2 KL 惩罚的作用</h3>
+<p><strong>为什么要 KL 惩罚？</strong></p>
+<li><strong>防止 reward hacking</strong>：模型可能找到获得高奖励但质量差的"捷径"</li>
+<li><strong>保持语言能力</strong>：防止模型遗忘预训练知识</li>
+<li><strong>稳定训练</strong>：避免策略剧烈变化导致的不稳定性</li>
+<p>$<code>D_{\text{KL}}\left[\pi_\theta \| \pi_{\text{ref}}\right] = \mathbb{E}_{y \sim \pi_\theta} \left[ \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)} \right]</code>$</p>
+<p><strong>逐 token 的 KL 计算：</strong></p>
+<p>$<code>D_{\text{KL}}^{(t)} = \log \frac{\pi_\theta(a_t | s_t)}{\pi_{\text{ref}}(a_t | s_t)}</code>$</p>
+<h3 id="4-3-ppo-训练循环">4.3 PPO 训练循环</h3>
+<pre><code class="language-python">import torch
+from transformers import AutoModelForCausalLM
+from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
+
+# 配置
+config = PPOConfig(
+    model_name=&quot;llama-2-7b-sft&quot;,
+    learning_rate=1.41e-5,
+    batch_size=64,
+    mini_batch_size=16,
+    ppo_epochs=4,              # 每批数据 PPO 更新次数
+    kl_penalty=&quot;kl&quot;,           # KL 惩罚类型
+    init_kl_coef=0.2,          # 初始 KL 系数 β
+    target_kl=6.0,             # 自适应 KL 目标值
+    gamma=1.0,                 # 折扣因子
+    lam=0.95,                  # GAE lambda
+    cliprange=0.2,             # PPO clipping 范围
+    cliprange_value=0.2,       # Value function clipping
+)
+
+# 加载模型
+model = AutoModelForCausalLMWithValueHead.from_pretrained(config.model_name)
+ref_model = AutoModelForCausalLM.from_pretrained(config.model_name)
+tokenizer = AutoTokenizer.from_pretrained(config.model_name)
+
+ppo_trainer = PPOTrainer(config, model, ref_model, tokenizer)
+
+# 训练循环
+for batch in dataloader:
+    # 1. 生成回答
+    query_tensors = [tokenizer.encode(q, return_tensors=&quot;pt&quot;)[0] for q in batch[&quot;query&quot;]]
+    response_tensors = ppo_trainer.generate(query_tensors, max_new_tokens=256)
+    
+    # 2. 计算奖励
+    texts = [tokenizer.decode(r) for r in response_tensors]
+    rewards = [reward_model.score(q, r) for q, r in zip(batch[&quot;query&quot;], texts)]
+    
+    # 3. PPO 更新
+    stats = ppo_trainer.step(query_tensors, response_tensors, rewards)
+    # stats 包含: policy_loss, value_loss, kl_divergence, entropy...
+    
+    print(f&quot;KL: {stats[&#x27;ppo/kl&#x27;]:.4f}, Reward: {stats[&#x27;ppo/mean_scores&#x27;]:.4f}&quot;)</code></pre>
+<h3 id="4-4-reward-hacking-问题">4.4 Reward Hacking 问题</h3>
+<p>Reward hacking 是 RLHF 最大的挑战之一：模型学会了"欺骗"奖励模型。</p>
+<p><strong>常见模式：</strong></p>
+<table>
+<thead><tr><th>现象</th><th>描述</th><th>解决方案</th></tr></thead><tbody>
+<tr><td>长度偏好</td><td>奖励模型偏好更长的回答</td><td>长度惩罚、奖励归一化</td></tr>
+<tr><td>格式作弊</td><td>过多使用列表、标题等格式</td><td>奖励模型多样化训练</td></tr>
+<tr><td>谄媚模式</td><td>"你问得很好！"</td><td>降低初始化 KL 系数</td></tr>
+<tr><td>重复循环</td><td>重复获得高奖励的短语</td><td>重复惩罚</td></tr>
+</tbody></table>
+<pre><code class="language-python"># 防止 Reward Hacking 的实用技巧
+
+# 1. 自适应 KL 系数
+def adaptive_kl_controller(kl_div, target_kl, kl_coef, lr=0.1):
+    &quot;&quot;&quot;根据实际 KL 调整系数&quot;&quot;&quot;
+    if kl_div &lt; target_kl / 1.5:
+        kl_coef *= (1 - lr)  # KL 太小，降低系数鼓励探索
+    elif kl_div &gt; target_kl * 1.5:
+        kl_coef *= (1 + lr)  # KL 太大，增加系数约束
+    return kl_coef
+
+# 2. 奖励归一化 &amp; 裁剪
+def normalize_rewards(rewards):
+    &quot;&quot;&quot;标准化奖励，减少极端值影响&quot;&quot;&quot;
+    rewards = torch.tensor(rewards)
+    rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
+    return torch.clamp(rewards, -5.0, 5.0)
+
+# 3. 长度惩罚
+def length_penalty(response, base_reward, penalty_rate=0.01):
+    length = len(response.split())
+    return base_reward - penalty_rate * length</code></pre>
+<hr>
+<h3>5. InstructGPT 关键数据</h3>
+<table>
+<thead><tr><th>模型</th><th>参数量</th><th>SFT 数据</th><th>偏好数据</th><th>RM 大小</th></tr></thead><tbody>
+<tr><td>InstructGPT-1.3B</td><td>1.3B</td><td>13K</td><td>33K 比较对</td><td>6B</td></tr>
+<tr><td>InstructGPT-6B</td><td>6B</td><td>13K</td><td>33K 比较对</td><td>6B</td></tr>
+<tr><td>InstructGPT-175B</td><td>175B</td><td>13K</td><td>33K 比较对</td><td>6B</td></tr>
+</tbody></table>
+<p><strong>核心发现：</strong></p>
+<li style="margin-left:0px">1.3B InstructGPT > 175B Base GPT-3（人类评估）</li>
+<li style="margin-left:0px">RLHF 比纯 SFT 提升 ~30% 人类偏好胜率</li>
+<li style="margin-left:0px">RM 的数据质量 > 数据数量</li>
+<hr>
+<h3>6. 完整训练配置参考</h3>
+<pre><code class="language-yaml"># rlhf_config.yaml
+sft_stage:
+  model: &quot;meta-llama/Llama-2-7b-hf&quot;
+  data: &quot;sft_data.jsonl&quot;
+  epochs: 3
+  lr: 2e-5
+  batch_size: 32
+  max_length: 2048
+
+reward_model_stage:
+  model: &quot;meta-llama/Llama-2-7b-hf&quot;  # 通常与 SFT 同架构
+  data: &quot;preference_data.jsonl&quot;
+  epochs: 1
+  lr: 1e-5
+  batch_size: 64
+  loss: &quot;bradley_terry&quot;
+
+ppo_stage:
+  model: &quot;sft_checkpoint/&quot;
+  ref_model: &quot;sft_checkpoint/&quot;  # 冻结的参考模型
+  reward_model: &quot;rm_checkpoint/&quot;
+  kl_coef: 0.2
+  target_kl: 6.0
+  ppo_epochs: 4
+  batch_size: 64
+  mini_batch_size: 16
+  clip_range: 0.2
+  max_new_tokens: 512</code></pre>
+<hr>
+<h3>7. RLHF 的局限性</h3>
+<li><strong>训练不稳定</strong>：PPO 对超参数敏感，需要大量调优</li>
+<li><strong>计算成本高</strong>：同时维护 4 个模型（policy, ref, RM, value）</li>
+<li><strong>奖励模型瓶颈</strong>：RM 的质量直接决定上限</li>
+<li><strong>标注成本</strong>：高质量偏好数据获取困难</li>
+<p>这些局限性催生了 DPO（直接偏好优化）等更简单的方法，详见下一节。</p>
+<hr>
+<h3>8. 工程实践要点</h3>
+<h3 id="显存需求估算-7b-模型">显存需求估算（7B 模型）</h3>
+<table>
+<thead><tr><th>组件</th><th>FP16 显存</th><th>备注</th></tr></thead><tbody>
+<tr><td>Policy Model</td><td>~14 GB</td><td>需要梯度</td></tr>
+<tr><td>Reference Model</td><td>~14 GB</td><td>冻结</td></tr>
+<tr><td>Reward Model</td><td>~14 GB</td><td>冻结</td></tr>
+<tr><td>Value Model</td><td>~14 GB</td><td>需要梯度（通常与 policy 共享）</td></tr>
+<tr><td>Optimizer States</td><td>~28 GB</td><td>AdamW</td></tr>
+<tr><td><strong>合计</strong></td><td><strong>~84 GB</strong></td><td>需要多卡并行</td></tr>
+</tbody></table>
+<h3 id="关键调试指标">关键调试指标</h3>
+<pre><code class="language-python"># 训练时密切关注
+metrics_to_watch = {
+    &quot;ppo/kl&quot;: &quot;KL 散度，目标 1-10&quot;,
+    &quot;ppo/policy_loss&quot;: &quot;策略损失，应稳定下降&quot;,
+    &quot;ppo/value_loss&quot;: &quot;价值函数损失&quot;,
+    &quot;ppo/mean_scores&quot;: &quot;平均奖励，应稳步提升&quot;,
+    &quot;ppo/entropy&quot;: &quot;策略熵，过低表示坍缩&quot;,
+    &quot;ppo/ppo_returns&quot;: &quot;回报值&quot;,
+}</code></pre>
+<hr>
+<h2 id="rlhf-diagram">RLHF 训练循环图</h2>
+<p>下图展示了 RLHF 的完整训练流程：SFT 监督微调 → 奖励模型训练 → PPO 强化学习优化。PPO 循环中，Policy Model 生成回答，Reward Model 打分，PPO 算法更新策略参数。</p>
+
+<svg class="diagram" viewBox="0 0 760 440" xmlns="http://www.w3.org/2000/svg" style="max-width:760px">
+  <defs>
+    <marker id="ar" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#0075de"/></marker>
+    <marker id="arR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#dc2626"/></marker>
+    <marker id="arG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#16a34a"/></marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="440" rx="8" fill="#fafbfc" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+  <text x="380" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#1a1a1a">RLHF Training Loop: Policy → Reward → PPO Update</text>
+
+  <!-- Stage 1: SFT -->
+  <rect x="30" y="60" width="150" height="60" rx="8" fill="#e8f0fe" stroke="#0075de" stroke-width="2"/>
+  <text x="105" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#0075de">Stage 1: SFT</text>
+  <text x="105" y="105" text-anchor="middle" font-size="11" fill="#6b7280">Supervised Fine-Tuning</text>
+
+  <!-- Stage 2: Reward Model -->
+  <rect x="230" y="60" width="150" height="60" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="305" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Stage 2: Reward Model</text>
+  <text x="305" y="105" text-anchor="middle" font-size="11" fill="#6b7280">Bradley-Terry Loss</text>
+
+  <!-- Stage 3: PPO -->
+  <rect x="430" y="60" width="150" height="60" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="505" y="85" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">Stage 3: PPO</text>
+  <text x="505" y="105" text-anchor="middle" font-size="11" fill="#6b7280">Reinforcement Learning</text>
+
+  <!-- Arrows between stages -->
+  <line x1="180" y1="90" x2="225" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#ar)"/>
+  <line x1="380" y1="90" x2="425" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- PPO Loop -->
+  <text x="380" y="170" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a1a">PPO Training Cycle</text>
+
+  <!-- Policy Model -->
+  <rect x="50" y="200" width="140" height="70" rx="8" fill="#dbeafe" stroke="#0075de" stroke-width="2"/>
+  <text x="120" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#0075de">Policy Model</text>
+  <text x="120" y="248" text-anchor="middle" font-size="11" fill="#6b7280">π_θ (trainable)</text>
+  <text x="120" y="263" text-anchor="middle" font-size="11" fill="#6b7280">Generate response y</text>
+
+  <!-- Reward Model -->
+  <rect x="290" y="200" width="140" height="70" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="360" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Reward Model</text>
+  <text x="360" y="248" text-anchor="middle" font-size="11" fill="#6b7280">r_φ (frozen)</text>
+  <text x="360" y="263" text-anchor="middle" font-size="11" fill="#6b7280">Score: r(x, y)</text>
+
+  <!-- PPO Update -->
+  <rect x="530" y="200" width="140" height="70" rx="8" fill="#fee2e2" stroke="#dc2626" stroke-width="2"/>
+  <text x="600" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">PPO Update</text>
+  <text x="600" y="248" text-anchor="middle" font-size="11" fill="#6b7280">Clip + KL penalty</text>
+  <text x="600" y="263" text-anchor="middle" font-size="11" fill="#6b7280">Update θ</text>
+
+  <!-- Reference Model -->
+  <rect x="290" y="320" width="140" height="60" rx="8" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <text x="360" y="348" text-anchor="middle" font-size="13" font-weight="600" fill="#6b7280">Reference Model</text>
+  <text x="360" y="368" text-anchor="middle" font-size="11" fill="#9ca3af">π_ref (frozen, SFT)</text>
+
+  <!-- Arrows in loop -->
+  <!-- Policy → Reward -->
+  <line x1="190" y1="235" x2="285" y2="235" stroke="#0075de" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="237" y="228" text-anchor="middle" font-size="10" fill="#6b7280">y ~ π_θ</text>
+
+  <!-- Reward → PPO -->
+  <line x1="430" y1="235" x2="525" y2="235" stroke="#d97706" stroke-width="2" marker-end="url(#arR)"/>
+  <text x="477" y="228" text-anchor="middle" font-size="10" fill="#6b7280">reward</text>
+
+  <!-- PPO → Policy (update) -->
+  <line x1="600" y1="270" x2="600" y2="310" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="600" y1="310" x2="120" y2="310" stroke="#dc2626" stroke-width="1.5"/>
+  <line x1="120" y1="310" x2="120" y2="274" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arR)"/>
+  <text x="360" y="305" text-anchor="middle" font-size="11" fill="#dc2626" font-weight="600">Update policy parameters θ</text>
+
+  <!-- KL penalty arrow -->
+  <line x1="360" y1="320" x2="360" y2="274" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#ar)"/>
+  <text x="405" y="300" font-size="10" fill="#9ca3af">KL penalty</text>
+
+  <!-- Formula -->
+  <text x="380" y="410" text-anchor="middle" font-size="12" fill="#6b7280">max E[r(x,y)] − β · KL[π_θ || π_ref]</text>
+  <text x="380" y="430" text-anchor="middle" font-size="11" fill="#9ca3af">Clip range ε=0.2 | KL coef β=0.2 | PPO epochs=4</text>
+</svg>
+
+<h2 id="dpo">DPO 直接偏好优化</h2>
+<h3>概述</h3>
+<p>DPO（Direct Preference Optimization）由 Rafailov et al. (2023) 提出，核心思想是：<strong>无需训练奖励模型和 PPO，直接从偏好数据优化策略模型</strong>。DPO 将 RLHF 的 RL 问题重新参数化为一个简单的分类损失。</p>
+<hr>
+<h3>1. 理论基础</h3>
+<h3 id="1-1-rlhf-目标回顾">1.1 RLHF 目标回顾</h3>
+<p>RLHF 的优化目标：</p>
+<p>$<code>\max_{\pi_\theta} \mathbb{E}_{x \sim \mathcal{D}, y \sim \pi_\theta} \left[ r(x, y) \right] - \beta \cdot D_{\text{KL}}\left[\pi_\theta(y|x) \| \pi_{\text{ref}}(y|x)\right]</code>$</p>
+<h3 id="1-2-最优策略的闭式解">1.2 最优策略的闭式解</h3>
+<p>上述 KL 约束优化问题的最优策略有闭式解：</p>
+<p>$<code>\pi^*(y|x) = \frac{1}{Z(x)} \pi_{\text{ref}}(y|x) \exp\left(\frac{1}{\beta} r(x, y)\right)</code>$</p>
+<p>其中 <code>Z(x) = \sum_y \pi_{\text{ref}}(y|x) \exp\left(\frac{1}{\beta} r(x, y)\right)</code> 是配分函数。</p>
+<h3 id="1-3-反解奖励函数">1.3 反解奖励函数</h3>
+<p>从最优策略反解奖励：</p>
+<p>$<code>r(x, y) = \beta \log \frac{\pi^*(y|x)}{\pi_{\text{ref}}(y|x)} + \beta \log Z(x)</code>$</p>
+<p><strong>关键洞察</strong>：奖励函数可以用策略和参考策略的对数比来表示！</p>
+<h3 id="1-4-bradley-terry-模型代入">1.4 Bradley-Terry 模型代入</h3>
+<p>将反解的奖励代入 Bradley-Terry 偏好模型：</p>
+<p>$<code>P(y_w \succ y_l | x) = \sigma(r(x, y_w) - r(x, y_l))</code>$</p>
+<p>$<code>= \sigma\left(\beta \log \frac{\pi^<em>(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi^</em>(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)</code>$</p>
+<p>注意 <code>\log Z(x)</code> 在相减时消掉了！这就是 DPO 的优雅之处。</p>
+<hr>
+<h3>2. DPO 损失函数</h3>
+<h3 id="2-1-标准-dpo-loss">2.1 标准 DPO Loss</h3>
+<p>$<code>\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \log \sigma\left(\beta \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right) \right]</code>$</p>
+<p>定义隐式奖励差：</p>
+<p>$<code>\hat{r}_\theta(x, y_w, y_l) = \beta \left[ \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right]</code>$</p>
+<p>则损失简化为：</p>
+<p>$<code>\mathcal{L}_{\text{DPO}} = -\mathbb{E} \left[ \log \sigma(\hat{r}_\theta) \right]</code>$</p>
+<h3 id="2-2-梯度分析">2.2 梯度分析</h3>
+<p>$<code>\nabla_\theta \mathcal{L}_{\text{DPO}} = -\beta \mathbb{E} \left[ \underbrace{\sigma(-\hat{r}_\theta)}_{\text{权重：错分样本更大}} \left[ \nabla_\theta \log \pi_\theta(y_w|x) - \nabla_\theta \log \pi_\theta(y_l|x) \right] \right]</code>$</p>
+<p><strong>直觉理解</strong>：</p>
+<li style="margin-left:0px">当模型已经正确排序（<code>\hat{r}_\theta > 0</code>），梯度权重 <code>\sigma(-\hat{r}_\theta)</code> 较小</li>
+<li style="margin-left:0px">当模型排序错误（<code>\hat{r}_\theta < 0</code>），梯度权重较大，强力修正</li>
+<li style="margin-left:0px">自动聚焦于"难样本"</li>
+<hr>
+<h3>3. DPO vs RLHF 对比</h3>
+<table>
+<thead><tr><th>维度</th><th>RLHF (PPO)</th><th>DPO</th></tr></thead><tbody>
+<tr><td>需要奖励模型</td><td>✅ 需要单独训练</td><td>❌ 隐式学习</td></tr>
+<tr><td>训练复杂度</td><td>高（4个模型）</td><td>低（2个模型）</td></tr>
+<tr><td>超参数数量</td><td>多（KL系数、clip范围等）</td><td>少（主要是 β）</td></tr>
+<tr><td>训练稳定性</td><td>较差</td><td>好</td></tr>
+<tr><td>在线数据</td><td>✅ 可以利用</td><td>❌ 仅离线</td></tr>
+<tr><td>计算成本</td><td>~4x SFT</td><td>~2x SFT</td></tr>
+<tr><td>理论等价性</td><td>基准</td><td>在理想条件下等价</td></tr>
+</tbody></table>
+<hr>
+<h3>4. TRL 实现</h3>
+<h3 id="4-1-安装">4.1 安装</h3>
+<pre><code class="language-bash">pip install trl transformers datasets accelerate peft</code></pre>
+<h3 id="4-2-完整训练代码">4.2 完整训练代码</h3>
+<pre><code class="language-python">from dataclasses import dataclass
+from transformers import AutoModelForCausalLM, AutoTokenizer, TrainingArguments
+from trl import DPOTrainer, DPOConfig
+from datasets import load_dataset
+
+# 1. 加载数据集（需要 chosen/rejected 格式）
+dataset = load_dataset(&quot;Anthropic/hh-rlhf&quot;, split=&quot;train[:10000]&quot;)
+
+# 数据格式示例：
+# {
+#   &quot;prompt&quot;: &quot;Human: What is AI?\n\nAssistant:&quot;,
+#   &quot;chosen&quot;: &quot;AI is artificial intelligence...&quot;,
+#   &quot;rejected&quot;: &quot;I don&#x27;t know, whatever...&quot;
+# }
+
+# 2. 加载模型
+model_name = &quot;meta-llama/Llama-2-7b-hf&quot;
+model = AutoModelForCausalLM.from_pretrained(model_name)
+ref_model = AutoModelForCausalLM.from_pretrained(model_name)  # 冻结的参考模型
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+# 3. DPO 配置
+dpo_config = DPOConfig(
+    output_dir=&quot;./dpo_output&quot;,
+    per_device_train_batch_size=4,
+    gradient_accumulation_steps=4,  # 有效 batch = 16
+    learning_rate=5e-7,             # DPO 学习率通常很小
+    beta=0.1,                       # KL 温度参数
+    max_length=1024,
+    max_prompt_length=512,
+    num_train_epochs=3,
+    lr_scheduler_type=&quot;cosine&quot;,
+    warmup_steps=100,
+    logging_steps=10,
+    save_steps=500,
+    bf16=True,
+    remove_unused_columns=False,
+    gradient_checkpointing=True,    # 节省显存
+)
+
+# 4. 训练
+trainer = DPOTrainer(
+    model=model,
+    ref_model=ref_model,
+    args=dpo_config,
+    train_dataset=dataset,
+    tokenizer=tokenizer,
+)
+
+trainer.train()
+trainer.save_model(&quot;./dpo_final&quot;)</code></pre>
+<h3 id="4-3-使用-lora---dpo-推荐-节省显存">4.3 使用 LoRA + DPO（推荐，节省显存）</h3>
+<pre><code class="language-python">from peft import LoraConfig, get_peft_model
+
+# LoRA 配置
+lora_config = LoraConfig(
+    r=16,
+    lora_alpha=32,
+    target_modules=[&quot;q_proj&quot;, &quot;v_proj&quot;, &quot;k_proj&quot;, &quot;o_proj&quot;,
+                     &quot;gate_proj&quot;, &quot;up_proj&quot;, &quot;down_proj&quot;],
+    lora_dropout=0.05,
+    task_type=&quot;CAUSAL_LM&quot;,
+)
+
+model = AutoModelForCausalLM.from_pretrained(model_name)
+model = get_peft_model(model, lora_config)
+
+# ref_model 不需要 LoRA，直接用原始模型
+# DPOTrainer 会自动处理
+trainer = DPOTrainer(
+    model=model,
+    ref_model=ref_model,  # 原始全量模型作为参考
+    args=dpo_config,
+    train_dataset=dataset,
+    tokenizer=tokenizer,
+)</code></pre>
+<hr>
+<h3>5. β 参数详解</h3>
+<p>β 控制策略偏离参考模型的程度：</p>
+<p>$<code>\text{较小 } \beta \Rightarrow \text{更大偏离} \Rightarrow \text{更强对齐但更多遗忘}</code>$</p>
+<p>$<code>\text{较大 } \beta \Rightarrow \text{更小偏离} \Rightarrow \text{更保守但安全}</code>$</p>
+<table>
+<thead><tr><th>β 值</th><th>效果</th><th>适用场景</th></tr></thead><tbody>
+<tr><td>0.01-0.05</td><td>大幅改变分布</td><td>数据质量极高，需要强对齐</td></tr>
+<tr><td>0.1</td><td>默认推荐值</td><td>通用场景</td></tr>
+<tr><td>0.2-0.5</td><td>保守更新</td><td>数据噪声多、防止过拟合</td></tr>
+<tr><td>1.0+</td><td>非常保守</td><td>几乎不动原始分布</td></tr>
+</tbody></table>
+<pre><code class="language-python"># β 搜索建议
+betas = [0.05, 0.1, 0.2, 0.5]
+for beta in betas:
+    config = DPOConfig(beta=beta, ...)
+    # 在验证集上评估 win rate</code></pre>
+<hr>
+<h3>6. DPO 变体</h3>
+<h3 id="6-1-ipo-identity-preference-optimization">6.1 IPO（Identity Preference Optimization）</h3>
+<p>解决 DPO 在偏好确定性高时的过拟合问题：</p>
+<p>$<code>\mathcal{L}_{\text{IPO}} = \mathbb{E} \left[ \left( \log \frac{\pi_\theta(y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \log \frac{\pi_\theta(y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \frac{1}{2\beta} \right)^2 \right]</code>$</p>
+<h3 id="6-2-cdpo-conservative-dpo">6.2 cDPO（Conservative DPO）</h3>
+<p>处理偏好标签噪声：</p>
+<p>$<code>\mathcal{L}_{\text{cDPO}} = -\mathbb{E} \left[ (1-\epsilon) \log \sigma(\hat{r}_\theta) + \epsilon \log \sigma(-\hat{r}_\theta) \right]</code>$</p>
+<p>其中 <code>\epsilon</code> 是标签噪声率。</p>
+<h3 id="6-3-dpo-with-margin">6.3 DPO with Margin</h3>
+<p>加入偏好强度的 margin：</p>
+<p>$<code>\mathcal{L}_{\text{DPO-M}} = -\mathbb{E} \left[ \log \sigma\left(\hat{r}_\theta - m(y_w, y_l)\right) \right]</code>$</p>
+<hr>
+<h3>7. 数据格式与准备</h3>
+<pre><code class="language-python">def format_dpo_dataset(examples):
+    &quot;&quot;&quot;将原始偏好数据转为 DPO 格式&quot;&quot;&quot;
+    formatted = []
+    for prompt, chosen, rejected in zip(
+        examples[&quot;prompt&quot;], examples[&quot;chosen&quot;], examples[&quot;rejected&quot;]
+    ):
+        formatted.append({
+            &quot;prompt&quot;: prompt,
+            &quot;chosen&quot;: chosen,    # 完整回答（不含 prompt）
+            &quot;rejected&quot;: rejected  # 完整回答（不含 prompt）
+        })
+    return formatted
+
+# 常用偏好数据集
+datasets_list = [
+    &quot;Anthropic/hh-rlhf&quot;,          # Anthropic 的 Helpfulness/Harmlessness
+    &quot;Dahoas/full-hh-rlhf&quot;,        # 标准格式
+    &quot;Intel/orca_dpo_pairs&quot;,        # Orca 风格
+    &quot;argilla/ultrafeedback-binarized&quot;,  # UltraFeedback
+]</code></pre>
+<hr>
+<h3>8. 评估方法</h3>
+<pre><code class="language-python"># 1. 隐式奖励计算（训练监控）
+def compute_implicit_reward(model, ref_model, prompt, response):
+    &quot;&quot;&quot;计算 DPO 隐式奖励&quot;&quot;&quot;
+    inputs = tokenizer(prompt + response, return_tensors=&quot;pt&quot;)
+    
+    with torch.no_grad():
+        pi_logps = compute_log_probs(model, inputs)
+        ref_logps = compute_log_probs(ref_model, inputs)
+    
+    reward = beta * (pi_logps - ref_logps)
+    return reward.item()
+
+# 2. 偏好准确率（验证集）
+def preference_accuracy(model, ref_model, eval_dataset):
+    correct = 0
+    total = 0
+    for sample in eval_dataset:
+        r_chosen = compute_implicit_reward(model, ref_model, 
+                                            sample[&quot;prompt&quot;], sample[&quot;chosen&quot;])
+        r_rejected = compute_implicit_reward(model, ref_model, 
+                                              sample[&quot;prompt&quot;], sample[&quot;rejected&quot;])
+        if r_chosen &gt; r_rejected:
+            correct += 1
+        total += 1
+    return correct / total
+
+# 3. Win Rate（vs SFT 模型，用 GPT-4 或人类评估）</code></pre>
+<hr>
+<h3>9. 常见问题与调试</h3>
+<table>
+<thead><tr><th>问题</th><th>可能原因</th><th>解决方案</th></tr></thead><tbody>
+<tr><td>训练 loss 不下降</td><td>学习率太小</td><td>增大 lr 到 1e-6 ~ 5e-6</td></tr>
+<tr><td>偏好准确率 100% 但效果差</td><td>过拟合</td><td>减小 β、增加 dropout</td></tr>
+<tr><td>生成质量退化</td><td>偏离参考模型太远</td><td>增大 β</td></tr>
+<tr><td>chosen/rejected 区分度不够</td><td>数据质量差</td><td>过滤低置信度偏好对</td></tr>
+<tr><td>显存不足</td><td>模型太大</td><td>用 LoRA + 量化</td></tr>
+</tbody></table>
+<hr>
+<h3>10. DPO 的理论局限</h3>
+<li><strong>离线学习</strong>：只能从固定数据集学习，无法探索新策略</li>
+<li><strong>分布偏移</strong>：训练数据的 <code>(y_w, y_l)</code> 由旧策略生成，可能不是当前策略最有信息量的</li>
+<li><strong>隐式奖励限制</strong>：无法直接使用奖励做推理时搜索（如 Best-of-N）</li>
+<li><strong>标签质量依赖</strong>：对偏好标注质量敏感</li>
+<p>这些问题催生了 Online DPO、Iterative DPO 等改进方法。</p>
+<hr>
+<h2 id="ppo">PPO 算法原理与实现</h2>
+<h3>概述</h3>
+<p>PPO（Proximal Policy Optimization）是 OpenAI 于 2017 年提出的策略梯度算法，因其稳定性和易实现性成为 RLHF 中最常用的 RL 算法。本文详解其核心数学原理和在 LLM 对齐中的实现。</p>
+<hr>
+<h3>1. 策略梯度基础</h3>
+<h3 id="1-1-reinforce-算法">1.1 REINFORCE 算法</h3>
+<p>策略梯度的核心思想：通过调整策略参数 <code>\theta</code>，使高回报的动作概率增大。</p>
+<p>$<code>\nabla_\theta J(\theta) = \mathbb{E}_{\tau \sim \pi_\theta} \left[ \sum_{t=0}^{T} \nabla_\theta \log \pi_\theta(a_t | s_t) \cdot G_t \right]</code>$</p>
+<p>其中 <code>G_t = \sum_{k=t}^{T} \gamma^{k-t} r_k</code> 是从时刻 <code>t</code> 开始的累积回报。</p>
+<h3 id="1-2-actor-critic-架构">1.2 Actor-Critic 架构</h3>
+<p>引入价值函数 <code>V_\phi(s)</code> 减少方差：</p>
+<p>$<code>\nabla_\theta J(\theta) = \mathbb{E} \left[ \sum_t \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot A_t \right]</code>$</p>
+<p>其中优势函数 <code>A_t = G_t - V_\phi(s_t)</code>，<code>V_\phi</code> 是状态价值函数（Critic）。</p>
+<hr>
+<h3>2. PPO 核心算法</h3>
+<h3 id="2-1-重要性采样与策略比">2.1 重要性采样与策略比</h3>
+<p>用旧策略 <code>\pi_{\theta_{\text{old}}}</code> 的数据更新新策略 <code>\pi_\theta</code>：</p>
+<p>$<code>r_t(\theta) = \frac{\pi_\theta(a_t | s_t)}{\pi_{\theta_{\text{old}}}(a_t | s_t)}</code>$</p>
+<h3 id="2-2-ppo-clip-目标函数">2.2 PPO-Clip 目标函数</h3>
+<p>$<code>\mathcal{L}^{\text{CLIP}}(\theta) = \mathbb{E}_t \left[ \min\left( r_t(\theta) A_t, \; \text{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon) A_t \right) \right]</code>$</p>
+<p>其中 <code>\epsilon</code> 是裁剪参数（通常 <code>\epsilon = 0.2</code>）。</p>
+<p><strong>直觉解释：</strong></p>
+<pre><code class="language-">当 A_t &gt; 0（好动作）:
+  r_t 增大 → 增大概率 → 但上限 1+ε，防止步子太大
+
+当 A_t &lt; 0（坏动作）:
+  r_t 减小 → 减小概率 → 但下限 1-ε，防止过度惩罚</code></pre>
+<p><strong>代码实现：</strong></p>
+<pre><code class="language-python">def ppo_clip_loss(log_probs, old_log_probs, advantages, clip_range=0.2):
+    &quot;&quot;&quot;
+    Args:
+        log_probs: 新策略的 log π_θ(a|s)
+        old_log_probs: 旧策略的 log π_θ_old(a|s)
+        advantages: 优势估计 A_t
+        clip_range: ε
+    &quot;&quot;&quot;
+    ratio = torch.exp(log_probs - old_log_probs)  # r_t(θ)
+    
+    surr1 = ratio * advantages
+    surr2 = torch.clamp(ratio, 1 - clip_range, 1 + clip_range) * advantages
+    
+    policy_loss = -torch.min(surr1, surr2).mean()
+    return policy_loss</code></pre>
+<h3 id="2-3-ppo-penalty-备选方案">2.3 PPO-Penalty（备选方案）</h3>
+<p>$<code>\mathcal{L}^{\text{PEN}}(\theta) = \mathbb{E}_t \left[ r_t(\theta) A_t - \beta \cdot D_{\text{KL}}[\pi_{\theta_{\text{old}}} \| \pi_\theta] \right]</code>$</p>
+<p>PPO-Penalty 通过 KL 惩罚约束更新幅度，<code>\beta</code> 自适应调整。</p>
+<hr>
+<h3>3. 优势函数估计：GAE</h3>
+<h3 id="3-1-td-误差">3.1 TD 误差</h3>
+<p>$<code>\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)</code>$</p>
+<h3 id="3-2-generalized-advantage-estimation--gae">3.2 Generalized Advantage Estimation (GAE)</h3>
+<p>$<code>\hat{A}_t^{\text{GAE}(\gamma, \lambda)} = \sum_{l=0}^{\infty} (\gamma \lambda)^l \delta_{t+l}</code>$</p>
+<p>其中 <code>\lambda \in [0, 1]</code> 控制偏差-方差权衡：</p>
+<li style="margin-left:0px"><code>\lambda = 0</code>：低方差、高偏差（TD(0)）</li>
+<li style="margin-left:0px"><code>\lambda = 1</code>：高方差、低偏差（蒙特卡洛）</li>
+<p><strong>递推计算：</strong></p>
+<p>$<code>\hat{A}_t = \delta_t + \gamma \lambda \hat{A}_{t+1}</code>$</p>
+<pre><code class="language-python">def compute_gae(rewards, values, gamma=1.0, lam=0.95):
+    &quot;&quot;&quot;
+    计算 GAE 优势估计
+    
+    Args:
+        rewards: [r_0, r_1, ..., r_T]
+        values: [V(s_0), V(s_1), ..., V(s_T), V(s_{T+1})]
+    Returns:
+        advantages: 归一化的优势估计
+    &quot;&quot;&quot;
+    advantages = []
+    gae = 0
+    
+    for t in reversed(range(len(rewards))):
+        delta = rewards[t] + gamma * values[t + 1] - values[t]
+        gae = delta + gamma * lam * gae
+        advantages.insert(0, gae)
+    
+    advantages = torch.tensor(advantages)
+    advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+    return advantages</code></pre>
+<hr>
+<h3>4. Value Function（价值函数）</h3>
+<h3 id="4-1-损失函数">4.1 损失函数</h3>
+<p>$<code>\mathcal{L}^V(\phi) = \mathbb{E}_t \left[ (V_\phi(s_t) - V_t^{\text{target}})^2 \right]</code>$</p>
+<p>其中 <code>V_t^{\text{target}} = \hat{A}_t + V_{\phi_{\text{old}}}(s_t)</code>。</p>
+<h3 id="4-2-value-function-clipping">4.2 Value Function Clipping</h3>
+<pre><code class="language-python">def value_loss(values, old_values, returns, clip_range=0.2):
+    &quot;&quot;&quot;带裁剪的价值函数损失&quot;&quot;&quot;
+    value_clipped = old_values + torch.clamp(
+        values - old_values, -clip_range, clip_range
+    )
+    
+    loss1 = (values - returns) ** 2
+    loss2 = (value_clipped - returns) ** 2
+    
+    return 0.5 * torch.max(loss1, loss2).mean()</code></pre>
+<hr>
+<h3>5. PPO 在 LLM 中的完整实现</h3>
+<h3 id="5-1-llm-中的状态-动作-奖励映射">5.1 LLM 中的状态、动作、奖励映射</h3>
+<table>
+<thead><tr><th>RL 概念</th><th>LLM 对应</th></tr></thead><tbody>
+<tr><td>状态 <code>s_t</code></td><td>已生成的 token 序列 <code>[x, y_1, ..., y_t]</code></td></tr>
+<tr><td>动作 <code>a_t</code></td><td>下一个 token <code>y_{t+1}</code></td></tr>
+<tr><td>策略 <code>\pi_\theta</code></td><td>语言模型 $p_\theta(y_{t+1}</td><td>x, y_{1:t})$</td></tr>
+<tr><td>奖励 <code>r_T</code></td><td>Reward Model 在序列结束时给出</td></tr>
+<tr><td>转移</td><td>确定性（拼接 token）</td></tr>
+</tbody></table>
+<h3 id="5-2-完整训练代码">5.2 完整训练代码</h3>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+from torch.optim import Adam
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+class PPOTrainerLLM:
+    def __init__(self, policy, ref_model, reward_model, tokenizer, config):
+        self.policy = policy
+        self.ref_model = ref_model  # 冻结
+        self.reward_model = reward_model
+        self.tokenizer = tokenizer
+        
+        self.gamma = config.get(&quot;gamma&quot;, 1.0)
+        self.lam = config.get(&quot;lam&quot;, 0.95)
+        self.clip_range = config.get(&quot;clip_range&quot;, 0.2)
+        self.kl_coef = config.get(&quot;kl_coef&quot;, 0.2)
+        self.vf_coef = config.get(&quot;vf_coef&quot;, 0.5)
+        self.entropy_coef = config.get(&quot;entropy_coef&quot;, 0.01)
+        self.lr = config.get(&quot;lr&quot;, 1.41e-5)
+        self.ppo_epochs = config.get(&quot;ppo_epochs&quot;, 4)
+        
+        self.optimizer = Adam(self.policy.parameters(), lr=self.lr)
+    
+    def compute_rewards(self, prompt, response_ids):
+        &quot;&quot;&quot;计算包含 KL 惩罚的奖励&quot;&quot;&quot;
+        # 1. RM 奖励（序列级别）
+        text = self.tokenizer.decode(response_ids, skip_special_tokens=True)
+        rm_reward = self.reward_model.score(prompt, text)
+        
+        # 2. 逐 token KL 惩罚
+        with torch.no_grad():
+            ref_logits = self.ref_model(response_ids).logits
+            policy_logits = self.policy(response_ids).logits
+        
+        ref_logprobs = F.log_softmax(ref_logits, dim=-1)
+        policy_logprobs = F.log_softmax(policy_logits, dim=-1)
+        
+        # 逐 token KL
+        token_kl = ref_logprobs.exp() * (ref_logprobs - policy_logprobs)
+        token_kl = token_kl.sum(dim=-1)  # [seq_len]
+        
+        # 3. 组合奖励：仅最后一个 token 有 RM 奖励
+        rewards = -self.kl_coef * token_kl  # 所有 token 都有 KL 惩罚
+        rewards[-1] += rm_reward  # 最后一个 token 加上 RM 奖励
+        
+        return rewards
+    
+    def train_step(self, prompts):
+        &quot;&quot;&quot;一步 PPO 训练&quot;&quot;&quot;
+        # 1. 生成回答
+        prompt_ids = self.tokenizer(prompts, return_tensors=&quot;pt&quot;, padding=True).input_ids
+        with torch.no_grad():
+            response_ids = self.policy.generate(
+                prompt_ids, max_new_tokens=256, do_sample=True, temperature=1.0
+            )
+        
+        # 2. 计算旧策略 log probs
+        with torch.no_grad():
+            old_logits = self.policy(response_ids).logits
+            old_logprobs = self._get_token_logprobs(old_logits, response_ids)
+            old_values = self._get_values(response_ids)  # Value head
+        
+        # 3. 计算奖励
+        rewards = self.compute_rewards(prompts[0], response_ids[0])
+        
+        # 4. 计算 GAE 优势
+        advantages = self._compute_gae(rewards, old_values)
+        returns = advantages + old_values[:-1]
+        
+        # 5. PPO 更新（多个 epoch）
+        total_stats = {&quot;policy_loss&quot;: 0, &quot;value_loss&quot;: 0, &quot;entropy&quot;: 0}
+        
+        for epoch in range(self.ppo_epochs):
+            logits = self.policy(response_ids).logits
+            logprobs = self._get_token_logprobs(logits, response_ids)
+            values = self._get_values(response_ids)
+            
+            # Policy loss (PPO-Clip)
+            ratio = torch.exp(logprobs - old_logprobs)
+            surr1 = ratio * advantages
+            surr2 = torch.clamp(ratio, 1-self.clip_range, 1+self.clip_range) * advantages
+            policy_loss = -torch.min(surr1, surr2).mean()
+            
+            # Value loss
+            value_loss = F.mse_loss(values, returns)
+            
+            # Entropy bonus（鼓励探索）
+            entropy = self._compute_entropy(logits)
+            
+            # Total loss
+            loss = policy_loss + self.vf_coef * value_loss - self.entropy_coef * entropy
+            
+            self.optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.policy.parameters(), 0.5)
+            self.optimizer.step()
+            
+            total_stats[&quot;policy_loss&quot;] += policy_loss.item()
+            total_stats[&quot;value_loss&quot;] += value_loss.item()
+            total_stats[&quot;entropy&quot;] += entropy.item()
+        
+        # 平均统计
+        for k in total_stats:
+            total_stats[k] /= self.ppo_epochs
+        
+        return total_stats
+    
+    def _get_token_logprobs(self, logits, input_ids):
+        &quot;&quot;&quot;提取每个 token 的 log probability&quot;&quot;&quot;
+        logprobs = F.log_softmax(logits[:, :-1], dim=-1)
+        token_logprobs = logprobs.gather(2, input_ids[:, 1:].unsqueeze(-1)).squeeze(-1)
+        return token_logprobs
+    
+    def _compute_entropy(self, logits):
+        &quot;&quot;&quot;计算策略熵&quot;&quot;&quot;
+        probs = F.softmax(logits, dim=-1)
+        logprobs = F.log_softmax(logits, dim=-1)
+        return -(probs * logprobs).sum(dim=-1).mean()
+    
+    def _get_values(self, input_ids):
+        &quot;&quot;&quot;从 Value Head 获取状态价值&quot;&quot;&quot;
+        # 通常 policy 模型带有一个额外的 value head
+        pass  # 取决于具体实现</code></pre>
+<hr>
+<h3>6. 关键超参数调优</h3>
+<table>
+<thead><tr><th>参数</th><th>推荐范围</th><th>说明</th></tr></thead><tbody>
+<tr><td><code>clip_range</code> (ε)</td><td>0.1-0.3</td><td>默认 0.2，越大越保守</td></tr>
+<tr><td><code>kl_coef</code> (β)</td><td>0.05-0.5</td><td>默认 0.2，KL 散度约束强度</td></tr>
+<tr><td><code>ppo_epochs</code></td><td>2-6</td><td>默认 4，过多会过拟合</td></tr>
+<tr><td><code>gamma</code></td><td>1.0</td><td>LLM 任务通常用 1.0</td></tr>
+<tr><td><code>lam</code> (λ)</td><td>0.95</td><td>GAE 的偏差-方差权衡</td></tr>
+<tr><td><code>lr</code></td><td>5e-7 ~ 5e-6</td><td>比 SFT 小 1-2 个量级</td></tr>
+<tr><td><code>vf_coef</code></td><td>0.1-1.0</td><td>Value loss 权重</td></tr>
+<tr><td><code>entropy_coef</code></td><td>0.0-0.02</td><td>鼓励探索</td></tr>
+<tr><td><code>max_grad_norm</code></td><td>0.5-1.0</td><td>梯度裁剪</td></tr>
+</tbody></table>
+<hr>
+<h3>7. 训练稳定性技巧</h3>
+<pre><code class="language-python"># 1. 梯度裁剪（必须）
+torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=0.5)
+
+# 2. 学习率预热
+from transformers import get_scheduler
+scheduler = get_scheduler(&quot;cosine&quot;, optimizer, 
+                          num_warmup_steps=100, 
+                          num_training_steps=1000)
+
+# 3. Reward 标准化
+rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-8)
+
+# 4. 自适应 KL 系数
+def update_kl_coef(kl_div, target_kl, kl_coef):
+    if kl_div &lt; target_kl * 0.5:
+        kl_coef *= 0.5  # KL 太小，降低约束
+    elif kl_div &gt; target_kl * 2.0:
+        kl_coef *= 2.0  # KL 太大，加强约束
+    return max(kl_coef, 0.001)
+
+# 5. 早停（基于 KL 或奖励）
+if kl_div &gt; target_kl * 3:
+    print(&quot;KL 爆炸，停止训练&quot;)
+    break
+
+# 6. Value function 预热
+# 先单独训练几步 value function，再开始 PPO</code></pre>
+<hr>
+<h3>8. 多 GPU 并行实现</h3>
+<pre><code class="language-python"># 使用 Accelerate 进行分布式训练
+from accelerate import Accelerator
+
+accelerator = Accelerator(mixed_precision=&quot;bf16&quot;)
+
+policy, ref_model, optimizer, dataloader = accelerator.prepare(
+    policy, ref_model, optimizer, dataloader
+)
+
+for batch in dataloader:
+    # ... PPO 训练逻辑 ...
+    accelerator.backward(loss)
+    optimizer.step()</code></pre>
+<hr>
+<h3>9. 常见调试指标</h3>
+<pre><code class="language-python"># 训练时监控的日志
+training_metrics = {
+    # 策略相关
+    &quot;ppo/policy_loss&quot;: &quot;策略损失，应稳定下降&quot;,
+    &quot;ppo/ratio_mean&quot;: &quot;平均 ratio，应在 1.0 附近&quot;,
+    &quot;ppo/ratio_max&quot;: &quot;最大 ratio，不应过大&quot;,
+    &quot;ppo/frac_clipped&quot;: &quot;被裁剪的比例，10-30% 为佳&quot;,
+    
+    # Value 相关
+    &quot;ppo/value_loss&quot;: &quot;价值损失&quot;,
+    &quot;ppo/value_pred_mean&quot;: &quot;预测值均值&quot;,
+    &quot;ppo/returns_mean&quot;: &quot;实际回报均值&quot;,
+    
+    # KL 相关
+    &quot;ppo/kl_div&quot;: &quot;KL 散度，核心监控指标&quot;,
+    &quot;ppo/kl_coef&quot;: &quot;当前 KL 系数&quot;,
+    
+    # 奖励相关
+    &quot;ppo/reward_mean&quot;: &quot;平均奖励，应稳步提升&quot;,
+    &quot;ppo/reward_std&quot;: &quot;奖励标准差&quot;,
+    
+    # 探索相关
+    &quot;ppo/entropy&quot;: &quot;策略熵，过低说明策略坍缩&quot;,
+}</code></pre>
+<hr>
+<h3>10. PPO 的 LLM 特有问题</h3>
+<h3 id="10-1-稀疏奖励问题">10.1 稀疏奖励问题</h3>
+<p>LLM 的奖励通常只在序列末尾给出，中间 token 无信号。解决方案：</p>
+<pre><code class="language-python"># 方法 1: KL 惩罚作为中间奖励（已包含在上述实现）
+# 方法 2: Reward shaping（将 RM 信号分配到各 token）
+# 方法 3: Process Reward Model（每个推理步骤给奖励）</code></pre>
+<h3 id="10-2-value-function-的挑战">10.2 Value Function 的挑战</h3>
+<p>LLM 序列极长（512-2048 token），Value Head 需要从任意中间状态估计未来回报，这非常困难。</p>
+<h3 id="10-3-计算瓶颈">10.3 计算瓶颈</h3>
+<pre><code class="language-">每一步 PPO 更新需要：
+1. Policy forward + backward     → GPU 1
+2. Reference model forward       → GPU 2（无梯度）
+3. Reward model forward          → GPU 3（无梯度）
+4. Value function forward + backward → 与 policy 共享
+
+PPO 4 epochs → 每个样本 4 次 forward+backward
+总计算量 ≈ 4× SFT + 推理开销</code></pre>
+<hr>
+<h2 id="alignment-compare">新一代对齐算法对比</h2>
+<h3>概述</h3>
+<p>DPO 的成功催生了一系列新的偏好优化算法。本文系统对比 ORPO、KTO、SimPO、SPPO 等新一代方法，帮助选择最适合场景的对齐技术。</p>
+<hr>
+<h3>1. 算法概览</h3>
+<h3 id="1-1-演化路线">1.1 演化路线</h3>
+<pre><code class="language-">RLHF (PPO)
+    │
+    ├── DPO (2023) ── 去掉 RM，直接优化
+    │       ├── IPO (2023) ── 解决过拟合
+    │       ├── cDPO ── 处理标签噪声
+    │       └── DPO-Margin ── 加入偏好强度
+    │
+    ├── KTO (2024) ── 只需 pointwise 标签
+    ├── ORPO (2024) ── SFT + 对齐一步到位
+    ├── SimPO (2024) ── 简化参考模型
+    └── SPPO (2024) ── 自我博弈对齐</code></pre>
+<hr>
+<h3>2. ORPO（Odds Ratio Preference Optimization）</h3>
+<h3 id="2-1-核心思想">2.1 核心思想</h3>
+<p>ORPO 将 SFT 和偏好对齐合并为一步，无需参考模型，无需分阶段训练。</p>
+<p><strong>关键公式：</strong></p>
+<p>$<code>\mathcal{L}_{\text{ORPO}} = \underbrace{\mathcal{L}_{\text{SFT}}(y_w)}_{\text{SFT 损失}} + \lambda \cdot \underbrace{\left[ -\log \sigma\left(\log \frac{\text{odds}_\theta(y_w|x)}{\text{odds}_\theta(y_l|x)}\right) \right]}_{\text{Odds Ratio 损失}}</code>$</p>
+<p>其中 odds 定义为：</p>
+<p>$<code>\text{odds}_\theta(y|x) = \frac{P_\theta(y|x)}{1 - P_\theta(y|x)}</code>$</p>
+<p>$<code>\log \text{odds} = \log P_\theta(y|x) - \log(1 - P_\theta(y|x))</code>$</p>
+<h3 id="2-2-优势">2.2 优势</h3>
+<table>
+<thead><tr><th>特性</th><th>DPO</th><th>ORPO</th></tr></thead><tbody>
+<tr><td>需要参考模型</td><td>✅</td><td>❌</td></tr>
+<tr><td>需要 SFT 预训练</td><td>✅</td><td>❌（一步完成）</td></tr>
+<tr><td>训练阶段</td><td>2 步</td><td>1 步</td></tr>
+<tr><td>计算成本</td><td>~2x</td><td>~1x</td></tr>
+</tbody></table>
+<h3 id="2-3-trl-实现">2.3 TRL 实现</h3>
+<pre><code class="language-python">from trl import ORPOTrainer, ORPOConfig
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model = AutoModelForCausalLM.from_pretrained(&quot;meta-llama/Llama-2-7b-hf&quot;)
+tokenizer = AutoTokenizer.from_pretrained(&quot;meta-llama/Llama-2-7b-hf&quot;)
+
+orpo_config = ORPOConfig(
+    output_dir=&quot;./orpo_output&quot;,
+    per_device_train_batch_size=2,
+    gradient_accumulation_steps=4,
+    learning_rate=1e-6,
+    beta=0.1,              # ORPO 的 λ 参数
+    max_length=1024,
+    num_train_epochs=3,
+    bf16=True,
+)
+
+trainer = ORPOTrainer(
+    model=model,
+    args=orpo_config,
+    train_dataset=preference_dataset,
+    tokenizer=tokenizer,
+)
+trainer.train()</code></pre>
+<hr>
+<h3>3. KTO（Kahneman-Tversky Optimization）</h3>
+<h3 id="3-1-核心思想">3.1 核心思想</h3>
+<p>基于前景理论（Prospect Theory），KTO <strong>只需要 pointwise 标签</strong>（好/坏），不需要 pairwise 偏好对。</p>
+<p><strong>关键洞察</strong>：人类对损失的敏感度高于收益（损失厌恶）。</p>
+<h3 id="3-2-数学公式">3.2 数学公式</h3>
+<p>定义隐式奖励：</p>
+<p>$<code>r_\theta(x, y) = \beta \log \frac{\pi_\theta(y|x)}{\pi_{\text{ref}}(y|x)}</code>$</p>
+<p>KTO 损失：</p>
+<p>$<code>\mathcal{L}_{\text{KTO}} = \mathbb{E}_{(x,y) \sim \mathcal{D}} \left[ w(y) \cdot \left(1 - v_\theta(x, y)\right) \right]</code>$</p>
+<p>其中：</p>
+<p>$<code>v_\theta(x, y) = \begin{cases} \sigma(r_\theta(x, y) - z_{\text{ref}}) & \text{if } y \text{ is desirable} \\ \sigma(z_{\text{ref}} - r_\theta(x, y)) & \text{if } y \text{ is undesirable} \end{cases}</code>$</p>
+<p><code>z_{\text{ref}}</code> 是参考点（通常为 <code>\mathbb{E}[r_\theta(x, y)]</code>）。</p>
+<p><strong>损失厌恶权重</strong> <code>w(y)</code>：</p>
+<p>$<code>w(y) = \begin{cases} \lambda_D & \text{if } y \text{ is desirable} \\ \lambda_U & \text{if } y \text{ is undesirable} \end{cases}</code>$</p>
+<p>通常 <code>\lambda_U > \lambda_D</code>，反映损失厌恶。</p>
+<h3 id="3-3-数据格式">3.3 数据格式</h3>
+<pre><code class="language-python"># KTO 只需要好/坏标签，不需要成对
+kto_dataset = [
+    {&quot;prompt&quot;: &quot;什么是机器学习？&quot;, &quot;response&quot;: &quot;机器学习是...&quot;, &quot;label&quot;: True},   # 好
+    {&quot;prompt&quot;: &quot;什么是深度学习？&quot;, &quot;response&quot;: &quot;不知道...&quot;, &quot;label&quot;: False},       # 差
+    # 无需成对！每条独立标注
+]</code></pre>
+<h3 id="3-4-trl-实现">3.4 TRL 实现</h3>
+<pre><code class="language-python">from trl import KTOTrainer, KTOConfig
+
+kto_config = KTOConfig(
+    output_dir=&quot;./kto_output&quot;,
+    per_device_train_batch_size=4,
+    learning_rate=5e-7,
+    beta=0.1,
+    desirable_weight=1.0,     # λ_D
+    undesirable_weight=1.3,   # λ_U &gt; λ_D（损失厌恶）
+    max_length=1024,
+    num_train_epochs=1,
+    bf16=True,
+)
+
+trainer = KTOTrainer(
+    model=model,
+    ref_model=ref_model,
+    args=kto_config,
+    train_dataset=kto_dataset,
+    tokenizer=tokenizer,
+)
+trainer.train()</code></pre>
+<h3 id="3-5-kto-优势">3.5 KTO 优势</h3>
+<li style="margin-left:0px"><strong>数据获取容易</strong>：👍/👎 评分远比 A>B 排序容易收集</li>
+<li style="margin-left:0px"><strong>数据效率高</strong>：不需要同一 prompt 的多个回答</li>
+<li style="margin-left:0px"><strong>适合用户反馈</strong>：直接利用线上用户隐式反馈</li>
+<hr>
+<h3>4. SimPO（Simple Preference Optimization）</h3>
+<h3 id="4-1-核心思想">4.1 核心思想</h3>
+<p>SimPO 进一步简化 DPO：</p>
+<li><strong>去掉参考模型</strong>：用平均 log probability 作为隐式参考</li>
+<li><strong>加入目标奖励 margin</strong></li>
+<h3 id="4-2-数学公式">4.2 数学公式</h3>
+<p><strong>长度归一化的隐式奖励：</strong></p>
+<p>$<code>r_{\text{SimPO}}(x, y) = \frac{\beta}{|y|} \log \pi_\theta(y|x) = \frac{\beta}{|y|} \sum_{t=1}^{|y|} \log \pi_\theta(y_t | x, y_{<t})</code>$</p>
+<p><strong>SimPO 损失：</strong></p>
+<p>$<code>\mathcal{L}_{\text{SimPO}} = -\mathbb{E} \left[ \log \sigma\left( \frac{\beta}{|y_w|} \log \pi_\theta(y_w|x) - \frac{\beta}{|y_l|} \log \pi_\theta(y_l|x) - \gamma \right) \right]</code>$</p>
+<p>其中 <code>\gamma > 0</code> 是目标 margin。</p>
+<h3 id="4-3-关键创新">4.3 关键创新</h3>
+<table>
+<thead><tr><th>改进</th><th>效果</th></tr></thead><tbody>
+<tr><td>长度归一化</td><td>消除长度偏好，不鼓励冗长回答</td></tr>
+<tr><td>去掉参考模型</td><td>显存减半，训练更简单</td></tr>
+<tr><td>Margin <code>\gamma</code></td><td>增强偏好区分度</td></tr>
+</tbody></table>
+<h3 id="4-4-实现">4.4 实现</h3>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+def simpo_loss(policy_chosen_logps, policy_rejected_logps, 
+               beta=2.0, gamma=0.5):
+    &quot;&quot;&quot;
+    Args:
+        policy_chosen_logps: 平均 log prob [batch_size]
+        policy_rejected_logps: 平均 log prob [batch_size]
+        beta: 温度参数
+        gamma: 目标 margin
+    &quot;&quot;&quot;
+    chosen_reward = beta * policy_chosen_logps
+    rejected_reward = beta * policy_rejected_logps
+    
+    logits = chosen_reward - rejected_reward - gamma
+    loss = -F.logsigmoid(logits).mean()
+    
+    return loss
+
+# Hugging Face TRL 集成（如有）
+# 或自行实现 training loop</code></pre>
+<hr>
+<h3>5. SPPO（Self-Play Preference Optimization）</h3>
+<h3 id="5-1-核心思想">5.1 核心思想</h3>
+<p>SPPO 引入自我博弈（Self-Play）机制：模型自己生成回答并自我评估，迭代改进。</p>
+<h3 id="5-2-算法流程">5.2 算法流程</h3>
+<pre><code class="language-">1. 当前策略 π_θ 生成 K 个回答: {y_1, ..., y_K}
+2. 用 RM 或 LLM-as-Judge 两两比较
+3. 构造偏好对 (y_w, y_l)
+4. 用 DPO 更新策略
+5. 重复</code></pre>
+<h3 id="5-3-核心优势">5.3 核心优势</h3>
+<li style="margin-left:0px"><strong>在线学习</strong>：数据由当前策略生成，解决分布偏移</li>
+<li style="margin-left:0px"><strong>持续改进</strong>：每轮迭代使用更好的策略生成数据</li>
+<li style="margin-left:0px"><strong>无需人工标注</strong>：可以用 RM 或 AI 反馈</li>
+<hr>
+<h3>6. 综合对比矩阵</h3>
+<table>
+<thead><tr><th>维度</th><th>DPO</th><th>ORPO</th><th>KTO</th><th>SimPO</th><th>SPPO</th></tr></thead><tbody>
+<tr><td><strong>数据格式</strong></td><td>pairwise</td><td>pairwise</td><td>pointwise</td><td>pairwise</td><td>online</td></tr>
+<tr><td><strong>需要参考模型</strong></td><td>✅</td><td>❌</td><td>✅</td><td>❌</td><td>✅</td></tr>
+<tr><td><strong>需要 SFT 阶段</strong></td><td>✅</td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+<tr><td><strong>在线数据</strong></td><td>❌</td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td><strong>计算成本</strong></td><td>中</td><td>低</td><td>中</td><td>低</td><td>高</td></tr>
+<tr><td><strong>显存需求</strong></td><td>2x 模型</td><td>1x 模型</td><td>2x 模型</td><td>1x 模型</td><td>2x+ 模型</td></tr>
+<tr><td><strong>超参数数量</strong></td><td>少</td><td>很少</td><td>少</td><td>少</td><td>多</td></tr>
+<tr><td><strong>理论基础</strong></td><td>BT 模型</td><td>Odds Ratio</td><td>前景理论</td><td>简化 BT</td><td>自我博弈</td></tr>
+<tr><td><strong>长度偏好问题</strong></td><td>有</td><td>有</td><td>有</td><td>缓解</td><td>有</td></tr>
+<tr><td><strong>训练稳定性</strong></td><td>好</td><td>好</td><td>好</td><td>好</td><td>中</td></tr>
+<tr><td><strong>代码成熟度</strong></td><td>高</td><td>中</td><td>中</td><td>低</td><td>低</td></tr>
+</tbody></table>
+<hr>
+<h3>7. 选型决策树</h3>
+<pre><code class="language-">你有成对偏好数据吗？
+├── 否 → KTO（只需要好/坏标签）
+│
+├── 是 → 你想一步完成 SFT+对齐吗？
+│   ├── 是 → ORPO
+│   └── 否 → 你关心长度偏差吗？
+│       ├── 是 → SimPO（长度归一化）
+│       └── 否 → 你有在线生成能力吗？
+│           ├── 是 → SPPO 或 Online DPO
+│           └── 否 → DPO（最成熟、社区支持最好）</code></pre>
+<hr>
+<h3>8. 实际使用建议</h3>
+<h3 id="8-1-数据量建议">8.1 数据量建议</h3>
+<table>
+<thead><tr><th>算法</th><th>最低数据量</th><th>推荐数据量</th><th>备注</th></tr></thead><tbody>
+<tr><td>DPO</td><td>1K pairs</td><td>10K-50K pairs</td><td>质量 > 数量</td></tr>
+<tr><td>ORPO</td><td>1K pairs</td><td>5K-20K pairs</td><td>可少一些</td></tr>
+<tr><td>KTO</td><td>2K samples</td><td>10K-50K samples</td><td>pointwise 更易获取</td></tr>
+<tr><td>SimPO</td><td>1K pairs</td><td>10K-50K pairs</td><td>同 DPO</td></tr>
+</tbody></table>
+<h3 id="8-2-超参数默认配置">8.2 超参数默认配置</h3>
+<pre><code class="language-python"># DPO
+dpo_defaults = {&quot;beta&quot;: 0.1, &quot;lr&quot;: 5e-7, &quot;epochs&quot;: 3}
+
+# ORPO
+orpo_defaults = {&quot;beta&quot;: 0.1, &quot;lr&quot;: 1e-6, &quot;epochs&quot;: 3}
+
+# KTO
+kto_defaults = {&quot;beta&quot;: 0.1, &quot;lr&quot;: 5e-7, &quot;epochs&quot;: 1, 
+                &quot;desirable_weight&quot;: 1.0, &quot;undesirable_weight&quot;: 1.3}
+
+# SimPO
+simpo_defaults = {&quot;beta&quot;: 2.0, &quot;lr&quot;: 5e-7, &quot;epochs&quot;: 3, &quot;gamma&quot;: 0.5}</code></pre>
+<h3 id="8-3-混合策略-推荐">8.3 混合策略（推荐）</h3>
+<pre><code class="language-python"># 实战中最有效的方式：分阶段 + 混合
+pipeline = [
+    # Step 1: 高质量数据 SFT
+    {&quot;stage&quot;: &quot;sft&quot;, &quot;data&quot;: &quot;high_quality_instructions.jsonl&quot;, &quot;epochs&quot;: 3},
+    
+    # Step 2: ORPO 或 DPO 偏好对齐
+    {&quot;stage&quot;: &quot;dpo&quot;, &quot;data&quot;: &quot;preference_pairs.jsonl&quot;, &quot;epochs&quot;: 1, &quot;beta&quot;: 0.1},
+    
+    # Step 3: KTO 利用用户反馈迭代
+    {&quot;stage&quot;: &quot;kto&quot;, &quot;data&quot;: &quot;user_feedback.jsonl&quot;, &quot;epochs&quot;: 1, &quot;beta&quot;: 0.05},
+]</code></pre>
+<hr>
+<h3>9. 最新进展（2024-2025）</h3>
+<table>
+<thead><tr><th>方法</th><th>机构</th><th>核心创新</th></tr></thead><tbody>
+<tr><td>OAIF</td><td>微软</td><td>用 LLM 做在线 AI 反馈</td></tr>
+<tr><td>RS-DPO</td><td>-</td><td>加入 Rejection Sampling</td></tr>
+<tr><td>Self-Rewarding</td><td>Meta</td><td>模型自己做奖励判断</td></tr>
+<tr><td>WARM</td><td>Google</td><td>Weight Averaged RM</td></tr>
+<tr><td>ALIGN</td><td>-</td><td>多目标对齐</td></tr>
+</tbody></table>
+<hr>
+<h3>10. 快速上手模板</h3>
+<pre><code class="language-python">&quot;&quot;&quot;一键切换不同对齐算法&quot;&quot;&quot;
+
+from trl import DPOTrainer, DPOConfig, ORPOTrainer, ORPOConfig, KTOTrainer, KTOConfig
+
+def train_alignment(algo=&quot;dpo&quot;, model=None, dataset=None, ref_model=None):
+    if algo == &quot;dpo&quot;:
+        config = DPOConfig(output_dir=&quot;./dpo&quot;, beta=0.1, lr=5e-7)
+        trainer = DPOTrainer(model, ref_model, config, dataset, tokenizer)
+    
+    elif algo == &quot;orpo&quot;:
+        config = ORPOConfig(output_dir=&quot;./orpo&quot;, beta=0.1, lr=1e-6)
+        trainer = ORPOTrainer(model, config, dataset, tokenizer)
+    
+    elif algo == &quot;kto&quot;:
+        config = KTOConfig(output_dir=&quot;./kto&quot;, beta=0.1, lr=5e-7)
+        trainer = KTOTrainer(model, ref_model, config, dataset, tokenizer)
+    
+    trainer.train()
+    return trainer</code></pre>
+<hr>
+<div class="cross-ref">
+<strong>相关项目:</strong> 查看 <a href="../../projects/model-finetune-demo/">model-finetune-demo</a> 获取 RLHF/DPO/PPO 完整训练代码。
+<br><strong>相关页面:</strong> <a href="finetune-lora.html">LoRA与QLoRA</a> | <a href="finetune-overview.html">微调概述与基础</a>
+</div></div></body></html>

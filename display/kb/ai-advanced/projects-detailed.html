@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目实战 - AI知识体系</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ffffff;--text:#1a1a1a;--text-secondary:#6b7280;--accent:#0075de;--accent-light:#e8f0fe;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-bg:#f9fafb;--badge-green:#10b981;--badge-yellow:#f59e0b;--badge-red:#ef4444;--badge-purple:#8b5cf6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.layout{display:flex;min-height:100vh}
+.sidebar{width:280px;min-width:280px;background:var(--sidebar-bg);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+.sidebar h2{font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.sidebar .tree-item{padding:6px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;border-radius:6px;margin-bottom:2px;display:block}
+.sidebar .tree-item:hover{background:rgba(0,117,222,0.08);color:var(--accent)}
+.sidebar .tree-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.sidebar .tree-section{margin-bottom:16px}
+.sidebar .tree-section-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-secondary);margin-bottom:8px;padding:0 12px}
+.main{flex:1;max-width:900px;padding:48px 64px;margin:0 auto}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px;letter-spacing:-0.02em}
+h2{font-size:28px;font-weight:700;margin-top:48px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin-top:32px;margin-bottom:12px}
+h4{font-size:16px;font-weight:600;margin-top:24px;margin-bottom:8px}
+p{margin-bottom:12px}
+.subtitle{font-size:18px;color:var(--text-secondary);margin-bottom:32px}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;color:#fff;margin-right:6px}
+.badge-green{background:var(--badge-green)}
+.badge-yellow{background:var(--badge-yellow)}
+.badge-red{background:var(--badge-red)}
+.badge-purple{background:var(--badge-purple)}
+.badge-blue{background:var(--accent)}
+.difficulty{display:flex;align-items:center;gap:8px;margin:16px 0;padding:12px 16px;background:var(--code-bg);border-radius:8px;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 12px;border:1px solid var(--border)}
+td{padding:10px 12px;border:1px solid var(--border)}
+tr:nth-child(even){background:#fafafa}
+pre{background:var(--code-bg);border-radius:8px;padding:16px;overflow-x:auto;margin:16px 0;font-size:13px;line-height:1.6;border:1px solid var(--border)}
+code{font-family:'JetBrains Mono',Consolas,monospace;font-size:13px}
+p code,li code,td code{background:var(--code-bg);padding:2px 6px;border-radius:4px;font-size:13px}
+blockquote{border-left:3px solid var(--accent);padding:12px 16px;margin:16px 0;background:var(--accent-light);border-radius:0 8px 8px 0;font-size:14px}
+blockquote p{margin-bottom:4px}
+ul,ol{margin:8px 0 12px 24px}
+li{margin-bottom:4px}
+.svg-diagram{margin:24px 0;text-align:center}
+.svg-diagram svg{max-width:100%;height:auto}
+.toc{background:var(--code-bg);border-radius:8px;padding:20px 24px;margin:24px 0}
+.toc h3{margin-top:0;font-size:16px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{padding:3px 0}
+.toc a{font-size:14px;color:var(--text-secondary)}
+.toc a:hover{color:var(--accent)}
+.card{border:1px solid var(--border);border-radius:8px;padding:20px;margin:16px 0;background:#fff}
+.card-title{font-weight:600;margin-bottom:8px;color:var(--accent)}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.project-card{border:1px solid var(--border);border-radius:12px;padding:24px;margin:20px 0;background:#fff;transition:box-shadow 0.2s}
+.project-card:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+.project-card h3{margin-top:0;color:var(--accent)}
+.tech-tags{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.tech-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:var(--accent-light);color:var(--accent);border:1px solid rgba(0,117,222,0.2)}
+.tech-tag.neo4j{background:#fff3e0;color:#e65100;border-color:rgba(230,81,0,0.2)}
+.tech-tag.pytorch{background:#fce4ec;color:#c62828;border-color:rgba(198,40,40,0.2)}
+.tech-tag.rag{background:#e8f5e9;color:#2e7d32;border-color:rgba(46,125,50,0.2)}
+.tech-tag.bert{background:#f3e5f5;color:#6a1b9a;border-color:rgba(106,27,154,0.2)}
+.tech-tag.fastapi{background:#e0f2f1;color:#00695c;border-color:rgba(0,105,92,0.2)}
+.tech-tag.llm{background:#fff8e1;color:#f57f17;border-color:rgba(245,127,23,0.2)}
+.tech-tag.nlp{background:#e8eaf6;color:#283593;border-color:rgba(40,53,147,0.2)}
+.tech-tag.rasa{background:#fce4ec;color:#ad1457;border-color:rgba(173,20,87,0.2)}
+.project-meta{display:flex;gap:16px;margin-top:12px;font-size:13px;color:var(--text-secondary)}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar">
+<h2>项目实战 目录</h2>
+<div class="tree-section">
+<div class="tree-section-title">黑马程序员 RAG & Agent</div>
+<a class="tree-item" href="#heimarag">RAG-Agent 项目实战</a>
+<a class="tree-item" href="#prompt-eng">提示词工程</a>
+<a class="tree-item" href="#rag-dev">大模型RAG开发</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">DeepSeek-RAG</div>
+<a class="tree-item" href="#deepseek-rag">企业知识库 RAG 系统</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">尚硅谷 NLP 项目</div>
+<a class="tree-item" href="#address">地址对齐</a>
+<a class="tree-item" href="#product">智能商品发布</a>
+<a class="tree-item" href="#news">智选新闻</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">尚硅谷 知识图谱</div>
+<a class="tree-item" href="#zhijian">智荐图谱 - 电商图谱</a>
+<a class="tree-item" href="#neo4j">Neo4j 图数据库</a>
+<a class="tree-item" href="#zhiyi">智医助手</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">尚硅谷 教育医疗</div>
+<a class="tree-item" href="#ai-edu">AI智教</a>
+<a class="tree-item" href="#ai-xueqing">AI学情</a>
+<a class="tree-item" href="#ai-medical">AI医疗</a>
+</div>
+<div class="tree-section">
+<div class="tree-section-title">其他项目</div>
+<a class="tree-item" href="#zhitu">智图寻宝</a>
+</div>
+</aside>
+
+<main class="main">
+
+<h1>项目实战</h1>
+<p class="subtitle">大模型项目实战笔记 -- 涵盖 RAG、Agent、知识图谱、NLP 等多个真实业务场景</p>
+
+<!-- Project Showcase SVG -->
+<div class="svg-diagram">
+<svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" style="max-width:750px">
+<rect width="800" height="320" rx="12" fill="#f9fafb" stroke="rgba(0,0,0,0.1)" stroke-width="1"/>
+<text x="400" y="28" text-anchor="middle" font-size="15" font-weight="700" fill="#1a1a1a">项目实战全景图</text>
+
+<!-- RAG & Agent -->
+<rect x="30" y="50" width="170" height="120" rx="10" fill="#fff" stroke="#0075de" stroke-width="2"/>
+<text x="115" y="75" text-anchor="middle" font-size="13" font-weight="700" fill="#0075de">RAG & Agent</text>
+<text x="115" y="98" text-anchor="middle" font-size="10" fill="#6b7280">黑马 RAG-Agent</text>
+<text x="115" y="115" text-anchor="middle" font-size="10" fill="#6b7280">DeepSeek-RAG</text>
+<rect x="42" y="130" width="50" height="18" rx="9" fill="#e8f5e9" stroke="rgba(46,125,50,0.2)" stroke-width="1"/>
+<text x="67" y="143" text-anchor="middle" font-size="8" fill="#2e7d32">RAG</text>
+<rect x="98" y="130" width="50" height="18" rx="9" fill="#fff8e1" stroke="rgba(245,127,23,0.2)" stroke-width="1"/>
+<text x="123" y="143" text-anchor="middle" font-size="8" fill="#f57f17">Agent</text>
+<rect x="154" y="130" width="36" height="18" rx="9" fill="#e8f0fe" stroke="rgba(0,117,222,0.2)" stroke-width="1"/>
+<text x="172" y="143" text-anchor="middle" font-size="8" fill="#0075de">MCP</text>
+
+<!-- NLP Projects -->
+<rect x="220" y="50" width="170" height="120" rx="10" fill="#fff" stroke="#8b5cf6" stroke-width="2"/>
+<text x="305" y="75" text-anchor="middle" font-size="13" font-weight="700" fill="#8b5cf6">NLP 项目</text>
+<text x="305" y="98" text-anchor="middle" font-size="10" fill="#6b7280">地址对齐 (NER)</text>
+<text x="305" y="115" text-anchor="middle" font-size="10" fill="#6b7280">智能商品发布 (分类)</text>
+<text x="305" y="132" text-anchor="middle" font-size="10" fill="#6b7280">智选新闻 (分类+摘要)</text>
+<rect x="240" y="142" width="40" height="18" rx="9" fill="#f3e5f5" stroke="rgba(106,27,154,0.2)" stroke-width="1"/>
+<text x="260" y="155" text-anchor="middle" font-size="8" fill="#6a1b9a">BERT</text>
+<rect x="286" y="142" width="56" height="18" rx="9" fill="#fce4ec" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+<text x="314" y="155" text-anchor="middle" font-size="8" fill="#c62828">PyTorch</text>
+<rect x="348" y="142" width="34" height="18" rx="9" fill="#e0f2f1" stroke="rgba(0,105,92,0.2)" stroke-width="1"/>
+<text x="365" y="155" text-anchor="middle" font-size="8" fill="#00695c">API</text>
+
+<!-- Knowledge Graph -->
+<rect x="410" y="50" width="170" height="120" rx="10" fill="#fff" stroke="#e65100" stroke-width="2"/>
+<text x="495" y="75" text-anchor="middle" font-size="13" font-weight="700" fill="#e65100">知识图谱</text>
+<text x="495" y="98" text-anchor="middle" font-size="10" fill="#6b7280">智荐图谱 (电商)</text>
+<text x="495" y="115" text-anchor="middle" font-size="10" fill="#6b7280">智医助手 (医疗)</text>
+<text x="495" y="132" text-anchor="middle" font-size="10" fill="#6b7280">Neo4j + Cypher</text>
+<rect x="425" y="142" width="50" height="18" rx="9" fill="#fff3e0" stroke="rgba(230,81,0,0.2)" stroke-width="1"/>
+<text x="450" y="155" text-anchor="middle" font-size="8" fill="#e65100">Neo4j</text>
+<rect x="481" y="142" width="40" height="18" rx="9" fill="#f3e5f5" stroke="rgba(106,27,154,0.2)" stroke-width="1"/>
+<text x="501" y="155" text-anchor="middle" font-size="8" fill="#6a1b9a">UIE</text>
+<rect x="527" y="142" width="40" height="18" rx="9" fill="#e8eaf6" stroke="rgba(40,53,147,0.2)" stroke-width="1"/>
+<text x="547" y="155" text-anchor="middle" font-size="8" fill="#283593">NLP</text>
+
+<!-- Education & Medical -->
+<rect x="600" y="50" width="170" height="120" rx="10" fill="#fff" stroke="#10b981" stroke-width="2"/>
+<text x="685" y="75" text-anchor="middle" font-size="13" font-weight="700" fill="#10b981">教育 & 医疗</text>
+<text x="685" y="98" text-anchor="middle" font-size="10" fill="#6b7280">AI智教 (知识图谱)</text>
+<text x="685" y="115" text-anchor="middle" font-size="10" fill="#6b7280">AI学情 (Rasa对话)</text>
+<text x="685" y="132" text-anchor="middle" font-size="10" fill="#6b7280">AI医疗 (Rasa+图谱)</text>
+<rect x="615" y="142" width="40" height="18" rx="9" fill="#fce4ec" stroke="rgba(173,20,87,0.2)" stroke-width="1"/>
+<text x="635" y="155" text-anchor="middle" font-size="8" fill="#ad1457">Rasa</text>
+<rect x="661" y="142" width="50" height="18" rx="9" fill="#fff3e0" stroke="rgba(230,81,0,0.2)" stroke-width="1"/>
+<text x="686" y="155" text-anchor="middle" font-size="8" fill="#e65100">GraphRAG</text>
+
+<!-- Bottom: 智图寻宝 -->
+<rect x="280" y="200" width="240" height="90" rx="10" fill="#fff" stroke="#f59e0b" stroke-width="2"/>
+<text x="400" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#f59e0b">智图寻宝</text>
+<text x="400" y="250" text-anchor="middle" font-size="10" fill="#6b7280">深度学习图像识别系统</text>
+<text x="400" y="268" text-anchor="middle" font-size="10" fill="#6b7280">自编码器 + CNN分类 + KNN检索</text>
+<rect x="310" y="275" width="50" height="16" rx="8" fill="#fce4ec" stroke="rgba(198,40,40,0.2)" stroke-width="1"/>
+<text x="335" y="287" text-anchor="middle" font-size="8" fill="#c62828">PyTorch</text>
+<rect x="366" y="275" width="40" height="16" rx="8" fill="#e8f5e9" stroke="rgba(46,125,50,0.2)" stroke-width="1"/>
+<text x="386" y="287" text-anchor="middle" font-size="8" fill="#2e7d32">Flask</text>
+<rect x="412" y="275" width="36" height="16" rx="8" fill="#e8eaf6" stroke="rgba(40,53,147,0.2)" stroke-width="1"/>
+<text x="430" y="287" text-anchor="middle" font-size="8" fill="#283593">KNN</text>
+
+<!-- Connection lines -->
+<line x1="200" y1="110" x2="218" y2="110" stroke="rgba(0,0,0,0.15)" stroke-width="1" stroke-dasharray="4,2"/>
+<line x1="390" y1="110" x2="408" y2="110" stroke="rgba(0,0,0,0.15)" stroke-width="1" stroke-dasharray="4,2"/>
+<line x1="580" y1="110" x2="598" y2="110" stroke="rgba(0,0,0,0.15)" stroke-width="1" stroke-dasharray="4,2"/>
+</svg>
+</div>
+
+<div class="toc">
+<h3>目录</h3>
+<ul>
+<li><a href="#heimarag">黑马 RAG-Agent 项目实战</a></li>
+<li><a href="#deepseek-rag">DeepSeek-RAG 企业知识库</a></li>
+<li><a href="#address">地址对齐 (NER序列标注)</a></li>
+<li><a href="#product">智能商品发布 (文本分类)</a></li>
+<li><a href="#news">智选新闻 (分类+摘要)</a></li>
+<li><a href="#zhijian">智荐图谱 (电商知识图谱)</a></li>
+<li><a href="#neo4j">Neo4j 图数据库</a></li>
+<li><a href="#zhiyi">智医助手 (医疗知识图谱)</a></li>
+<li><a href="#ai-edu">AI智教 (教育知识图谱)</a></li>
+<li><a href="#ai-xueqing">AI学情 (教育对话系统)</a></li>
+<li><a href="#ai-medical">AI医疗 (医疗对话系统)</a></li>
+<li><a href="#zhitu">智图寻宝 (图像识别)</a></li>
+</ul>
+</div>
+
+<hr>
+
+<!-- Heima RAG-Agent -->
+<h2 id="heimarag">黑马 RAG-Agent 项目实战</h2>
+<div class="difficulty">
+<span class="badge badge-yellow">难度 2-4/5</span>
+<span>提示词工程 + RAG开发 + Agent实战</span>
+</div>
+
+<h3 id="prompt-eng">提示词工程</h3>
+<p>大模型应用开发的基础课程，涵盖 OpenAI SDK 统一接口调用、流式输出、多角色消息构建、Ollama 本地部署等核心技能。</p>
+<ul>
+<li>通过阿里云百炼平台调用云端大模型（Qwen/DeepSeek）</li>
+<li>通过 Ollama 部署本地模型实现离线推理</li>
+<li>使用 dotenv 管理 API Key，避免明文暴露</li>
+<li>OpenAI SDK 已成为行业标准接口，主流模型服务商均兼容</li>
+</ul>
+
+<h3 id="rag-dev">大模型 RAG 开发</h3>
+<p>检索增强生成（RAG）技术实战，包括文档切片、向量化存储、检索重排、上下文注入等全流程。</p>
+
+<h3>京东商品智能问答</h3>
+<p>基于 RAG 技术构建的京东商品智能问答系统，实现商品知识的精准检索与回答生成。</p>
+
+<hr>
+
+<!-- DeepSeek-RAG -->
+<h2 id="deepseek-rag">DeepSeek-RAG 企业知识库</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>企业级 RAG 系统完整实现</span>
+</div>
+
+<p>基于 DeepSeek-V3.1 + ChromaDB + MCP 协议构建的法律问答系统，将企业私有文档向量化存储并结合 LLM 实现智能问答。</p>
+
+<h3>核心功能</h3>
+<ul>
+<li><strong>智能问答</strong>：基于企业私有知识库的精准问答</li>
+<li><strong>多轮对话</strong>：支持带记忆的连续对话</li>
+<li><strong>工具调用</strong>：支持调用外部工具（如发送邮件）</li>
+<li><strong>自动重构</strong>：代码自动生成与测试反馈循环</li>
+</ul>
+
+<h3>技术栈</h3>
+<div class="tech-tags">
+<span class="tech-tag">ChromaDB</span>
+<span class="tech-tag rag">BGE-M3 嵌入</span>
+<span class="tech-tag rag">BGE-Reranker</span>
+<span class="tech-tag llm">DeepSeek-V3.1</span>
+<span class="tech-tag">LangGraph</span>
+<span class="tech-tag">MCP</span>
+<span class="tech-tag fastapi">FastAPI</span>
+</div>
+
+<h3>数据流</h3>
+<ol>
+<li><strong>入库</strong>：Raw 文档 - TextSplitter - ChromaDB 向量库</li>
+<li><strong>查询</strong>：用户查询 - 向量召回(top10) - 重排(top3) - LLM 生成</li>
+</ol>
+
+<h3>核心组件</h3>
+<table>
+<tr><th>模块</th><th>功能</th></tr>
+<tr><td>RAG Pipeline</td><td>两阶段检索（向量召回 + 重排）+ LLM 生成</td></tr>
+<tr><td>Agent</td><td>ReAct 循环，工具调用（consult_law, send_email），会话记忆</td></tr>
+<tr><td>Workflow</td><td>LangGraph 自修复代码生成，Coder - Tester 循环，最多3次重试</td></tr>
+<tr><td>MCP Server</td><td>FastMCP 暴露 ask_knowledge_base 工具</td></tr>
+</table>
+
+<hr>
+
+<!-- Address Alignment -->
+<h2 id="address">地址对齐 (NER 序列标注)</h2>
+<div class="difficulty">
+<span class="badge badge-yellow">难度 3/5</span>
+<span>NER 是 NLP 基础任务，面试常考</span>
+</div>
+
+<p>基于 BERT 的地址序列标注系统，将非结构化地址文本解析为省市区等结构化数据。本质是 NER 任务，用 BERT + 分类头逐 token 标注。</p>
+
+<h3>技术要点</h3>
+<ul>
+<li><strong>BIES 标注体系</strong>：Begin/Inside/End/Single 四标签细化边界</li>
+<li><strong>15+ 标签类型</strong>：prov(省)/city(市)/district(区)/road(街道)/houseno(门牌号) 等</li>
+<li><strong>子词对齐</strong>：BERT tokenizer 的 word_ids 对齐策略，一个汉字可能被拆成多个 token</li>
+<li><strong>FastAPI 部署</strong>：提供 Web 服务接口</li>
+</ul>
+
+<div class="tech-tags">
+<span class="tech-tag bert">BERT</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag nlp">序列标注</span>
+<span class="tech-tag fastapi">FastAPI</span>
+<span class="tech-tag">TensorBoard</span>
+</div>
+
+<h3>模型结构</h3>
+<pre><code>class AddressTagging(torch.nn.Module):
+    def __init__(self, model_name, label_list):
+        self.bert = BertModel.from_pretrained(model_name)
+        self.classifier = torch.nn.Linear(hidden_size, num_labels)
+        self.loss_fn = torch.nn.CrossEntropyLoss()
+
+    def forward(self, input_ids, attention_mask=None, labels=None):
+        outputs = self.bert(input_ids, attention_mask)
+        logits = self.classifier(self.dropout(outputs.last_hidden_state))
+        return {"logits": logits, "loss": loss}</code></pre>
+
+<hr>
+
+<!-- Smart Product -->
+<h2 id="product">智能商品发布 (文本分类)</h2>
+<div class="difficulty">
+<span class="badge badge-yellow">难度 中级</span>
+<span>BERT 微调 + FastAPI 部署</span>
+</div>
+
+<p>基于 BERT 的商品标题自动分类系统，根据商品标题预测其所属分类。核心结构包括 BERT 编码器和一个分类头（将 [CLS] token 映射到品类空间）。</p>
+
+<h3>核心流程</h3>
+<ol>
+<li>数据预处理：加载数据、过滤、标签处理、BERT 分词</li>
+<li>模型定义：BERT 编码器 + 线性分类头</li>
+<li>模型训练：Adam 优化器 + 交叉熵损失 + TensorBoard 日志</li>
+<li>早停机制：监控验证集损失，防止过拟合</li>
+<li>FastAPI 部署：提供预测接口</li>
+</ol>
+
+<div class="tech-tags">
+<span class="tech-tag bert">BERT</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag nlp">文本分类</span>
+<span class="tech-tag fastapi">FastAPI</span>
+<span class="tech-tag">早停优化</span>
+</div>
+
+<hr>
+
+<!-- Smart News -->
+<h2 id="news">智选新闻 (分类 + 摘要)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 进阶</span>
+<span>PyTorch + 束搜索 + FastAPI</span>
+</div>
+
+<p>基于 BART 预训练模型的新闻分类与摘要系统。涵盖数据预处理、模型搭建（束搜索）、训练、预测和 API 服务部署全流程。</p>
+
+<h3>应用场景</h3>
+<ul>
+<li>新闻推荐系统：基于用户行为推荐符合用户喜好的新闻类型</li>
+<li>新闻聚合网站：将不同新闻内容按照类别整理展示</li>
+<li>媒体编辑：对大量新闻稿做分类处理</li>
+<li>搜索引擎优化：根据分类结果快速定位相关内容</li>
+</ul>
+
+<h3>束搜索（Beam Search）</h3>
+<p>一种启发式搜索算法，在序列生成中平衡搜索效率和结果质量。贪心搜索每次只选概率最高的词，容易陷入局部最优；束搜索维护 k 个最优候选序列（beam），综合考虑全局概率。</p>
+
+<div class="tech-tags">
+<span class="tech-tag bert">BART</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag nlp">分类+摘要</span>
+<span class="tech-tag fastapi">FastAPI</span>
+<span class="tech-tag">束搜索</span>
+</div>
+
+<hr>
+
+<!-- E-commerce Graph -->
+<h2 id="zhijian">智荐图谱 (电商知识图谱)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>电商 AI 是大模型落地重要场景</span>
+</div>
+
+<p>构建电商领域知识图谱并搭建智能电商客服系统。核心技术架构分为数据源、知识图谱(Neo4j)、对话处理(意图识别+实体抽取)、应用层四个模块。</p>
+
+<h3>项目难点</h3>
+<ul>
+<li><strong>信息多元</strong>：来自买家和卖家等多个来源，表达方式多样</li>
+<li><strong>质量参差不齐</strong>：拼写错误、信息错误、冗余或缺失常见</li>
+<li><strong>依赖领域知识</strong>：如"50CC"指排量而非型号</li>
+<li><strong>数据量大</strong>：大量商品和多市场的信息融合</li>
+</ul>
+
+<h3>NLP Pipeline</h3>
+<ol>
+<li><strong>拼写纠错</strong>：BERT MLM 模型，纠正"Nkie" - "Nike"等错误</li>
+<li><strong>意图识别</strong>：BERT 分类模型，14种意图查询</li>
+<li><strong>实体抽取</strong>：UIE 模型，抽取商品属性</li>
+<li><strong>图谱查询</strong>：Neo4j Cypher 查询</li>
+</ol>
+
+<div class="tech-tags">
+<span class="tech-tag neo4j">Neo4j</span>
+<span class="tech-tag bert">BERT</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag nlp">拼写纠错</span>
+<span class="tech-tag nlp">意图识别</span>
+<span class="tech-tag nlp">UIE实体抽取</span>
+<span class="tech-tag fastapi">FastAPI</span>
+</div>
+
+<hr>
+
+<!-- Neo4j -->
+<h2 id="neo4j">Neo4j 图数据库</h2>
+<div class="difficulty">
+<span class="badge badge-yellow">难度 3/5</span>
+<span>知识图谱项目必备技能</span>
+</div>
+
+<p>Neo4j 是目前最流行的图数据库，采用原生图存储与查询引擎。本教程涵盖安装部署、Cypher 语言、高级查询和 Python 驱动等完整技能栈。</p>
+
+<h3>核心概念</h3>
+<table>
+<tr><th>概念</th><th>说明</th></tr>
+<tr><td>节点 (Node)</td><td>代表实体对象，拥有标签(Label)和属性(Properties)</td></tr>
+<tr><td>关系 (Relationship)</td><td>连接两个节点的有向连接，拥有类型(Type)和属性</td></tr>
+<tr><td>路径 (Path)</td><td>由节点和关系连接构成的结构</td></tr>
+</table>
+
+<h3>Cypher 基础操作</h3>
+<pre><code>-- 创建节点
+CREATE (n:Person {name: '王宝强', gender: '男'})
+
+-- 创建关系
+MATCH (n1:Person {name: '王宝强'}), (n2:Movie {title: '唐探1900'})
+CREATE (n1)-[:ACTED_IN {role: '阿鬼'}]->(n2)
+
+-- 查询路径
+MATCH path = (n1:Person)-[r:ACTED_IN]->(n2:Movie)
+RETURN path
+
+-- 合并操作（Match + Create）
+MERGE (n:Movie {title: '唐探1900'})
+ON CREATE SET n.create_time = datetime()</code></pre>
+
+<h3>Python 驱动</h3>
+<pre><code>from neo4j import GraphDatabase
+driver = GraphDatabase.driver("neo4j://localhost", auth=("neo4j", "password"))
+records, summary, keys = driver.execute_query(
+    "MATCH (p:Person) WHERE p.name = $name RETURN p",
+    name="王宝强"
+)</code></pre>
+
+<hr>
+
+<!-- Smart Medical -->
+<h2 id="zhiyi">智医助手 (医疗知识图谱)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>医疗 AI 是热门赛道，项目经验很有价值</span>
+</div>
+
+<p>构建面向医疗领域的知识图谱，整合结构化与非结构化医学数据，搭建具备信息检索能力的智能医疗助手。</p>
+
+<h3>知识图谱架构</h3>
+<table>
+<tr><th>实体类型</th><th>示例</th><th>关系</th></tr>
+<tr><td>疾病 (Disease)</td><td>感冒、高血压</td><td>ACOMPANY, BELONG, HAVE</td></tr>
+<tr><td>症状 (Symptom)</td><td>发热、头痛</td><td>疾病 -[:HAVE]- 症状</td></tr>
+<tr><td>药物 (Drug)</td><td>阿莫西林</td><td>疾病 -[:COMMON_USE]- 药物</td></tr>
+<tr><td>科室 (Department)</td><td>内科、外科</td><td>疾病 -[:BELONG]- 科室</td></tr>
+<tr><td>食物 (Food)</td><td>忌口食物</td><td>疾病 -[:NO_EAT]- 食物</td></tr>
+<tr><td>医学检查 (Check)</td><td>血常规</td><td>疾病 -[:CHECK]- 检查</td></tr>
+</table>
+
+<h3>NLP Pipeline</h3>
+<ol>
+<li><strong>拼写纠错</strong>：BERT MLM 模型</li>
+<li><strong>意图识别</strong>：BERT 分类（挂号预约、检查预约等11种意图）</li>
+<li><strong>实体抽取</strong>：UIE 模型 + 规则双策略</li>
+<li><strong>图谱查询</strong>：Neo4j Cypher</li>
+</ol>
+
+<div class="tech-tags">
+<span class="tech-tag neo4j">Neo4j</span>
+<span class="tech-tag bert">BERT</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag">UIE</span>
+<span class="tech-tag">ChromaDB</span>
+<span class="tech-tag nlp">意图识别</span>
+<span class="tech-tag fastapi">FastAPI</span>
+</div>
+
+<hr>
+
+<!-- AI Education -->
+<h2 id="ai-edu">AI智教 (教育知识图谱)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>智能教育场景的大模型应用</span>
+</div>
+
+<p>以在线教育平台为载体，围绕核心课程内容构建面向教学语义的知识图谱，并基于该图谱开发智能客服系统。</p>
+
+<h3>知识图谱节点</h3>
+<ul>
+<li>分类、学科、课程、教师、价格、章节、视频、试卷、试题、知识点</li>
+<li>知识点关系：先修关系(NEED)、包含关系(BELONG)、相关关系(RELATED)</li>
+</ul>
+
+<h3>技术栈</h3>
+<div class="tech-tags">
+<span class="tech-tag neo4j">Neo4j</span>
+<span class="tech-tag bert">BERT</span>
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag">UIE</span>
+<span class="tech-tag">T5</span>
+<span class="tech-tag">BGE</span>
+<span class="tech-tag">ChromaDB</span>
+<span class="tech-tag nlp">意图识别</span>
+<span class="tech-tag fastapi">FastAPI</span>
+</div>
+
+<hr>
+
+<!-- AI Xueqing -->
+<h2 id="ai-xueqing">AI学情 (教育对话系统)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 5/5</span>
+<span>复杂对话系统项目经验非常加分</span>
+</div>
+
+<p>教育领域智能客服系统，结合 Rasa 任务型对话与 GraphRAG 知识问答，覆盖购物车/收藏夹/订单等业务场景。</p>
+
+<h3>功能模块</h3>
+<table>
+<tr><th>类型</th><th>功能</th></tr>
+<tr><td>事务型对话</td><td>购物车增删查、收藏夹管理、订单查询</td></tr>
+<tr><td>信息型对话</td><td>GraphRAG 查询学科课程、知识点关联、讲师信息</td></tr>
+</table>
+
+<h3>关键技术</h3>
+<ul>
+<li><strong>课程名称标准化</strong>：jieba 分词 + BGE 向量 + HybridRetriever</li>
+<li><strong>Rasa Flow</strong>：任务型对话引擎，定义流程步骤和条件分支</li>
+<li><strong>GraphRAG</strong>：Neo4j 向量索引 + 全文索引的混合检索</li>
+</ul>
+
+<div class="tech-tags">
+<span class="tech-tag rasa">Rasa Pro</span>
+<span class="tech-tag neo4j">Neo4j</span>
+<span class="tech-tag rag">GraphRAG</span>
+<span class="tech-tag">BGE</span>
+<span class="tech-tag">jieba</span>
+<span class="tech-tag">SQLAlchemy</span>
+</div>
+
+<hr>
+
+<!-- AI Medical -->
+<h2 id="ai-medical">AI医疗 (医疗对话系统)</h2>
+<div class="difficulty">
+<span class="badge badge-red">难度 4/5</span>
+<span>医疗病历审核项目实战</span>
+</div>
+
+<p>结合互联网医疗平台的功能服务，构建任务型对话流程，搭建支持多种任务请求的智能客服系统。同时结合知识图谱构建知识问答系统。</p>
+
+<h3>功能模块</h3>
+<table>
+<tr><th>模块</th><th>功能</th></tr>
+<tr><td>门诊管理</td><td>挂号预约、挂号信息查询</td></tr>
+<tr><td>检查管理</td><td>检查预约、预约查询、报告查询</td></tr>
+<tr><td>住院管理</td><td>住院预约查询、住院信息查询</td></tr>
+<tr><td>电子病历</td><td>病历查看</td></tr>
+<tr><td>反馈系统</td><td>建议反馈、系统故障反馈</td></tr>
+<tr><td>知识问答</td><td>结合知识图谱与 GraphRAG</td></tr>
+</table>
+
+<div class="tech-tags">
+<span class="tech-tag rasa">Rasa Pro</span>
+<span class="tech-tag neo4j">Neo4j</span>
+<span class="tech-tag rag">GraphRAG</span>
+<span class="tech-tag">SQLAlchemy</span>
+<span class="tech-tag">通义千问</span>
+<span class="tech-tag">BGE</span>
+</div>
+
+<hr>
+
+<!-- Smart Map Treasure -->
+<h2 id="zhitu">智图寻宝 (图像识别)</h2>
+<div class="difficulty">
+<span class="badge badge-yellow">难度 中级</span>
+<span>深度学习图像处理系统</span>
+</div>
+
+<p>基于深度学习的智能商品识别系统，集成了图像相似性搜索、图像去噪和商品分类三大核心功能。</p>
+
+<h3>核心功能</h3>
+<table>
+<tr><th>模块</th><th>技术</th><th>功能</th></tr>
+<tr><td>图像去噪</td><td>自编码器 (Autoencoder)</td><td>学习图像特征重建无噪声图像</td></tr>
+<tr><td>商品分类</td><td>CNN 分类模型</td><td>识别五类商品</td></tr>
+<tr><td>相似图片检索</td><td>自编码器 + KNN</td><td>提取特征向量，KNN 检索最近似图片</td></tr>
+</table>
+
+<h3>自编码器架构</h3>
+<ul>
+<li><strong>编码器</strong>：Conv2d + ReLU + MaxPool2d，将图像压缩为低维特征</li>
+<li><strong>解码器</strong>：ConvTranspose2d + ReLU，从低维特征重建图像</li>
+<li><strong>损失函数</strong>：均方误差(MSE)，最小化重建误差</li>
+</ul>
+
+<div class="tech-tags">
+<span class="tech-tag pytorch">PyTorch</span>
+<span class="tech-tag">Flask</span>
+<span class="tech-tag">自编码器</span>
+<span class="tech-tag">CNN</span>
+<span class="tech-tag">KNN</span>
+<span class="tech-tag">PIL</span>
+</div>
+
+<hr>
+
+<blockquote>
+<p>知识领域：AI大模型 / 项目实战</p>
+<p>涵盖：RAG、Agent、知识图谱、NLP、图像识别等多个真实业务场景</p>
+<p>前置依赖：RAG技术、Transformer架构、PyTorch、Python基础</p>
+</blockquote>
+
+</main>
+</div>
+</body>
+</html>

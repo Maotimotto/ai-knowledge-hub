@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图数据库 - Agent开发 Part 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--font-sans:'Inter','Noto Sans SC',sans-serif;--font-mono:'JetBrains Mono',monospace}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--font-sans);color:var(--text);background:var(--bg);line-height:1.75;display:flex}
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fbfbfa;font-size:14px;z-index:10}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+.sidebar ul{list-style:none}
+.sidebar li{margin-bottom:2px}
+.sidebar a{display:block;padding:6px 10px;border-radius:6px;color:var(--text);text-decoration:none;transition:background .15s}
+.sidebar a:hover{background:rgba(0,117,222,0.08)}
+.sidebar a.active{background:rgba(0,117,222,0.12);color:var(--accent);font-weight:500}
+.sidebar .dir-label{font-weight:600;color:var(--accent);padding:8px 10px 4px;font-size:13px}
+/* Main */
+.main{margin-left:var(--sidebar-w);flex:1;min-width:0;padding:40px 60px 80px;max-width:900px}
+/* Typography */
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px;letter-spacing:-0.02em}
+h2{font-size:28px;font-weight:700;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin-bottom:12px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:rgba(0,117,222,0.04);border-radius:0 6px 6px 0;font-size:15px}
+ul,ol{margin:8px 0 16px 24px}
+li{margin-bottom:4px}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+strong{font-weight:600}
+/* Badges */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-right:6px}
+.badge-difficulty{background:#fef3c7;color:#92400e}
+.badge-freq{background:#fce7f3;color:#9d174d}
+.badge-section{background:rgba(0,117,222,0.1);color:var(--accent);font-size:11px;font-weight:600;padding:3px 8px;border-radius:4px;margin-right:8px;vertical-align:middle}
+/* Code */
+code{font-family:var(--font-mono);font-size:14px;background:var(--code-bg);padding:2px 6px;border-radius:4px}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:16px 20px;overflow-x:auto;margin:16px 0;line-height:1.6}
+pre code{background:none;padding:0;font-size:13.5px}
+.code-lang{font-size:11px;color:#9b9a97;text-transform:uppercase;margin-bottom:4px;font-weight:600}
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:15px}
+th{background:var(--code-bg);font-weight:600;text-align:left;padding:10px 14px;border:1px solid var(--border)}
+td{padding:10px 14px;border:1px solid var(--border)}
+tr:nth-child(even) td{background:#fafafa}
+/* TOC */
+.toc{background:#f8f8f7;border:1px solid var(--border);border-radius:8px;padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:0.5px}
+.toc ul{list-style:none;margin:0;padding:0}
+.toc li{margin-bottom:4px}
+.toc a{font-size:14px;color:var(--text)}
+.toc a:hover{color:var(--accent)}
+/* SVG diagram */
+.diagram-container{margin:24px 0;text-align:center}
+.diagram-container svg{max-width:100%;height:auto}
+/* File separator */
+.file-section{margin:48px 0;padding-top:32px;border-top:2px solid var(--accent)}
+.file-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.file-header h2{margin:0;border:none;padding:0}
+/* Wikilink */
+.wiki-link{color:var(--accent);font-weight:500;cursor:pointer}
+.wiki-link:hover{text-decoration:underline}
+/* Meta info */
+.meta{color:#9b9a97;font-size:13px;margin-bottom:24px}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+<h3>Agent开发 Part 2</h3>
+<div class="dir-label">09-图数据库</div>
+<ul>
+<li><a href="#file-kg-basics" class="active">知识图谱基础</a></li>
+<li><a href="#file-neo4j-detail">Neo4j图数据库(详细)</a></li>
+<li><a href="#file-neo4j-intro">Neo4j图数据库(入门)</a></li>
+<li><a href="#file-validation">图数据验证与对齐</a></li>
+<li><a href="#file-graphrag">GraphRAG技术</a></li>
+<li><a href="#file-modeling">图数据建模与验证</a></li>
+<li><a href="#file-ner">LLM实体关系抽取</a></li>
+</ul>
+<div class="dir-label" style="margin-top:16px">10-智能体项目</div>
+<ul>
+<li><a href="#agent-projects">查看项目文档</a></li>
+</ul>
+<div class="dir-label" style="margin-top:16px">11-Agent框架对比</div>
+<ul>
+<li><a href="#agent-frameworks">查看框架对比</a></li>
+</ul>
+</nav>
+
+<main class="main">
+<h1>图数据库</h1>
+<p class="meta">AI大模型 &gt; Agent开发 &gt; 09-图数据库 &mdash; 共7篇文档</p>
+
+<div class="toc">
+<h4>目录</h4>
+<ul>
+<li><a href="#file-kg-basics">知识图谱基础</a></li>
+<li><a href="#file-neo4j-detail">Neo4j图数据库(详细版)</a></li>
+<li><a href="#file-neo4j-intro">Neo4j图数据库(入门)</a></li>
+<li><a href="#file-validation">图数据验证与对齐</a></li>
+<li><a href="#file-graphrag">GraphRAG技术</a></li>
+<li><a href="#file-modeling">图数据建模与验证</a></li>
+<li><a href="#file-ner">LLM实体关系抽取</a></li>
+</ul>
+</div>
+
+<!-- SVG: Knowledge Graph Visualization -->
+<div class="diagram-container">
+<svg viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" style="font-family:Inter,sans-serif">
+<defs>
+<marker id="arrow" viewBox="0 0 10 7" refX="25" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#9b9a97"/></marker>
+<filter id="shadow" x="-5%" y="-5%" width="110%" height="110%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>
+</defs>
+<!-- Nodes -->
+<circle cx="400" cy="80" r="42" fill="#0075de" filter="url(#shadow)"/><text x="400" y="76" text-anchor="middle" fill="white" font-size="13" font-weight="600">知识图谱</text><text x="400" y="92" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">Knowledge Graph</text>
+
+<circle cx="180" cy="180" r="36" fill="#059669" filter="url(#shadow)"/><text x="180" y="176" text-anchor="middle" fill="white" font-size="12" font-weight="600">Neo4j</text><text x="180" y="192" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">图数据库</text>
+
+<circle cx="620" cy="180" r="36" fill="#7c3aed" filter="url(#shadow)"/><text x="620" y="176" text-anchor="middle" fill="white" font-size="12" font-weight="600">GraphRAG</text><text x="620" y="192" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">检索增强</text>
+
+<circle cx="100" cy="320" r="32" fill="#d97706" filter="url(#shadow)"/><text x="100" y="316" text-anchor="middle" fill="white" font-size="11" font-weight="600">Cypher</text><text x="100" y="330" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9">查询语言</text>
+
+<circle cx="260" cy="340" r="32" fill="#dc2626" filter="url(#shadow)"/><text x="260" y="336" text-anchor="middle" fill="white" font-size="11" font-weight="600">数据建模</text><text x="260" y="350" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9">Schema</text>
+
+<circle cx="500" cy="340" r="32" fill="#0891b2" filter="url(#shadow)"/><text x="500" y="336" text-anchor="middle" fill="white" font-size="11" font-weight="600">NER抽取</text><text x="500" y="350" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9">实体关系</text>
+
+<circle cx="680" cy="320" r="32" fill="#be185d" filter="url(#shadow)"/><text x="680" y="316" text-anchor="middle" fill="white" font-size="11" font-weight="600">验证对齐</text><text x="680" y="330" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9">质量保障</text>
+
+<circle cx="400" cy="440" r="34" fill="#4f46e5" filter="url(#shadow)"/><text x="400" y="436" text-anchor="middle" fill="white" font-size="11" font-weight="600">三元组</text><text x="400" y="452" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="9">S-P-O</text>
+
+<!-- Edges -->
+<line x1="365" y1="110" x2="210" y2="152" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="270" y="122" fill="#9b9a97" font-size="10">存储引擎</text>
+<line x1="435" y1="110" x2="590" y2="152" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="500" y="122" fill="#9b9a97" font-size="10">核心应用</text>
+<line x1="160" y1="214" x2="120" y2="292" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="120" y="256" fill="#9b9a97" font-size="10">查询</text>
+<line x1="195" y1="214" x2="248" y2="312" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="210" y="268" fill="#9b9a97" font-size="10">建模</text>
+<line x1="500" y1="304" x2="645" y2="292" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="560" y="290" fill="#9b9a97" font-size="10">校验</text>
+<line x1="620" y1="216" x2="520" y2="316" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/><text x="560" y="268" fill="#9b9a97" font-size="10">抽取</text>
+<line x1="260" y1="372" x2="376" y2="420" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="500" y1="372" x2="424" y2="420" stroke="#9b9a97" stroke-width="1.5" marker-end="url(#arrow)"/>
+<line x1="370" y1="446" x2="210" y2="360" stroke="#9b9a97" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow)"/>
+<line x1="430" y1="446" x2="590" y2="360" stroke="#9b9a97" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow)"/>
+</svg>
+<p style="color:#9b9a97;font-size:13px;margin-top:8px">图数据库知识体系结构：知识图谱为中心，Neo4j为存储引擎，GraphRAG为核心应用</p>
+</div>
+
+<hr>
+
+<!-- ==================== FILE 1: 知识图谱基础 ==================== -->
+<div class="file-section" id="file-kg-basics">
+<div class="file-header">
+<span class="badge-section">01</span>
+<h2>知识图谱基础 (Knowledge Graph)</h2>
+<span class="badge badge-difficulty">3/5</span>
+<span class="badge badge-freq">面试频率 4/5</span>
+</div>
+<div class="meta">来源: 知识星球/AI基础的概念 | 前置要求: NLP基础、图论概念</div>
+
+<h3>核心概念</h3>
+<p>知识图谱把碎片化信息连成<strong>"实体-关系-实体"</strong>的蜘蛛网。如果Embedding是AI的"感性直觉"，知识图谱就是"理性大脑"里的逻辑网。</p>
+
+<h3>核心优势</h3>
+<h4>1. 多跳推理</h4>
+<p>向量检索擅长找"相似"，知识图谱擅长找"关联"。<br>"周杰伦→妻子→昆凌→母亲→布里斯班"顺藤摸瓜。</p>
+
+<h4>2. 消除幻觉</h4>
+<p>提供确定性事实，图谱写死"北京是中国首都"，AI无法胡说。</p>
+
+<h4>3. 可解释性</h4>
+<p>向量检索是黑盒，知识图谱能清晰展示推理路径。</p>
+
+<h3>基本单位：三元组 (Triple)</h3>
+<p><code>(Subject, Predicate, Object)</code> &mdash; 主体-谓语-客体</p>
+<pre><code>(周杰伦, 配偶, 昆凌)
+(昆凌, 母亲, 武元庆)
+(武元庆, 出生地, 布里斯班)</code></pre>
+
+<h3>实战场景</h3>
+<ol>
+<li><strong>医疗诊断辅助</strong>: 将疾病/症状/药物连成网，推导并发症风险</li>
+<li><strong>金融反欺诈</strong>: 发现环形洗钱路径（张三→李四→王五→张三）</li>
+<li><strong>GraphRAG增强</strong>: 处理长篇文档时提取人物关系，防止信息张冠李戴</li>
+</ol>
+
+<h3>代码示例：多跳推理</h3>
+<div class="code-lang">Python</div>
+<pre><code>import networkx as nx
+
+kg = nx.DiGraph()
+facts = [
+    ("周杰伦", "昆凌", {"relation": "配偶"}),
+    ("昆凌", "武元庆", {"relation": "母亲"}),
+    ("武元庆", "布里斯班", {"relation": "出生地"}),
+]
+for s, o, r in facts:
+    kg.add_edge(s, o, **r)
+
+def multi_hop_search(graph, start, path):
+    current = start
+    for rel in path:
+        for neighbor, attr in graph[current].items():
+            if attr['relation'] == rel:
+                current = neighbor; break
+    return current
+
+result = multi_hop_search(kg, "周杰伦", ["配偶", "母亲", "出生地"])
+# → 布里斯班</code></pre>
+
+<h3>知识图谱 vs 向量检索</h3>
+<ul>
+<li>向量检索：模糊匹配、感性、非结构化语义</li>
+<li>知识图谱：精确匹配、理性、结构化事实</li>
+<li><strong>最强方案：两者结合 = GraphRAG</strong></li>
+</ul>
+
+<h3>面试高频问题</h3>
+<blockquote><strong>Q: 知识图谱和MySQL区别？</strong> MySQL多层JOIN性能爆炸，图数据库原生支持深度关联快几个数量级。</blockquote>
+<blockquote><strong>Q: 有LLM了为何还要建知识图谱？</strong> LLM知识有保质期且易幻觉，知识图谱是外部可信知识源。现在用LLM自动抽取三元组构建。</blockquote>
+
+<h3>关联笔记</h3>
+<ul>
+<li><a class="wiki-link" href="#file-neo4j-detail">Neo4j图数据库</a></li>
+<li><a class="wiki-link" href="#file-graphrag">GraphRAG技术</a></li>
+<li><a class="wiki-link" href="#file-ner">LLM实体关系抽取</a></li>
+</ul>
+</div>
+
+<!-- ==================== FILE 2: Neo4j图数据库(详细) ==================== -->
+<div class="file-section" id="file-neo4j-detail">
+<div class="file-header">
+<span class="badge-section">02</span>
+<h2>Neo4j 图数据库（详细版）</h2>
+<span class="badge badge-difficulty">4/5</span>
+<span class="badge badge-freq">面试频率 3/5</span>
+</div>
+<div class="meta">来源: 知识星球 | 前置要求: Neo4j基础、数据库原理</div>
+
+<h3>核心概念</h3>
+<p>Neo4j 是一种<strong>原生图数据库</strong>，数据以"节点（Node）"和"关系（Relationship）"的形式存储，专门处理复杂的关系网。在 GraphRAG 时代，被誉为 AI 的"超级记忆宫殿"。</p>
+
+<h4>直觉理解</h4>
+<ul>
+<li><strong>MySQL</strong>: 像超大 Excel 表，查"谁是谁的老师"要多次 JOIN</li>
+<li><strong>Neo4j</strong>: 像社交关系地图，顺着线摸过去，绕10圈速度也极快</li>
+</ul>
+
+<h3>为什么比 SQL 查关系快</h3>
+<p>关键词：<strong>免索引邻接（Index-free Adjacency）</strong></p>
+<ul>
+<li>SQL 需要查索引表匹配 ID</li>
+<li>Neo4j 节点直接存储指向邻居的<strong>物理地址指针</strong>，是"走"过去的不是"搜"出来的</li>
+</ul>
+
+<h3>查询语言：Cypher</h3>
+<p>用小括号表示点 <code>()</code>，箭头表示边 <code>--></code>，语法像画图：</p>
+<div class="code-lang">Cypher</div>
+<pre><code>// 创建节点
+CREATE (a:Hero {name: '亚索', position: '中单'})
+CREATE (b:Hero {name: '永恩', position: '上单'})
+
+// 创建关系
+CREATE (a)-[:BROTHER_OF]->(b)
+
+// 查询亚索的兄弟
+MATCH (a:Hero {name:'亚索'})-[:BROTHER_OF]-(b)
+RETURN b.name AS brother
+// → 永恩</code></pre>
+
+<h3>Python 代码示例</h3>
+<div class="code-lang">Python</div>
+<pre><code>from py2neo import Graph, Node, Relationship
+
+graph = Graph("bolt://localhost:7687", auth=("neo4j", "password"))
+
+# 创建节点和关系
+hero1 = Node("Hero", name="亚索")
+hero2 = Node("Hero", name="永恩")
+rel = Relationship(hero1, "BROTHER_OF", hero2)
+graph.create(rel)
+
+# 使用 MERGE 避免重复创建
+cypher = """
+MERGE (s:Entity {name: 'Apple'})
+MERGE (t:Entity {name: 'iPhone'})
+MERGE (s)-[r:PRODUCED]->(t)
+"""
+graph.run(cypher)</code></pre>
+
+<h3>批量数据导入</h3>
+<p>千万级数据不能用 <code>graph.create()</code> 一个个写入：</p>
+<ul>
+<li><strong>离线导入</strong>: <code>neo4j-admin import</code> 工具</li>
+<li><strong>在线分批</strong>: Cypher 中 <code>LOAD CSV</code> + <code>PERIODIC COMMIT</code></li>
+<li><strong>幂等操作</strong>: 用 <code>MERGE</code> 代替 <code>CREATE</code>，保证"检查存在则跳过"</li>
+</ul>
+
+<h3>与其他数据库对比</h3>
+<table>
+<tr><th>维度</th><th>MySQL</th><th>Neo4j</th><th>向量数据库</th></tr>
+<tr><td>擅长</td><td>固定结构账单</td><td>关系错综的知识网</td><td>模糊语义匹配</td></tr>
+<tr><td>关系查询</td><td>JOIN 性能差</td><td>原生图遍历极快</td><td>不擅长</td></tr>
+<tr><td><strong>最强方案</strong></td><td colspan="3" style="text-align:center;font-weight:600">向量+图 = GraphRAG</td></tr>
+</table>
+
+<h3>关联笔记</h3>
+<ul>
+<li><a class="wiki-link" href="#file-kg-basics">知识图谱基础</a></li>
+<li><a class="wiki-link" href="#file-graphrag">GraphRAG技术</a></li>
+<li><a class="wiki-link" href="#file-modeling">图数据建模与验证</a></li>
+</ul>
+</div>
+
+<!-- ==================== FILE 3: Neo4j图数据库(入门) ==================== -->
+<div class="file-section" id="file-neo4j-intro">
+<div class="file-header">
+<span class="badge-section">06</span>
+<h2>Neo4j 图数据库（入门）</h2>
+<span class="badge badge-difficulty">3/5</span>
+<span class="badge badge-freq">面试频率 4/5</span>
+</div>
+<div class="meta">来源: 知识星球/AI基础的概念 | 前置要求: 数据库基础、图论概念</div>
+
+<h3>核心概念</h3>
+<p><strong>Neo4j</strong> 是一种<strong>原生图数据库</strong>，它不把数据存在"死板"的表格里，而是以"节点（Node）"和"关系（Relationship）"的形式存储，专门处理复杂的关系网。</p>
+
+<h4>直觉类比</h4>
+<ul>
+<li><strong>传统数据库（SQL）</strong>：像一张超大的 Excel 表，找"谁是谁的老师"得查半天表连接（JOIN），查三层关系表就炸了</li>
+<li><strong>Neo4j</strong>：像一张巨大的社交关系地图。每个人是一个点，点与点之间连着线（写着：父子、仇人、暗恋）。顺着线摸过去就行，哪怕绕 10 圈，速度也快得惊人</li>
+</ul>
+
+<h3>解决的痛点</h3>
+<ol>
+<li><strong>多表联查的噩梦</strong>：处理社交网络、风控链路时，SQL 需要大量 JOIN 操作，层级一深内存直接溢出</li>
+<li><strong>语义断层</strong>：传统向量检索只知道"猫"和"鱼"语义接近，但不知道"猫吃鱼"这种逻辑。Neo4j 提供逻辑上的确定性</li>
+</ol>
+
+<h3>技术对比</h3>
+<table>
+<tr><th>对比维度</th><th>MySQL</th><th>Neo4j</th><th>Vector DB</th></tr>
+<tr><td>擅长领域</td><td>结构固定的账单</td><td>关系错综复杂的社交/知识网</td><td>模糊匹配</td></tr>
+<tr><td>关系查询</td><td>JOIN 性能差</td><td>原生支持深度关联</td><td>不支持</td></tr>
+<tr><td>核心能力</td><td>精确事务处理</td><td>逻辑关系推理</td><td>语义相似度</td></tr>
+</table>
+<p><strong>目前最强方案：向量数据库 + Neo4j 合体</strong></p>
+
+<h3>基本操作示例</h3>
+<div class="code-lang">Python</div>
+<pre><code>from py2neo import Graph, Node, Relationship
+
+# 连接数据库
+graph = Graph("bolt://localhost:7687", auth=("neo4j", "password"))
+
+# 创建节点
+hero1 = Node("Hero", name="亚索", position="中单")
+hero2 = Node("Hero", name="永恩", position="上单")
+
+# 创建关系
+rel1 = Relationship(hero1, "BROTHER_OF", hero2)
+graph.create(rel1)
+
+# Cypher 查询
+query = "MATCH (a:Hero {name:'亚索'})-[:BROTHER_OF]-(b) RETURN b.name AS brother"
+result = graph.run(query).data()</code></pre>
+
+<h3>Cypher 语言核心语法</h3>
+<div class="code-lang">Cypher</div>
+<pre><code>-- 创建节点
+CREATE (n:Person {name: '张三', age: 30})
+
+-- 创建关系
+MATCH (a:Person {name: '张三'}), (b:Person {name: '李四'})
+CREATE (a)-[:FRIEND]->(b)
+
+-- 查询关系
+MATCH (a:Person)-[:FRIEND]->(b:Person) RETURN a.name, b.name
+
+-- 使用 MERGE 避免重复
+MERGE (n:Person {name: '张三'}) ON CREATE SET n.created = timestamp()</code></pre>
+
+<h3>面试要点</h3>
+<blockquote><strong>Q：Neo4j 为什么比 SQL 查关系快？</strong><br>关键词是"免索引邻接 (Index-free Adjacency)"。SQL 需要查索引表来匹配 ID；Neo4j 的节点直接存储了指向邻居的物理地址指针，是"走"过去的，不是"搜"出来的。</blockquote>
+<blockquote><strong>Q：什么是 Cypher 语言？</strong><br>Neo4j 的查询语言。最有特色的是用小括号表示点 <code>()</code>，箭头表示边 <code>--></code>。语法就像画图一样。</blockquote>
+
+<h3>关联笔记</h3>
+<ul>
+<li><a class="wiki-link" href="#file-kg-basics">知识图谱基础</a></li>
+<li><a class="wiki-link" href="#file-graphrag">GraphRAG技术</a></li>
+<li><a class="wiki-link" href="#file-ner">LLM实体关系抽取</a></li>
+</ul>
+</div>
+
+<!-- ==================== FILE 4: 图数据验证与对齐 ==================== -->
+<div class="file-section" id="file-validation">
+<div class="file-header">
+<span class="badge-section">02</span>
+<h2>图数据验证与对齐</h2>
+<span class="badge badge-difficulty">4/5</span>
+<span class="badge badge-freq">面试频率 3/5</span>
+</div>
+<div class="meta">来源: 知识星球 | 前置要求: 图数据库基础、图数据建模</div>
+
+<h3>核心概念</h3>
+<p>图数据验证与对齐是通过<strong>约束检查（Schema）</strong>、<strong>算法比对（Entity Resolution）</strong>和<strong>采样校验（LLM-as-a-Judge）</strong>，确保图数据库中的每一个点和每一条线都真实反映了原始信息。</p>
+<p>这是 GraphRAG 落地最难的"最后一公里"。</p>
+
+<h4>直觉类比</h4>
+<p>你让机器人帮你整理家谱：</p>
+<ol>
+<li><strong>约束检查</strong>：机器人说"张三是他自己的爸爸"，系统直接报错（Schema 报错）</li>
+<li><strong>实体对齐</strong>：机器人记了"张三"和"老张"，你得核实是不是同一个人（实体消歧）</li>
+<li><strong>采样校验</strong>：你随机抽几页家谱，和原文对照，看看有没有漏掉关键信息</li>
+</ol>
+
+<h3>三大验证方法</h3>
+<h4>1. 约束与 Schema 验证（人为控制）</h4>
+<p>预先定义好"哪些关系是合法的"。如果大模型提取出 <code>(人)-[吃]->(电脑)</code>，而 Schema 定义了"吃"的宾语只能是"食物"，则该条数据被拦截。</p>
+
+<h4>2. 实体消歧（Entity Resolution / De-duplication）</h4>
+<p>最容易出错的地方。利用"模糊匹配 + LLM 二次确认"：</p>
+<ul>
+<li>发现两个节点叫"Apple"和"Apple Inc."，计算文本相似度</li>
+<li>如果相似度高，发给 LLM 问："在这段上下文里，这两个是一个东西吗？"如果是，合并它们</li>
+</ul>
+
+<h4>3. LLM-as-a-Judge（AI 闭环验证）</h4>
+<p>用一个"更聪明、更贵"的模型去检查"便宜"模型生成的图：</p>
+<ul>
+<li>给 GPT-4o 原始文本 + 提取出的三元组</li>
+<li>问它："请给这些三元组的准确性打分（1-10），并指出哪些关系是编造的"</li>
+</ul>
+
+<h3>实体标准化代码示例</h3>
+<div class="code-lang">Python</div>
+<pre><code>from thefuzz import fuzz
+
+def validate_and_merge_nodes(new_entity_name, existing_entities):
+    threshold = 85
+    for existing_name in existing_entities:
+        score = fuzz.ratio(new_entity_name.lower(), existing_name.lower())
+        if score >= 100:
+            return f"完全匹配：直接连接到 {existing_name}"
+        elif score > threshold:
+            return f"疑似重复：'{new_entity_name}' 可能是 '{existing_name}'，建议对齐"
+    return "新实体：放心创建"</code></pre>
+
+<h3>面试要点</h3>
+<blockquote><strong>Q：如何衡量知识图谱的质量？</strong><br>三个指标：<strong>准确率（Precision）</strong>——提取出来的对不对；<strong>召回率（Recall）</strong>——有没有漏掉；<strong>连通性（Connectivity）</strong>——孤立的点多不多</blockquote>
+<blockquote><strong>Q：图谱里出现了循环引用怎么办？</strong><br>利用 Neo4j 的 GDS 插件运行 Cycle Detection 算法，发现异常逻辑后人工介入或程序剔除</blockquote>
+
+<h3>总结</h3>
+<blockquote>"垃圾进，垃圾出 (GIGO)" 是永远的真理。永远不要 100% 相信 LLM 提取的图谱。一个成熟的系统，必须有 40% 的代码在做提取，60% 的代码在做清洗和校验。</blockquote>
+</div>
+
+<!-- ==================== FILE 5: GraphRAG技术 ==================== -->
+<div class="file-section" id="file-graphrag">
+<div class="file-header">
+<span class="badge-section">03</span>
+<h2>GraphRAG 技术</h2>
+<span class="badge badge-difficulty">4/5</span>
+<span class="badge badge-freq">面试频率 4/5</span>
+</div>
+<div class="meta">来源: 知识星球 | 前置要求: RAG基础、图数据库基础、LLM应用开发</div>
+
+<h3>核心概念</h3>
+<p>GraphRAG 是一种结合了<strong>知识图谱</strong>与<strong>大语言模型</strong>的检索增强技术。它通过将非结构化文本转化为节点（实体）和边（关系）的图结构，实现超越传统向量检索的<strong>全局视野</strong>和<strong>多跳推理</strong>。</p>
+
+<h4>直觉理解</h4>
+<ul>
+<li><strong>传统 RAG</strong>: 像搜索框，搜"林黛玉"能翻出相关段落，但问"林黛玉的舅妈的婆婆是谁？"就晕了</li>
+<li><strong>GraphRAG</strong>: 先画出巨大的人物关系网，顺着网线一抓，信息跨越几百页也能理清逻辑</li>
+</ul>
+
+<h3>解决的核心痛点</h3>
+<ol>
+<li><strong>向量检索的"局部短视"</strong>: Top-K 检索只能找语义相似的"碎片"，无法理解宏观结构</li>
+<li><strong>丢失长程关联</strong>: 答案需要跨文档"逻辑拼图"时，传统 RAG 极易断片</li>
+<li><strong>缺乏确定性</strong>: 将实体关系固化，LLM 决策建立在确凿的事实之上，降低幻觉</li>
+</ol>
+
+<h3>GraphRAG vs 传统 RAG</h3>
+<table>
+<tr><th>维度</th><th>传统 RAG</th><th>GraphRAG</th></tr>
+<tr><td>检索方式</td><td>语义相似度（Top-K）</td><td>逻辑路径（多跳遍历）</td></tr>
+<tr><td>全局视野</td><td>弱</td><td>强（社区摘要）</td></tr>
+<tr><td>多跳推理</td><td>差</td><td>优</td></tr>
+<tr><td>构建成本</td><td>低</td><td>高（需 LLM 实体抽取）</td></tr>
+<tr><td>适用场景</td><td>简单问答</td><td>复杂关系推理</td></tr>
+</table>
+
+<h3>代码示例：图谱检索增强</h3>
+<div class="code-lang">Python</div>
+<pre><code>import networkx as nx
+
+# 1. 模拟 LLM 抽取的实体关系
+triples = [
+    ("张三", "领导", "李四"),
+    ("李四", "负责", "A项目"),
+    ("A项目", "获得", "2025年创新奖")
+]
+
+G = nx.Graph()
+for head, relation, tail in triples:
+    G.add_edge(head, tail, label=relation)
+
+# 2. 多跳检索
+def graph_rag_query(start_node, depth=2):
+    nodes = nx.single_source_shortest_path_length(G, start_node, cutoff=depth)
+    context = []
+    for node in nodes:
+        if node != start_node:
+            path = nx.shortest_path(G, start_node, node)
+            relation = G[path[0]][path[1]]['label']
+            context.append(f"{path[0]} -> {relation} -> {path[1]}")
+    return "\n".join(context)
+
+# 查询：张三间接关联了什么奖项？
+print(graph_rag_query("张三"))
+# → 张三 -> 领导 -> 李四
+# → 李四 -> 负责 -> A项目
+# → A项目 -> 获得 -> 2025年创新奖</code></pre>
+
+<h3>构建成本与优化</h3>
+<ul>
+<li><strong>成本高</strong>: 需要 LLM 进行大量实体抽取，极其耗费 Token</li>
+<li><strong>优化策略</strong>: 分批抽取 + 聚类归一化，先小模型初筛再 LLM 精抽取</li>
+<li><strong>适用判断</strong>: 小型简单任务用传统 RAG 性价比更高</li>
+</ul>
+
+<h3>面试高频问题</h3>
+<blockquote><strong>Q: GraphRAG 为什么不全面替代传统 RAG？</strong><br>成本和时延。构建图谱需 LLM 大量实体抽取，耗费 Token 和时间。小型简单任务用传统 RAG 更划算。</blockquote>
+<blockquote><strong>Q: 如何解决图谱中的"同义词"问题？</strong><br>实体消歧（Entity Resolution）。利用 LLM 推理或聚类算法，将指代同一事物的不同写法合并为同一节点。</blockquote>
+</div>
+
+<!-- ==================== FILE 6: 图数据建模与验证 ==================== -->
+<div class="file-section" id="file-modeling">
+<div class="file-header">
+<span class="badge-section">04</span>
+<h2>图数据建模与验证</h2>
+<span class="badge badge-difficulty">3/5</span>
+<span class="badge badge-freq">面试频率 3/5</span>
+</div>
+<div class="meta">来源: 知识星球 | 前置要求: 图数据库基础、Python基础</div>
+
+<h3>核心概念</h3>
+<p>图数据工程包含两个关键环节：<strong>建模（Modeling）</strong>&mdash; 如何科学地构建图数据，<strong>验证（Validation）</strong>&mdash; 如何确保图谱的准确性。</p>
+
+<h3>一、图数据建模</h3>
+<h4>三种段位</h4>
+<h4>青铜：手动 Cypher 脚本</h4>
+<div class="code-lang">Cypher</div>
+<pre><code>// setup.cypher
+CREATE CONSTRAINT FOR (u:User) REQUIRE u.id IS UNIQUE;
+CREATE (a:User {id: 1, name: '张三'})
+CREATE (b:User {id: 2, name: '李四'})
+CREATE (a)-[:FOLLOW]->(b);</code></pre>
+
+<h4>白金：Python 自动化（最常用）</h4>
+<p>流程：读取数据 → 提取实体 → 建立连接 → 批量写入</p>
+<div class="code-lang">Python</div>
+<pre><code>from py2neo import Graph
+
+graph = Graph("bolt://localhost:7687", auth=("neo4j", "password"))
+raw_data = [
+    {"source": "Apple", "relation": "PRODUCED", "target": "iPhone 15"},
+    {"source": "Tim Cook", "relation": "CEO_OF", "target": "Apple"},
+]
+
+def build_graph(data):
+    tx = graph.begin()
+    for item in data:
+        cypher = f"""
+        MERGE (s:Entity {{name: '{item["source"]}'}})
+        MERGE (t:Entity {{name: '{item["target"]}'}})
+        MERGE (s)-[r:{item['relation']}]->(t)
+        """
+        tx.run(cypher)
+    graph.commit(tx)</code></pre>
+
+<h4>钻石：GraphRAG 自动抽取</h4>
+<p>利用 GPT-4 等大模型自动从文本分析关系，直接调用 Neo4j 接口生成图谱。</p>
+
+<h3>关键原则</h3>
+<ul>
+<li><strong>数据即代码</strong>: 所有 Schema 约束、索引创建必须保留在 Git 仓库的脚本中</li>
+<li><strong>幂等操作</strong>: 用 <code>MERGE</code> 代替 <code>CREATE</code>，避免重复创建</li>
+<li><strong>版本控制</strong>: 业务逻辑变化时代码能记录演变历史</li>
+</ul>
+
+<h3>二、图数据验证：三级质检体系</h3>
+<h4>1. Schema 约束检查</h4>
+<p>预先定义合法的关系类型。如果 LLM 提取出 <code>(人)-[吃]->(电脑)</code>，而 Schema 定义"吃"的宾语只能是"食物"，则拦截该条数据。</p>
+
+<h4>2. 实体消歧（Entity Resolution）</h4>
+<div class="code-lang">Python</div>
+<pre><code>from thefuzz import fuzz
+
+def validate_and_merge(new_entity, existing_entities, threshold=85):
+    for existing in existing_entities:
+        score = fuzz.ratio(new_entity.lower(), existing.lower())
+        if score >= 100:
+            return f"完全匹配：连接到 {existing}"
+        elif score > threshold:
+            return f"疑似重复：'{new_entity}' 可能是 '{existing}'"
+    return "新实体：放心创建"
+
+# 测试
+existing = ["Apple Inc.", "Microsoft", "Elon Musk"]
+for e in ["apple", "ElonMusk", "OpenAI"]:
+    print(f"{e} → {validate_and_merge(e, existing)}")
+# apple → 疑似重复
+# ElonMusk → 疑似重复
+# OpenAI → 新实体：放心创建</code></pre>
+
+<h4>3. LLM-as-a-Judge</h4>
+<p>用更强大的模型检查便宜模型生成的图谱：给 GPT-4o 原文 + 三元组，让它打分（1-10）并指出哪些关系是编造的。</p>
+
+<h3>质量衡量指标</h3>
+<table>
+<tr><th>指标</th><th>含义</th></tr>
+<tr><td>准确率 Precision</td><td>提取出来的对不对</td></tr>
+<tr><td>召回率 Recall</td><td>有没有漏掉关键信息</td></tr>
+<tr><td>连通性 Connectivity</td><td>孤立节点多不多</td></tr>
+</table>
+
+<h3>面试高频问题</h3>
+<blockquote><strong>Q: 如何往 Neo4j 导入千万级数据？</strong><br>用 <code>neo4j-admin import</code>（离线）或 <code>LOAD CSV</code> + <code>PERIODIC COMMIT</code>（分批提交），绝对不能一个个 <code>graph.create()</code>。</blockquote>
+<blockquote><strong>Q: 如何衡量知识图谱的质量？</strong><br>三个指标：准确率（提取的对不对）、召回率（有没有遗漏）、连通性（孤立点多不多）。</blockquote>
+</div>
+
+<!-- ==================== FILE 7: LLM实体关系抽取 ==================== -->
+<div class="file-section" id="file-ner">
+<div class="file-header">
+<span class="badge-section">05</span>
+<h2>LLM-based NER 实体关系联合抽取</h2>
+<span class="badge badge-difficulty">4/5</span>
+<span class="badge badge-freq">面试频率 4/5</span>
+</div>
+<div class="meta">来源: 知识星球 | 前置要求: NLP基础、知识图谱概念、Prompt设计</div>
+
+<h3>核心概念</h3>
+<p>在 GraphRAG 时代，NER（命名实体识别）从简单的"标注工具"进化为<strong>"图谱建筑师"</strong>。通过精心设计的 Prompt，让大模型在阅读文本时<strong>同时识别实体和关系</strong>，并直接输出为图数据库可读的格式。</p>
+
+<h4>传统 NER vs GraphRAG 中的 NER</h4>
+<ul>
+<li><strong>传统 NER</strong>: 像"扫描仪"，只告诉你哪几个字是人名</li>
+<li><strong>GraphRAG 的 NER</strong>: 像"高级调查员"，一边看文章一边画线，不仅识别"马斯克"是人，还连好"马斯克→[创立]→特斯拉"</li>
+</ul>
+
+<h3>NER 在 GraphRAG 中的三个核心子任务</h3>
+<h4>1. 节点识别（The Node Picker）</h4>
+<p>从杂乱文档中挑出重要实体（论文的"算法名称"、财报的"关键财务指标"）</p>
+
+<h4>2. 动态消歧（The Identity Fixer）</h4>
+<p>结合上下文判断不同页面的"老王"和"王局长"是否为同一人，是则合并</p>
+
+<h4>3. 摘要总结（The Property Summarizer）</h4>
+<p>将文本中关于某实体的所有描述总结为精简属性，存入节点属性</p>
+
+<h3>实战示例</h3>
+<p><strong>输入</strong>: "长期服用阿司匹林可能导致胃黏膜损伤，建议配合奥美拉唑使用。"</p>
+<p><strong>LLM 抽取结果</strong>:</p>
+<ul>
+<li>实体: <code>阿司匹林[药物]</code>、<code>胃黏膜损伤[副作用]</code>、<code>奥美拉唑[药物]</code></li>
+<li>关系: <code>(阿司匹林)-[导致]->(胃黏膜损伤)</code>、<code>(奥美拉唑)-[缓解]->(胃黏膜损伤)</code></li>
+</ul>
+
+<h3>Prompt 工程：NER 指令模板</h3>
+<div class="code-lang">Python</div>
+<pre><code>prompt_template = """
+你的任务是从给定的【文本】中提取实体和关系，用于构建知识图谱。
+请识别出以下类型的实体：[人物], [组织], [事件]。
+并识别它们之间的关系。
+
+输出格式要求为 JSON 列表：
+[
+  {"subject": "实体1", "subject_type": "类型", 
+   "relation": "关系", "object": "实体2", "object_type": "类型"}
+]
+
+【文本】：
+2024年，OpenAI 发布的 Sora 模型在全球引发轰动，山姆·奥特曼表示这将改变电影行业。
+"""</code></pre>
+
+<h3>Token 消耗优化</h3>
+<ol>
+<li><strong>分批抽取</strong>: 将长文档切块，逐块抽取</li>
+<li><strong>聚类归一化</strong>: 先小模型做初步 NER 过滤，再用 LLM 对关键段落做关系补全</li>
+<li><strong>缓存机制</strong>: 已识别的实体不再重复抽取</li>
+</ol>
+
+<h3>面试高频问题</h3>
+<blockquote><strong>Q: 有 LLM 了为什么不直接喂所有文本，还要费劲建图？</strong><br>1. LLM 长文本会遗忘细节；2. 多跳推理(A→B→C)时 LLM 容易出错，图数据库是专家；3. 图谱提供稳固知识骨架，LLM 负责语言润色，两者结合降低幻觉。</blockquote>
+<blockquote><strong>Q: NER 在大模型时代死了吗？</strong><br>没死，只是从"主角"变成了"大脑的一部分"。现在的 NER 不纠结于单字标注，而是通过 Prompt 引导 LLM 产生高质量结构化知识块。</blockquote>
+</div>
+
+<!-- Navigation -->
+<div style="margin-top:64px;padding-top:24px;border-top:2px solid var(--border);display:flex;justify-content:space-between">
+<div><a href="#file-kg-basics">回到顶部</a></div>
+<div style="text-align:right;color:#9b9a97;font-size:14px">
+<a href="agent-projects.html" style="color:var(--accent)">智能体项目 →</a><br>
+<a href="agent-frameworks.html" style="color:var(--accent)">Agent框架对比 →</a>
+</div>
+</div>
+</main>
+</body>
+</html>

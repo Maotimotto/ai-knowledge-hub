@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>生成·评估·实战 — RAG 技术</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--radius:6px}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fafafa;z-index:100}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 8px}
+.sidebar h3:first-child{margin-top:0}
+.sidebar a{display:block;padding:4px 8px;font-size:14px;color:var(--text);text-decoration:none;border-radius:var(--radius);margin:1px 0}
+.sidebar a:hover{background:#efefef}
+.sidebar a.active{background:var(--accent);color:#fff;font-weight:500}
+.main{margin-left:var(--sidebar-w);max-width:860px;padding:40px 60px 80px}
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.subtitle{font-size:18px;color:#9b9a97;margin-bottom:32px}
+h2{font-size:28px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:#f0f7ff;border-radius:0 var(--radius) var(--radius) 0}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-left:8px}
+.badge-mid{background:#fff3e0;color:#e65100}
+.badge-senior{background:#fce4ec;color:#c62828}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:10px 14px;text-align:left}
+th{background:var(--code-bg);font-weight:600}
+code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:13.5px;background:var(--code-bg);padding:2px 6px;border-radius:3px}
+pre{background:var(--code-bg);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:16px 0;border:1px solid var(--border)}
+pre code{background:none;padding:0}
+.toc{background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px}
+.toc a{font-size:14px;display:block;padding:3px 0}
+.diagram-container{margin:24px 0;padding:24px;background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.diagram-container svg{max-width:100%;height:auto}
+.cross-ref{background:#f0f7ff;border:1px solid #b3d4fc;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.cross-ref .label{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+.info-box{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.info-box .label{font-size:12px;font-weight:600;color:#f57f17;text-transform:uppercase;letter-spacing:.5px}
+.practice-section{background:#f0f7ff;border:1px solid #b3d4fc;border-radius:var(--radius);padding:24px;margin:24px 0}
+.practice-section h3{margin-top:0;color:var(--accent)}
+.step{display:flex;align-items:flex-start;gap:12px;margin:12px 0}
+.step .num{background:var(--accent);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+@media(max-width:900px){.sidebar{display:none}.main{margin-left:0;padding:24px 20px 60px}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h3>RAG 技术</h3>
+  <a href="rag-overview.html">RAG 概述与演进</a>
+  <a href="rag-indexing.html">知识库构建</a>
+  <a href="rag-retrieval.html">查询·检索·后处理</a>
+  <a href="rag-generation.html" class="active">生成·评估·实战</a>
+  <h3>评估与优化</h3>
+  <a href="#evaluation">四大评估指标</a>
+  <a href="#ragas-code">RAGAS 自动化评估</a>
+  <a href="#self-rag">Self-RAG</a>
+  <a href="#iterative-rag">迭代 RAG</a>
+  <a href="#langsmith">LangSmith 可观测性</a>
+  <h3>完整架构</h3>
+  <a href="#architecture">三阶段架构</a>
+  <a href="#offline">离线阶段</a>
+  <a href="#online">在线阶段</a>
+  <a href="#generation">生成阶段</a>
+  <h3>项目实战</h3>
+  <a href="#practice">高性能 RAG 实战</a>
+  <a href="#knowledge-base">知识库构建</a>
+  <a href="#routing">分级路由</a>
+  <a href="#trie-match">前缀树匹配</a>
+  <a href="#interview">面试高频问答</a>
+  <h3>其他模块</h3>
+  <a href="rag-overview.html">📖 RAG 概述</a>
+  <a href="rag-indexing.html">📐 知识库构建</a>
+  <a href="rag-retrieval.html">🔍 检索全链路</a>
+</nav>
+
+<div class="main">
+
+<h1>生成 · 评估 · 实战</h1>
+<p class="subtitle">评估优化 + 完整架构 + 高性能 RAG 实战</p>
+
+<div class="toc">
+  <h4>📑 目录</h4>
+  <a href="#evaluation">RAG 四大评估指标</a>
+  <a href="#ragas-code">RAGAS 自动化评估</a>
+  <a href="#self-rag">Self-RAG 自适应检索</a>
+  <a href="#iterative-rag">迭代检索增强生成</a>
+  <a href="#langsmith">LangSmith 可观测性</a>
+  <a href="#architecture">RAG 完整架构图</a>
+  <a href="#offline">离线阶段（Indexing）</a>
+  <a href="#online">在线阶段（Retrieval+Fusion+Rerank）</a>
+  <a href="#generation">上下文组装与生成</a>
+  <a href="#practice">高性能 RAG 系统实战</a>
+  <a href="#interview">面试高频问答</a>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 1: 评估与优化                         -->
+<!-- ============================================================ -->
+
+<h2 id="evaluation">RAG 四大评估指标</h2>
+<p><span class="badge badge-senior">⭐⭐⭐ 高级</span></p>
+
+<blockquote>"没有评估，就没有优化。"RAG 评估基于 RAGAS 框架的四个核心指标，分别测量<strong>检索</strong>和<strong>生成</strong>两个环节的质量。</blockquote>
+
+<h3>检索质量</h3>
+
+<table>
+  <thead><tr><th>指标</th><th>问题</th><th>衡量对象</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Context Recall</strong></td><td>找全了吗？</td><td>检索片段是否覆盖答案所需的全部知识点</td></tr>
+    <tr><td><strong>Context Precision</strong></td><td>找准了吗？</td><td>有用信息是否排在前面，噪音多不多</td></tr>
+  </tbody>
+</table>
+
+<h3>生成质量</h3>
+
+<table>
+  <thead><tr><th>指标</th><th>问题</th><th>衡量对象</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Faithfulness</strong></td><td>瞎编了吗？</td><td>答案是否完全来自检索片段（反幻觉）</td></tr>
+    <tr><td><strong>Answer Relevance</strong></td><td>答非所问吗？</td><td>答案是否直击用户问题核心</td></tr>
+  </tbody>
+</table>
+
+<h3>对症下药</h3>
+
+<table>
+  <thead><tr><th>指标低</th><th>优化方向</th></tr></thead>
+  <tbody>
+    <tr><td>Context Recall 低</td><td>优化 Embedding 和分块策略</td></tr>
+    <tr><td>Context Precision 低</td><td>加 Reranker 重排</td></tr>
+    <tr><td>Faithfulness 低</td><td>调低 Temperature，加 Prompt 约束</td></tr>
+    <tr><td>Answer Relevance 低</td><td>优化 Prompt 模板</td></tr>
+  </tbody>
+</table>
+
+<h3 id="ragas-code">自动化评估（RAGAS）</h3>
+
+<pre><code class="language-python">from ragas import evaluate
+from ragas.metrics import context_recall, context_precision, faithfulness, answer_relevance
+from datasets import Dataset
+
+data_sample = {
+    "question": ["BGE-M3的最大长度是多少？"],
+    "answer": ["BGE-M3支持8192个token。"],
+    "contexts": [["BGE-M3支持最高8192 token。"]],
+    "ground_truth": ["BGE-M3支持8192个token。"]
+}
+dataset = Dataset.from_dict(data_sample)
+score = evaluate(dataset, metrics=[context_recall, context_precision, faithfulness, answer_relevance])</code></pre>
+
+<p><strong>无标准答案时</strong>：用 LLM-as-a-Judge（如 GPT-4o）充当裁判打分。</p>
+
+<hr>
+
+<!-- ======== Self-RAG ======== -->
+<h2 id="self-rag">Self-RAG</h2>
+
+<p>传统 RAG 是死板流水线，Self-RAG 通过植入<strong>反思令牌</strong>实现闭环反馈：</p>
+
+<ol>
+  <li><strong><code>[Retrieve]</code></strong>：按需检索，知识储备不足时才翻书</li>
+  <li><strong><code>[IsRel]</code></strong>：相关性过滤，不相关的直接踢掉</li>
+  <li><strong><code>[IsSup]</code></strong>：忠实度检查，每句话对比原文</li>
+</ol>
+
+<pre><code>用户提问 → 意图识别 → {需要检索?} → Yes → 多路检索+Rerank
+                                 → No → 模型原生知识
+         → [IsRel] 过滤 → 生成答案 → [IsSup] 自检
+         → 忠实度低 → 自我修正 → 忠实度高 → 输出</code></pre>
+
+<div class="info-box">
+  <div class="label">⚠️ 注意</div>
+  <p>真正的 Self-RAG 靠微调，Prompt 里写"请反思"只是伪 Self-RAG。</p>
+</div>
+
+<hr>
+
+<!-- ======== 迭代 RAG ======== -->
+<h2 id="iterative-rag">迭代检索增强生成（Iterative RAG）</h2>
+
+<p>对于复杂多跳问题，进行多次"检索→生成→再检索"循环：</p>
+
+<pre><code class="language-python">def iterative_rag(question, max_rounds=3):
+    context, current_query = "", question
+    for i in range(max_rounds):
+        info = retrieve(current_query)
+        context += f"[证据{i+1}]: {info}"
+        if is_sufficient(info, question):
+            break
+        current_query = generate_next_query(info, question)
+    return llm.generate(question, context)</code></pre>
+
+<p><strong>控制迭代深度</strong>：通常 2-3 次足够，过多会增加延迟和成本。</p>
+
+<hr>
+
+<!-- ======== LangSmith ======== -->
+<h2 id="langsmith">LangSmith 可观测性</h2>
+
+<p>LLM 应用的"黑匣子+开发者工具"：</p>
+
+<pre><code class="language-python">import os
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = "ls__your_key"
+# 之后所有 LangChain 调用自动记录到 LangSmith 后台</code></pre>
+
+<p>核心能力：</p>
+<ul>
+  <li>可视化每层嵌套调用的输入输出</li>
+  <li>对比不同模型在同一任务上的表现</li>
+  <li>翻车记录一键存入测试集，自动回归测试</li>
+</ul>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 2: 完整架构                           -->
+<!-- ============================================================ -->
+
+<h2 id="architecture">RAG 完整架构图</h2>
+<p><span class="badge badge-senior">⭐⭐⭐ 高级</span></p>
+
+<p>完整的 RAG 系统包含三个阶段：离线建库、在线检索融合、上下文组装生成。</p>
+
+<div class="diagram-container">
+  <p style="font-size:14px;color:#9b9a97;margin-bottom:16px">RAG 三阶段架构全景</p>
+  <svg viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg" style="max-width:800px">
+    <defs>
+      <marker id="a3" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><path d="M0 0 L10 3.5 L0 7 z" fill="#0075de"/></marker>
+      <filter id="s3"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>
+    </defs>
+    <!-- Phase 1: Offline -->
+    <rect x="20" y="10" width="820" height="140" rx="12" fill="#fff8e1" stroke="#ffe082" stroke-width="1.5"/>
+    <text x="40" y="35" fill="#f57f17" font-size="13" font-weight="700">📋 阶段一：离线建库（Indexing）</text>
+    <rect x="40" y="50" width="110" height="50" rx="6" fill="#fff" stroke="#ff9800" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="95" y="72" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">📄 原始文档</text>
+    <text x="95" y="88" text-anchor="middle" fill="#9b9a97" font-size="10">PDF/Word/HTML</text>
+    <line x1="150" y1="75" x2="180" y2="75" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="182" y="50" width="100" height="50" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="232" y="72" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">✂️ 分块</text>
+    <text x="232" y="88" text-anchor="middle" fill="#9b9a97" font-size="10">Parent+Child</text>
+    <line x1="282" y1="75" x2="312" y2="75" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <!-- 3 parallel paths -->
+    <rect x="314" y="45" width="110" height="30" rx="5" fill="#e3f2fd" stroke="#0075de" stroke-width="1"/>
+    <text x="369" y="65" text-anchor="middle" fill="#0075de" font-size="11">子块 Embedding</text>
+    <rect x="314" y="80" width="110" height="30" rx="5" fill="#e3f2fd" stroke="#0075de" stroke-width="1"/>
+    <text x="369" y="100" text-anchor="middle" fill="#0075de" font-size="11">jieba BM25</text>
+    <rect x="314" y="115" width="110" height="25" rx="5" fill="#e3f2fd" stroke="#0075de" stroke-width="1"/>
+    <text x="369" y="133" text-anchor="middle" fill="#0075de" font-size="11">Summary Embed</text>
+    <line x1="424" y1="60" x2="460" y2="60" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <line x1="424" y1="95" x2="460" y2="95" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <line x1="424" y1="127" x2="460" y2="127" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="462" y="45" width="110" height="30" rx="5" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="517" y="65" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">Dense 向量库</text>
+    <rect x="462" y="80" width="110" height="30" rx="5" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="517" y="100" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">BM25 索引</text>
+    <rect x="462" y="115" width="110" height="25" rx="5" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="517" y="133" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">Summary 向量库</text>
+
+    <!-- Phase 2: Online -->
+    <rect x="20" y="165" width="820" height="200" rx="12" fill="#e3f2fd" stroke="#90caf9" stroke-width="1.5"/>
+    <text x="40" y="190" fill="#1565c0" font-size="13" font-weight="700">🔍 阶段二：在线检索融合（Retrieval + Fusion + Rerank）</text>
+    <rect x="40" y="205" width="130" height="45" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="105" y="225" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">❓ 用户 Query</text>
+    <text x="105" y="240" text-anchor="middle" fill="#9b9a97" font-size="10">+ Query Rewrite</text>
+    <line x1="170" y1="228" x2="200" y2="228" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="202" y="200" width="150" height="55" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="277" y="222" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">🔀 三路并行检索</text>
+    <text x="277" y="238" text-anchor="middle" fill="#9b9a97" font-size="10">Dense + BM25 + Summary</text>
+    <line x1="352" y1="228" x2="382" y2="228" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="384" y="205" width="110" height="45" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="439" y="225" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">🔄 RRF 融合</text>
+    <text x="439" y="240" text-anchor="middle" fill="#9b9a97" font-size="10">子块级</text>
+    <line x1="494" y1="228" x2="524" y2="228" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="526" y="205" width="110" height="45" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="581" y="225" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">🎯 Rerank</text>
+    <text x="581" y="240" text-anchor="middle" fill="#9b9a97" font-size="10">Cross-Encoder</text>
+    <line x1="636" y1="228" x2="666" y2="228" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="668" y="205" width="150" height="45" rx="6" fill="#fff" stroke="#0075de" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="743" y="225" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">📦 父块映射</text>
+    <text x="743" y="240" text-anchor="middle" fill="#9b9a97" font-size="10">parent_id 去重</text>
+    <!-- Bottom: principles -->
+    <rect x="40" y="270" width="780" height="80" rx="8" fill="#fff" stroke="#90caf9" stroke-width="1"/>
+    <text x="60" y="295" fill="#1565c0" font-size="12" font-weight="600">总控原则：</text>
+    <text x="60" y="315" fill="#37352f" font-size="12">① 所有检索、融合、Rerank 都在「子块层」完成</text>
+    <text x="60" y="335" fill="#37352f" font-size="12">② Summary 只负责"别找错地方"，不当证据</text>
+    <text x="60" y="345" fill="#37352f" font-size="12">③ 父块只在最后一步出现，用来"保证判断成立"</text>
+
+    <!-- Phase 3: Generation -->
+    <rect x="20" y="380" width="820" height="130" rx="12" fill="#e8f5e9" stroke="#a5d6a7" stroke-width="1.5"/>
+    <text x="40" y="405" fill="#2e7d32" font-size="13" font-weight="700">🤖 阶段三：上下文组装与生成</text>
+    <rect x="40" y="420" width="180" height="50" rx="6" fill="#fff" stroke="#4caf50" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="130" y="442" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">📋 父块 Contexts</text>
+    <text x="130" y="458" text-anchor="middle" fill="#9b9a97" font-size="10">原文 + 证据定位 + 来源</text>
+    <line x1="220" y1="445" x2="260" y2="445" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="262" y="420" width="180" height="50" rx="6" fill="#fff" stroke="#4caf50" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="352" y="442" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">🧩 Prompt 构建</text>
+    <text x="352" y="458" text-anchor="middle" fill="#9b9a97" font-size="10">问题 + 约束 + 上下文</text>
+    <line x1="442" y1="445" x2="482" y2="445" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="484" y="420" width="140" height="50" rx="6" fill="#fff" stroke="#4caf50" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="554" y="442" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">🧠 LLM 生成</text>
+    <text x="554" y="458" text-anchor="middle" fill="#9b9a97" font-size="10">qwen-turbo / GPT-4</text>
+    <line x1="624" y1="445" x2="664" y2="445" stroke="#0075de" stroke-width="1.5" marker-end="url(#a3)"/>
+    <rect x="666" y="420" width="160" height="50" rx="6" fill="#fff" stroke="#4caf50" stroke-width="1.5" filter="url(#s3)"/>
+    <text x="746" y="442" text-anchor="middle" fill="#37352f" font-size="12" font-weight="600">📊 评估监控</text>
+    <text x="746" y="458" text-anchor="middle" fill="#9b9a97" font-size="10">RAGAS + LangSmith</text>
+  </svg>
+</div>
+
+<h3 id="offline">一、离线阶段（Indexing / 建库）</h3>
+
+<pre><code>原始文档（法规/技术文档/PDF/Word）
+        ↓
+  文档解析 &amp; 结构化
+        ↓
+┌─────────────────────────────┐
+│      父块 Parent Chunk       │
+│    （800-1500字，语义完整）    │
+└─────────────────────────────┘
+        ↓
+  ┌─────┴──────┐
+  ↓            ↓
+子块          Summary
+(150-300字)   (50-150字)
+  ↓            ↓
+jieba分词    Summary Embedding
+  ↓            ↓
+┌────────┐  ┌──────────────┐
+│BM25索引│  │Summary向量库  │
+└────────┘  └──────────────┘
+  ↓
+┌────────┐
+│Dense向量│
+│  库     │
+└────────┘</code></pre>
+
+<h3 id="online">二、在线阶段（Retrieval + Fusion + Rerank）</h3>
+
+<pre><code>用户问题 Query
+    ↓
+（可选）多问题生成 / Query Rewrite
+    ↓
+─── 并行检索（三条通道）───
+
+1️⃣ Dense 检索（子块）
+   Query → Embedding → 子块 Vector DB → TopK 子块
+
+2️⃣ BM25 检索（子块）
+   Query → 分词 → BM25 倒排索引 → TopK 子块
+
+3️⃣ Dense 检索（Summary）
+   Query → Embedding → Summary Vector DB → TopK parent_id
+
+    ↓
+候选合并（子块层）
+    ↓
+RRF 融合排序（子块级）
+    ↓
+Rerank 精排（Cross-Encoder）
+    ↓
+TopN 子块（8-15个）
+    ↓
+按 parent_id 去重
+    ↓
+召回父块 Parent Chunk（3-6个）</code></pre>
+
+<h3 id="generation">三、上下文组装 &amp; 回答阶段</h3>
+
+<pre><code>父块 Contexts
+├─ 原文内容
+├─ 命中子块证据定位
+├─ 条号/页码/来源
+    ↓
+Prompt 构建（问题 + 约束 + 上下文 + 证据）
+    ↓
+LLM 生成答案
+    ↓
+（可选）后处理：合规检查、证据引用、风险提示</code></pre>
+
+<div class="info-box">
+  <div class="label">🎯 三句话总控原则</div>
+  <p><strong>Summary 定方向，子块定命中，父块定结论。</strong></p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!--                    PART 3: 项目实战                           -->
+<!-- ============================================================ -->
+
+<h2 id="practice">高性能 RAG 系统实战</h2>
+<p><span class="badge badge-senior">⭐⭐⭐ 高级</span></p>
+
+<blockquote>为金融公司搭建本地知识库问答系统，实现辅助客服回复。知识库包含<strong>文档型数据</strong>（金融基金介绍）和 <strong>QA 型历史问答记录</strong>。</blockquote>
+
+<h3>会话回复优先级</h3>
+
+<div class="practice-section">
+  <div class="step"><span class="num">1</span><p>知识库高命中 QA → 直接用标准 Answer 话术回复（不走 LLM）</p></div>
+  <div class="step"><span class="num">2</span><p>与 QA 有关联 → 推荐"猜你想问"卡片</p></div>
+  <div class="step"><span class="num">3</span><p>与文档相关 → RAG + LLM 回答</p></div>
+  <div class="step"><span class="num">4</span><p>非业务相关 → LLM 自由承接</p></div>
+</div>
+
+<h3 id="knowledge-base">1. 知识库构建</h3>
+
+<p>三种知识类型存入同一向量库（Chroma），通过 <code>metadata.type</code> 区分：</p>
+
+<table>
+  <thead><tr><th>类型</th><th>内容</th><th>用途</th></tr></thead>
+  <tbody>
+    <tr><td><code>query</code></td><td>仅 Question</td><td>高精度匹配，阈值 0.82</td></tr>
+    <tr><td><code>qa</code></td><td>Question + Answer 拼接</td><td>中精度匹配，阈值 0.68</td></tr>
+    <tr><td><code>docs</code></td><td>文档分块</td><td>补充检索，阈值 0.3</td></tr>
+  </tbody>
+</table>
+
+<pre><code class="language-python"># Query 型：answer 存入 metadata
+doc.metadata["type"] = "query"
+doc.metadata["answer"] = answer_text
+
+# QA 型：拼接存储
+Document(page_content=question + "答案：" + answer)
+
+# 文档型：递归分块
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=30, chunk_overlap=5,
+    separators=["\n\n", "\n", "。", "？", "！", "；"]
+)</code></pre>
+
+<h3 id="routing">2. 检索策略（分级路由）</h3>
+
+<pre><code class="language-python">def answer_by_vectorstore(query, history):
+    # Level 1：高精度 Query 匹配
+    high_docs = query_retriever.get_relevant_documents(query, filter={"type": "query"})
+    if high_docs:
+        return high_docs[0].metadata["answer"]  # 直接返回，不走 LLM
+    
+    # Level 2：中精度 QA 匹配 + BM25 补充
+    qa_docs = qa_retriever.get_relevant_documents(query, filter={"type": "qa"})
+    bm25_docs = bm25_retriever.get_relevant_documents(query)
+    
+    # Level 3：文档检索兜底
+    if not qa_docs:
+        doc_docs = doc_retriever.get_relevant_documents(query, filter={"type": "docs"})
+    
+    # 组装上下文 + LLM 生成
+    background = combine_docs(qa_docs, bm25_docs, doc_docs)
+    return llm.generate(background, history, query)</code></pre>
+
+<h3>3. BM25 稀疏检索器</h3>
+
+<pre><code class="language-python">import jieba
+from langchain_community.retrievers import BM25Retriever
+
+def chinese_tokenizer(text):
+    return jieba.lcut(text)
+
+bm25_retriever = BM25Retriever.from_texts(
+    doc_list,
+    preprocess_func=chinese_tokenizer,
+)
+bm25_retriever.k = 5</code></pre>
+
+<h3>4. LLM 生成（通义千问）</h3>
+
+<pre><code class="language-python">from langchain_community.llms import Tongyi
+from langchain_core.prompts import PromptTemplate
+
+llm = Tongyi(model_name="qwen-turbo", temperature=0.7)
+
+prompt_template = """你是基建领域问答助手，基于背景信息回答用户问题。
+背景信息:{background_knowledge}
+历史记录:{history_message}
+用户问题:{current_query}
+回答："""</code></pre>
+
+<h3 id="trie-match">子项目：证券交易所名称快捷匹配</h3>
+
+<h4>架构：前缀树 + ES 倒排索引</h4>
+
+<pre><code>用户输入片段 → 前缀树快速匹配（按热度排序）
+             → 不足 8 个 → ES 倒排索引补充
+             → 返回 Top-8 推荐</code></pre>
+
+<h4>前缀树核心逻辑</h4>
+
+<pre><code class="language-python"># 构建：逐字符建节点
+def add(node, keyword, weight=0):
+    for i, char in enumerate(keyword):
+        if char not in current:
+            new_node = Node(char, is_leaf=(i == len(keyword)-1), weight=weight)
+            current.add_subnode(new_node)
+        current = current.get_subnode(char)
+
+# 搜索：深度优先遍历 + 按权重排序
+def search(node, prefix, limit=8):
+    top_node = node.get_top_node(prefix)
+    results = [(prefix + k, n) for k, n in depth_walk(top_node)]
+    results.sort(key=lambda x: x[1].weight, reverse=True)
+    return results[:limit]</code></pre>
+
+<h4>API 接口（FastAPI）</h4>
+
+<pre><code class="language-python">@app.post("/finance_recommendation")
+async def recommend(request: Request):
+    ipt = await request.json()
+    name = ipt.get("raw_finance_name", "")
+    result = get_final_recommend_result(es, tree, name, K=8)
+    return {"result": result, "code": 200}</code></pre>
+
+<hr>
+
+<!-- ======== 面试高频问答 ======== -->
+<h2 id="interview">面试高频问答</h2>
+
+<h4>Q: 为什么不用 GraphRAG？</h4>
+<p>A: 知识是文档型和 QA 型，客服场景需要的是材料内内容问答，不需要高层级信息总结。GraphRAG 构建成本高、知识难更新。</p>
+
+<h4>Q: 如何做百万级数据的向量化？</h4>
+<p>A: 推荐购置云端向量数据库（如 Milvus Cloud），多节点高 CPU/内存共同负载。</p>
+
+<h4>Q: 混合检索为什么有效？</h4>
+<p>A: 稀疏检索精确匹配关键词/术语，稠密检索理解语义解决同义词问题，两者互补。</p>
+
+<h4>Q: Rerank 如何实现？</h4>
+<p>A: 使用 BGE-Reranker 对召回文本做基于 Cross-Encoder 的相似度排序，或加权计算重要性得分。</p>
+
+<hr>
+
+<!-- Knowledge links -->
+<h2 id="knowledge-links">知识串联</h2>
+
+<table>
+  <thead><tr><th>相关主题</th><th>关联说明</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td>切片策略</td><td>递归分块 + 父子文档在本项目中的应用</td><td><a href="rag-indexing.html#chunking-overview">切片策略</a></td></tr>
+    <tr><td>向量检索与 Embedding</td><td>Chroma + BM25 混合检索实现</td><td><a href="rag-retrieval.html#dense">向量检索</a></td></tr>
+    <tr><td>重排序与融合</td><td>RRF 融合排序在分级路由中的作用</td><td><a href="rag-retrieval.html#rrf">RRF 融合</a></td></tr>
+    <tr><td>RAG 评估与优化</td><td>评估指标指导系统迭代</td><td><a href="#evaluation">评估优化</a></td></tr>
+    <tr><td>RAG 概述</td><td>RAG 技术全局视图</td><td><a href="rag-overview.html">RAG 概述</a></td></tr>
+  </tbody>
+</table>
+
+<div class="cross-ref">
+  <div class="label">🔗 相关项目</div>
+  <p><strong>rag-qa-bot</strong> — RAG 知识库问答机器人项目，实现了本文档中的完整 RAG pipeline，包含分级路由、混合检索、Rerank 精排等生产级特性。</p>
+</div>
+
+</div>
+</body>
+</html>

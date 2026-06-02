@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG 技术概述 — AI 知识库</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#ffffff;--accent:#0075de;--text:#37352f;--code-bg:#f6f5f4;--border:rgba(0,0,0,0.1);--sidebar-w:280px;--radius:6px}
+body{font-family:'Inter','Noto Sans SC',sans-serif;font-size:16px;line-height:1.75;color:var(--text);background:var(--bg)}
+
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;overflow-y:auto;border-right:1px solid var(--border);padding:24px 16px;background:#fafafa;z-index:100}
+.sidebar h3{font-size:13px;font-weight:600;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px;margin:20px 0 8px}
+.sidebar h3:first-child{margin-top:0}
+.sidebar a{display:block;padding:4px 8px;font-size:14px;color:var(--text);text-decoration:none;border-radius:var(--radius);margin:1px 0}
+.sidebar a:hover{background:#efefef}
+.sidebar a.active{background:var(--accent);color:#fff;font-weight:500}
+
+/* Main */
+.main{margin-left:var(--sidebar-w);max-width:860px;padding:40px 60px 80px}
+
+/* Typography */
+h1{font-size:44px;font-weight:700;line-height:1.2;margin-bottom:8px}
+.subtitle{font-size:18px;color:#9b9a97;margin-bottom:32px}
+h2{font-size:28px;font-weight:600;margin:48px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+h3{font-size:20px;font-weight:600;margin:32px 0 12px}
+h4{font-size:16px;font-weight:600;margin:24px 0 8px}
+p{margin:12px 0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{margin:8px 0 8px 24px}
+li{margin:4px 0}
+blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:#f0f7ff;border-radius:0 var(--radius) var(--radius) 0;color:#37352f}
+hr{border:none;border-top:1px solid var(--border);margin:32px 0}
+
+/* Badge */
+.badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;margin-left:8px}
+.badge-junior{background:#e8f5e9;color:#2e7d32}
+.badge-mid{background:#fff3e0;color:#e65100}
+.badge-senior{background:#fce4ec;color:#c62828}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
+th,td{border:1px solid var(--border);padding:10px 14px;text-align:left}
+th{background:var(--code-bg);font-weight:600}
+
+/* Code */
+code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:13.5px;background:var(--code-bg);padding:2px 6px;border-radius:3px}
+pre{background:var(--code-bg);padding:16px 20px;border-radius:var(--radius);overflow-x:auto;margin:16px 0;border:1px solid var(--border)}
+pre code{background:none;padding:0}
+
+/* TOC */
+.toc{background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;margin:24px 0}
+.toc h4{margin:0 0 12px;font-size:14px;color:#9b9a97;text-transform:uppercase;letter-spacing:.5px}
+.toc a{font-size:14px;display:block;padding:3px 0}
+
+/* SVG diagram */
+.diagram-container{margin:24px 0;padding:24px;background:#f9f9f8;border:1px solid var(--border);border-radius:var(--radius);text-align:center}
+.diagram-container svg{max-width:100%;height:auto}
+
+/* Cross-ref */
+.cross-ref{background:#f0f7ff;border:1px solid #b3d4fc;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.cross-ref .label{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px}
+
+/* Info box */
+.info-box{background:#fff8e1;border:1px solid #ffe082;border-radius:var(--radius);padding:16px 20px;margin:24px 0}
+.info-box .label{font-size:12px;font-weight:600;color:#f57f17;text-transform:uppercase;letter-spacing:.5px}
+
+/* Knowledge link table */
+.knowledge-table{margin:16px 0}
+.knowledge-table td:last-child a{font-size:13px}
+
+/* Responsive */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:24px 20px 60px}
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <h3>RAG 技术</h3>
+  <a href="rag-overview.html" class="active">RAG 概述与演进</a>
+  <a href="rag-indexing.html">知识库构建</a>
+  <a href="rag-retrieval.html">查询·检索·后处理</a>
+  <a href="rag-generation.html">生成·评估·实战</a>
+  <h3>快速导航</h3>
+  <a href="#overview">RAG 概述</a>
+  <a href="#limitations">大模型局限性</a>
+  <a href="#rag-intro">RAG 简介</a>
+  <a href="#rag-vs-ft">RAG vs 微调</a>
+  <a href="#pipeline">核心流程</a>
+  <a href="#tech-selection">技术选型</a>
+  <a href="#evolution">架构演进</a>
+  <a href="#naive-rag">Naive RAG</a>
+  <a href="#advanced-rag">Advanced RAG</a>
+  <a href="#graph-rag">Graph RAG</a>
+  <a href="#agentic-rag">Agentic RAG</a>
+  <h3>其他模块</h3>
+  <a href="rag-indexing.html">📐 知识库构建</a>
+  <a href="rag-retrieval.html">🔍 检索全链路</a>
+  <a href="rag-generation.html">🤖 生成与实战</a>
+</nav>
+
+<div class="main">
+
+<h1>RAG 技术概述</h1>
+<p class="subtitle">Retrieval-Augmented Generation — 检索增强生成</p>
+
+<div class="toc">
+  <h4>📑 目录</h4>
+  <a href="#overview">概述与定位</a>
+  <a href="#limitations">大模型的局限性</a>
+  <a href="#rag-intro">RAG 简介</a>
+  <a href="#rag-vs-ft">RAG 与微调对比</a>
+  <a href="#rag-scenes">RAG 应用场景</a>
+  <a href="#pipeline">RAG 核心流程</a>
+  <a href="#tech-selection">关键技术选型</a>
+  <a href="#evolution">RAG 架构演进</a>
+  <a href="#naive-rag">Naive RAG</a>
+  <a href="#advanced-rag">Advanced RAG</a>
+  <a href="#graph-rag">Graph RAG</a>
+  <a href="#agentic-rag">Agentic RAG</a>
+  <a href="#evaluation">RAG 效果评估</a>
+  <a href="#rag-system">搭建 RAG 系统</a>
+</div>
+
+<hr>
+
+<!-- ======== 概述与定位 ======== -->
+<h2 id="overview">概述与定位</h2>
+
+<div class="diagram-container">
+  <p style="font-size:14px;color:#9b9a97;margin-bottom:16px">RAG Pipeline 全流程</p>
+  <svg viewBox="0 0 900 180" xmlns="http://www.w3.org/2000/svg" style="max-width:800px">
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 7" refX="9" refY="3.5" markerWidth="8" markerHeight="6" orient="auto"><path d="M0 0 L10 3.5 L0 7 z" fill="#0075de"/></marker>
+      <filter id="shadow"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-opacity="0.1"/></filter>
+    </defs>
+    <!-- Boxes -->
+    <rect x="10" y="55" width="120" height="70" rx="8" fill="#0075de" filter="url(#shadow)"/>
+    <text x="70" y="85" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">用户提问</text>
+    <text x="70" y="102" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="11">User Query</text>
+
+    <rect x="165" y="55" width="120" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#shadow)"/>
+    <text x="225" y="82" text-anchor="middle" fill="#37352f" font-size="13" font-weight="600">查询改写</text>
+    <text x="225" y="99" text-anchor="middle" fill="#9b9a97" font-size="11">Query Rewrite</text>
+
+    <rect x="320" y="55" width="130" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#shadow)"/>
+    <text x="385" y="82" text-anchor="middle" fill="#37352f" font-size="13" font-weight="600">多路检索</text>
+    <text x="385" y="99" text-anchor="middle" fill="#9b9a97" font-size="11">Dense+BM25</text>
+
+    <rect x="485" y="55" width="120" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#shadow)"/>
+    <text x="545" y="82" text-anchor="middle" fill="#37352f" font-size="13" font-weight="600">重排序</text>
+    <text x="545" y="99" text-anchor="middle" fill="#9b9a97" font-size="11">Rerank + RRF</text>
+
+    <rect x="640" y="55" width="120" height="70" rx="8" fill="#fff" stroke="#0075de" stroke-width="2" filter="url(#shadow)"/>
+    <text x="700" y="82" text-anchor="middle" fill="#37352f" font-size="13" font-weight="600">生成回答</text>
+    <text x="700" y="99" text-anchor="middle" fill="#9b9a97" font-size="11">LLM Generate</text>
+
+    <rect x="795" y="55" width="90" height="70" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="2" filter="url(#shadow)"/>
+    <text x="840" y="85" text-anchor="middle" fill="#2e7d32" font-size="13" font-weight="600">评估</text>
+    <text x="840" y="102" text-anchor="middle" fill="#2e7d32" font-size="11">RAGAS</text>
+
+    <!-- Arrows -->
+    <line x1="130" y1="90" x2="163" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="285" y1="90" x2="318" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="450" y1="90" x2="483" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="605" y1="90" x2="638" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#arrow)"/>
+    <line x1="760" y1="90" x2="793" y2="90" stroke="#0075de" stroke-width="2" marker-end="url(#arrow)"/>
+
+    <!-- Bottom label -->
+    <text x="450" y="155" text-anchor="middle" fill="#9b9a97" font-size="12">离线建库：文档 → 切片 → Embedding → 向量数据库</text>
+    <line x1="80" y1="140" x2="820" y2="140" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4"/>
+  </svg>
+</div>
+
+<blockquote><strong>核心思路</strong>：LLM + 外部知识库检索 → 减少幻觉，提升准确性</blockquote>
+
+<p>RAG（检索增强生成）是 <strong>AI 应用栈中连接 LLM 与外部知识的核心桥梁</strong>。在 AI 大模型技术体系中，RAG 处于 LLM 基础能力之上的应用层，解决了 LLM 知识时效性、领域专业性和幻觉三大痛点。本文档是 RAG 技术知识体系的总入口，按「离线建库→查询处理→检索→后处理→生成评估→实战」六阶段组织。</p>
+
+<hr>
+
+<!-- ======== 大模型局限性 ======== -->
+<h2 id="limitations">大模型的局限性</h2>
+
+<p>LLM 虽然强大，但也存在一些很难根除的"疾病"：</p>
+
+<h3>1. 知识时效性</h3>
+<p>LLM 因其具有海量参数，需要花费相当的物力与时间成本进行预训练和微调，同时商用 LLM 还需要进行各种安全测试与风险评估等。因此 LLM 会存在一定的知识滞后问题，无法回答训练时间点之后相关的问题。</p>
+
+<h3>2. 领域知识缺失</h3>
+<p>LLM 掌握了大量通用知识。但是在一些细分小众专业领域，可能存在很少或者完全没有训练数据。因此 LLM 无法掌握或完全不了解该领域相关的知识。</p>
+
+<h3>3. 无法确定信息来源</h3>
+<p>LLM 在生成回答时，无法确定其回答内容的依据，也就无法确定其回答的可靠性。</p>
+
+<h3>4. 幻觉</h3>
+<p>LLM 在生成回答时，可能会一本正经的胡说八道，这被称为 LLM 的"幻觉"问题。产生的原因可能是训练知识存在偏差、过度泛化、缺乏深层理解或缺乏某些领域知识。</p>
+
+<hr>
+
+<!-- ======== RAG 简介 ======== -->
+<h2 id="rag-intro">RAG 简介</h2>
+
+<p>为了改善 LLM 在时效性、可靠性与准确性方面的不足，各种针对 LLM 优化的方法应运而生。<strong>RAG（Retrieval-Augmented Generation，检索增强生成）</strong>就是其中一种被广泛研究和应用的优化架构。</p>
+
+<p>RAG 的基本思想：将传统的生成式 LLM 和实时信息检索技术相结合，为 LLM 补充来自外部的相关数据和上下文，帮助 LLM 生成更加准确可靠的内容。RAG 就相当于在 LLM 回答时给它一本参考书。</p>
+
+<h3>数据索引阶段（Indexing）</h3>
+<ul>
+  <li><strong>加载（Loading）</strong>：对各种格式的数据统一进行处理和解析</li>
+  <li><strong>分割（Splitting）</strong>：将较大的内容分割成一个个小的知识块</li>
+  <li><strong>嵌入（Embedding）</strong>：将知识块转换为向量</li>
+  <li><strong>索引（Indexing）</strong>：将向量化后的知识块存储到向量数据库中</li>
+</ul>
+
+<h3>数据查询阶段（Query）</h3>
+<ul>
+  <li><strong>检索（Retrieval）</strong>：借助数据索引从存储库中查找出相关的知识块</li>
+  <li><strong>生成（Generation）</strong>：将相关知识块与用户查询构造为 Prompt，输入给 LLM</li>
+</ul>
+
+<h3>扩展阶段</h3>
+<ul>
+  <li><strong>检索前处理（Pre-Retrieval）</strong>：查询转换、查询扩充、检索路由</li>
+  <li><strong>检索后处理（Post-Retrieval）</strong>：重排序、过滤、上下文压缩</li>
+</ul>
+
+<hr>
+
+<!-- ======== RAG vs 微调 ======== -->
+<h2 id="rag-vs-ft">RAG 与微调</h2>
+
+<table>
+  <thead><tr><th>比较内容</th><th>RAG</th><th>微调</th></tr></thead>
+  <tbody>
+    <tr><td>动态知识更新</td><td>知识更新时只需动态更新知识库</td><td>需要重新准备训练数据对模型微调，迭代周期长</td></tr>
+    <tr><td>训练成本</td><td>无需额外训练成本</td><td>需要数据准备、标注、清洗及算力成本</td></tr>
+    <tr><td>可解释性</td><td>可追溯到具体数据来源</td><td>可解释性较差</td></tr>
+    <tr><td>幻觉</td><td>根据检索到的真实信息回答，降低幻觉概率</td><td>过度微调可能导致新幻觉甚至灾难性遗忘</td></tr>
+    <tr><td>模型能力</td><td>依赖外部知识库支持</td><td>模型自身掌握特定知识，对下游更友好</td></tr>
+    <tr><td>响应性能</td><td>有额外检索步骤，耗时较长</td><td>模型直接生成，耗时较短</td></tr>
+    <tr><td>推理成本</td><td>较长 Prompt 带来较高推理成本</td><td>无需注入额外知识，节约 token</td></tr>
+  </tbody>
+</table>
+
+<p>在实际场景中需要根据侧重点选择，条件允许时也可将 RAG 和微调结合使用。</p>
+
+<hr>
+
+<!-- ======== 应用场景 ======== -->
+<h2 id="rag-scenes">RAG 应用场景</h2>
+
+<ul>
+  <li>企业知识库问答</li>
+  <li>技术文档智能助手</li>
+  <li>法律/医疗领域专业咨询</li>
+  <li>个性化内容推荐</li>
+</ul>
+
+<hr>
+
+<!-- ======== 核心流程 ======== -->
+<h2 id="pipeline">RAG 核心流程</h2>
+
+<pre><code>用户提问
+    ↓
+Query 改写/扩展（HyDE / Multi-Query / Rewrite）
+    ↓
+多路检索（Dense + BM25 + Summary）
+    ↓
+RRF 融合 → Rerank 精排
+    ↓
+父子文档映射（子块定位 → 父块生成）
+    ↓
+Prompt 组装（问题 + 约束 + 上下文）
+    ↓
+LLM 生成回答
+    ↓
+评估监控（Faithfulness / Relevance / Recall / Precision）</code></pre>
+
+<hr>
+
+<!-- ======== 技术选型 ======== -->
+<h2 id="tech-selection">关键技术选型</h2>
+
+<table>
+  <thead><tr><th>环节</th><th>推荐方案</th></tr></thead>
+  <tbody>
+    <tr><td>文档解析</td><td>Docling（PDF 表格/图片）</td></tr>
+    <tr><td>分块策略</td><td>递归分块（通用）→ 语义分块（高质量）</td></tr>
+    <tr><td>Embedding</td><td>BGE-M3 / BGE-large-zh-v1.5</td></tr>
+    <tr><td>稀疏检索</td><td>BM25 + jieba 分词</td></tr>
+    <tr><td>向量数据库</td><td>Chroma（开发）/ Milvus（生产）</td></tr>
+    <tr><td>融合排序</td><td>RRF + BGE-Reranker</td></tr>
+    <tr><td>评估框架</td><td>RAGAS + LangSmith</td></tr>
+  </tbody>
+</table>
+
+<p><span class="badge badge-mid">⭐⭐ 中级</span></p>
+
+<hr>
+
+<!-- ======== 架构演进 ======== -->
+<h2 id="evolution">RAG 架构演进</h2>
+
+<p>RAG 最早在 2020 年由 Meta 的技术团队在 <a href="https://arxiv.org/pdf/2005.11401" target="_blank">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</a> 中正式提出，2022 年 ChatGPT 出现后获得广泛关注。</p>
+
+<hr>
+
+<!-- ======== Naive RAG ======== -->
+<h2 id="naive-rag">Naive RAG（朴素RAG）</h2>
+
+<p>朴素 RAG 范式遵循传统基础流程：索引 → 检索 → 生成。</p>
+
+<h4>面临的问题</h4>
+
+<h4>检索召回精度</h4>
+<ul>
+  <li><strong>精确度（Precision）</strong>= 检索到的相关文档数 / 检索到的总文档数</li>
+  <li><strong>召回率（Recall）</strong>= 检索到的相关文档数 / 知识库中所有相关文档总数</li>
+</ul>
+
+<h4>大模型自身能力</h4>
+<p>LLM 是否能推理、识别并区分无关或矛盾数据，能否准确生成答案，能否避免敏感信息。</p>
+
+<h4>数据增强的障碍</h4>
+<p>如何将检索到的信息整合生成连贯、不重复、风格一致的答案。</p>
+
+<h4>上下文大小限制</h4>
+<p>知识块过多会导致留给生成的 token 过少；过少则遗漏关键信息。</p>
+
+<h4>响应性能</h4>
+<p>RAG 增加了更多处理步骤，端到端响应性能下降。</p>
+
+<hr>
+
+<!-- ======== Advanced RAG ======== -->
+<h2 id="advanced-rag">Advanced RAG（高级RAG）</h2>
+
+<p>高级 RAG 引入检索前处理和检索后处理两大部分来提高检索质量。</p>
+
+<h3>检索前处理</h3>
+
+<h4>优化分块策略</h4>
+<p>较大的块捕获更多上下文但噪声更多；较小的块可能截断关键信息。后续提出 Small2Big 方法：句子用作检索单位，前后句子作为上下文。</p>
+
+<h4>元数据索引</h4>
+<p>使用元数据（页码、文件名、作者、时间戳）丰富数据块，实现时间感知检索。还可以构建假设性问题（逆向 HyDE）。</p>
+
+<h4>结构化索引</h4>
+<p>建立文档层次结构加快检索速度。</p>
+
+<h4>查询扩展</h4>
+<p>将单个查询扩展为多个查询，提供更完整的上下文。</p>
+
+<h4>查询重写</h4>
+<p>使用 LLM 或专门训练的小语言模型对查询内容进行重写。</p>
+
+<h4>HyDE</h4>
+<p>Hypothetical Document Embeddings：先生成假设答案文档，用假设文档进行向量化检索。</p>
+
+<h4>查询路由</h4>
+<p>根据用户查询特征，将其路由到不同的知识源、检索策略或子模型。</p>
+
+<h4>混合检索</h4>
+<p>结合稀疏检索（关键词匹配）和稠密检索（向量相似度）捕捉不同的相关特征。</p>
+
+<h3>检索后处理</h3>
+
+<h4>重排序</h4>
+<p>将初步检索结果进行重新排序，突出最相关的信息。</p>
+
+<h4>上下文压缩</h4>
+<p>对检索到的文档或片段进行处理，在不丢失重要信息的前提下压缩长度和数量。</p>
+
+<hr>
+
+<!-- ======== Graph RAG ======== -->
+<h2 id="graph-rag">Graph RAG</h2>
+
+<p>Graph RAG 是一种结构化、分层的 RAG 方法。从原始文本中提取知识图谱，构建社区层次结构，为社区生成摘要，然后利用这些结构执行 RAG 任务。</p>
+
+<p>Graph RAG 工作流程：</p>
+<ol>
+  <li>LLM 处理数据集，创建对所有实体和关系的引用，构建知识图谱</li>
+  <li>对图谱自底向上聚类，将数据分层组织成语义簇（社区）</li>
+  <li>查询时，实体和社区都会用于为 LLM 提供上下文材料</li>
+</ol>
+
+<hr>
+
+<!-- ======== Agentic RAG ======== -->
+<h2 id="agentic-rag">Agentic RAG</h2>
+
+<p>Agentic RAG 通过引入能够进行动态决策和工作流优化的智能体，处理复杂、实时和多领域的查询。</p>
+
+<h4>主要特点</h4>
+<ul>
+  <li><strong>自主决策</strong>：智能体根据查询复杂性独立评估和管理检索策略</li>
+  <li><strong>迭代优化</strong>：引入反馈循环提高检索准确性和响应相关性</li>
+  <li><strong>工作流优化</strong>：动态协调任务，实现实时应用</li>
+</ul>
+
+<h4>Agent 组成</h4>
+<ul>
+  <li><strong>LLM</strong>：主要推理引擎</li>
+  <li><strong>记忆</strong>：短期记忆（对话状态）+ 长期记忆（积累知识）</li>
+  <li><strong>规划</strong>：通过反思、查询路由或自我批评指导推理</li>
+  <li><strong>工具</strong>：扩展文本生成之外的能力</li>
+</ul>
+
+<hr>
+
+<!-- ======== 评估 ======== -->
+<h2 id="evaluation">RAG 效果评估</h2>
+
+<h3>质量分数评估</h3>
+
+<table>
+  <thead><tr><th>指标</th><th>评估问题</th><th>衡量对象</th></tr></thead>
+  <tbody>
+    <tr><td><strong>上下文相关性</strong></td><td>相关吗？</td><td>检索到的上下文与查询之间的相关性</td></tr>
+    <tr><td><strong>答案真实性</strong></td><td>有依据吗？</td><td>生成的答案是否能被检索内容所支撑</td></tr>
+    <tr><td><strong>答案相关性</strong></td><td>答对了吗？</td><td>生成的答案与查询之间的相关性</td></tr>
+  </tbody>
+</table>
+
+<h3>基本能力评估</h3>
+<ul>
+  <li><strong>抗噪声能力</strong>：处理缺乏实质性信息的噪声文档的能力</li>
+  <li><strong>负向拒绝</strong>：检索内容不足时拒绝回答的能力</li>
+  <li><strong>信息整合</strong>：从多个文档中综合信息的能力</li>
+  <li><strong>反事实鲁棒性</strong>：识别并忽略文档中已知错误的能力</li>
+</ul>
+
+<h3>评估工具 Ragas</h3>
+<p>Ragas 是开源的 RAG 端到端评估框架，包含多种评估指标：</p>
+<ul>
+  <li><strong>检索阶段</strong>：Context Precision、Context Recall、Context Entities Recall、Context Relevancy</li>
+  <li><strong>生成阶段</strong>：Response Groundedness、Faithfulness、Response Relevancy、Noise Sensitivity、Answer Accuracy</li>
+</ul>
+
+<hr>
+
+<!-- ======== 搭建 RAG 系统 ======== -->
+<h2 id="rag-system">搭建 RAG 系统</h2>
+
+<h3>核心模块</h3>
+<ul>
+  <li><strong>索引</strong>：文档加载 → 文本分块 → 向量嵌入 → 向量存储</li>
+  <li><strong>检索</strong>：查询嵌入 → 相似度检索 → 提取上下文</li>
+  <li><strong>生成</strong>：提示工程 → LLM 调度 → 输出后处理</li>
+  <li><strong>服务接口</strong>：REST API → 流式响应 → 监控指标</li>
+</ul>
+
+<h3>核心框架</h3>
+<table>
+  <thead><tr><th>组件</th><th>技术选择</th><th>特点</th></tr></thead>
+  <tbody>
+    <tr><td>嵌入模型</td><td>SentenceTransformers</td><td>句子级向量表示</td></tr>
+    <tr><td>向量数据库</td><td>Chroma</td><td>轻量级，简单易用，支持持久化</td></tr>
+    <tr><td>向量数据库</td><td>FAISS</td><td>高效相似度搜索，需手动持久化</td></tr>
+    <tr><td>向量数据库</td><td>Milvus</td><td>大规模数据集，生产级应用</td></tr>
+    <tr><td>LLM 运行时</td><td>vLLM</td><td>高性能推理，连续批处理</td></tr>
+    <tr><td>服务框架</td><td>FastAPI</td><td>异步支持，自动生成 OpenAPI 文档</td></tr>
+  </tbody>
+</table>
+
+<!-- Cross-ref -->
+<div class="cross-ref">
+  <div class="label">🔗 项目实战</div>
+  <p><a href="rag-generation.html#practice">高性能 RAG 系统实战</a> — 金融知识库问答系统完整案例，含分级路由策略与前缀树匹配。</p>
+</div>
+
+<h2 id="knowledge-links">知识串联</h2>
+
+<table class="knowledge-table">
+  <thead><tr><th>相关主题</th><th>关联说明</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td>Embedding 模型</td><td>RAG 语义检索的基石</td><td><a href="rag-retrieval.html#dense">向量检索与 Embedding</a></td></tr>
+    <tr><td>分块策略</td><td>检索质量的源头，80%检索失败源于此</td><td><a href="rag-indexing.html#chunking">切片策略总览</a></td></tr>
+    <tr><td>Agent 记忆</td><td>RAG 可作为 Agent 的长期记忆模块</td><td>Agent 开发模块</td></tr>
+    <tr><td>LangChain</td><td>RAG 流水线编排框架</td><td>大模型开发框架</td></tr>
+    <tr><td>RAG 评估</td><td>RAGAS 四大指标量化质量</td><td><a href="rag-generation.html#evaluation">RAG 评估与优化</a></td></tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>
