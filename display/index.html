@@ -3,79 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Knowledge Hub</title>
+<title>Knowledge Hub — AI Learning System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root {
-  /* Apple-inspired warm neutrals */
-  --bg: #ffffff;
-  --bg-elevated: #fbfbfd;
-  --bg-secondary: #f5f5f7;
-  --bg-tertiary: #e8e8ed;
-  
-  /* Text - warm blacks for readability */
-  --text-primary: #1d1d1f;
-  --text-secondary: #6e6e73;
-  --text-tertiary: #86868b;
-  --text-quaternary: #aeaeb2;
-  
-  /* Single accent - Apple Blue */
+  /* Apple binary color system */
+  --black: #000000;
+  --near-black: #1d1d1f;
+  --white: #ffffff;
+  --light-gray: #f5f5f7;
+  --warm-gray: #fbfbfd;
+
+  /* Apple Blue — singular accent */
   --accent: #0071e3;
   --accent-hover: #0077ed;
-  --accent-active: #006edb;
   --accent-subtle: rgba(0, 113, 227, 0.08);
   --accent-border: rgba(0, 113, 227, 0.2);
-  
-  /* Semantic colors - muted for focus */
-  --success: #34c759;
-  --warning: #ff9f0a;
-  --error: #ff3b30;
-  --info: #5ac8fa;
-  
+  --link-light: #0066cc;
+  --link-dark: #2997ff;
+
+  /* Text hierarchy */
+  --text-1: #1d1d1f;
+  --text-2: rgba(0, 0, 0, 0.72);
+  --text-3: rgba(0, 0, 0, 0.48);
+  --text-4: rgba(0, 0, 0, 0.32);
+
   /* Surfaces */
-  --surface-card: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #f5f5f7;
   --surface-hover: rgba(0, 0, 0, 0.02);
   --surface-active: rgba(0, 0, 0, 0.04);
-  
-  /* Borders - whisper weight */
+
+  /* Borders — whisper */
   --border: rgba(0, 0, 0, 0.08);
   --border-strong: rgba(0, 0, 0, 0.12);
-  
-  /* Shadows - Apple-style soft */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  
-  /* Radii - Apple standard */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-full: 9999px;
-  
-  /* Spacing - 4px base */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  
-  /* Transitions - Apple easing */
-  --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-slow: 300ms;
+
+  /* Semantic — muted for focus */
+  --green: #34c759;
+  --orange: #ff9f0a;
+  --red: #ff3b30;
+  --teal: #5ac8fa;
+  --purple: #af52de;
+
+  /* Shadows — Apple diffused */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --shadow-card: 0 2px 8px rgba(0,0,0,0.06), 0 0 1px rgba(0,0,0,0.04);
+  --shadow-lift: 0 8px 30px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.06);
+
+  /* Radii */
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+  --r-pill: 980px;
+
+  /* Easing */
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur: 200ms;
+  --dur-slow: 400ms;
 }
 
 html {
@@ -86,222 +79,290 @@ html {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  color: var(--text-primary);
-  background: var(--bg);
+  color: var(--near-black);
+  background: var(--white);
   line-height: 1.47;
   font-size: 17px;
   font-weight: 400;
   letter-spacing: -0.022em;
-  min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* Scrollbar - minimal */
-::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.25); }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
+::selection { background: rgba(0,113,227,0.15); }
 
-/* Selection */
-::selection { background: rgba(0, 113, 227, 0.15); }
-
-/* ═══ NAV - Mac toolbar style ═══ */
+/* ═══ NAVIGATION — Apple translucent glass ═══ */
 .nav {
   position: sticky;
   top: 0;
-  z-index: 100;
-  background: rgba(251, 251, 253, 0.72);
+  z-index: 1000;
+  background: rgba(251,251,253,0.72);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 0 var(--space-8);
+  height: 52px;
 }
 
 .nav-inner {
-  max-width: 1200px;
+  max-width: 1120px;
   margin: 0 auto;
+  height: 100%;
   display: flex;
   align-items: center;
-  gap: var(--space-6);
-  height: 52px;
+  padding: 0 32px;
+  gap: 8px;
 }
 
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: 8px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--near-black);
   letter-spacing: -0.01em;
   white-space: nowrap;
   user-select: none;
+  margin-right: 24px;
 }
 
 .nav-brand svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   color: var(--accent);
 }
 
 .nav-tabs {
   display: flex;
   gap: 2px;
-  margin-left: var(--space-6);
   overflow-x: auto;
-  flex: 1;
   scrollbar-width: none;
+  flex: 1;
 }
-
 .nav-tabs::-webkit-scrollbar { display: none; }
 
 .nav-tab {
   padding: 6px 12px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--r-sm);
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
-  color: var(--text-secondary);
-  transition: all var(--duration-fast) var(--ease-out);
+  color: var(--text-2);
+  transition: all var(--dur-fast) var(--ease);
   white-space: nowrap;
   border: none;
   background: none;
   font-family: inherit;
   letter-spacing: -0.01em;
 }
+.nav-tab:hover { color: var(--near-black); background: var(--surface-active); }
+.nav-tab.active { color: var(--accent); background: var(--accent-subtle); }
 
-.nav-tab:hover {
-  color: var(--text-primary);
-  background: var(--surface-active);
+/* ═══ HERO — Cinematic Apple-style full-width ═══ */
+.hero {
+  background: var(--near-black);
+  color: var(--white);
+  padding: 100px 32px 120px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
-.nav-tab.active {
-  color: var(--accent);
-  background: var(--accent-subtle);
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(0,113,227,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-title {
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.07;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.hero-subtitle {
+  font-size: clamp(17px, 2.2vw, 21px);
+  font-weight: 400;
+  color: rgba(255,255,255,0.72);
+  line-height: 1.19;
+  letter-spacing: -0.01em;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  position: relative;
+}
+
+.hero-stats {
+  display: flex;
+  justify-content: center;
+  gap: 48px;
+  position: relative;
+}
+
+.hero-stat-value {
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--white);
+}
+
+.hero-stat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.48);
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 /* ═══ LAYOUT ═══ */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-10) var(--space-8);
-}
-
 .section {
   display: none;
-  animation: fadeIn var(--duration-slow) var(--ease-out);
+  animation: fadeUp var(--dur-slow) var(--ease);
 }
-
 .section.active { display: block; }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: none; }
 }
 
+.section-inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 80px 32px;
+}
+
+/* Alternating Apple-style backgrounds */
+.section-bg-light { background: var(--white); }
+.section-bg-alt { background: var(--light-gray); }
+.section-bg-dark {
+  background: var(--near-black);
+  color: var(--white);
+}
+.section-bg-dark .section-desc { color: rgba(255,255,255,0.6); }
+.section-bg-dark .card-front { background: #272729; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .card-name { color: var(--white); }
+.section-bg-dark .card-topics { color: rgba(255,255,255,0.48); }
+.section-bg-dark .analogy-card { background: #272729; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .analogy-concept { color: var(--white); }
+.section-bg-dark .analogy-text { color: rgba(255,255,255,0.72); }
+.section-bg-dark .analogy-header { border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .prog-item { background: #272729; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .prog-name { color: var(--white); }
+.section-bg-dark .stat { background: #272729; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .stat-value { color: var(--white); }
+.section-bg-dark .comp-table { background: #272729; }
+.section-bg-dark .comp-table th { background: #1a1a1c; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .comp-table td { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .comp-table .dim-label { color: var(--link-dark); }
+.section-bg-dark .ref-table { background: #272729; }
+.section-bg-dark .ref-table th { background: #1a1a1c; color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .ref-table td { color: rgba(255,255,255,0.85); border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .ref-table code { background: rgba(255,255,255,0.08); color: var(--link-dark); }
+.section-bg-dark .ref-tab { color: rgba(255,255,255,0.6); border-color: rgba(255,255,255,0.12); }
+.section-bg-dark .ref-tab:hover { background: rgba(255,255,255,0.06); }
+.section-bg-dark .ref-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.section-bg-dark .oneline-item { background: #272729; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .oneline-text { color: rgba(255,255,255,0.85); }
+.section-bg-dark .graph-container { background: #1a1a1c; border-color: rgba(255,255,255,0.08); }
+.section-bg-dark .node-bg { fill: #272729; stroke: rgba(255,255,255,0.16); }
+.section-bg-dark .graph-edge { stroke: rgba(255,255,255,0.1); }
+.section-bg-dark .node-label { fill: rgba(255,255,255,0.85); }
+
 .section-header {
-  margin-bottom: var(--space-10);
+  margin-bottom: 48px;
 }
 
 .section-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.024em;
-  line-height: 1.12;
-  margin-bottom: var(--space-2);
+  font-size: 40px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  margin-bottom: 8px;
 }
 
-.section-subtitle {
+.section-desc {
   font-size: 17px;
-  color: var(--text-secondary);
+  color: var(--text-2);
   line-height: 1.47;
-  max-width: 600px;
+  max-width: 560px;
 }
 
 /* ═══ KNOWLEDGE GRAPH ═══ */
 .graph-container {
   position: relative;
-  background: var(--bg-elevated);
-  border-radius: var(--radius-lg);
+  background: var(--warm-gray);
+  border-radius: var(--r-lg);
   border: 1px solid var(--border);
   overflow: hidden;
 }
 
 .graph-container svg {
   width: 100%;
-  height: 500px;
+  height: 520px;
   display: block;
 }
 
-.graph-node {
-  cursor: pointer;
-  transition: all var(--duration-normal) var(--ease-out);
-}
-
-.graph-node:hover .node-bg {
-  fill: var(--accent-subtle);
-  stroke: var(--accent);
-  stroke-width: 2;
-}
+.graph-node { cursor: pointer; }
+.graph-node:hover .node-bg { fill: var(--accent-subtle); stroke: var(--accent); stroke-width: 2; }
 
 .node-bg {
-  fill: var(--bg-elevated);
+  fill: var(--white);
   stroke: var(--border-strong);
   stroke-width: 1;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all var(--dur) var(--ease);
 }
 
 .node-label {
-  font-size: 12px;
-  fill: var(--text-primary);
+  font-size: 11px;
+  fill: var(--near-black);
   text-anchor: middle;
   dominant-baseline: central;
   pointer-events: none;
-  font-weight: 500;
-  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Noto Sans SC', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, sans-serif;
 }
 
-.graph-edge {
-  stroke: var(--border);
-  stroke-width: 1;
-  fill: none;
-}
+.graph-edge { stroke: var(--border); stroke-width: 1; fill: none; }
 
 .graph-tooltip {
   position: absolute;
-  background: var(--surface-card);
+  background: var(--white);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
   font-size: 13px;
   pointer-events: none;
   opacity: 0;
-  transition: opacity var(--duration-fast) var(--ease-out);
+  transition: opacity var(--dur-fast) var(--ease);
   z-index: 10;
   max-width: 240px;
   box-shadow: var(--shadow-lg);
   line-height: 1.4;
 }
-
 .graph-tooltip.show { opacity: 1; }
+.tooltip-title { font-weight: 600; color: var(--near-black); margin-bottom: 2px; }
+.tooltip-desc { color: var(--text-2); font-size: 12px; }
 
-.tooltip-title {
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.tooltip-desc {
-  color: var(--text-secondary);
-  font-size: 12px;
-}
-
-/* ═══ CONCEPT CARDS ═══ */
+/* ═══ CONCEPT CARDS — Apple product-card style ═══ */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
 .card {
@@ -314,7 +375,7 @@ body {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s var(--ease-in-out);
+  transition: transform 0.6s var(--ease);
   transform-style: preserve-3d;
 }
 
@@ -323,17 +384,17 @@ body {
 .card-front, .card-back {
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-lg);
+  border-radius: var(--r-lg);
   backface-visibility: hidden;
-  padding: var(--space-6);
+  padding: 24px;
   display: flex;
   flex-direction: column;
 }
 
 .card-front {
-  background: var(--surface-card);
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-card);
 }
 
 .card-back {
@@ -348,44 +409,33 @@ body {
   color: var(--accent);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: var(--space-2);
+  margin-bottom: 6px;
 }
 
 .card-name {
   font-size: 17px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-3);
+  color: var(--near-black);
+  margin-bottom: 10px;
   letter-spacing: -0.01em;
 }
 
 .card-badge {
   display: inline-flex;
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: var(--r-pill);
   font-size: 11px;
   font-weight: 500;
   width: fit-content;
-  margin-bottom: var(--space-3);
+  margin-bottom: 10px;
 }
 
-.badge-easy {
-  background: rgba(52, 199, 89, 0.1);
-  color: var(--success);
-}
-
-.badge-medium {
-  background: rgba(255, 159, 10, 0.1);
-  color: var(--warning);
-}
-
-.badge-hard {
-  background: rgba(255, 59, 48, 0.1);
-  color: var(--error);
-}
+.badge-easy { background: rgba(52,199,89,0.1); color: var(--green); }
+.badge-medium { background: rgba(255,159,10,0.1); color: var(--orange); }
+.badge-hard { background: rgba(255,59,48,0.1); color: var(--red); }
 
 .card-topics {
-  color: var(--text-tertiary);
+  color: var(--text-3);
   font-size: 12px;
   margin-top: auto;
   line-height: 1.6;
@@ -394,94 +444,73 @@ body {
 .card-back-title {
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: var(--space-3);
+  margin-bottom: 10px;
   opacity: 0.9;
 }
 
-.card-back ul {
-  list-style: none;
-  font-size: 13px;
-  line-height: 1.8;
-}
-
-.card-back li::before {
-  content: "— ";
-  opacity: 0.7;
-}
+.card-back ul { list-style: none; font-size: 13px; line-height: 1.8; }
+.card-back li::before { content: "— "; opacity: 0.7; }
 
 /* ═══ QUICK REFERENCE ═══ */
 .ref-tabs {
   display: flex;
-  gap: var(--space-1);
-  margin-bottom: var(--space-5);
+  gap: 4px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
 .ref-tab {
   padding: 6px 14px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--r-sm);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-2);
   border: 1px solid var(--border);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--dur-fast) var(--ease);
   font-family: inherit;
 }
+.ref-tab:hover { background: var(--surface-active); border-color: var(--border-strong); }
+.ref-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
-.ref-tab:hover {
-  background: var(--surface-active);
-  border-color: var(--border-strong);
-}
-
-.ref-tab.active {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-.ref-content {
-  display: none;
-}
-
+.ref-content { display: none; }
 .ref-content.active { display: block; }
 
 .ref-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid var(--border);
 }
 
 .ref-table th {
-  background: var(--bg-secondary);
-  padding: var(--space-3) var(--space-4);
+  background: var(--light-gray);
+  padding: 12px 16px;
   text-align: left;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-2);
   font-weight: 600;
   border-bottom: 1px solid var(--border);
   letter-spacing: 0.02em;
 }
 
 .ref-table td {
-  padding: var(--space-3) var(--space-4);
+  padding: 12px 16px;
   font-size: 14px;
   border-bottom: 1px solid var(--border);
-  color: var(--text-primary);
+  color: var(--near-black);
 }
 
 .ref-table tr:last-child td { border-bottom: none; }
-
 .ref-table tr:hover td { background: var(--surface-hover); }
 
 .ref-table code {
-  background: var(--bg-secondary);
+  background: var(--light-gray);
   padding: 2px 6px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--r-xs);
   font-size: 12px;
   color: var(--accent);
   font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
@@ -490,53 +519,41 @@ body {
 /* ═══ LEARNING PATHS ═══ */
 .path-selector {
   display: flex;
-  gap: var(--space-2);
-  margin-bottom: var(--space-8);
+  gap: 6px;
+  margin-bottom: 40px;
   flex-wrap: wrap;
 }
 
 .path-btn {
-  padding: var(--space-2) var(--space-5);
-  border-radius: var(--radius-md);
+  padding: 8px 20px;
+  border-radius: var(--r-md);
   cursor: pointer;
-  background: var(--surface-card);
-  color: var(--text-secondary);
+  background: var(--surface);
+  color: var(--text-2);
   border: 1px solid var(--border);
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--dur-fast) var(--ease);
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
 }
-
-.path-btn:hover {
-  border-color: var(--border-strong);
-  color: var(--text-primary);
-}
-
-.path-btn.active {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-subtle);
-}
+.path-btn:hover { border-color: var(--border-strong); color: var(--near-black); }
+.path-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-subtle); }
 
 .path-flow { display: none; }
 .path-flow.active { display: block; }
 
 .path-steps {
   position: relative;
-  padding-left: var(--space-10);
+  padding-left: 40px;
 }
 
 .path-step {
   position: relative;
-  padding: var(--space-4) 0 var(--space-8) var(--space-6);
+  padding: 16px 0 32px 24px;
   border-left: 2px solid var(--border);
 }
 
-.path-step:last-child {
-  border-left-color: transparent;
-  padding-bottom: 0;
-}
+.path-step:last-child { border-left-color: transparent; padding-bottom: 0; }
 
 .path-step::before {
   content: '';
@@ -546,9 +563,9 @@ body {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--bg);
+  background: var(--white);
   border: 2px solid var(--border-strong);
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all var(--dur) var(--ease);
 }
 
 .path-step.done::before {
@@ -560,91 +577,91 @@ body {
   font-size: 15px;
   font-weight: 600;
   margin-bottom: 4px;
-  color: var(--text-primary);
+  color: var(--near-black);
 }
 
 .path-step-desc {
   font-size: 14px;
-  color: var(--text-secondary);
+  color: var(--text-2);
   line-height: 1.5;
 }
 
 .path-step-tags {
   display: flex;
-  gap: var(--space-1);
-  margin-top: var(--space-2);
+  gap: 4px;
+  margin-top: 8px;
   flex-wrap: wrap;
 }
 
 .path-tag {
   padding: 2px 8px;
-  border-radius: var(--radius-full);
+  border-radius: var(--r-pill);
   font-size: 11px;
   font-weight: 500;
   background: var(--accent-subtle);
   color: var(--accent);
 }
 
-/* ═══ PROGRESS TRACKER ═══ */
+/* ═══ PROGRESS ═══ */
 .progress-bar-wrap {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-full);
+  background: var(--light-gray);
+  border-radius: var(--r-pill);
   height: 6px;
   overflow: hidden;
-  margin-bottom: var(--space-2);
+  margin-bottom: 16px;
 }
 
 .progress-bar {
   height: 100%;
   background: var(--accent);
-  border-radius: var(--radius-full);
-  transition: width 0.6s var(--ease-out);
+  border-radius: var(--r-pill);
+  transition: width 0.6s var(--ease);
 }
 
 .progress-stats {
   display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-8);
+  gap: 16px;
+  margin-bottom: 40px;
   flex-wrap: wrap;
 }
 
 .stat {
-  background: var(--surface-card);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5) var(--space-6);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
   min-width: 140px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--near-black);
   letter-spacing: -0.024em;
 }
 
 .stat-label {
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: var(--text-3);
   margin-top: 2px;
 }
 
 .progress-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--space-2);
+  gap: 8px;
 }
 
 .prog-item {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  background: var(--surface-card);
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-out);
+  border-radius: var(--r-md);
+  transition: all var(--dur-fast) var(--ease);
 }
 
 .prog-item:hover {
@@ -655,13 +672,13 @@ body {
 .prog-check {
   width: 18px;
   height: 18px;
-  border-radius: var(--radius-xs);
+  border-radius: var(--r-xs);
   border: 1.5px solid var(--border-strong);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--duration-fast) var(--ease-out);
+  transition: all var(--dur-fast) var(--ease);
   flex-shrink: 0;
 }
 
@@ -681,30 +698,22 @@ body {
   margin-top: -2px;
 }
 
-.prog-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-primary);
-}
-
-.prog-cat {
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
+.prog-name { font-size: 14px; font-weight: 500; color: var(--near-black); }
+.prog-cat { font-size: 12px; color: var(--text-3); }
 
 /* ═══ ANALOGY CARDS ═══ */
 .analogy-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--space-4);
+  gap: 16px;
 }
 
 .analogy-card {
-  background: var(--surface-card);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--r-lg);
   overflow: hidden;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all var(--dur) var(--ease);
 }
 
 .analogy-card:hover {
@@ -713,79 +722,55 @@ body {
 }
 
 .analogy-header {
-  padding: var(--space-4) var(--space-5);
+  padding: 16px 20px;
   display: flex;
   align-items: center;
-  gap: var(--space-3);
+  gap: 12px;
   border-bottom: 1px solid var(--border);
 }
 
 .analogy-icon {
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  background: var(--bg-secondary);
+  background: var(--light-gray);
 }
 
-.analogy-icon svg {
-  width: 16px;
-  height: 16px;
-  color: var(--accent);
-}
-
-.analogy-concept {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.analogy-title {
-  font-size: 12px;
-  color: var(--text-tertiary);
-}
-
-.analogy-body {
-  padding: var(--space-4) var(--space-5);
-}
-
-.analogy-text {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.6;
-}
+.analogy-icon svg { width: 16px; height: 16px; color: var(--accent); }
+.analogy-concept { font-size: 14px; font-weight: 600; color: var(--near-black); }
+.analogy-title { font-size: 12px; color: var(--text-3); }
+.analogy-body { padding: 16px 20px; }
+.analogy-text { font-size: 14px; color: var(--text-2); line-height: 1.6; }
 
 /* ═══ COMPARISON TABLES ═══ */
-.comp-section {
-  margin-bottom: var(--space-10);
-}
-
+.comp-section { margin-bottom: 48px; }
 .comp-title {
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 600;
-  margin-bottom: var(--space-4);
-  color: var(--text-primary);
+  margin-bottom: 20px;
+  color: var(--near-black);
   letter-spacing: -0.01em;
 }
 
 .comp-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border-radius: var(--r-lg);
   overflow: hidden;
   border: 1px solid var(--border);
 }
 
 .comp-table th {
-  background: var(--bg-secondary);
-  padding: var(--space-3) var(--space-4);
+  background: var(--light-gray);
+  padding: 12px 16px;
   text-align: left;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-2);
   font-weight: 600;
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
@@ -793,45 +778,36 @@ body {
 }
 
 .comp-table td {
-  padding: var(--space-3) var(--space-4);
+  padding: 12px 16px;
   font-size: 13px;
   border-bottom: 1px solid var(--border);
-  color: var(--text-primary);
+  color: var(--near-black);
   vertical-align: top;
 }
 
 .comp-table tr:last-child td { border-bottom: none; }
 .comp-table tr:hover td { background: var(--surface-hover); }
-
-.comp-table .dim-label {
-  color: var(--accent);
-  font-weight: 600;
-  white-space: nowrap;
-}
+.comp-table .dim-label { color: var(--accent); font-weight: 600; white-space: nowrap; }
 
 /* ═══ RELATIONSHIP MAP ═══ */
 .rel-container {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-lg);
+  background: var(--warm-gray);
+  border-radius: var(--r-lg);
   border: 1px solid var(--border);
   overflow: hidden;
   position: relative;
 }
 
-.rel-container svg {
-  width: 100%;
-  height: 450px;
-  display: block;
-}
+.rel-container svg { width: 100%; height: 480px; display: block; }
 
 .rel-info {
   position: absolute;
-  bottom: var(--space-4);
-  left: var(--space-4);
-  background: var(--surface-card);
+  bottom: 16px;
+  left: 16px;
+  background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
   font-size: 13px;
   max-width: 280px;
   box-shadow: var(--shadow-lg);
@@ -841,41 +817,32 @@ body {
 
 .rel-legend {
   display: flex;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  gap: 16px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   font-size: 12px;
-  color: var(--text-tertiary);
+  color: var(--text-3);
 }
 
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.legend-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
+.legend-item { display: flex; align-items: center; gap: 4px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
 /* ═══ ONE-LINE SUMMARY ═══ */
 .oneline-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--space-3);
+  gap: 12px;
 }
 
 .oneline-item {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: var(--surface-card);
+  gap: 12px;
+  padding: 16px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-out);
+  border-radius: var(--r-md);
+  transition: all var(--dur-fast) var(--ease);
 }
 
 .oneline-item:hover {
@@ -894,7 +861,7 @@ body {
 
 .oneline-text {
   font-size: 14px;
-  color: var(--text-primary);
+  color: var(--near-black);
   line-height: 1.5;
   font-weight: 500;
 }
@@ -902,32 +869,24 @@ body {
 /* ═══ FOCUS MODE ═══ */
 .focus-toggle {
   position: fixed;
-  bottom: var(--space-6);
-  right: var(--space-6);
+  bottom: 24px;
+  right: 24px;
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--surface-card);
+  background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-md);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--duration-normal) var(--ease-out);
+  transition: all var(--dur) var(--ease);
   z-index: 50;
 }
 
-.focus-toggle:hover {
-  box-shadow: var(--shadow-lg);
-  transform: scale(1.05);
-}
-
-.focus-toggle svg {
-  width: 20px;
-  height: 20px;
-  color: var(--text-secondary);
-}
+.focus-toggle:hover { box-shadow: var(--shadow-lg); transform: scale(1.05); }
+.focus-toggle svg { width: 20px; height: 20px; color: var(--text-2); }
 
 .focus-mode .nav { opacity: 0.3; }
 .focus-mode .nav:hover { opacity: 1; }
@@ -936,32 +895,33 @@ body {
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
-  .nav { padding: 0 var(--space-4); }
-  .nav-inner { height: 48px; }
-  .nav-brand { font-size: 14px; }
-  .nav-tabs { margin-left: var(--space-3); }
-  .nav-tab { padding: 4px 10px; font-size: 12px; }
-  
-  .container { padding: var(--space-6) var(--space-4); }
-  .section-title { font-size: 24px; }
-  .section-subtitle { font-size: 15px; }
-  
+  .nav-inner { padding: 0 16px; }
+  .nav-brand { font-size: 14px; margin-right: 12px; }
+  .nav-tab { padding: 4px 10px; font-size: 11px; }
+
+  .hero { padding: 64px 16px 80px; }
+  .hero-stats { gap: 32px; }
+  .hero-stat-value { font-size: 36px; }
+
+  .section-inner { padding: 48px 16px; }
+  .section-title { font-size: 28px; }
+  .section-desc { font-size: 15px; }
+
   .cards-grid { grid-template-columns: 1fr; }
   .analogy-grid { grid-template-columns: 1fr; }
   .oneline-grid { grid-template-columns: 1fr; }
   .progress-list { grid-template-columns: 1fr; }
-  
-  .path-selector { gap: var(--space-1); }
+
+  .path-selector { gap: 4px; }
   .path-btn { padding: 6px 12px; font-size: 13px; }
-  
-  .ref-table { font-size: 13px; }
-  .ref-table th, .ref-table td { padding: var(--space-2) var(--space-3); }
 }
 
 @media (max-width: 480px) {
   .nav-tabs { display: none; }
-  .section-title { font-size: 20px; }
+  .section-title { font-size: 24px; }
   .stat-value { font-size: 24px; }
+  .hero-stat-value { font-size: 28px; }
+  .hero-stats { flex-wrap: wrap; gap: 24px; }
 }
 
 /* ═══ PRINT ═══ */
@@ -970,6 +930,7 @@ body {
   .section { display: block !important; page-break-inside: avoid; }
   .card-inner { transform: none !important; }
   .card-back { display: none; }
+  .hero { background: var(--light-gray); color: var(--near-black); }
 }
 
 /* ═══ REDUCED MOTION ═══ */
@@ -984,7 +945,7 @@ body {
 </head>
 <body>
 
-<!-- Navigation -->
+<!-- Navigation — Apple translucent glass -->
 <nav class="nav">
   <div class="nav-inner">
     <div class="nav-brand">
@@ -1008,14 +969,32 @@ body {
   </div>
 </nav>
 
-<!-- Main Content -->
-<div class="container">
+<!-- Hero — Cinematic Apple-style -->
+<div class="hero" id="heroSection">
+  <h1 class="hero-title">AI Knowledge Hub</h1>
+  <p class="hero-subtitle">Master the complete AI landscape — from Transformer architecture to production systems.</p>
+  <div class="hero-stats">
+    <div>
+      <div class="hero-stat-value" id="heroDomains">12</div>
+      <div class="hero-stat-label">Domains</div>
+    </div>
+    <div>
+      <div class="hero-stat-value" id="heroProgress">0%</div>
+      <div class="hero-stat-label">Mastered</div>
+    </div>
+    <div>
+      <div class="hero-stat-value" id="heroConnections">17</div>
+      <div class="hero-stat-label">Connections</div>
+    </div>
+  </div>
+</div>
 
-  <!-- Knowledge Graph -->
-  <section class="section active" id="sec-graph">
+<!-- ═══ KNOWLEDGE GRAPH ═══ -->
+<div class="section section-bg-alt active" id="sec-graph">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Knowledge Graph</h1>
-      <p class="section-subtitle">Visualize concept relationships and dependencies across your learning journey.</p>
+      <h2 class="section-title">Knowledge Graph</h2>
+      <p class="section-desc">Visualize concept relationships and dependencies across your learning journey.</p>
     </div>
     <div class="graph-container" id="graphBox">
       <svg id="graphSvg"></svg>
@@ -1024,98 +1003,113 @@ body {
         <div class="tooltip-desc" id="tooltipDesc"></div>
       </div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- Concept Cards -->
-  <section class="section" id="sec-cards">
+<!-- ═══ CONCEPT CARDS ═══ -->
+<div class="section section-bg-light" id="sec-cards">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Concept Cards</h1>
-      <p class="section-subtitle">Hover to flip and explore key concepts for each domain.</p>
+      <h2 class="section-title">Concept Cards</h2>
+      <p class="section-desc">Hover to flip and explore key concepts for each domain.</p>
     </div>
     <div class="cards-grid" id="cardsGrid"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Quick Reference -->
-  <section class="section" id="sec-reference">
+<!-- ═══ QUICK REFERENCE ═══ -->
+<div class="section section-bg-alt" id="sec-reference">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Quick Reference</h1>
-      <p class="section-subtitle">Essential patterns and formulas at your fingertips.</p>
+      <h2 class="section-title">Quick Reference</h2>
+      <p class="section-desc">Essential patterns and formulas at your fingertips.</p>
     </div>
     <div class="ref-tabs" id="refTabs"></div>
     <div id="refContents"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Learning Paths -->
-  <section class="section" id="sec-paths">
+<!-- ═══ LEARNING PATHS ═══ -->
+<div class="section section-bg-light" id="sec-paths">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Learning Paths</h1>
-      <p class="section-subtitle">Structured routes through the knowledge landscape.</p>
+      <h2 class="section-title">Learning Paths</h2>
+      <p class="section-desc">Structured routes through the knowledge landscape.</p>
     </div>
     <div class="path-selector" id="pathSelector"></div>
     <div id="pathFlows"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Progress Tracker -->
-  <section class="section" id="sec-progress">
+<!-- ═══ PROGRESS TRACKER ═══ -->
+<div class="section section-bg-dark" id="sec-progress">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Progress Tracker</h1>
-      <p class="section-subtitle">Track your learning journey across all domains.</p>
+      <h2 class="section-title">Progress Tracker</h2>
+      <p class="section-desc">Track your learning journey across all domains.</p>
     </div>
     <div class="progress-stats" id="progStats"></div>
     <div class="progress-bar-wrap">
       <div class="progress-bar" id="progBar"></div>
     </div>
     <div class="progress-list" id="progList"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Analogy Cards -->
-  <section class="section" id="sec-analogy">
+<!-- ═══ ANALOGY CARDS ═══ -->
+<div class="section section-bg-light" id="sec-analogy">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Analogy Cards</h1>
-      <p class="section-subtitle">Complex concepts explained through familiar comparisons.</p>
+      <h2 class="section-title">Analogy Cards</h2>
+      <p class="section-desc">Complex concepts explained through familiar comparisons.</p>
     </div>
     <div class="analogy-grid" id="analogyGrid"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Comparison Tables -->
-  <section class="section" id="sec-compare">
+<!-- ═══ COMPARISON TABLES ═══ -->
+<div class="section section-bg-alt" id="sec-compare">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Comparison Tables</h1>
-      <p class="section-subtitle">Side-by-side analysis of related technologies and approaches.</p>
+      <h2 class="section-title">Comparison Tables</h2>
+      <p class="section-desc">Side-by-side analysis of related technologies and approaches.</p>
     </div>
     <div id="compareContent"></div>
-  </section>
+  </div>
+</div>
 
-  <!-- Relationship Map -->
-  <section class="section" id="sec-relations">
+<!-- ═══ RELATIONSHIP MAP ═══ -->
+<div class="section section-bg-light" id="sec-relations">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">Relationship Map</h1>
-      <p class="section-subtitle">Explore how concepts connect and influence each other.</p>
+      <h2 class="section-title">Relationship Map</h2>
+      <p class="section-desc">Explore how concepts connect and influence each other.</p>
     </div>
     <div class="rel-legend">
       <span class="legend-item"><span class="legend-dot" style="background: var(--accent)"></span> Selected</span>
-      <span class="legend-item"><span class="legend-dot" style="background: var(--success)"></span> Dependencies</span>
-      <span class="legend-item"><span class="legend-dot" style="background: var(--warning)"></span> Related</span>
+      <span class="legend-item"><span class="legend-dot" style="background: var(--green)"></span> Dependencies</span>
+      <span class="legend-item"><span class="legend-dot" style="background: var(--orange)"></span> Related</span>
     </div>
     <div class="rel-container">
       <svg id="relSvg"></svg>
       <div class="rel-info" id="relInfo"></div>
     </div>
-  </section>
+  </div>
+</div>
 
-  <!-- One-Line Summary -->
-  <section class="section" id="sec-summary">
+<!-- ═══ ONE-LINE SUMMARY ═══ -->
+<div class="section section-bg-dark" id="sec-summary">
+  <div class="section-inner">
     <div class="section-header">
-      <h1 class="section-title">One-Line Summary</h1>
-      <p class="section-subtitle">Quick reference for core concepts in each domain.</p>
+      <h2 class="section-title">One-Line Summary</h2>
+      <p class="section-desc">Quick reference for core concepts in each domain.</p>
     </div>
     <div class="oneline-grid" id="onelineGrid"></div>
-  </section>
-
+  </div>
 </div>
 
 <!-- Focus Mode Toggle -->
-<button class="focus-toggle" id="focusToggle" title="Toggle Focus Mode">
+<button class="focus-toggle" id="focusToggle" title="Toggle Focus Mode (Esc)">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="12" cy="12" r="10"/>
     <path d="M12 16v-4"/>
@@ -1243,17 +1237,34 @@ let currentSection = 'graph';
 let progress = JSON.parse(localStorage.getItem('kh-progress') || '{}');
 let focusMode = false;
 
+// ═══ HERO STATS ═══
+function updateHeroStats() {
+  const completed = Object.values(progress).filter(Boolean).length;
+  const pct = Math.round((completed / DOMAINS.length) * 100);
+  document.getElementById('heroDomains').textContent = DOMAINS.length;
+  document.getElementById('heroProgress').textContent = pct + '%';
+  document.getElementById('heroConnections').textContent = EDGES.length;
+}
+
 // ═══ NAVIGATION ═══
 function switchSection(sectionId) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  
+
   const section = document.getElementById('sec-' + sectionId);
   const tab = document.querySelector(`[data-section="${sectionId}"]`);
-  
+
   if (section) section.classList.add('active');
   if (tab) tab.classList.add('active');
-  
+
+  // Show/hide hero based on active section
+  const hero = document.getElementById('heroSection');
+  if (sectionId === 'graph') {
+    hero.style.display = 'block';
+  } else {
+    hero.style.display = 'none';
+  }
+
   currentSection = sectionId;
   localStorage.setItem('kh-section', sectionId);
 }
@@ -1269,119 +1280,94 @@ function renderGraph() {
   const tooltip = document.getElementById('tooltip');
   const titleEl = document.getElementById('tooltipTitle');
   const descEl = document.getElementById('tooltipDesc');
-  
-  const width = 800;
-  const height = 500;
-  const padding = 60;
-  
+
+  const width = 900;
+  const height = 520;
+  const padding = 70;
+
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  
-  // Force-directed layout simulation
+
   const nodes = DOMAINS.map((d, i) => ({
     ...d,
     x: padding + (width - 2 * padding) * (i % 4) / 3,
     y: padding + (height - 2 * padding) * Math.floor(i / 4) / 2,
-    vx: 0,
-    vy: 0
+    vx: 0, vy: 0
   }));
-  
+
   const nodeMap = {};
   nodes.forEach(n => nodeMap[n.id] = n);
-  
-  // Simple force simulation
-  for (let iter = 0; iter < 100; iter++) {
-    // Repulsion
+
+  for (let iter = 0; iter < 120; iter++) {
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const dx = nodes[j].x - nodes[i].x;
         const dy = nodes[j].y - nodes[i].y;
         const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = 500 / (dist * dist);
+        const force = 600 / (dist * dist);
         nodes[i].vx -= force * dx / dist;
         nodes[i].vy -= force * dy / dist;
         nodes[j].vx += force * dx / dist;
         nodes[j].vy += force * dy / dist;
       }
     }
-    
-    // Attraction along edges
+
     EDGES.forEach(([from, to]) => {
-      const a = nodeMap[from];
-      const b = nodeMap[to];
+      const a = nodeMap[from]; const b = nodeMap[to];
       if (!a || !b) return;
-      const dx = b.x - a.x;
-      const dy = b.y - a.y;
+      const dx = b.x - a.x; const dy = b.y - a.y;
       const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-      const force = (dist - 150) * 0.01;
-      a.vx += force * dx / dist;
-      a.vy += force * dy / dist;
-      b.vx -= force * dx / dist;
-      b.vy -= force * dy / dist;
+      const force = (dist - 160) * 0.008;
+      a.vx += force * dx / dist; a.vy += force * dy / dist;
+      b.vx -= force * dx / dist; b.vy -= force * dy / dist;
     });
-    
-    // Center gravity
+
     nodes.forEach(n => {
       n.vx += (width / 2 - n.x) * 0.001;
       n.vy += (height / 2 - n.y) * 0.001;
-    });
-    
-    // Update positions
-    nodes.forEach(n => {
-      n.vx *= 0.9;
-      n.vy *= 0.9;
+      n.vx *= 0.88; n.vy *= 0.88;
       n.x = Math.max(padding, Math.min(width - padding, n.x + n.vx));
       n.y = Math.max(padding, Math.min(height - padding, n.y + n.vy));
     });
   }
-  
-  // Render edges
+
   EDGES.forEach(([from, to]) => {
-    const a = nodeMap[from];
-    const b = nodeMap[to];
+    const a = nodeMap[from]; const b = nodeMap[to];
     if (!a || !b) return;
-    
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', a.x);
-    line.setAttribute('y1', a.y);
-    line.setAttribute('x2', b.x);
-    line.setAttribute('y2', b.y);
+    line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
     line.setAttribute('class', 'graph-edge');
     svg.appendChild(line);
   });
-  
-  // Render nodes
+
   nodes.forEach(node => {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'graph-node');
     g.setAttribute('transform', `translate(${node.x},${node.y})`);
-    
+
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('r', 28);
+    circle.setAttribute('r', 30);
     circle.setAttribute('class', 'node-bg');
-    
+
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('class', 'node-label');
     text.textContent = node.name.length > 10 ? node.name.slice(0, 9) + '…' : node.name;
-    
+
     g.appendChild(circle);
     g.appendChild(text);
-    
-    g.addEventListener('mouseenter', e => {
+
+    g.addEventListener('mouseenter', () => {
       titleEl.textContent = node.name;
       descEl.textContent = node.desc;
       tooltip.classList.add('show');
     });
-    
     g.addEventListener('mousemove', e => {
       const rect = document.getElementById('graphBox').getBoundingClientRect();
       tooltip.style.left = (e.clientX - rect.left + 12) + 'px';
       tooltip.style.top = (e.clientY - rect.top - 10) + 'px';
     });
-    
-    g.addEventListener('mouseleave', () => {
-      tooltip.classList.remove('show');
-    });
-    
+    g.addEventListener('mouseleave', () => tooltip.classList.remove('show'));
+
     svg.appendChild(g);
   });
 }
@@ -1411,11 +1397,11 @@ function renderCards() {
 function renderReference() {
   const tabs = document.getElementById('refTabs');
   const contents = document.getElementById('refContents');
-  
+
   tabs.innerHTML = REFS.map((r, i) => `
     <button class="ref-tab${i === 0 ? ' active' : ''}" data-ref="${r.id}">${r.name}</button>
   `).join('');
-  
+
   contents.innerHTML = REFS.map((r, i) => `
     <div class="ref-content${i === 0 ? ' active' : ''}" id="ref-${r.id}">
       <table class="ref-table">
@@ -1426,14 +1412,12 @@ function renderReference() {
       </table>
     </div>
   `).join('');
-  
+
   tabs.addEventListener('click', e => {
     const tab = e.target.closest('.ref-tab');
     if (!tab) return;
-    
     tabs.querySelectorAll('.ref-tab').forEach(t => t.classList.remove('active'));
     contents.querySelectorAll('.ref-content').forEach(c => c.classList.remove('active'));
-    
     tab.classList.add('active');
     document.getElementById('ref-' + tab.dataset.ref).classList.add('active');
   });
@@ -1443,11 +1427,11 @@ function renderReference() {
 function renderPaths() {
   const selector = document.getElementById('pathSelector');
   const flows = document.getElementById('pathFlows');
-  
+
   selector.innerHTML = PATHS.map((p, i) => `
     <button class="path-btn${i === 0 ? ' active' : ''}" data-path="${p.id}">${p.name}</button>
   `).join('');
-  
+
   flows.innerHTML = PATHS.map((p, i) => `
     <div class="path-flow${i === 0 ? ' active' : ''}" id="path-${p.id}">
       <div class="path-steps">
@@ -1463,14 +1447,12 @@ function renderPaths() {
       </div>
     </div>
   `).join('');
-  
+
   selector.addEventListener('click', e => {
     const btn = e.target.closest('.path-btn');
     if (!btn) return;
-    
     selector.querySelectorAll('.path-btn').forEach(b => b.classList.remove('active'));
     flows.querySelectorAll('.path-flow').forEach(f => f.classList.remove('active'));
-    
     btn.classList.add('active');
     document.getElementById('path-' + btn.dataset.path).classList.add('active');
   });
@@ -1481,11 +1463,11 @@ function renderProgress() {
   const stats = document.getElementById('progStats');
   const bar = document.getElementById('progBar');
   const list = document.getElementById('progList');
-  
+
   const total = DOMAINS.length;
   const completed = Object.values(progress).filter(Boolean).length;
   const pct = Math.round((completed / total) * 100);
-  
+
   stats.innerHTML = `
     <div class="stat">
       <div class="stat-value">${completed}/${total}</div>
@@ -1495,10 +1477,14 @@ function renderProgress() {
       <div class="stat-value">${pct}%</div>
       <div class="stat-label">Progress</div>
     </div>
+    <div class="stat">
+      <div class="stat-value">${total - completed}</div>
+      <div class="stat-label">Remaining</div>
+    </div>
   `;
-  
+
   bar.style.width = pct + '%';
-  
+
   list.innerHTML = DOMAINS.map(d => `
     <div class="prog-item">
       <div class="prog-check${progress[d.id] ? ' checked' : ''}" data-id="${d.id}"></div>
@@ -1508,16 +1494,16 @@ function renderProgress() {
       </div>
     </div>
   `).join('');
-  
+
   list.addEventListener('click', e => {
     const check = e.target.closest('.prog-check');
     if (!check) return;
-    
     const id = check.dataset.id;
     progress[id] = !progress[id];
     localStorage.setItem('kh-progress', JSON.stringify(progress));
     renderProgress();
     renderPaths();
+    updateHeroStats();
   });
 }
 
@@ -1532,7 +1518,7 @@ function renderAnalogies() {
     layers: '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
     'git-branch': '<line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/>',
   };
-  
+
   grid.innerHTML = ANALOGIES.map(a => `
     <div class="analogy-card">
       <div class="analogy-header">
@@ -1573,111 +1559,84 @@ function renderComparisons() {
 function renderRelations() {
   const svg = document.getElementById('relSvg');
   const info = document.getElementById('relInfo');
-  
-  const width = 800;
-  const height = 450;
+
+  const width = 900;
+  const height = 480;
   const cx = width / 2;
   const cy = height / 2;
-  const radius = 160;
-  
+  const radius = 170;
+
   svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  
+
   const positions = {};
   DOMAINS.forEach((d, i) => {
     const angle = (i / DOMAINS.length) * Math.PI * 2 - Math.PI / 2;
-    positions[d.id] = {
-      x: cx + radius * Math.cos(angle),
-      y: cy + radius * Math.sin(angle)
-    };
+    positions[d.id] = { x: cx + radius * Math.cos(angle), y: cy + radius * Math.sin(angle) };
   });
-  
-  // Render edges
+
   EDGES.forEach(([from, to]) => {
-    const a = positions[from];
-    const b = positions[to];
+    const a = positions[from]; const b = positions[to];
     if (!a || !b) return;
-    
     const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', a.x);
-    line.setAttribute('y1', a.y);
-    line.setAttribute('x2', b.x);
-    line.setAttribute('y2', b.y);
+    line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
     line.setAttribute('class', 'graph-edge');
-    line.dataset.from = from;
-    line.dataset.to = to;
+    line.dataset.from = from; line.dataset.to = to;
     svg.appendChild(line);
   });
-  
-  // Render nodes
+
   DOMAINS.forEach(d => {
     const pos = positions[d.id];
     if (!pos) return;
-    
+
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g.setAttribute('class', 'graph-node');
     g.setAttribute('transform', `translate(${pos.x},${pos.y})`);
     g.dataset.id = d.id;
-    
+
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('r', 24);
+    circle.setAttribute('r', 26);
     circle.setAttribute('class', 'node-bg');
-    
+
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     text.setAttribute('class', 'node-label');
     text.textContent = d.name.length > 8 ? d.name.slice(0, 7) + '…' : d.name;
-    
+
     g.appendChild(circle);
     g.appendChild(text);
-    
+
     g.addEventListener('click', () => {
-      // Highlight connected nodes
-      svg.querySelectorAll('.node-bg').forEach(n => {
-        n.style.fill = '';
-        n.style.stroke = '';
-      });
-      
+      svg.querySelectorAll('.node-bg').forEach(n => { n.style.fill = ''; n.style.stroke = ''; n.style.strokeWidth = ''; });
       circle.style.fill = 'var(--accent-subtle)';
       circle.style.stroke = 'var(--accent)';
       circle.style.strokeWidth = '2';
-      
+
       EDGES.forEach(([from, to]) => {
         if (from === d.id || to === d.id) {
           const other = from === d.id ? to : from;
           const otherNode = svg.querySelector(`[data-id="${other}"] .node-bg`);
           if (otherNode) {
-            otherNode.style.fill = 'rgba(52, 199, 89, 0.08)';
-            otherNode.style.stroke = 'var(--success)';
+            otherNode.style.fill = 'rgba(52,199,89,0.08)';
+            otherNode.style.stroke = 'var(--green)';
             otherNode.style.strokeWidth = '2';
           }
         }
       });
-      
-      // Show info
+
       const deps = EDGES.filter(([f, t]) => f === d.id || t === d.id)
         .map(([f, t]) => f === d.id ? t : f)
-        .map(id => DOMAINS.find(dd => dd.id === id)?.name)
-        .filter(Boolean);
-      
+        .map(id => DOMAINS.find(dd => dd.id === id)?.name).filter(Boolean);
+
       info.style.display = 'block';
-      info.innerHTML = `
-        <strong>${d.name}</strong><br>
-        <span style="color: var(--text-secondary); font-size: 12px;">
-          ${deps.length > 0 ? 'Connected: ' + deps.join(', ') : 'No direct connections'}
-        </span>
-      `;
+      info.innerHTML = `<strong>${d.name}</strong><br><span style="color:var(--text-2);font-size:12px;">${deps.length > 0 ? 'Connected: ' + deps.join(', ') : 'No direct connections'}</span>`;
     });
-    
+
     svg.appendChild(g);
   });
-  
-  // Click background to reset
+
   svg.addEventListener('click', e => {
     if (e.target === svg) {
-      svg.querySelectorAll('.node-bg').forEach(n => {
-        n.style.fill = '';
-        n.style.stroke = '';
-        n.style.strokeWidth = '';
-      });
+      svg.querySelectorAll('.node-bg').forEach(n => { n.style.fill = ''; n.style.stroke = ''; n.style.strokeWidth = ''; });
       info.style.display = 'none';
     }
   });
@@ -1703,14 +1662,13 @@ document.getElementById('focusToggle').addEventListener('click', () => {
 
 // ═══ INIT ═══
 function init() {
-  // Restore state
   const savedSection = localStorage.getItem('kh-section');
   if (savedSection) switchSection(savedSection);
-  
+
   focusMode = localStorage.getItem('kh-focus') === 'true';
   if (focusMode) document.body.classList.add('focus-mode');
-  
-  // Render all sections
+
+  updateHeroStats();
   renderGraph();
   renderCards();
   renderReference();
@@ -1722,7 +1680,6 @@ function init() {
   renderOnelines();
 }
 
-// Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && focusMode) {
     focusMode = false;
