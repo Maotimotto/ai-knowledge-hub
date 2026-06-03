@@ -1,126 +1,331 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Git中间件 — 应用实战 — AI知识库</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
-a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
-.container{max-width:1200px;margin:0 auto;padding:0 24px}
-code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
-pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
-pre code{background:none;padding:0}
-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
-th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
-th{background:#f6f5f4;font-weight:600}
-h1{font-size:36px;font-weight:700;margin-bottom:8px}
-h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
-h3{font-size:20px;font-weight:600;margin:24px 0 12px}
-h4{font-size:17px;font-weight:600;margin:20px 0 8px}
-p{margin:8px 0}
-ul,ol{margin:8px 0 8px 24px}
-li{margin:4px 0}
-blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
-hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
-img{max-width:100%;border-radius:8px}
-.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
-.header .container{display:flex;align-items:center;gap:16px}
-.header .breadcrumb{font-size:14px;color:#6b7280}
-.header .breadcrumb a{color:#0075de}
-.breadcrumb span{margin:0 6px}
-.layout{display:flex;gap:32px;padding:32px 0}
-.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
-.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.sidebar ul{list-style:none;margin:0;padding:0}
-.sidebar li{margin:2px 0}
-.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
-.sidebar a:hover{background:#f6f5f4;text-decoration:none}
-.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
-.main{flex:1;min-width:0}
-.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
-.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
-.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
-.badge-green{background:#d1fae5;color:#065f46}
-.badge-yellow{background:#fef3c7;color:#92400e}
-.badge-red{background:#fee2e2;color:#991b1b}
-.badge-blue{background:#dbeafe;color:#1e40af}
-.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
-.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
-.doc-card h3{margin:0 0 8px;font-size:18px}
-.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
-.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
-.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
-.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
-.svg-wrap svg{width:100%;height:auto}
-footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
-@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
-</style>
-</head>
-<body>
-<div class="header"><div class="container">
-<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>Git中间件</div>
-</div></div>
-<div class="container">
-<div class="layout">
-<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
-<li><a href="startup.html">创业</a></li>
-<li><a href="finance.html">金融</a></li>
-<li><a href="docker.html">Docker</a></li>
-<li><a href="database.html">数据库</a></li>
-<li><a href="langchain.html">LangChain</a></li>
-<li><a href="tools.html">小工具</a></li>
-<li><a href="zheshang.html">浙商证券</a></li>
-<li><a href="middleware.html" class="active">Git中间件</a></li>
-<li><a href="hermes-agent.html">Hermes Agent</a></li>
-<li><a href="learning-paths.html">学习路径</a></li>
-<li><a href="interview.html">面试准备</a></li>
-</ul></nav>
-<div class="main">
-<h1>Git版本控制</h1>
-<p style="color:#6b7280;margin-bottom:24px">从原理到实战的Git完整指南 · 4篇文档</p>
-<span class="badge badge-green">难度 1-2/5</span>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>中间件 — Git版本控制</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:#fff;color:rgba(0,0,0,.95);font-size:16px;line-height:1.7}.layout{display:flex;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;width:260px;min-width:260px;padding:24px 16px;overflow-y:auto;border-right:1px solid rgba(0,0,0,.1);background:#fafafa}.sidebar h3{font-size:13px;color:rgba(0,0,0,.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;padding:0 8px}.nav-link{display:block;padding:6px 12px;font-size:14px;color:rgba(0,0,0,.7);text-decoration:none;border-radius:6px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-link:hover{background:rgba(0,117,222,.08);color:#0075de}.content{flex:1;max-width:900px;padding:48px 64px;margin:0 auto}h1{font-size:44px;font-weight:700;letter-spacing:-.02em;margin-bottom:16px;line-height:1.2}h2{font-size:28px;font-weight:600;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,.08)}h3{font-size:20px;font-weight:600;margin:32px 0 12px}h4{font-size:17px;font-weight:600;margin:24px 0 8px}p{margin-bottom:12px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th,td{padding:8px 12px;text-align:left;border:1px solid rgba(0,0,0,.1)}th{background:#f6f5f4;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.03em}tr.alt td{background:#f9f9f9}pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;font-size:14px;border:1px solid rgba(0,0,0,.06)}code{font-family:'JetBrains Mono',monospace;font-size:.9em}p code,li code{background:#f6f5f4;padding:2px 6px;border-radius:4px}blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:16px 0;background:rgba(0,117,222,.04);color:rgba(0,0,0,.7);font-size:15px}hr{border:none;border-top:1px solid rgba(0,0,0,.08);margin:32px 0}li{margin-left:24px;margin-bottom:4px}a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}.back-link{display:inline-block;margin-bottom:24px;font-size:14px;color:#0075de}.file-section{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(0,0,0,.06)}.file-title{font-size:14px;color:rgba(0,0,0,.4);margin-bottom:8px;font-weight:500}@media(max-width:960px){.sidebar{display:none}.content{padding:24px}}
+</style></head><body><div class="layout"><nav class="sidebar"><h3>目录</h3><a href="#Untitled" class="nav-link">Untitled</a>
+<a href="#核心代码速查" class="nav-link">核心代码速查</a>
+<a href="#Untitled" class="nav-link">Untitled</a>
+<a href="#Untitled" class="nav-link">Untitled</a></nav><main class="content"><a href="../index.html" class="back-link">← 返回知识库主页</a><div class="file-section"><div class="file-title">中间件git/0.git学习笔记.md</div><h2 id="Untitled">Untitled</h2>
+<blockquote><strong>🎯 全局定位</strong>：开发工具链的<strong>Git 版本控制学习篇</strong>。理解 Git 的四大核心区域（工作区→暂存区→本地仓库→远程仓库）和文件状态流转机制，是所有代码协作的基础。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：无（Git 是开发工具链的起点）→ 下游：<a href="#中间件git/1.git核心代码速查">核心命令速查</a>、<a href="#中间件git/2. 开发环境操作">IDE 集成操作</a>、<a href="#中间件git/3. git代码命令学习">命令详解</a> → 横向：<a href="#小工具/Python基础">小工具/Python基础</a>（代码版本管理）、<a href="#Docker/Docker简介">Docker/Docker简介</a>（容器化部署与 Git CI/CD 联动）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟢 入门 — 从零理解 Git 工作原理</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：AI 项目同样需要 Git 管理——你的 <a href="#金融/项目方案/项目计划书：全天候个人投顾助手 (Always-On Personal Investment Assistant)">投顾助手</a> 项目、<a href="#AI大模型/10-项目实战/黑马RAG-Agent项目/02-大模型RAG开发">RAG Agent 项目</a> 代码都需要版本控制。模型训练代码、Prompt 版本、配置文件变更都应纳入 Git 追踪。</blockquote>
 
-<h2>文档列表</h2>
-<div class="doc-card">
-<h3>Git学习笔记</h3>
-<div class="meta">中间件git/ · 入门 · 72行</div>
-<div class="excerpt">
-<p>Git工作原理核心知识：四大核心区域（工作区 - 暂存区 - 本地仓库 - 远程仓库）、文件状态流转（未跟踪 - 已暂存 - 已提交 - 已修改）、快照式存储机制、轻量分支、分布式架构。</p>
-<p><strong>核心流程</strong>：<code>工作区修改 -> git add -> 暂存区 -> git commit -> 本地仓库 -> git push -> 远程仓库</code></p>
-</div>
-</div>
+<hr>
 
-<div class="doc-card">
-<h3>Git核心代码速查</h3>
-<div class="meta">中间件git/ · 入门 · 97行</div>
-<div class="excerpt">
-<p>按功能分类的Git常用命令速查卡片：初始化(clone/init)、提交(add/commit)、分支(branch/checkout/merge)、远程(push/pull/remote)、撤销(reset/checkout--)、暂存(stash)、标签(tag)。</p>
-<pre><code># 常用命令
-git add . && git commit -m "msg" && git push origin main
-git checkout -b feature/new-feature
-git stash / git stash pop</code></pre>
-</div>
-</div>
+<p>#Git 是一个开源的分布式==版本控制系统==，用于敏捷高效地处理任何或小或大的项目。</p>
 
-<div class="doc-card">
-<h3>开发环境操作</h3>
-<div class="meta">中间件git/ · 入门 · 46行</div>
-<div class="excerpt">以PyCharm + Gitee为例的IDE集成Git操作指南：插件安装、账号登录、仓库创建、提交推送、分支管理的图形化操作流程。</div>
-</div>
 
-<div class="doc-card">
-<h3>Git代码命令学习</h3>
-<div class="meta">中间件git/ · 中等 · 138行</div>
-<div class="excerpt">Git命令详解：从git init到分支管理，逐条讲解命令用法和参数。适合需要深入理解每个命令的开发者。涵盖添加文件、提交版本、发布版本、取回更新、删除、分支管理等。</div>
-</div>
-</div>
+<p>笔记内容[^2]分为<a href="#1.git核心代码速查">核心代码速查</a>、<a href="#2. 开发环境操作">开发环境操作</a>，<a href="#3. git代码命令学习">代码命令学习</a>。</p>
 
+<h2 id="代码原理学习">代码原理学习</h2>
+
+<p>学习之前你需要搞清楚git的工作原理：</p>
+
+<p>通过<strong>跟踪文件的变化状态</strong>，在不同 "区域" 间流转和记录这些变化，最终实现对代码（或文件）的版本管理、协作开发等功能。理解 Git 的工作原理，关键在于掌握它的<strong>四大核心区域</strong>、<strong>文件状态流转</strong>和<strong>快照式存储</strong>机制。</p>
+
+<h3 id="一四大核心区域">一、四大核心区域</h3>
+
+<p>Git 中存在四个关键区域，文件在这些区域间流转，完成从修改到记录的全过程：</p>
+
+<p>!<a href="#Git 命令速查.png">Git 命令速查.png</a></p>
+
+<li><strong>工作区（Working Directory）</strong>就是你本地看得见、正在编辑的文件目录。比如你在电脑上新建、修改的代码文件，都先存放在这里。工作区是 "临时" 的，所有修改还未被 Git 正式跟踪。</li>
+
+<li><strong>暂存区（Staging Area / Index）</strong>位于工作区和本地仓库之间的 "过渡区域"，可以理解为一个 "待提交清单"。当你执行 <code>git add <文件></code> 时，会将工作区中修改后的文件 "暂存" 到这里，标记为 "准备提交到仓库的内容"。暂存区的作用是：允许你分批选择要提交的修改（而不是一次性提交所有变化）。</li>
+
+<li><strong>本地仓库（Local Repository）</strong>存储在本地的 Git 数据库（隐藏目录 <code>.git</code> 中），是 Git 的 "核心区域"。当你执行 <code>git commit -m "说明"</code> 时，暂存区的所有内容会被打包成一个 "版本快照"，永久记录到本地仓库中。每个快照都有唯一的哈希值（如 <code>a1b2c3d</code>），包含提交者、时间、提交信息以及指向快照内容的指针。</li>
+
+<li><strong>远程仓库（Remote Repository）</strong>位于网络上的共享仓库（如 GitHub、GitLab 上的仓库），用于多人协作。本地仓库的修改可以通过 <code>git push</code> 推送到远程仓库，其他人可以通过 <code>git pull</code> 从远程仓库拉取最新版本到本地，实现代码同步。</li>
+
+<h3 id="二文件的状态流转">二、文件的状态流转</h3>
+
+<p>在 Git 中，文件的状态会随着操作在上述区域间转换，主要有以下几种状态：</p>
+
+<li><strong>未跟踪（Untracked）</strong>：新创建的文件，Git 还未记录过它的存在（只在工作区）。执行 <code>git add</code> 后变为 "已暂存"。</li>
+<li><strong>已暂存（Staged）</strong>：文件修改已被添加到暂存区，等待提交到本地仓库。执行 <code>git commit</code> 后变为 "已提交"。</li>
+<li><strong>已提交（Committed）</strong>：文件修改已被记录到本地仓库，成为一个历史版本。</li>
+<li><strong>已修改（Modified）</strong>：已提交到仓库的文件被再次修改（仅在工作区），需要重新执行 <code>git add</code> 暂存，再 <code>git commit</code> 提交新的版本。</li>
+
+<p>简单来说，一个完整的 "修改 - 记录" 流程是：<code>工作区修改 → git add → 暂存区 → git commit → 本地仓库 → git push → 远程仓库</code></p>
+
+<h3 id="三快照式存储Git-的核心优势">三、快照式存储：Git 的核心优势</h3>
+
+<p>与其他版本控制系统（如 SVN）不同，Git 采用 "快照式存储" 而非 "差异比较"：</p>
+
+<li>每次 <code>git commit</code> 时，Git 不会只记录文件的修改部分，而是生成整个项目的 "快照"（即当前所有文件的完整状态）。</li>
+<li>为了高效存储，Git 会对未修改的文件复用之前的快照（通过指针指向），只保存修改过的文件的新副本，因此并不会占用过多空间。</li>
+
+<p>这种机制让 Git 的版本回退、分支切换等操作非常高效 —— 因为每个版本都是一个完整的快照，只需切换指针指向即可。</p>
+
+<h3 id="四分支轻量化的版本线">四、分支：轻量化的版本线</h3>
+
+<p>分支是 Git 最强大的功能之一，其本质是一个 "指向提交快照的指针"：</p>
+
+<li>新建分支（如 <code>git branch feature</code>）时，Git 只会创建一个新指针，指向当前的提交快照，几乎不占用额外空间。</li>
+<li><code>HEAD</code> 指针用于标记 "当前所在的分支"，切换分支（如 <code>git checkout feature</code>）本质是移动 <code>HEAD</code> 指针，指向目标分支的最新提交。</li>
+<li>不同分支可以独立开发（如主分支 <code>main</code> 保持稳定，功能分支 <code>feature</code> 开发新功能），完成后通过 <code>git merge</code> 将分支合并，实现协作开发。</li>
+
+<h3 id="五分布式不依赖中央服务器">五、分布式：不依赖中央服务器</h3>
+
+<p>Git 是分布式的，每个开发者的本地仓库都包含完整的历史记录（所有快照、分支信息），不依赖远程仓库也能完成提交、分支等操作。远程仓库的作用仅为 "同步和共享"，这使得：</p>
+
+<li>即使离线，也能正常提交代码、管理版本。</li>
+<li>单点故障（如远程仓库崩溃）不会导致历史记录丢失，因为每个本地仓库都是完整备份。</li>
+
+<p>总结来说，Git 的工作原理就是：通过四大区域管理文件状态，以快照方式记录每个版本，用轻量分支支持并行开发，最终通过分布式特性实现高效协作。理解这些核心概念，就能轻松掌握 Git 的各种操作逻辑。</p>
 </div>
+<div class="file-section"><div class="file-title">中间件git/1.git核心代码速查.md</div><h2 id="核心代码速查">核心代码速查</h2>
+<blockquote><strong>🎯 全局定位</strong>：Git 版本控制的<strong>命令速查卡片</strong>。按功能分类（初始化、提交、分支、远程、撤销）整理的 Git 常用命令，开发时直接 Ctrl+F 查找即可。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#中间件git/0.git学习笔记">Git 学习笔记</a>（原理先行）→ 下游：<a href="#中间件git/2. 开发环境操作">IDE 集成操作</a> → 横向：<a href="#Docker/Docker简介">Docker/Docker简介</a>（CI/CD 流水线中的 Git 触发）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟢 入门 — 速查卡片，按需取用</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：日常 AI 项目开发高频使用：<code>git add/commit/push</code> 管理代码、<code>git branch</code> 管理功能分支、<code>git stash</code> 暂存实验性修改、<code>git log</code> 回溯 Prompt 版本。</blockquote>
+
+<h1 id="核心代码速查">核心代码速查</h1>
+
+<pre><code class="lang-bash"># 初始化一个新的 Git 仓库
+git init
+
+# 克隆远程仓库到本地
+git clone &lt;远程仓库URL&gt;  # 例如: git clone https://github.com/example/repo.git
+
+# 查看工作区和暂存区的状态
+git status  # 显示已修改、已暂存、未跟踪的文件
+
+# 将工作区的文件添加到暂存区
+git add &lt;文件名&gt;  # 添加指定文件，例如: git add index.html
+git add .        # 添加当前目录下所有修改和未跟踪的文件
+
+# 将暂存区的文件提交到本地仓库
+git commit -m &quot;提交说明&quot;  # -m 后面跟提交的描述信息
+
+# 查看提交历史记录
+git log               # 显示详细的提交历史
+git log --oneline     # 简洁显示提交历史，每条记录一行
+git log --graph       # 以图形化方式显示提交历史
+
+# 查看远程仓库信息
+git remote               # 显示远程仓库的简短名称
+git remote -v            # 显示远程仓库的详细URL
+
+# 添加远程仓库
+git remote add &lt;远程仓库名称&gt; &lt;远程仓库URL&gt;  # 例如: git remote add origin https://github.com/example/repo.git
+
+# 从远程仓库拉取最新代码
+git pull &lt;远程仓库名称&gt; &lt;分支名&gt;  # 例如: git pull origin main，拉取并合并
+
+# 将本地仓库的代码推送到远程仓库
+git push &lt;远程仓库名称&gt; &lt;分支名&gt;  # 例如: git push origin main
+
+# 创建新分支
+git branch &lt;分支名&gt;  # 例如: git branch feature/login
+
+# 切换到指定分支
+git checkout &lt;分支名&gt;  # 例如: git checkout feature/login
+git switch &lt;分支名&gt;    # 较新的命令，功能与checkout相同
+
+# 创建并切换到新分支
+git checkout -b &lt;分支名&gt;  # 例如: git checkout -b feature/payment
+git switch -c &lt;分支名&gt;    # 较新的命令，功能同上
+
+# 查看所有分支
+git branch          # 列出本地分支，当前分支前有*标记
+git branch -r       # 列出远程分支
+git branch -a       # 列出所有分支（本地+远程）
+
+# 合并分支到当前分支
+git merge &lt;要合并的分支名&gt;  # 例如: 在main分支执行 git merge feature/login
+
+# 删除本地分支
+git branch -d &lt;分支名&gt;   # 安全删除，只有当分支已合并到主分支才会删除
+git branch -D &lt;分支名&gt;   # 强制删除，无论是否合并
+
+# 删除远程分支
+git push &lt;远程仓库名称&gt; --delete &lt;分支名&gt;  # 例如: git push origin --delete feature/login
+
+# 放弃工作区的修改
+git checkout -- &lt;文件名&gt;  # 例如: git checkout -- index.html
+
+# 取消暂存区的文件（将暂存区的修改放回工作区）
+git reset HEAD &lt;文件名&gt;  # 例如: git reset HEAD index.html
+
+# 回退到指定的提交版本
+git reset --hard &lt;提交ID&gt;  # 例如: git reset --hard a1b2c3d，会丢弃之后的所有修改
+
+# 查看文件的修改内容
+git diff          # 查看工作区与暂存区的差异
+git diff --cached # 查看暂存区与本地仓库的差异
+git diff &lt;分支1&gt; &lt;分支2&gt;  # 查看两个分支之间的差异
+
+# 暂存当前工作区的修改，以便切换到其他分支
+git stash         # 暂存当前修改
+git stash pop     # 恢复最近一次的暂存，并删除暂存记录
+git stash list    # 查看所有暂存记录
+git stash drop    # 删除最近一次的暂存记录
+
+# 标签相关操作（通常用于标记发布版本）
+git tag &lt;标签名&gt;              # 创建标签，例如: git tag v1.0.0
+git tag                       # 查看所有标签
+git push &lt;远程仓库名称&gt; &lt;标签名&gt;  # 推送标签到远程仓库，例如: git push origin v1.0.0</code></pre>
 </div>
-<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
-</body>
-</html>
+<div class="file-section"><div class="file-title">中间件git/2. 开发环境操作.md</div><h2 id="Untitled">Untitled</h2>
+
+<blockquote><strong>🎯 全局定位</strong>：Git 版本控制的<strong>IDE 集成操作篇</strong>。以 PyCharm + Gitee 为例，展示如何在开发工具中图形化操作 Git，适合不习惯命令行的开发者。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#中间件git/0.git学习笔记">Git 学习笔记</a>（先理解原理）→ 下游：<a href="#中间件git/3. git代码命令学习">命令详解</a>（补充命令行知识）→ 横向：<a href="#小工具/Python基础">小工具/Python基础</a>（Python 项目在 PyCharm 中的 Git 管理）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟢 入门 — 图形化操作，点点点即可</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：在 PyCharm 中开发 AI 项目（如 <a href="#AI大模型/10-项目实战/黑马RAG-Agent项目/02-大模型RAG开发">RAG Agent</a>）时，通过 IDE 内置 Git 面板即可完成提交、推送、分支管理，无需记忆命令。</blockquote>
+
+<p>	正式工作中我们鲜少用到git 的命令行来推拉代码，因为开发工具中都很好的集成了git，pycharm上操作也很简单，基本就是点点点就好了...</p>
+
+
+
+<h3 id="开发工具操作">开发工具操作</h3>
+
+<p>pycharm中并未集成gitee相关管理，需要现在插件管理中下载 <em>gitee</em> 的插件</p>
+
+<p>!<a href="#Pasted image 20250929162736.png">Pasted image 20250929162736.png</a></p>
+
+<p>下面是开发工具的操作截图，来吧看看：</p>
+
+<p>!<a href="#Pasted image 20250929162833.png">Pasted image 20250929162833.png</a></p>
+
+<p>在设置里可以找到版本控制</p>
+
+<p>!<a href="#Pasted image 20250929162907.png">Pasted image 20250929162907.png</a></p>
+
+<p>可以通过不同方式登录：</p>
+
+<p>!<a href="#Pasted image 20250929163047.png">Pasted image 20250929163047.png</a></p>
+
+<p>点击第一个可以直接跳转到gitee登录网页，需要联网哈，授权完成后可以关闭页面。</p>
+
+<p>!<a href="#Pasted image 20250929163327.png">Pasted image 20250929163327.png</a></p>
+
+<p>连接成功后会有管理页面</p>
+
+<p>!<a href="#Pasted image 20250929163500.png">Pasted image 20250929163500.png</a></p>
+
+<p>然后就是分享到gitee 啊~</p>
+
+<p>!<a href="#Pasted image 20250929163802.png">Pasted image 20250929163802.png</a></p>
+
+<p>!<a href="#Pasted image 20250929163836.png">Pasted image 20250929163836.png</a></p>
+
+<p>还有一些简单的推拉操作等等，自己摸索一下就ok啦，很简单的，都是点点点</p></div>
+<div class="file-section"><div class="file-title">中间件git/3. git代码命令学习.md</div><h2 id="Untitled">Untitled</h2><h2 id="入门">入门</h2>
+
+<blockquote><strong>🎯 全局定位</strong>：Git 版本控制的<strong>命令详解篇</strong>。从 <code>git init</code> 到分支管理，逐条讲解 Git 命令的用法和参数，适合需要深入理解每个命令的开发者。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#中间件git/0.git学习笔记">Git 学习笔记</a>（原理）、<a href="#中间件git/1.git核心代码速查">命令速查</a> → 下游：<a href="#中间件git/2. 开发环境操作">IDE 集成操作</a> → 横向：<a href="#Docker/Docker简介">Docker/Docker简介</a>（Dockerfile 版本管理）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟡 中等 — 从基础到进阶，逐步深入</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：AI 项目中的典型 Git 操作：<code>git branch feature/rag-v2</code> 创建 RAG 功能分支、<code>git stash</code> 暂存训练中的实验代码、<code>git revert</code> 回滚有问题的 Prompt 变更。</blockquote>
+
+<p>使用Git前，需要先建立一个仓库(repository)。您可以使用一个已经存在的目录作为Git仓库或创建一个空目录。</p>
+
+<p>使用您当前目录作为Git仓库，我们只需使它初始化。</p>
+
+<pre><code class="lang-bash">git init</code></pre>
+
+<p>使用我们指定目录作为Git仓库。</p>
+
+<pre><code class="lang-bash">git init newrepo</code></pre>
+
+<p>从现在开始，我们将假设您在Git仓库根目录下，除非另有说明。</p>
+
+<h3 id="添加新文件">添加新文件</h3>
+
+<p>我们有一个仓库，但什么也没有，可以使用add命令添加文件。</p>
+
+<pre><code class="lang-bash">git add &#x27;your_filename&#x27;</code></pre>
+
+<p>可以使用add... 继续添加任务文件。</p>
+
+<p>可以使用tab补全</p>
+
+<p>也可以使用 . 添加所有</p>
+
+<pre><code class="lang-bash">git add .</code></pre>
+
+<h3 id="提交版本">提交版本</h3>
+
+<p>提交到本地仓库</p>
+
+<pre><code class="lang-bash">git commit -m &quot;Adding files&quot;</code></pre>
+
+<p>如果您不使用-m，会出现编辑器来让你写自己的注释信息。</p>
+
+<p>当我们修改了很多文件，而不想每一个都add，想commit自动来提交本地修改，我们可以使用-a标识。</p>
+
+<pre><code class="lang-bash">git commit -a -m &quot;Changed some files&quot;</code></pre>
+
+<p>git commit 命令的-a选项可将所有<strong>被修改或者已删除的且已经被git管理的文档</strong>提交到仓库中。</p>
+
+<p>千万注意，-a不会造成新文件被提交，只能修改。</p>
+
+<h3 id="发布版本">发布版本</h3>
+
+<p>我们先从服务器克隆一个库并上传。</p>
+
+<pre><code class="lang-bash">git clone ssh://example.com/~/www/project.git</code></pre>
+
+<p>现在我们修改之后可以进行推送到服务器。</p>
+
+<pre><code class="lang-bash">git push ssh://example.com/~/www/project.git</code></pre>
+
+<h3 id="取回更新">取回更新</h3>
+
+<p>如果您已经按上面的进行push，下面命令表示，当前分支自动与唯一一个追踪分支进行合并。</p>
+
+<pre><code class="lang-bash">git pull</code></pre>
+
+<p>从非默认位置更新到指定的url。</p>
+
+<pre><code class="lang-bash">git pull http://git.example.com/project.git</code></pre>
+
+<h2 id="已经超过了五分钟">已经超过了五分钟？</h2>
+
+<h3 id="删除">删除</h3>
+
+<p>如何你想从资源库中删除文件，我们使用rm。</p>
+
+<pre><code class="lang-bash">git rm file</code></pre>
+
+<h3 id="分支与合并">分支与合并</h3>
+
+<p>分支在本地完成，速度快。要创建一个新的分支，我们使用branch命令。</p>
+
+<pre><code class="lang-bash">git branch test</code></pre>
+
+<p>branch命令不会将我们带入分支，只是创建一个新分支。所以我们使用checkout命令来更改分支。</p>
+
+<pre><code class="lang-bash">git checkout test</code></pre>
+
+<p>第一个分支，或主分支，被称为"master"。</p>
+
+<pre><code class="lang-bash">git checkout master</code></pre>
+
+<p>对其他分支的更改不会反映在主分支上。如果想将更改提交到主分支，则需切换回master分支，然后使用合并。</p>
+
+<pre><code class="lang-bash">git checkout master
+git merge test</code></pre>
+
+<p>如果您想删除分支，我们使用-d标识。</p>
+
+<pre><code class="lang-bash">git branch -d test</code></pre>
+
+<p>学完这些你要是觉得还不够，怎么办？去菜鸟编程看吧，全面且详细</p>
+
+<p><a href="https://www.runoob.com/git/git-tutorial.html">[Git 教程 | 菜鸟教程</a>](菜鸟教程)</p>
+</div></main></div></body></html>

@@ -1,140 +1,2473 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hermes Agent — 应用实战 — AI知识库</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;font-size:16px;color:#37352f;background:#fff;line-height:1.7}
-a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}
-.container{max-width:1200px;margin:0 auto;padding:0 24px}
-code{background:#f6f5f4;padding:2px 6px;border-radius:4px;font-size:14px;font-family:'JetBrains Mono',monospace}
-pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px;line-height:1.6;border:1px solid rgba(0,0,0,0.06)}
-pre code{background:none;padding:0}
-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}
-th,td{border:1px solid rgba(0,0,0,0.1);padding:8px 12px;text-align:left}
-th{background:#f6f5f4;font-weight:600}
-h1{font-size:36px;font-weight:700;margin-bottom:8px}
-h2{font-size:26px;font-weight:600;margin:32px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,0.1)}
-h3{font-size:20px;font-weight:600;margin:24px 0 12px}
-h4{font-size:17px;font-weight:600;margin:20px 0 8px}
-p{margin:8px 0}
-ul,ol{margin:8px 0 8px 24px}
-li{margin:4px 0}
-blockquote{border-left:3px solid #0075de;padding:12px 16px;background:#f6f5f4;margin:12px 0;color:#4b5563;font-size:15px}
-hr{border:none;border-top:1px solid rgba(0,0,0,0.1);margin:24px 0}
-img{max-width:100%;border-radius:8px}
-.header{background:#fff;border-bottom:1px solid rgba(0,0,0,0.1);padding:16px 0;position:sticky;top:0;z-index:100}
-.header .container{display:flex;align-items:center;gap:16px}
-.header .breadcrumb{font-size:14px;color:#6b7280}
-.header .breadcrumb a{color:#0075de}
-.breadcrumb span{margin:0 6px}
-.layout{display:flex;gap:32px;padding:32px 0}
-.sidebar{width:260px;flex-shrink:0;position:sticky;top:80px;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
-.sidebar h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.sidebar ul{list-style:none;margin:0;padding:0}
-.sidebar li{margin:2px 0}
-.sidebar a{display:block;padding:6px 12px;border-radius:6px;font-size:14px;color:#37352f}
-.sidebar a:hover{background:#f6f5f4;text-decoration:none}
-.sidebar a.active{background:#e8f0fe;color:#0075de;font-weight:500}
-.main{flex:1;min-width:0}
-.toc{position:sticky;top:80px;width:200px;flex-shrink:0;align-self:start;max-height:calc(100vh - 100px);overflow-y:auto}
-.toc h4{font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-.toc a{display:block;padding:4px 0;font-size:13px;color:#6b7280;border-left:2px solid transparent;padding-left:10px}
-.toc a:hover{color:#37352f;text-decoration:none;border-left-color:#d1d5db}
-.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:500}
-.badge-green{background:#d1fae5;color:#065f46}
-.badge-yellow{background:#fef3c7;color:#92400e}
-.badge-red{background:#fee2e2;color:#991b1b}
-.badge-blue{background:#dbeafe;color:#1e40af}
-.doc-card{border:1px solid rgba(0,0,0,0.1);border-radius:10px;padding:20px;margin:12px 0;transition:box-shadow 0.2s}
-.doc-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
-.doc-card h3{margin:0 0 8px;font-size:18px}
-.doc-card .meta{font-size:13px;color:#6b7280;margin-bottom:8px}
-.doc-card .excerpt{font-size:14px;color:#4b5563;line-height:1.6}
-.section-icon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:8px;font-size:16px;font-weight:700;color:#fff;margin-right:10px;flex-shrink:0}
-.svg-wrap{background:#fafafa;border:1px solid rgba(0,0,0,0.08);border-radius:12px;padding:24px;margin:24px 0;overflow-x:auto}
-.svg-wrap svg{width:100%;height:auto}
-footer{border-top:1px solid rgba(0,0,0,0.1);padding:24px 0;text-align:center;font-size:13px;color:#9ca3af;margin-top:48px}
-@media(max-width:1024px){.sidebar,.toc{display:none}.layout{padding:24px 0}}
-</style>
-</head>
-<body>
-<div class="header"><div class="container">
-<div class="breadcrumb"><a href="../index.html">AI知识库</a><span>/</span><a href="index.html">应用实战</a><span>/</span>Hermes Agent</div>
-</div></div>
-<div class="container">
-<div class="layout">
-<nav class="sidebar"><h4>应用实战</h4><ul><li><a href="index.html">总览</a></li>
-<li><a href="startup.html">创业</a></li>
-<li><a href="finance.html">金融</a></li>
-<li><a href="docker.html">Docker</a></li>
-<li><a href="database.html">数据库</a></li>
-<li><a href="langchain.html">LangChain</a></li>
-<li><a href="tools.html">小工具</a></li>
-<li><a href="zheshang.html">浙商证券</a></li>
-<li><a href="middleware.html">Git中间件</a></li>
-<li><a href="hermes-agent.html" class="active">Hermes Agent</a></li>
-<li><a href="learning-paths.html">学习路径</a></li>
-<li><a href="interview.html">面试准备</a></li>
-</ul></nav>
-<div class="main">
-<h1>Hermes Agent</h1>
-<p style="color:#6b7280;margin-bottom:24px">Nous Research出品的全栈AI Agent框架 · 8篇文档</p>
-<span class="badge badge-yellow">难度 3/5</span>
-<span class="badge badge-blue">Agent框架</span>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hermes Agent — 智能体框架</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter','Noto Sans SC','PingFang SC','Microsoft YaHei',system-ui,sans-serif;background:#fff;color:rgba(0,0,0,.95);font-size:16px;line-height:1.7}.layout{display:flex;min-height:100vh}.sidebar{position:sticky;top:0;height:100vh;width:260px;min-width:260px;padding:24px 16px;overflow-y:auto;border-right:1px solid rgba(0,0,0,.1);background:#fafafa}.sidebar h3{font-size:13px;color:rgba(0,0,0,.5);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;padding:0 8px}.nav-link{display:block;padding:6px 12px;font-size:14px;color:rgba(0,0,0,.7);text-decoration:none;border-radius:6px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nav-link:hover{background:rgba(0,117,222,.08);color:#0075de}.content{flex:1;max-width:900px;padding:48px 64px;margin:0 auto}h1{font-size:44px;font-weight:700;letter-spacing:-.02em;margin-bottom:16px;line-height:1.2}h2{font-size:28px;font-weight:600;margin:40px 0 16px;padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,.08)}h3{font-size:20px;font-weight:600;margin:32px 0 12px}h4{font-size:17px;font-weight:600;margin:24px 0 8px}p{margin-bottom:12px}table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th,td{padding:8px 12px;text-align:left;border:1px solid rgba(0,0,0,.1)}th{background:#f6f5f4;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.03em}tr.alt td{background:#f9f9f9}pre{background:#f6f5f4;padding:16px;border-radius:8px;overflow-x:auto;margin:16px 0;font-size:14px;border:1px solid rgba(0,0,0,.06)}code{font-family:'JetBrains Mono',monospace;font-size:.9em}p code,li code{background:#f6f5f4;padding:2px 6px;border-radius:4px}blockquote{border-left:3px solid #0075de;padding:8px 16px;margin:16px 0;background:rgba(0,117,222,.04);color:rgba(0,0,0,.7);font-size:15px}hr{border:none;border-top:1px solid rgba(0,0,0,.08);margin:32px 0}li{margin-left:24px;margin-bottom:4px}a{color:#0075de;text-decoration:none}a:hover{text-decoration:underline}.back-link{display:inline-block;margin-bottom:24px;font-size:14px;color:#0075de}.file-section{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid rgba(0,0,0,.06)}.file-title{font-size:14px;color:rgba(0,0,0,.4);margin-bottom:8px;font-weight:500}@media(max-width:960px){.sidebar{display:none}.content{padding:24px}}
+</style></head><body><div class="layout"><nav class="sidebar"><h3>目录</h3><a href="#配置与-Profile-系统" class="nav-link">配置与 Profile 系统</a>
+<a href="#技能-Skill-开发指南" class="nav-link">技能 Skill 开发指南</a>
+<a href="#插件-Plugin-系统" class="nav-link">插件 Plugin 系统</a>
+<a href="#MCP-ServerClient-实战" class="nav-link">MCP Server/Client 实战</a>
+<a href="#Cron-定时任务" class="nav-link">Cron 定时任务</a>
+<a href="#记忆-Memories-系统" class="nav-link">记忆 Memories 系统</a>
+<a href="#最佳实践与调试技巧" class="nav-link">最佳实践与调试技巧</a>
+<a href="#Hermes-Agent" class="nav-link">Hermes Agent</a></nav><main class="content"><a href="../index.html" class="back-link">← 返回知识库主页</a><div class="file-section"><div class="file-title">Hermes-Agent/01-配置与Profile系统.md</div><h2 id="配置与-Profile-系统">配置与 Profile 系统</h2><h1 id="配置与-Profile-系统">配置与 Profile 系统</h1>
 
-<h2>概览</h2>
-<div class="doc-card">
-<h3>Hermes Agent 知识体系</h3>
-<div class="excerpt">
-<p><strong>核心模块</strong>：Skill(行为指令) / Plugin(可执行扩展) / Memory(跨会话记忆) / Cron(定时调度) / MCP(通信协议) / Profile(配置管理)</p>
-<p><strong>技术定位</strong>：Nous Research出品的AI Agent框架，覆盖配置、技能、插件、MCP、定时任务、记忆六大核心模块</p>
-<p><strong>应用场景</strong>：快速搭建Agent、自动化运维(Cron+AI)、个性化Agent(Memory)、外部服务集成(Plugin)</p>
-</div>
-</div>
+<blockquote><strong>🎯 全局定位</strong>：Hermes Agent 系列的<strong>入口篇</strong>。所有技能、MCP、定时任务、记忆系统都建立在配置与 Profile 之上，是使用 Hermes Agent 的第一课。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：无（起点） → 下游：<a href="#02-技能Skill开发指南">02-技能Skill开发指南</a>（Skill 放在 Profile/skills/ 下）、<a href="#04-MCP-Server-Client实战">04-MCP-Server-Client实战</a>（MCP 在 config.yaml 中配置）、<a href="#07-最佳实践与调试技巧">07-最佳实践与调试技巧</a>（调试配置问题）→ 横向：<a href="#LLM/大语言模型（LLM）架构核心解析">LLM/大语言模型（LLM）架构核心解析</a>（理解 provider 背后的模型架构）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟢 入门 — 零基础可上手，只需会编辑 YAML 文件</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：读完本文后，你应该能独立完成：① 安装并初始化 ~/.hermes/ 目录 ② 配置至少一个 LLM provider（如 OpenAI/Ollama）③ 创建 work 和 default 两个 Profile 实现场景隔离 ④ 用环境变量安全管理 API Key</blockquote>
 
-<h2>文档列表</h2>
+<h2 id="概述">概述</h2>
 
-<div class="doc-card">
-<h3>01-配置与Profile系统</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Profile系统是Hermes Agent的配置管理中心，支持多Profile切换，每个Profile拥有独立的skills/plugins/cron/memories。</div>
-</div>
-<div class="doc-card">
-<h3>02-技能Skill开发指南</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Skill是Hermes Agent的行为指令系统，通过Markdown文件定义Agent的知识和行为模式。支持自定义skill开发和加载。</div>
-</div>
-<div class="doc-card">
-<h3>03-插件Plugin系统</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Plugin是Hermes Agent的可执行扩展，支持Python/Node.js/Shell等语言编写，可对接外部API和服务。</div>
-</div>
-<div class="doc-card">
-<h3>04-MCP-Server-Client实战</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">MCP(Model Context Protocol)是Hermes Agent的核心通信协议，实现Agent与外部工具/服务的标准通信。Server-Client架构实战。</div>
-</div>
-<div class="doc-card">
-<h3>05-Cron定时任务</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Cron定时任务系统，支持AI增强的定时调度：自然语言定义任务、智能重试、异常通知、执行历史追踪。</div>
-</div>
-<div class="doc-card">
-<h3>06-记忆Memories系统</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Memory跨会话记忆系统，存储用户偏好、项目上下文、历史决策等信息，实现Agent的长期记忆能力。</div>
-</div>
-<div class="doc-card">
-<h3>07-最佳实践与调试技巧</h3>
-<div class="meta">Hermes-Agent/</div>
-<div class="excerpt">Hermes Agent开发的最佳实践：Skill编写规范、Plugin调试方法、Memory管理策略、性能优化建议。</div>
-</div></div>
+<p>Hermes Agent 的核心配置位于 <code>~/.hermes/</code> 目录下。默认 profile 为 <code>default</code>，</p>
+<p>所有配置文件、技能、插件、定时任务和记忆都按 profile 隔离。</p>
 
+<h2 id="目录结构">目录结构</h2>
+
+<pre><code class="lang-">~/.hermes/
+├── config.yaml              # 全局主配置文件
+├── profiles/
+│   ├── default/             # 默认 profile
+│   │   ├── skills/          # 技能目录
+│   │   ├── plugins/         # 插件目录
+│   │   ├── cron/            # 定时任务
+│   │   └── memories/        # 记忆数据
+│   ├── work/                # 工作 profile（可自定义）
+│   │   ├── skills/
+│   │   ├── plugins/
+│   │   ├── cron/
+│   │   └── memories/
+│   └── ...
+└── hermes-agent/            # Hermes Agent 程序目录</code></pre>
+
+<h2 id="configyaml-结构">config.yaml 结构</h2>
+
+<p>主配置文件控制全局行为，包含以下核心段落：</p>
+
+<pre><code class="lang-yaml"># ~/.hermes/config.yaml
+
+# 默认使用的 profile 名称
+default_profile: default
+
+# 模型提供商配置
+providers:
+  openai:
+    api_key: sk-xxxxxxxxxxxx
+    base_url: https://api.openai.com/v1
+  anthropic:
+    api_key: sk-ant-xxxxxxxxxxxx
+  xiaomi:
+    api_key: your-xiaomi-key
+    base_url: https://api.xiaomi.com/v1
+  ollama:
+    base_url: http://localhost:11434
+  openrouter:
+    api_key: sk-or-xxxxxxxxxxxx
+    base_url: https://openrouter.ai/api/v1
+
+# 模型选择
+model: gpt-4o
+# 备选模型
+fallback_model: claude-sonnet-4-20250514
+
+# 温度与采样
+temperature: 0.7
+max_tokens: 4096
+
+# MCP 服务器配置
+mcp_servers:
+  filesystem:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/pez&quot;]
+  brave-search:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@anthropic/brave-search-mcp&quot;]
+    env:
+      BRAVE_API_KEY: your-brave-key
+
+# Webchat 设置
+webchat:
+  enabled: true
+  port: 8080
+  host: 0.0.0.0
+
+# 日志级别
+log_level: info
+
+# 会话历史长度
+history_length: 50</code></pre>
+
+<h2 id="Profile-系统详解">Profile 系统详解</h2>
+
+<h3 id="创建新-Profile">创建新 Profile</h3>
+
+<p>通过目录结构创建 profile：</p>
+
+<pre><code class="lang-bash">mkdir -p ~/.hermes/profiles/work/{skills,plugins,cron,memories}</code></pre>
+
+<h3 id="切换-Profile">切换 Profile</h3>
+
+<p>在 <code>config.yaml</code> 中修改 <code>default_profile</code>：</p>
+
+<pre><code class="lang-yaml">default_profile: work</code></pre>
+
+<p>或者通过环境变量临时切换：</p>
+
+<pre><code class="lang-bash">export HERMES_PROFILE=work</code></pre>
+
+<h3 id="Profile-隔离说明">Profile 隔离说明</h3>
+
+<table>
+<tr><th>组件</th><th>隔离程度</th><th>说明</th></tr>
+<tr><td>skills</td><td>完全隔离</td><td>每个 profile 独立技能集</td></tr>
+<tr class="alt"><td>plugins</td><td>完全隔离</td><td>每个 profile 独立插件集</td></tr>
+<tr><td>cron</td><td>完全隔离</td><td>定时任务按 profile 分组</td></tr>
+<tr class="alt"><td>memories</td><td>完全隔离</td><td>记忆数据不跨 profile 共享</td></tr>
+<tr><td>config</td><td>全局共享</td><td>config.yaml 是全局的</td></tr>
+</table>
+
+<h2 id="环境变量">环境变量</h2>
+
+<p>Hermes Agent 支持通过环境变量覆盖配置：</p>
+
+<pre><code class="lang-bash"># 设置 profile
+export HERMES_PROFILE=default
+
+# 覆盖模型
+export HERMES_MODEL=gpt-4o-mini
+
+# API Key（优先级高于 config.yaml）
+export OPENAI_API_KEY=sk-xxxx
+export ANTHROPIC_API_KEY=sk-ant-xxxx
+
+# 日志级别
+export HERMES_LOG_LEVEL=debug
+
+# MCP 服务器调试
+export MCP_DEBUG=1
+
+# Webchat 端口
+export HERMES_WEBCHAT_PORT=3000</code></pre>
+
+<h2 id="模型提供商配置">模型提供商配置</h2>
+
+<h3 id="OpenAI">OpenAI</h3>
+
+<pre><code class="lang-yaml">providers:
+  openai:
+    api_key: sk-xxxxxxxxxxxx
+    base_url: https://api.openai.com/v1
+    organization: org-xxxxx  # 可选</code></pre>
+
+<p>支持模型：gpt-4o, gpt-4o-mini, gpt-4-turbo, o1, o1-mini, o3-mini</p>
+
+<h3 id="Anthropic">Anthropic</h3>
+
+<pre><code class="lang-yaml">providers:
+  anthropic:
+    api_key: sk-ant-xxxxxxxxxxxx
+    base_url: https://api.anthropic.com  # 可选，自定义端点</code></pre>
+
+<p>支持模型：claude-sonnet-4-20250514, claude-opus-4-20250514, claude-3-haiku</p>
+
+<h3 id="本地-Ollama">本地 Ollama</h3>
+
+<pre><code class="lang-yaml">providers:
+  ollama:
+    base_url: http://localhost:11434</code></pre>
+
+<p>支持模型：llama3.1, mistral, qwen2.5, deepseek-r1 等</p>
+
+<h3 id="OpenRouter">OpenRouter</h3>
+
+<pre><code class="lang-yaml">providers:
+  openrouter:
+    api_key: sk-or-xxxxxxxxxxxx
+    base_url: https://openrouter.ai/api/v1</code></pre>
+
+<p>支持任意 OpenRouter 上架模型，通过 <code>provider/model</code> 格式引用。</p>
+
+<h3 id="小米-Xiaomi">小米 Xiaomi</h3>
+
+<pre><code class="lang-yaml">providers:
+  xiaomi:
+    api_key: your-key
+    base_url: https://api.xiaomi.com/v1</code></pre>
+
+<h3 id="兼容-OpenAI-API-的任意服务">兼容 OpenAI API 的任意服务</h3>
+
+<pre><code class="lang-yaml">providers:
+  custom:
+    api_key: your-key
+    base_url: https://your-api.example.com/v1
+    # 然后 model 设置为 custom/your-model-name</code></pre>
+
+<h2 id="配置优先级">配置优先级</h2>
+
+<p>从高到低：</p>
+
+<li>命令行参数（如 <code>--model</code>）</li>
+<li>环境变量（<code>HERMES_MODEL</code> 等）</li>
+<li><code>config.yaml</code> 中的设置</li>
+<li>程序内置默认值</li>
+
+<h2 id="常见配置场景">常见配置场景</h2>
+
+<h3 id="场景-1纯本地运行">场景 1：纯本地运行</h3>
+
+<pre><code class="lang-yaml">providers:
+  ollama:
+    base_url: http://localhost:11434
+model: ollama/llama3.1</code></pre>
+
+<h3 id="场景-2多模型切换">场景 2：多模型切换</h3>
+
+<pre><code class="lang-yaml">model: gpt-4o
+fallback_model: claude-sonnet-4-20250514
+providers:
+  openai:
+    api_key: sk-xxxx
+  anthropic:
+    api_key: sk-ant-xxxx</code></pre>
+
+<h3 id="场景-3企业代理">场景 3：企业代理</h3>
+
+<pre><code class="lang-yaml">providers:
+  openai:
+    api_key: sk-xxxx
+    base_url: https://your-proxy.company.com/v1</code></pre>
+
+<h2 id="调试配置">调试配置</h2>
+
+<pre><code class="lang-bash"># 检查当前配置
+hermes config show
+
+# 验证 config.yaml 语法
+hermes config validate
+
+# 查看生效的模型
+hermes config get model
+
+# 查看当前 profile
+hermes config get default_profile</code></pre>
+
+<h2 id="注意事项">注意事项</h2>
+
+<li><code>config.yaml</code> 是全局的，不属于任何单个 profile</li>
+<li>Profile 下的 <code>skills/</code>、<code>plugins/</code>、<code>cron/</code>、<code>memories/</code> 互相隔离</li>
+<li>修改 <code>config.yaml</code> 后需要重启 Hermes Agent 才生效</li>
+<li>API Key 建议使用环境变量而非明文写入配置文件</li>
+<li>不同 profile 之间不会自动同步数据</li>
 </div>
+<div class="file-section"><div class="file-title">Hermes-Agent/02-技能Skill开发指南.md</div><h2 id="技能-Skill-开发指南">技能 Skill 开发指南</h2><h1 id="技能-Skill-开发指南">技能 Skill 开发指南</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：Hermes Agent 系列的<strong>扩展能力篇</strong>。Skill 是 Agent 从"通用助手"进化为"专业工具"的关键机制，通过 Markdown 文件定义行为规范，无需写代码即可扩展 Agent 能力。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#01-配置与Profile系统">01-配置与Profile系统</a>（Skill 目录在 Profile 下）→ 下游：<a href="#04-MCP-Server-Client实战">04-MCP-Server-Client实战</a>（Skill 可调用 MCP 工具）、<a href="#07-最佳实践与调试技巧">07-最佳实践与调试技巧</a>（Skill 调试与冲突排查）→ 横向：<a href="#LLM/Embedding与Rerank模型通俗易懂教学指南">LLM/Embedding与Rerank模型通俗易懂教学指南</a>（Skill 触发本质是意图匹配）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟡 初级 — 需要了解 YAML 语法和 Markdown 格式，无需编程能力</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：读完本文后，你应该能独立完成：① 从零创建一个 Skill 目录和 SKILL.md ② 配置 triggers 实现关键词/正则匹配触发 ③ 使用 skill_manage API 运行时管理技能 ④ 编写一个代码审查 Skill 并测试其触发效果</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>Skill 是 Hermes Agent 的扩展能力单元，通过 Markdown 文件定义行为规范。</p>
+<p>当用户的输入匹配 skill 的触发条件时，agent 会加载对应的 SKILL.md 作为</p>
+<p>上下文指令来增强其能力。</p>
+
+<h2 id="Skill-目录结构">Skill 目录结构</h2>
+
+<p>每个 skill 是一个独立目录，放置在当前 profile 的 <code>skills/</code> 下：</p>
+
+<pre><code class="lang-">~/.hermes/profiles/default/skills/
+├── my-skill/
+│   ├── SKILL.md          # 必需：技能定义文件
+│   ├── scripts/          # 可选：辅助脚本
+│   │   └── process.sh
+│   └── templates/        # 可选：模板文件
+│       └── output.tpl
+├── another-skill/
+│   └── SKILL.md
+└── ...</code></pre>
+
+<h2 id="SKILLmd-格式">SKILL.md 格式</h2>
+
+<p>SKILL.md 是技能的核心文件，使用 YAML frontmatter + Markdown 正文格式：</p>
+
+<pre><code class="lang-markdown">---
+name: my-skill
+description: 一句话描述这个技能做什么
+triggers:
+  - keyword1
+  - keyword2
+  - &quot;exact phrase match&quot;
+  - regex: &quot;^帮我分析.*数据$&quot;
+tools:
+  - search_files
+  - read_file
+  - patch
+---
+
+# 技能名称
+
+## 能力说明
+
+当用户触发此技能时，你应该：
+1. 首先执行某个操作
+2. 然后分析结果
+3. 最后给出建议
+
+## 操作规范
+
+- 始终使用中文回复
+- 输出格式应为 Markdown 表格
+- 注意处理文件编码问题
+
+## 示例
+
+用户：帮我分析项目结构
+响应：先列出目录树，然后分析各模块职责...</code></pre>
+
+<h3 id="Frontmatter-字段说明">Frontmatter 字段说明</h3>
+
+<table>
+<tr><th>字段</th><th>必需</th><th>说明</th></tr>
+<tr><td>name</td><td>是</td><td>技能唯一标识名</td></tr>
+<tr class="alt"><td>description</td><td>是</td><td>简短描述，用于匹配和展示</td></tr>
+<tr><td>triggers</td><td>是</td><td>触发关键词/短语/正则列表</td></tr>
+<tr class="alt"><td>tools</td><td>否</td><td>限制该技能可用的工具列表</td></tr>
+<tr><td>priority</td><td>否</td><td>优先级，数字越大越优先（默认 0）</td></tr>
+<tr class="alt"><td>require_all</td><td>否</td><td>是否要求所有 triggers 都匹配（默认 false）</td></tr>
+</table>
+
+<h3 id="触发器类型">触发器类型</h3>
+
+<pre><code class="lang-yaml">triggers:
+  # 关键词匹配（不区分大小写）
+  - git
+
+  # 精确短语匹配
+  - &quot;代码审查&quot;
+
+  # 正则表达式
+  - regex: &quot;^帮我.*分析$&quot;
+  - regex: &quot;debug|调试|排错&quot;
+
+  # 多关键词组合（全部匹配）
+  - and: [&quot;docker&quot;, &quot;部署&quot;]</code></pre>
+
+<h2 id="创建新-Skill">创建新 Skill</h2>
+
+<h3 id="方法-1手动创建">方法 1：手动创建</h3>
+
+<pre><code class="lang-bash"># 创建目录
+mkdir -p ~/.hermes/profiles/default/skills/code-review
+
+# 创建 SKILL.md
+cat &gt; ~/.hermes/profiles/default/skills/code-review/SKILL.md &lt;&lt; &#x27;EOF&#x27;
+---
+name: code-review
+description: 代码审查助手，分析代码质量和潜在问题
+triggers:
+  - &quot;代码审查&quot;
+  - &quot;code review&quot;
+  - &quot;review code&quot;
+  - regex: &quot;帮我看看.*代码&quot;
+---
+
+# 代码审查助手
+
+当用户触发此技能时：
+1. 使用 search_files 定位目标代码文件
+2. 使用 read_file 读取代码内容
+3. 从以下维度分析：
+   - 代码风格一致性
+   - 潜在 bug
+   - 性能问题
+   - 安全漏洞
+4. 输出结构化审查报告
+EOF</code></pre>
+
+<h3 id="方法-2通过-skill_manage-API">方法 2：通过 skill_manage API</h3>
+
+<p>在对话中让 agent 创建：</p>
+
+<pre><code class="lang-">用户：帮我创建一个 skill，用于分析 Python 项目的依赖关系</code></pre>
+
+<p>Agent 会调用 <code>skill_manage</code> 工具完成创建。</p>
+
+<h2 id="skill_manage-API">skill_manage API</h2>
+
+<p><code>skill_manage</code> 是内置工具，用于在运行时管理技能：</p>
+
+<h3 id="查看所有技能">查看所有技能</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;list&quot;
+}</code></pre>
+
+<h3 id="查看特定技能">查看特定技能</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;view&quot;,
+  &quot;name&quot;: &quot;code-review&quot;
+}</code></pre>
+
+<h3 id="创建技能">创建技能</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;create&quot;,
+  &quot;name&quot;: &quot;new-skill&quot;,
+  &quot;content&quot;: &quot;---\nname: new-skill\ndescription: ...\ntriggers:\n  - keyword\n---\n\n# Skill content\n&quot;
+}</code></pre>
+
+<h3 id="更新技能">更新技能</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;update&quot;,
+  &quot;name&quot;: &quot;existing-skill&quot;,
+  &quot;content&quot;: &quot;---\nname: existing-skill\n...&quot;
+}</code></pre>
+
+<h3 id="删除技能">删除技能</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;delete&quot;,
+  &quot;name&quot;: &quot;old-skill&quot;
+}</code></pre>
+
+<h2 id="技能加载机制">技能加载机制</h2>
+
+<li>用户发送消息</li>
+<li>Hermes Agent 扫描所有 SKILL.md 的 triggers</li>
+<li>匹配的 skill 按 priority 排序</li>
+<li>匹配的 SKILL.md 内容被注入到 agent 上下文</li>
+<li>Agent 根据 SKILL.md 的指令执行任务</li>
+
+<pre><code class="lang-">用户输入: &quot;帮我审查这段 Python 代码&quot;
+         ↓
+匹配 triggers: &quot;代码审查&quot;, &quot;code review&quot;, regex: &quot;帮我看看.*代码&quot;
+         ↓
+加载 code-review/SKILL.md 到上下文
+         ↓
+Agent 按 SKILL.md 指令执行代码审查</code></pre>
+
+<h2 id="进阶技巧">进阶技巧</h2>
+
+<h3 id="组合多个工具">组合多个工具</h3>
+
+<pre><code class="lang-markdown">---
+name: project-analyzer
+description: 分析项目结构和代码质量
+triggers:
+  - &quot;项目分析&quot;
+  - regex: &quot;分析.*项目&quot;
+tools:
+  - search_files
+  - read_file
+  - write_file
+  - patch
+---
+
+# 项目分析器
+
+1. 用 search_files 列出所有源码文件
+2. 用 read_file 读取关键文件
+3. 生成分析报告并用 write_file 写入</code></pre>
+
+<h3 id="带脚本的技能">带脚本的技能</h3>
+
+<pre><code class="lang-markdown">---
+name: deploy-helper
+description: 部署助手
+triggers:
+  - &quot;部署&quot;
+  - &quot;deploy&quot;
+---
+
+# 部署助手
+
+执行部署前检查：
+1. 运行 `bash scripts/pre-deploy-check.sh`
+2. 检查输出是否通过
+3. 如通过，执行部署流程</code></pre>
+
+<h3 id="条件触发">条件触发</h3>
+
+<pre><code class="lang-markdown">---
+name: python-helper
+description: Python 开发助手
+triggers:
+  - regex: &quot;\.py\b&quot;
+  - &quot;python&quot;
+  - &quot;pip&quot;
+require_all: false
+---</code></pre>
+
+<h2 id="测试技能">测试技能</h2>
+
+<pre><code class="lang-bash"># 检查 skill 语法（frontmatter 格式）
+cat ~/.hermes/profiles/default/skills/my-skill/SKILL.md | head -20
+
+# 在对话中测试
+# 用户消息应包含 trigger 关键词
+# 观察 agent 是否加载了正确的行为</code></pre>
+
+<p>调试技巧：</p>
+
+<pre><code class="lang-bash"># 开启 debug 日志查看 skill 匹配过程
+export HERMES_LOG_LEVEL=debug
+
+# 检查日志中的 skill 加载信息
+grep &quot;skill&quot; ~/.hermes/logs/hermes.log</code></pre>
+
+<h2 id="Skill-最佳实践">Skill 最佳实践</h2>
+
+<li><strong>description</strong> 写清楚，帮助 agent 理解技能用途</li>
+<li><strong>triggers</strong> 不要太宽泛，避免误触发</li>
+<li>每个 skill 专注于单一职责</li>
+<li>使用 <code>tools</code> 字段限制可用工具，减少副作用</li>
+<li>在 SKILL.md 正文中给出明确的步骤指令</li>
+<li>提供示例输入输出，帮助 agent 理解预期行为</li>
+<li>避免在 skill 中硬编码路径，使用相对路径或变量</li>
+
+<h2 id="常见问题">常见问题</h2>
+
+<h3 id="Q-Skill-不触发">Q: Skill 不触发？</h3>
+
+<p>检查：</p>
+<li>trigger 关键词是否与用户输入匹配</li>
+<li>frontmatter 格式是否正确（YAML 语法）</li>
+<li>SKILL.md 是否在正确路径下</li>
+<li>文件是否有 BOM 头（用 <code>file</code> 命令检查）</li>
+
+<h3 id="Q-多个-skill-同时触发">Q: 多个 skill 同时触发？</h3>
+
+<li>使用 <code>priority</code> 控制优先级</li>
+<li>使用 <code>require_all: true</code> 增加触发精度</li>
+<li>使用更精确的 trigger 关键词</li>
+
+<h3 id="Q-如何禁用某个-skill">Q: 如何禁用某个 skill？</h3>
+
+<pre><code class="lang-bash"># 重命名目录即可禁用
+mv ~/.hermes/profiles/default/skills/my-skill \
+   ~/.hermes/profiles/default/skills/my-skill.disabled</code></pre>
 </div>
-<footer><div class="container">AI知识库 · 应用实战 · 最后更新：2026年6月</div></footer>
-</body>
-</html>
+<div class="file-section"><div class="file-title">Hermes-Agent/03-插件Plugin系统.md</div><h2 id="插件-Plugin-系统">插件 Plugin 系统</h2><h1 id="插件-Plugin-系统">插件 Plugin 系统</h1>
+
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI Agent开发 → Agent扩展机制 → Hermes Plugin</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Plugin系统是Agent能力扩展的核心机制，支持工具型、触发型、提供商型、中间件型四种插件</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a>（Hermes总览），关联 <a href="#05-LangChain使用之Tools">05-LangChain使用之Tools</a>（工具概念）</blockquote>
+
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Hermes总览 | <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a> | 所属框架 |</blockquote>
+<blockquote>| LangChain Tools | <a href="#05-LangChain使用之Tools">05-LangChain使用之Tools</a> | 工具概念对比 |</blockquote>
+<blockquote>| MCP协议 | <a href="#01-MCP协议概述">01-MCP协议概述</a> | 协议级扩展 |</blockquote>
+<blockquote>| Skill系统 | <a href="#Hermes-Agent/02-技能Skill开发指南">Hermes-Agent/02-技能Skill开发指南</a> | 轻量级扩展对比 |</blockquote>
+<blockquote>| 记忆系统 | <a href="#Hermes-Agent/06-记忆Memories系统">Hermes-Agent/06-记忆Memories系统</a> | 同级模块 |</blockquote>
+<blockquote>| Agent框架对比 | <a href="#框架横向对比矩阵">框架横向对比矩阵</a> | 框架选型参考 |</blockquote>
+
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Plugin=YAML配置+可执行代码，比Skill更强大，支持有状态、自带逻辑</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- Tool Plugin：封装外部API（天气查询、数据库查询）</blockquote>
+<blockquote>- Trigger Plugin：监听事件自动执行（文件修改自动提交）</blockquote>
+<blockquote>- Provider Plugin：接入自定义LLM提供商</blockquote>
+<blockquote>- Middleware Plugin：请求/响应拦截（Token计数）</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Plugin系统支持四种类型扩展，通过YAML定义元数据和工具，Python实现业务逻辑，支持权限声明和生命周期管理」</blockquote>
+
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Agent基础、Python开发能力</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥☆☆☆ — 系统设计能力体现</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>Hermes Agent 的 Plugin 系统提供了一种结构化的方式来扩展 agent 的能力。</p>
+<p>与 Skill（纯文本指令）不同，Plugin 可以包含可执行代码、工具定义和</p>
+<p>持久化状态，适合更复杂的集成场景。</p>
+
+<h2 id="Plugin-与-Skill-的区别">Plugin 与 Skill 的区别</h2>
+
+<table>
+<tr><th>特性</th><th>Skill</th><th>Plugin</th></tr>
+<tr><td>定义格式</td><td>Markdown + YAML</td><td>YAML + 可选代码</td></tr>
+<tr class="alt"><td>复杂度</td><td>轻量级</td><td>中等至重量级</td></tr>
+<tr><td>有状态</td><td>否</td><td>可以有</td></tr>
+<tr class="alt"><td>可执行代码</td><td>否（依赖 agent 工具）</td><td>是（自带逻辑）</td></tr>
+<tr><td>适用场景</td><td>行为指令/工作流</td><td>系统集成/API对接</td></tr>
+<tr class="alt"><td>隔离性</td><td>上下文注入</td><td>独立进程或沙箱运行</td></tr>
+</table>
+
+<h2 id="Plugin-目录结构">Plugin 目录结构</h2>
+
+<pre><code class="lang-">~/.hermes/profiles/default/plugins/
+├── my-plugin/
+│   ├── plugin.yaml       # 必需：插件元数据与配置
+│   ├── handler.py        # 可选：插件处理逻辑
+│   ├── requirements.txt  # 可选：Python 依赖
+│   ├── tools/            # 可选：自定义工具定义
+│   │   └── custom_tool.yaml
+│   └── README.md         # 可选：插件文档
+├── another-plugin/
+│   ├── plugin.yaml
+│   └── handler.js
+└── ...</code></pre>
+
+<h2 id="pluginyaml-格式">plugin.yaml 格式</h2>
+
+<pre><code class="lang-yaml"># plugin.yaml - 插件元数据
+
+name: my-plugin
+version: &quot;1.0.0&quot;
+description: 插件功能描述
+author: your-name
+
+# 插件类型
+type: tool  # tool | trigger | provider | middleware
+
+# 触发条件（类似 skill）
+triggers:
+  - &quot;相关关键词&quot;
+  - regex: &quot;匹配模式&quot;
+
+# 依赖检查
+dependencies:
+  python: &quot;&gt;=3.9&quot;
+  packages:
+    - requests&gt;=2.28.0
+    - beautifulsoup4
+  commands:
+    - curl
+
+# 插件暴露的工具
+tools:
+  - name: search_web
+    description: &quot;搜索网页内容&quot;
+    parameters:
+      query:
+        type: string
+        description: &quot;搜索关键词&quot;
+        required: true
+      max_results:
+        type: integer
+        description: &quot;最大结果数&quot;
+        default: 5
+
+# 插件配置项
+config:
+  api_key:
+    description: &quot;API 密钥&quot;
+    required: true
+    env_var: MY_PLUGIN_API_KEY
+  base_url:
+    description: &quot;API 基础 URL&quot;
+    default: &quot;https://api.example.com&quot;
+
+# 生命周期钩子
+hooks:
+  on_load: handler.on_load
+  on_trigger: handler.on_trigger
+  on_unload: handler.on_unload
+
+# 权限声明
+permissions:
+  - network
+  - filesystem:read
+  - execute:local</code></pre>
+
+<h2 id="插件类型">插件类型</h2>
+
+<h3 id="1-Tool-Plugin工具插件">1. Tool Plugin（工具插件）</h3>
+
+<p>为 agent 提供新的工具能力：</p>
+
+<pre><code class="lang-yaml">name: web-scraper
+type: tool
+description: 网页抓取工具
+
+tools:
+  - name: fetch_page
+    description: &quot;获取网页内容&quot;
+    parameters:
+      url:
+        type: string
+        required: true
+      selector:
+        type: string
+        description: &quot;CSS 选择器&quot;
+        default: &quot;body&quot;</code></pre>
+
+<p>对应处理逻辑 <code>handler.py</code>：</p>
+
+<pre><code class="lang-python">import requests
+from bs4 import BeautifulSoup
+
+def fetch_page(url, selector=&quot;body&quot;):
+    &quot;&quot;&quot;获取并解析网页内容&quot;&quot;&quot;
+    resp = requests.get(url, timeout=10)
+    soup = BeautifulSoup(resp.text, &#x27;html.parser&#x27;)
+    elements = soup.select(selector)
+    return &quot;\n&quot;.join(el.get_text(strip=True) for el in elements)
+
+def on_load():
+    &quot;&quot;&quot;插件加载时执行&quot;&quot;&quot;
+    print(&quot;Web scraper plugin loaded&quot;)
+
+def on_trigger(context):
+    &quot;&quot;&quot;触发时执行&quot;&quot;&quot;
+    pass</code></pre>
+
+<h3 id="2-Trigger-Plugin触发插件">2. Trigger Plugin（触发插件）</h3>
+
+<p>监听特定事件并自动执行：</p>
+
+<pre><code class="lang-yaml">name: auto-commit
+type: trigger
+description: 代码修改后自动提交
+
+triggers:
+  - &quot;文件已修改&quot;
+  - regex: &quot;patch.*applied&quot;
+
+hooks:
+  on_trigger: handler.auto_commit</code></pre>
+
+<h3 id="3-Provider-Plugin提供商插件">3. Provider Plugin（提供商插件）</h3>
+
+<p>扩展模型提供商支持：</p>
+
+<pre><code class="lang-yaml">name: custom-llm
+type: provider
+description: 自定义 LLM 提供商接入
+
+config:
+  api_endpoint:
+    required: true
+  model_name:
+    default: &quot;custom-model-v1&quot;</code></pre>
+
+<h3 id="4-Middleware-Plugin中间件插件">4. Middleware Plugin（中间件插件）</h3>
+
+<p>在请求处理链中添加中间层：</p>
+
+<pre><code class="lang-yaml">name: token-counter
+type: middleware
+description: Token 计数中间件
+
+hooks:
+  on_request: handler.count_input_tokens
+  on_response: handler.count_output_tokens</code></pre>
+
+<h2 id="插件生命周期">插件生命周期</h2>
+
+<pre><code class="lang-">    创建 plugin.yaml
+          ↓
+    Agent 启动/加载
+          ↓
+    ┌─ on_load() ← 依赖检查、初始化
+    │
+    │  等待触发条件
+    │       ↓
+    ├─ on_trigger() ← 用户消息匹配
+    │       ↓
+    │  执行插件逻辑
+    │       ↓
+    │  返回结果
+    │
+    │  Agent 关闭/卸载
+    ↓
+  on_unload() ← 清理资源</code></pre>
+
+<h2 id="创建-Plugin-示例">创建 Plugin 示例</h2>
+
+<h3 id="示例-1天气查询插件">示例 1：天气查询插件</h3>
+
+<pre><code class="lang-bash">mkdir -p ~/.hermes/profiles/default/plugins/weather</code></pre>
+
+<pre><code class="lang-yaml"># ~/.hermes/profiles/default/plugins/weather/plugin.yaml
+name: weather
+version: &quot;1.0.0&quot;
+description: 天气查询插件
+type: tool
+
+triggers:
+  - &quot;天气&quot;
+  - &quot;weather&quot;
+  - regex: &quot;.*温度.*&quot;
+  - regex: &quot;会不会下雨&quot;
+
+dependencies:
+  packages:
+    - requests
+
+tools:
+  - name: get_weather
+    description: &quot;查询指定城市天气&quot;
+    parameters:
+      city:
+        type: string
+        description: &quot;城市名称&quot;
+        required: true
+      unit:
+        type: string
+        description: &quot;温度单位 c/f&quot;
+        default: &quot;c&quot;
+
+config:
+  api_key:
+    env_var: WEATHER_API_KEY
+    required: true</code></pre>
+
+<pre><code class="lang-python"># ~/.hermes/profiles/default/plugins/weather/handler.py
+import requests
+import os
+
+def get_weather(city, unit=&quot;c&quot;):
+    api_key = os.environ.get(&quot;WEATHER_API_KEY&quot;)
+    # 使用天气 API 获取数据
+    url = f&quot;https://api.weatherapi.com/v1/current.json&quot;
+    params = {&quot;key&quot;: api_key, &quot;q&quot;: city, &quot;aqi&quot;: &quot;no&quot;}
+    resp = requests.get(url, params=params)
+    data = resp.json()
+    return {
+        &quot;city&quot;: data[&quot;location&quot;][&quot;name&quot;],
+        &quot;temp&quot;: data[&quot;current&quot;][&quot;temp_c&quot;] if unit == &quot;c&quot; else data[&quot;current&quot;][&quot;temp_f&quot;],
+        &quot;condition&quot;: data[&quot;current&quot;][&quot;condition&quot;][&quot;text&quot;],
+        &quot;humidity&quot;: data[&quot;current&quot;][&quot;humidity&quot;]
+    }
+
+def on_load():
+    if not os.environ.get(&quot;WEATHER_API_KEY&quot;):
+        print(&quot;WARNING: WEATHER_API_KEY not set, weather plugin disabled&quot;)</code></pre>
+
+<h3 id="示例-2数据库查询插件">示例 2：数据库查询插件</h3>
+
+<pre><code class="lang-yaml"># plugin.yaml
+name: db-query
+version: &quot;1.0.0&quot;
+description: SQLite 数据库查询
+type: tool
+
+triggers:
+  - &quot;查询数据库&quot;
+  - &quot;SQL查询&quot;
+  - regex: &quot;SELECT.*FROM&quot;
+
+dependencies:
+  packages:
+    - sqlite3
+
+tools:
+  - name: query_db
+    description: &quot;执行 SQL 查询&quot;
+    parameters:
+      sql:
+        type: string
+        description: &quot;SQL 语句&quot;
+        required: true
+      db_path:
+        type: string
+        description: &quot;数据库路径&quot;
+        required: true
+
+permissions:
+  - filesystem:read
+  - execute:local</code></pre>
+
+<h2 id="插件管理">插件管理</h2>
+
+<h3 id="查看已安装插件">查看已安装插件</h3>
+
+<pre><code class="lang-bash"># 列出所有插件
+ls ~/.hermes/profiles/default/plugins/
+
+# 查看插件详情
+cat ~/.hermes/profiles/default/plugins/my-plugin/plugin.yaml</code></pre>
+
+<h3 id="安装第三方插件">安装第三方插件</h3>
+
+<pre><code class="lang-bash"># 从 Git 仓库安装
+git clone https://github.com/user/hermes-plugin-xxx.git \
+  ~/.hermes/profiles/default/plugins/xxx
+
+# 从压缩包安装
+unzip plugin.zip -d ~/.hermes/profiles/default/plugins/xxx</code></pre>
+
+<h3 id="禁用插件">禁用插件</h3>
+
+<pre><code class="lang-bash"># 方法 1：重命名
+mv ~/.hermes/profiles/default/plugins/my-plugin \
+   ~/.hermes/profiles/default/plugins/my-plugin.disabled
+
+# 方法 2：在 plugin.yaml 中设置
+# enabled: false</code></pre>
+
+<h3 id="卸载插件">卸载插件</h3>
+
+<pre><code class="lang-bash">rm -rf ~/.hermes/profiles/default/plugins/my-plugin</code></pre>
+
+<h2 id="插件配置管理">插件配置管理</h2>
+
+<h3 id="通过环境变量">通过环境变量</h3>
+
+<pre><code class="lang-bash">export WEATHER_API_KEY=xxxxx
+export DB_PATH=/path/to/database.sqlite</code></pre>
+
+<h3 id="通过-configyaml">通过 config.yaml</h3>
+
+<pre><code class="lang-yaml">plugin_config:
+  weather:
+    api_key: xxxxx
+  db-query:
+    allowed_paths:
+      - /home/pez/databases</code></pre>
+
+<h2 id="第三方集成模式">第三方集成模式</h2>
+
+<h3 id="REST-API-集成">REST API 集成</h3>
+
+<pre><code class="lang-python"># handler.py
+import requests
+
+def call_api(endpoint, method=&quot;GET&quot;, data=None):
+    resp = requests.request(method, endpoint, json=data)
+    return resp.json()</code></pre>
+
+<h3 id="CLI-工具集成">CLI 工具集成</h3>
+
+<pre><code class="lang-python"># handler.py
+import subprocess
+
+def run_command(cmd, args):
+    result = subprocess.run(
+        [cmd] + args,
+        capture_output=True, text=True, timeout=30
+    )
+    return {&quot;stdout&quot;: result.stdout, &quot;stderr&quot;: result.stderr, &quot;code&quot;: result.returncode}</code></pre>
+
+<h3 id="WebSocket-集成">WebSocket 集成</h3>
+
+<pre><code class="lang-python"># handler.py
+import asyncio
+import websockets
+
+async def connect_ws(url, message):
+    async with websockets.connect(url) as ws:
+        await ws.send(message)
+        response = await ws.recv()
+        return response</code></pre>
+
+<h2 id="安全注意事项">安全注意事项</h2>
+
+<li>插件拥有声明的权限范围内的能力</li>
+<li><code>execute:local</code> 权限允许执行系统命令，需谨慎</li>
+<li><code>network</code> 权限允许外网请求，注意数据泄露风险</li>
+<li>第三方插件安装前务必审查代码</li>
+<li>敏感配置使用环境变量，不要硬编码在 plugin.yaml 中</li>
+
+<h2 id="调试插件">调试插件</h2>
+
+<pre><code class="lang-bash"># 开启 debug 日志
+export HERMES_LOG_LEVEL=debug
+
+# 检查插件加载状态
+grep &quot;plugin&quot; ~/.hermes/logs/hermes.log
+
+# 测试 handler.py 是否可正常导入
+cd ~/.hermes/profiles/default/plugins/my-plugin
+python3 -c &quot;import handler; print(&#x27;OK&#x27;)&quot;</code></pre>
+</div>
+<div class="file-section"><div class="file-title">Hermes-Agent/04-MCP-Server-Client实战.md</div><h2 id="MCP-ServerClient-实战">MCP Server/Client 实战</h2><h1 id="MCP-ServerClient-实战">MCP Server/Client 实战</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：Hermes Agent 系列的<strong>工具集成篇</strong>。MCP 是 Agent 连接外部世界（文件系统、搜索引擎、数据库、浏览器）的标准协议，是 Agent 从"对话机器人"升级为"能干活的助手"的核心能力。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#01-配置与Profile系统">01-配置与Profile系统</a>（MCP 在 config.yaml 中配置）、<a href="#02-技能Skill开发指南">02-技能Skill开发指南</a>（Skill 可调用 MCP 工具）→ 下游：<a href="#07-最佳实践与调试技巧">07-最佳实践与调试技巧</a>（MCP 故障排查）→ 横向：<a href="#创业/02-技术架构/评论AI工具-技术架构">创业/02-技术架构/评论AI工具-技术架构</a>（类似工具链集成思路）、<a href="#LLM/大语言模型（LLM）架构核心解析">LLM/大语言模型（LLM）架构核心解析</a>（理解 tool calling 背后的模型能力）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟡 中级 — 需要了解命令行基础和 JSON-RPC 概念，配置远程服务需网络知识</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：读完本文后，你应该能独立完成：① 配置 filesystem + brave-search 两个基础 MCP Server ② 编写一个自定义 Python MCP Server 并注册 ③ 通过 mcp_manage 动态管理服务 ④ 排查连接失败和超时问题</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>MCP（Model Context Protocol）是 Anthropic 推出的开放协议，用于标准化</p>
+<p>AI 模型与外部工具/数据源的连接方式。Hermes Agent 作为 MCP Client，</p>
+<p>可以连接多个 MCP Server，自动发现和调用其提供的工具。</p>
+
+<h2 id="架构">架构</h2>
+
+<pre><code class="lang-">┌─────────────────────┐
+│   Hermes Agent      │
+│   (MCP Client)      │
+│                     │
+│  ┌───────────────┐  │
+│  │ Tool Registry │  │
+│  └───┬───┬───┬───┘  │
+│      │   │   │      │
+└──────┼───┼───┼──────┘
+       │   │   │
+  ┌────┘   │   └────┐
+  │        │        │
+  ▼        ▼        ▼
+┌──────┐ ┌──────┐ ┌──────┐
+│MCP   │ │MCP   │ │MCP   │
+│Server│ │Server│ │Server│
+│  A   │ │  B   │ │  C   │
+└──────┘ └──────┘ └──────┘
+ 文件系统   搜索     数据库</code></pre>
+
+<h2 id="传输协议">传输协议</h2>
+
+<h3 id="stdio-传输本地进程">stdio 传输（本地进程）</h3>
+
+<p>最常用方式，MCP Server 作为本地子进程运行：</p>
+
+<pre><code class="lang-yaml"># config.yaml
+mcp_servers:
+  filesystem:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/pez&quot;]
+    env:
+      NODE_ENV: production</code></pre>
+
+<p>工作原理：</p>
+<li>Hermes Agent 启动子进程（<code>npx ...</code>）</li>
+<li>通过 stdin/stdout 交换 JSON-RPC 消息</li>
+<li>子进程崩溃时自动重启（配置了 restart 的情况下）</li>
+
+<h3 id="HTTPSSE-传输远程服务">HTTP/SSE 传输（远程服务）</h3>
+
+<p>连接远程 MCP Server：</p>
+
+<pre><code class="lang-yaml">mcp_servers:
+  remote-tools:
+    url: https://mcp.example.com/sse
+    headers:
+      Authorization: &quot;Bearer your-token&quot;
+    timeout: 30</code></pre>
+
+<h3 id="Streamable-HTTP-传输">Streamable HTTP 传输</h3>
+
+<p>较新的 HTTP 传输方式，支持流式响应：</p>
+
+<pre><code class="lang-yaml">mcp_servers:
+  streaming-server:
+    url: https://stream-mcp.example.com/mcp
+    transport: streamable-http
+    headers:
+      X-API-Key: &quot;your-api-key&quot;</code></pre>
+
+<h2 id="configyaml-中的-MCP-配置">config.yaml 中的 MCP 配置</h2>
+
+<p>完整配置示例：</p>
+
+<pre><code class="lang-yaml"># config.yaml
+
+mcp_servers:
+  # 文件系统访问
+  filesystem:
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;@modelcontextprotocol/server-filesystem&quot;
+      - &quot;/home/pez&quot;
+      - &quot;/home/pez/projects&quot;
+    env:
+      NODE_ENV: production
+    timeout: 30
+    restart: true
+
+  # Brave 搜索
+  brave-search:
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;@anthropic/brave-search-mcp&quot;
+    env:
+      BRAVE_API_KEY: &quot;${BRAVE_API_KEY}&quot;
+    restart: true
+
+  # GitHub
+  github:
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;@modelcontextprotocol/server-github&quot;
+    env:
+      GITHUB_PERSONAL_ACCESS_TOKEN: &quot;${GITHUB_TOKEN}&quot;
+
+  # PostgreSQL 数据库
+  postgres:
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;@modelcontextprotocol/server-postgres&quot;
+      - &quot;postgresql://user:pass@localhost:5432/mydb&quot;
+    restart: true
+
+  # Puppeteer 浏览器
+  puppeteer:
+    command: npx
+    args:
+      - &quot;-y&quot;
+      - &quot;@anthropic/puppeteer-mcp&quot;
+    timeout: 60
+
+  # 远程 MCP 服务
+  remote-api:
+    url: https://api.example.com/mcp/sse
+    headers:
+      Authorization: &quot;Bearer ${REMOTE_MCP_TOKEN}&quot;
+    timeout: 30</code></pre>
+
+<h2 id="MCP-Server-注册">MCP Server 注册</h2>
+
+<h3 id="在-configyaml-中静态注册">在 config.yaml 中静态注册</h3>
+
+<p>如上所示，直接在 <code>mcp_servers</code> 段落中添加。</p>
+
+<h3 id="动态注册运行时">动态注册（运行时）</h3>
+
+<p>通过 <code>mcp_manage</code> 工具：</p>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;add&quot;,
+  &quot;name&quot;: &quot;new-server&quot;,
+  &quot;config&quot;: {
+    &quot;command&quot;: &quot;npx&quot;,
+    &quot;args&quot;: [&quot;-y&quot;, &quot;@some/mcp-server&quot;],
+    &quot;env&quot;: {&quot;API_KEY&quot;: &quot;xxx&quot;}
+  }
+}</code></pre>
+
+<h3 id="查看已注册服务器">查看已注册服务器</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;list&quot;
+}</code></pre>
+
+<h3 id="删除服务器">删除服务器</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;remove&quot;,
+  &quot;name&quot;: &quot;server-name&quot;
+}</code></pre>
+
+<h2 id="工具发现">工具发现</h2>
+
+<p>Hermes Agent 启动时自动发现所有 MCP Server 的工具：</p>
+
+<pre><code class="lang-">启动 → 连接所有 MCP Server → 列出工具（tools/list）→ 注册到工具注册表</code></pre>
+
+<p>查看可用工具：</p>
+
+<pre><code class="lang-bash"># 查看所有 MCP 工具
+hermes tools list
+
+# 查看特定 server 的工具
+hermes tools list --server filesystem</code></pre>
+
+<p>工具命名格式：<code>mcp__{server_name}__{tool_name}</code></p>
+
+<p>示例：</p>
+<li><code>mcp__filesystem__read_file</code></li>
+<li><code>mcp__filesystem__write_file</code></li>
+<li><code>mcp__brave-search__brave_search</code></li>
+<li><code>mcp__github__search_repositories</code></li>
+
+<h2 id="常用-MCP-Server">常用 MCP Server</h2>
+
+<h3 id="1-Filesystem-Server">1. Filesystem Server</h3>
+
+<pre><code class="lang-yaml">filesystem:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/pez&quot;]</code></pre>
+
+<p>提供工具：</p>
+<li><code>read_file</code> - 读取文件</li>
+<li><code>write_file</code> - 写入文件</li>
+<li><code>list_directory</code> - 列出目录</li>
+<li><code>search_files</code> - 搜索文件</li>
+<li><code>move_file</code> - 移动文件</li>
+
+<h3 id="2-Brave-Search-Server">2. Brave Search Server</h3>
+
+<pre><code class="lang-yaml">brave-search:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@anthropic/brave-search-mcp&quot;]
+  env:
+    BRAVE_API_KEY: &quot;your-key&quot;</code></pre>
+
+<p>提供工具：</p>
+<li><code>brave_search</code> - 网页搜索</li>
+<li><code>brave_news_search</code> - 新闻搜索</li>
+
+<h3 id="3-GitHub-Server">3. GitHub Server</h3>
+
+<pre><code class="lang-yaml">github:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-github&quot;]
+  env:
+    GITHUB_PERSONAL_ACCESS_TOKEN: &quot;ghp_xxxx&quot;</code></pre>
+
+<p>提供工具：</p>
+<li><code>search_repositories</code> - 搜索仓库</li>
+<li><code>create_repository</code> - 创建仓库</li>
+<li><code>get_file_contents</code> - 获取文件内容</li>
+<li><code>create_issue</code> - 创建 Issue</li>
+<li><code>create_pull_request</code> - 创建 PR</li>
+
+<h3 id="4-Memory-Server">4. Memory Server</h3>
+
+<pre><code class="lang-yaml">memory:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@anthropic/memory-server&quot;]</code></pre>
+
+<h3 id="5-PostgreSQL-Server">5. PostgreSQL Server</h3>
+
+<pre><code class="lang-yaml">postgres:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-postgres&quot;, &quot;postgresql://...&quot;]</code></pre>
+
+<h3 id="6-Puppeteer-Server">6. Puppeteer Server</h3>
+
+<pre><code class="lang-yaml">puppeteer:
+  command: npx
+  args: [&quot;-y&quot;, &quot;@anthropic/puppeteer-mcp&quot;]</code></pre>
+
+<p>提供工具：</p>
+<li><code>puppeteer_navigate</code> - 导航到 URL</li>
+<li><code>puppeteer_screenshot</code> - 截图</li>
+<li><code>puppeteer_click</code> - 点击元素</li>
+<li><code>puppeteer_fill</code> - 填写表单</li>
+
+<h3 id="7-自定义-Python-MCP-Server">7. 自定义 Python MCP Server</h3>
+
+<pre><code class="lang-python"># my_mcp_server.py
+from mcp.server import Server
+from mcp.types import Tool, TextContent
+
+server = Server(&quot;my-server&quot;)
+
+@server.list_tools()
+async def list_tools():
+    return [
+        Tool(
+            name=&quot;my_tool&quot;,
+            description=&quot;自定义工具&quot;,
+            inputSchema={
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;properties&quot;: {
+                    &quot;input&quot;: {&quot;type&quot;: &quot;string&quot;}
+                },
+                &quot;required&quot;: [&quot;input&quot;]
+            }
+        )
+    ]
+
+@server.call_tool()
+async def call_tool(name, arguments):
+    if name == &quot;my_tool&quot;:
+        result = process(arguments[&quot;input&quot;])
+        return [TextContent(type=&quot;text&quot;, text=result)]
+
+if __name__ == &quot;__main__&quot;:
+    server.run(transport=&quot;stdio&quot;)</code></pre>
+
+<p>注册到 config.yaml：</p>
+
+<pre><code class="lang-yaml">mcp_servers:
+  my-server:
+    command: python3
+    args: [&quot;/home/pez/mcp-servers/my_mcp_server.py&quot;]</code></pre>
+
+<h2 id="环境变量引用">环境变量引用</h2>
+
+<p>在 config.yaml 中使用环境变量：</p>
+
+<pre><code class="lang-yaml">mcp_servers:
+  brave-search:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@anthropic/brave-search-mcp&quot;]
+    env:
+      BRAVE_API_KEY: &quot;${BRAVE_API_KEY}&quot;  # 引用环境变量</code></pre>
+
+<pre><code class="lang-bash"># 在 .bashrc 或 .zshrc 中设置
+export BRAVE_API_KEY=BSAxxxxx
+export GITHUB_TOKEN=ghp_xxxx</code></pre>
+
+<h2 id="故障排查">故障排查</h2>
+
+<h3 id="连接失败">连接失败</h3>
+
+<pre><code class="lang-bash"># 测试 MCP Server 是否可独立运行
+echo &#x27;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;initialize&quot;,&quot;params&quot;:{&quot;capabilities&quot;:{}}}&#x27; | \
+  npx -y @modelcontextprotocol/server-filesystem /home/pez
+
+# 检查日志
+export MCP_DEBUG=1
+hermes start 2&gt;&amp;1 | grep mcp</code></pre>
+
+<h3 id="工具未发现">工具未发现</h3>
+
+<pre><code class="lang-bash"># 确认 server 正在运行
+hermes tools list
+
+# 重启 MCP 连接
+hermes mcp restart --server filesystem</code></pre>
+
+<h3 id="超时问题">超时问题</h3>
+
+<pre><code class="lang-yaml"># 增加超时时间
+mcp_servers:
+  slow-server:
+    command: python3
+    args: [&quot;/path/to/slow_server.py&quot;]
+    timeout: 120  # 秒</code></pre>
+
+<h3 id="权限问题">权限问题</h3>
+
+<pre><code class="lang-bash"># 确保 npx 可执行
+which npx
+
+# 确保脚本可执行
+chmod +x /path/to/mcp_server.py</code></pre>
+
+<h2 id="最佳实践">最佳实践</h2>
+
+<li><strong>最小权限原则</strong>：只授权必要的目录和 API</li>
+<li><strong>环境变量管理</strong>：敏感信息用环境变量，不写入配置文件</li>
+<li><strong>超时设置</strong>：为慢速服务器设置合理超时</li>
+<li><strong>重启策略</strong>：关键服务器启用 <code>restart: true</code></li>
+<li><strong>定期更新</strong>：MCP Server 包经常更新，保持最新版</li>
+<li><strong>日志监控</strong>：生产环境开启 MCP 日志监控</li>
+
+<h2 id="性能优化">性能优化</h2>
+
+<pre><code class="lang-yaml"># 减少启动时间：只加载需要的 server
+mcp_servers:
+  # 高频使用
+  filesystem:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/pez&quot;]
+
+  # 低频使用，考虑按需启动
+  # postgres:
+  #   command: npx
+  #   args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-postgres&quot;, &quot;...&quot;]</code></pre>
+
+<pre><code class="lang-bash"># 使用本地缓存的 npx 包，避免每次下载
+npx -y --prefer-offline @modelcontextprotocol/server-filesystem</code></pre>
+</div>
+<div class="file-section"><div class="file-title">Hermes-Agent/05-Cron定时任务.md</div><h2 id="Cron-定时任务">Cron 定时任务</h2><h1 id="Cron-定时任务">Cron 定时任务</h1>
+
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI Agent开发 → Agent自动化 → Hermes Cron</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Cron定时任务是Agent实现自动化运维和定期执行的核心能力，支持AI模式和脚本模式</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a>（Hermes总览），关联 Docker部署（定时任务执行环境）</blockquote>
+
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Hermes总览 | <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a> | 所属框架 |</blockquote>
+<blockquote>| Agent开发 | <a href="#AI大模型/05-Agent开发/README-Agent开发">AI大模型/05-Agent开发/README-Agent开发</a> | AI模式基础 |</blockquote>
+<blockquote>| Docker部署 | <a href="#Docker/Docker简介">Docker/Docker简介</a> | 任务执行环境 |</blockquote>
+<blockquote>| 插件系统 | <a href="#Hermes-Agent/03-插件Plugin系统">Hermes-Agent/03-插件Plugin系统</a> | 任务可调用插件 |</blockquote>
+<blockquote>| 记忆系统 | <a href="#Hermes-Agent/06-记忆Memories系统">Hermes-Agent/06-记忆Memories系统</a> | 任务可读写记忆 |</blockquote>
+<blockquote>| Shell脚本 | <a href="#小工具/Shell">小工具/Shell</a> | Script模式基础 |</blockquote>
+
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：AI模式=Prompt发给Agent执行、Script模式=直接执行Shell脚本、支持Chat/Webhook/File/Email投递</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 定期系统健康检查：每6小时检查磁盘/内存/Docker状态</blockquote>
+<blockquote>- 自动化备份：每天凌晨备份Git仓库和数据库</blockquote>
+<blockquote>- 新闻摘要推送：工作日早上自动搜索AI新闻并推送到Slack</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Cron系统支持AI和脚本两种模式，AI模式可调用Agent全部工具，结果可投递到聊天/文件/Webhook/邮件」</blockquote>
+
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Cron表达式基础、Shell脚本</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥☆☆☆ — 自动化运维能力</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>Hermes Agent 内置了 Cron 定时任务系统，可以按时间调度执行 AI 任务。</p>
+<p>任务可以向不同渠道投递结果，支持纯脚本模式和 AI 增强模式。</p>
+
+<h2 id="目录结构">目录结构</h2>
+
+<pre><code class="lang-">~/.hermes/profiles/default/cron/
+├── daily-report.yaml      # 每日报告任务
+├── weekly-review.yaml     # 每周回顾任务
+├── monitor.yaml           # 监控任务
+└── ...</code></pre>
+
+<p>每个 <code>.yaml</code> 文件定义一个独立的定时任务。</p>
+
+<h2 id="任务文件格式">任务文件格式</h2>
+
+<pre><code class="lang-yaml"># ~/.hermes/profiles/default/cron/daily-report.yaml
+
+# 任务名称
+name: daily-report
+
+# Cron 表达式（标准格式）
+schedule: &quot;0 9 * * *&quot;           # 每天早上 9 点
+
+# 执行模式
+mode: ai                        # ai | script
+
+# AI 模式：prompt 发送给 Hermes Agent
+prompt: |
+  请生成今日工作报告：
+  1. 检查今天的 git 提交记录
+  2. 总结完成的任务
+  3. 列出待处理事项
+  输出格式为 Markdown
+
+# 投递目标
+delivery:
+  type: chat                    # chat | email | webhook | file
+  target: default               # 投递到默认聊天
+  format: markdown              # 输出格式
+
+# 任务元数据
+description: &quot;每天早上自动生成工作报告&quot;
+enabled: true
+timeout: 300                    # 超时秒数</code></pre>
+
+<h2 id="Cron-表达式">Cron 表达式</h2>
+
+<p>标准 5 字段格式：</p>
+
+<pre><code class="lang-">┌───────── 分钟 (0-59)
+│ ┌─────── 小时 (0-23)
+│ │ ┌───── 日 (1-31)
+│ │ │ ┌─── 月 (1-12)
+│ │ │ │ ┌─ 星期 (0-6, 0=周日)
+│ │ │ │ │
+* * * * *</code></pre>
+
+<p>常用示例：</p>
+
+<pre><code class="lang-yaml"># 每 5 分钟
+schedule: &quot;*/5 * * * *&quot;
+
+# 每小时
+schedule: &quot;0 * * * *&quot;
+
+# 每天早上 8 点
+schedule: &quot;0 8 * * *&quot;
+
+# 每天下午 6 点
+schedule: &quot;0 18 * * *&quot;
+
+# 每周一早上 9 点
+schedule: &quot;0 9 * * 1&quot;
+
+# 每月 1 号
+schedule: &quot;0 0 1 * *&quot;
+
+# 工作日每天（周一到周五）
+schedule: &quot;0 9 * * 1-5&quot;
+
+# 每 30 分钟
+schedule: &quot;*/30 * * * *&quot;
+
+# 每天 8:30 和 18:30
+schedule: &quot;30 8,18 * * *&quot;</code></pre>
+
+<h2 id="执行模式">执行模式</h2>
+
+<h3 id="AI-模式mode-ai">AI 模式（mode: ai）</h3>
+
+<p>将 prompt 发送给 Hermes Agent，由 AI 执行并返回结果：</p>
+
+<pre><code class="lang-yaml">mode: ai
+prompt: |
+  检查服务器状态：
+  1. 运行 `df -h` 检查磁盘使用
+  2. 运行 `free -h` 检查内存
+  3. 运行 `uptime` 检查负载
+  如果任何指标异常，生成告警信息</code></pre>
+
+<p>AI 模式下可以使用 agent 的所有工具（search_files、MCP 工具等）。</p>
+
+<h3 id="Script-模式mode-script">Script 模式（mode: script）</h3>
+
+<p>直接执行 shell 脚本，不经过 AI：</p>
+
+<pre><code class="lang-yaml">mode: script
+script: |
+  #!/bin/bash
+  cd /home/pez/projects/myapp
+  git pull origin main
+  docker compose up -d --build
+  echo &quot;Deploy completed at $(date)&quot;</code></pre>
+
+<p>Script 模式适用于确定性任务，无需 AI 介入。</p>
+
+<h3 id="混合模式">混合模式</h3>
+
+<pre><code class="lang-yaml">mode: ai
+prompt: |
+  执行以下脚本并分析结果：</code></pre>
+<p>  bash /home/pez/scripts/check-health.sh</p>
+<pre><code class="lang-">  根据输出判断系统健康状况并生成摘要。</code></pre>
+
+<h2 id="投递目标">投递目标</h2>
+
+<h3 id="Chat-投递">Chat 投递</h3>
+
+<p>结果发送到聊天会话：</p>
+
+<pre><code class="lang-yaml">delivery:
+  type: chat
+  target: default           # profile 名称
+  format: markdown          # markdown | plain | html</code></pre>
+
+<h3 id="Webhook-投递">Webhook 投递</h3>
+
+<p>结果发送到 HTTP 端点：</p>
+
+<pre><code class="lang-yaml">delivery:
+  type: webhook
+  url: https://hooks.slack.com/services/xxx/yyy/zzz
+  method: POST
+  headers:
+    Content-Type: application/json
+  format: json
+  template: |
+    {&quot;text&quot;: &quot;{{output}}&quot;}</code></pre>
+
+<h3 id="文件投递">文件投递</h3>
+
+<p>结果写入文件：</p>
+
+<pre><code class="lang-yaml">delivery:
+  type: file
+  path: /home/pez/reports/daily-{{date}}.md
+  format: markdown
+  append: false</code></pre>
+
+<h3 id="Email-投递">Email 投递</h3>
+
+<pre><code class="lang-yaml">delivery:
+  type: email
+  to: user@example.com
+  subject: &quot;Hermes 定时报告 - {{date}}&quot;
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+    user: your@gmail.com
+    password: &quot;${SMTP_PASSWORD}&quot;</code></pre>
+
+<h2 id="完整任务示例">完整任务示例</h2>
+
+<h3 id="示例-1每日系统健康检查">示例 1：每日系统健康检查</h3>
+
+<pre><code class="lang-yaml">name: health-check
+schedule: &quot;0 */6 * * *&quot;    # 每 6 小时
+mode: ai
+prompt: |
+  系统健康检查：
+  1. 检查磁盘空间：运行 df -h，如果任何分区 &gt;80% 则告警
+  2. 检查内存：运行 free -h
+  3. 检查 Docker 容器：运行 docker ps --format &quot;table {{.Names}}\t{{.Status}}&quot;
+  4. 检查关键进程是否在运行
+  输出简洁的健康报告
+delivery:
+  type: chat
+  target: default
+  format: markdown
+description: &quot;定期系统健康检查&quot;
+enabled: true
+timeout: 120</code></pre>
+
+<h3 id="示例-2Git-仓库备份">示例 2：Git 仓库备份</h3>
+
+<pre><code class="lang-yaml">name: git-backup
+schedule: &quot;0 2 * * *&quot;      # 每天凌晨 2 点
+mode: script
+script: |
+  #!/bin/bash
+  BACKUP_DIR=&quot;/home/pez/backups/git-$(date +%Y%m%d)&quot;
+  mkdir -p &quot;$BACKUP_DIR&quot;
+
+  for repo in /home/pez/projects/*/; do
+    if [ -d &quot;$repo/.git&quot; ]; then
+      name=$(basename &quot;$repo&quot;)
+      echo &quot;Backing up $name...&quot;
+      cd &quot;$repo&quot;
+      git bundle create &quot;$BACKUP_DIR/$name.bundle&quot; --all
+    fi
+  done
+
+  echo &quot;Backup completed: $BACKUP_DIR&quot;
+delivery:
+  type: file
+  path: /home/pez/logs/backup.log
+  format: plain
+  append: true
+description: &quot;每日 Git 仓库备份&quot;
+enabled: true</code></pre>
+
+<h3 id="示例-3新闻摘要">示例 3：新闻摘要</h3>
+
+<pre><code class="lang-yaml">name: news-digest
+schedule: &quot;30 7 * * 1-5&quot;   # 工作日早上 7:30
+mode: ai
+prompt: |
+  今日新闻摘要：
+  1. 搜索今天的 AI/技术新闻
+  2. 搜索今天的开源项目动态
+  3. 总结 5 条最重要的新闻
+  4. 每条新闻包含标题、摘要和链接
+  输出格式为 Markdown 列表
+delivery:
+  type: webhook
+  url: &quot;${SLACK_WEBHOOK_URL}&quot;
+  method: POST
+  format: json
+  template: &#x27;{&quot;text&quot;: &quot;{{output}}&quot;}&#x27;
+description: &quot;工作日新闻摘要&quot;
+enabled: true
+timeout: 180</code></pre>
+
+<h3 id="示例-4数据库维护">示例 4：数据库维护</h3>
+
+<pre><code class="lang-yaml">name: db-maintenance
+schedule: &quot;0 3 * * 0&quot;      # 每周日凌晨 3 点
+mode: script
+script: |
+  #!/bin/bash
+  echo &quot;Starting database maintenance...&quot;
+
+  # PostgreSQL VACUUM
+  psql -U postgres -d mydb -c &quot;VACUUM ANALYZE;&quot;
+
+  # 清理 30 天前的日志
+  psql -U postgres -d mydb -c &quot;DELETE FROM logs WHERE created_at &lt; NOW() - INTERVAL &#x27;30 days&#x27;;&quot;
+
+  # 备份
+  pg_dump -U postgres mydb &gt; /home/pez/backups/db-$(date +%Y%m%d).sql
+
+  echo &quot;Maintenance completed&quot;
+delivery:
+  type: file
+  path: /home/pez/logs/db-maintenance.log
+  append: true
+description: &quot;每周数据库维护&quot;
+enabled: true</code></pre>
+
+<h2 id="管理定时任务">管理定时任务</h2>
+
+<h3 id="通过文件管理">通过文件管理</h3>
+
+<pre><code class="lang-bash"># 列出所有定时任务
+ls ~/.hermes/profiles/default/cron/
+
+# 查看任务内容
+cat ~/.hermes/profiles/default/cron/daily-report.yaml
+
+# 禁用任务：编辑 yaml 设置 enabled: false
+# 或重命名文件
+mv ~/.hermes/profiles/default/cron/task.yaml \
+   ~/.hermes/profiles/default/cron/task.yaml.disabled</code></pre>
+
+<h3 id="通过对话管理">通过对话管理</h3>
+
+<pre><code class="lang-">用户：帮我创建一个每天早上 8 点检查邮件的定时任务
+用户：暂停 news-digest 任务
+用户：列出所有定时任务</code></pre>
+
+<h3 id="通过-cron_manage-工具">通过 cron_manage 工具</h3>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;list&quot;
+}</code></pre>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;create&quot;,
+  &quot;name&quot;: &quot;new-task&quot;,
+  &quot;schedule&quot;: &quot;0 8 * * *&quot;,
+  &quot;mode&quot;: &quot;ai&quot;,
+  &quot;prompt&quot;: &quot;检查新邮件并生成摘要&quot;
+}</code></pre>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;enable&quot;,
+  &quot;name&quot;: &quot;task-name&quot;
+}</code></pre>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;disable&quot;,
+  &quot;name&quot;: &quot;task-name&quot;
+}</code></pre>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;run_now&quot;,
+  &quot;name&quot;: &quot;task-name&quot;
+}</code></pre>
+
+<pre><code class="lang-json">{
+  &quot;action&quot;: &quot;delete&quot;,
+  &quot;name&quot;: &quot;task-name&quot;
+}</code></pre>
+
+<h2 id="调试定时任务">调试定时任务</h2>
+
+<h3 id="手动触发">手动触发</h3>
+
+<pre><code class="lang-bash"># 立即执行一次任务
+hermes cron run daily-report
+
+# 或通过对话
+# 用户：立即执行 daily-report 任务</code></pre>
+
+<h3 id="查看执行日志">查看执行日志</h3>
+
+<pre><code class="lang-bash"># 查看 cron 日志
+cat ~/.hermes/logs/cron.log
+
+# 实时监控
+tail -f ~/.hermes/logs/cron.log</code></pre>
+
+<h3 id="检查任务状态">检查任务状态</h3>
+
+<pre><code class="lang-bash"># 查看下次执行时间
+hermes cron status
+
+# 查看特定任务状态
+hermes cron status --name daily-report</code></pre>
+
+<h2 id="注意事项">注意事项</h2>
+
+<li>Cron 依赖 Hermes Agent 运行，agent 停止则任务不执行</li>
+<li>Script 模式使用当前用户的权限运行</li>
+<li>AI 模式会消耗模型 token，注意用量</li>
+<li>超时任务会被强制终止</li>
+<li>建议为长时间任务设置合理的 <code>timeout</code></li>
+<li>文件投递路径中的 <code>{{date}}</code> 会替换为当前日期</li>
+<li>Webhook 投递需要网络可达</li>
+<li>敏感信息（SMTP 密码等）使用环境变量</li>
+</div>
+<div class="file-section"><div class="file-title">Hermes-Agent/06-记忆Memories系统.md</div><h2 id="记忆-Memories-系统">记忆 Memories 系统</h2><h1 id="记忆-Memories-系统">记忆 Memories 系统</h1>
+
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI Agent开发 → Agent记忆系统 → Hermes Memories</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：记忆系统是Agent实现跨会话持久化的核心能力，分为user级（全局偏好）和memory级（主题记忆）</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a>（Hermes总览），关联 <a href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a>（记忆理论）</blockquote>
+
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Hermes总览 | <a href="#Hermes-Agent/MOC-Hermes-Agent">Hermes-Agent/MOC-Hermes-Agent</a> | 所属框架 |</blockquote>
+<blockquote>| 短期记忆理论 | <a href="#01-短期记忆与对话管理">01-短期记忆与对话管理</a> | 理论基础 |</blockquote>
+<blockquote>| 长期记忆 | <a href="#02-长期记忆与向量存储">02-长期记忆与向量存储</a> | 向量存储方案 |</blockquote>
+<blockquote>| MemGPT | <a href="#03-MemGPT与记忆架构">03-MemGPT与记忆架构</a> | 高级记忆架构 |</blockquote>
+<blockquote>| 插件系统 | <a href="#Hermes-Agent/03-插件Plugin系统">Hermes-Agent/03-插件Plugin系统</a> | 同级模块 |</blockquote>
+<blockquote>| Profile系统 | <a href="#Hermes-Agent/01-配置与Profile系统">Hermes-Agent/01-配置与Profile系统</a> | 记忆隔离机制 |</blockquote>
+
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：user记忆=用户偏好（全局生效）、memory记忆=主题上下文（按需加载）</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 用户偏好持久化：存储语言、编辑器、代码风格等偏好</blockquote>
+<blockquote>- 项目上下文记忆：存储技术栈、文件结构、当前任务</blockquote>
+<blockquote>- 记忆分文件管理：每个.md文件一组相关记忆，控制在500行内</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Agent记忆系统通过文件持久化实现跨会话记忆，分user和memory两级，每次会话自动加载相关记忆作为上下文」</blockquote>
+
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐☆☆☆ (2/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Agent基础概念</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — Agent记忆是高频考点</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>Hermes Agent 的记忆系统（Memories）允许 agent 跨会话持久化存储信息。</p>
+<p>记忆分为两个层级：<code>user</code> 级（用户全局偏好）和 <code>memory</code> 级（会话/主题记忆）。</p>
+<p>每条记忆是一段文本，存储在当前 profile 的 <code>memories/</code> 目录下。</p>
+
+<h2 id="记忆存储位置">记忆存储位置</h2>
+
+<pre><code class="lang-">~/.hermes/profiles/default/memories/
+├── user.md              # 用户全局记忆（偏好设置）
+├── preferences.md       # 用户偏好
+├── project-context.md   # 项目上下文
+├── notes.md             # 备忘录
+└── ...</code></pre>
+
+<p>每个 <code>.md</code> 文件是一组相关记忆的集合。</p>
+
+<h2 id="memory-工具-API">memory 工具 API</h2>
+
+<p><code>memory</code> 是内置工具，用于管理记忆。核心参数：</p>
+
+<h3 id="参数说明">参数说明</h3>
+
+<table>
+<tr><th>参数</th><th>类型</th><th>必需</th><th>说明</th></tr>
+<tr><td>target</td><td>string</td><td>是</td><td><code>user</code> 或 <code>memory</code></td></tr>
+<tr class="alt"><td>key</td><td>string</td><td>是</td><td>记忆文件名（不含 .md 后缀）</td></tr>
+<tr><td>action</td><td>string</td><td>是</td><td><code>add</code> / <code>replace</code> / <code>remove</code></td></tr>
+<tr class="alt"><td>content</td><td>string</td><td>视情况</td><td>要添加/替换的内容</td></tr>
+</table>
+
+<h3 id="target-区别">target 区别</h3>
+
+<li><strong>user</strong>: 用户级别的全局记忆，通常存储偏好、身份信息、常用设置</li>
+<li><strong>memory</strong>: 通用记忆，按主题存储各种上下文信息</li>
+
+<h3 id="action-说明">action 说明</h3>
+
+<li><strong>add</strong>: 追加内容到记忆文件末尾</li>
+<li><strong>replace</strong>: 替换整个记忆文件的内容</li>
+<li><strong>remove</strong>: 删除指定的记忆文件</li>
+
+<h2 id="使用示例">使用示例</h2>
+
+<h3 id="添加用户偏好">添加用户偏好</h3>
+
+<pre><code class="lang-json">{
+  &quot;target&quot;: &quot;user&quot;,
+  &quot;key&quot;: &quot;preferences&quot;,
+  &quot;action&quot;: &quot;add&quot;,
+  &quot;content&quot;: &quot;- 使用中文回复\n- 代码注释使用英文\n- 偏好 Python 而非 JavaScript&quot;
+}</code></pre>
+
+<p>效果：在 <code>memories/preferences.md</code> 末尾追加内容。</p>
+
+<h3 id="添加项目记忆">添加项目记忆</h3>
+
+<pre><code class="lang-json">{
+  &quot;target&quot;: &quot;memory&quot;,
+  &quot;key&quot;: &quot;project-context&quot;,
+  &quot;action&quot;: &quot;add&quot;,
+  &quot;content&quot;: &quot;## myapp 项目\n- 使用 FastAPI 框架\n- 数据库为 PostgreSQL\n- 部署在 AWS ECS&quot;
+}</code></pre>
+
+<h3 id="替换记忆内容">替换记忆内容</h3>
+
+<pre><code class="lang-json">{
+  &quot;target&quot;: &quot;user&quot;,
+  &quot;key&quot;: &quot;preferences&quot;,
+  &quot;action&quot;: &quot;replace&quot;,
+  &quot;content&quot;: &quot;- 使用英文回复\n- 代码注释使用中文\n- 偏好 Go 语言&quot;
+}</code></pre>
+
+<p>替换会覆盖整个文件，适用于需要更新而非追加的场景。</p>
+
+<h3 id="删除记忆">删除记忆</h3>
+
+<pre><code class="lang-json">{
+  &quot;target&quot;: &quot;memory&quot;,
+  &quot;key&quot;: &quot;old-project&quot;,
+  &quot;action&quot;: &quot;remove&quot;
+}</code></pre>
+
+<h2 id="记忆管理实践">记忆管理实践</h2>
+
+<h3 id="日常对话中自然积累">日常对话中自然积累</h3>
+
+<p>记忆系统设计为在对话中自然使用：</p>
+
+<pre><code class="lang-">用户：以后叫我 &quot;pez&quot; 就好，我喜欢用 vim 编辑代码
+Agent：（调用 memory tool）
+  {target: &quot;user&quot;, key: &quot;preferences&quot;, action: &quot;add&quot;,
+   content: &quot;- 用户昵称：pez\n- 编辑器偏好：vim&quot;}
+
+用户：我正在开发一个基于 Next.js 的博客项目
+Agent：（调用 memory tool）
+  {target: &quot;memory&quot;, key: &quot;project-blog&quot;, action: &quot;add&quot;,
+   content: &quot;- 博客项目使用 Next.js\n- 技术栈：TypeScript + Tailwind&quot;}</code></pre>
+
+<h3 id="查看现有记忆">查看现有记忆</h3>
+
+<pre><code class="lang-bash"># 查看所有记忆文件
+ls ~/.hermes/profiles/default/memories/
+
+# 查看用户偏好
+cat ~/.hermes/profiles/default/memories/preferences.md
+
+# 查看所有记忆内容
+cat ~/.hermes/profiles/default/memories/*.md</code></pre>
+
+<h3 id="通过对话查看">通过对话查看</h3>
+
+<pre><code class="lang-">用户：你记得我的哪些偏好？
+用户：列出你关于我项目的所有记忆</code></pre>
+
+<p>Agent 会读取记忆文件并在回复中引用。</p>
+
+<h2 id="记忆最佳实践">记忆最佳实践</h2>
+
+<h3 id="用户记忆结构建议">用户记忆结构建议</h3>
+
+<pre><code class="lang-markdown">&lt;!-- user.md --&gt;
+# 用户信息
+
+## 基本信息
+- 名称：pez
+- 时区：Asia/Shanghai
+- 语言偏好：中文
+
+## 技术栈
+- 主要语言：Python, Go
+- 框架：FastAPI, Gin
+- 数据库：PostgreSQL, Redis
+- 部署：Docker, AWS
+
+## 工作偏好
+- 编辑器：VS Code / Vim
+- Git 工作流：GitFlow
+- 代码风格：Google Style Guide
+- 注释语言：英文</code></pre>
+
+<h3 id="项目记忆结构建议">项目记忆结构建议</h3>
+
+<pre><code class="lang-markdown">&lt;!-- project-webapp.md --&gt;
+# WebApp 项目
+
+## 技术架构
+- 前端：React + TypeScript
+- 后端：Node.js + Express
+- 数据库：MongoDB
+- 缓存：Redis
+
+## 重要文件
+- 配置：config/settings.yaml
+- 入口：src/index.ts
+- 路由：src/routes/
+
+## 当前任务
+- [ ] 实现用户认证
+- [ ] 添加单元测试
+- [x] 配置 CI/CD
+
+## 注意事项
+- 环境变量在 .env.local 中
+- 不要直接修改 main 分支</code></pre>
+
+<h3 id="分类存储">分类存储</h3>
+
+<pre><code class="lang-">memories/
+├── user.md                  # 用户基本信息
+├── preferences.md           # 偏好设置
+├── skills.md                # 技能水平记录
+├── project-api.md           # API 项目上下文
+├── project-web.md           # Web 项目上下文
+├── project-mobile.md        # 移动端项目上下文
+├── meeting-notes.md         # 会议记录
+├── learning.md              # 学习笔记
+└── todos.md                 # 待办事项</code></pre>
+
+<h2 id="记忆与上下文的关系">记忆与上下文的关系</h2>
+
+<pre><code class="lang-">┌─────────────────────────────┐
+│        对话上下文            │
+│  （当前会话的历史消息）       │
+│                             │
+│  用户：帮我写个 Python 脚本  │
+│  Agent：好的，这是代码...    │
+│  用户：加个日志功能          │
+│  Agent：已添加日志...        │
+└─────────────────────────────┘
+              ↑
+              │ 参考
+              │
+┌─────────────────────────────┐
+│        记忆 Memories         │
+│  （跨会话持久存储）           │
+│                             │
+│  - 用户偏好 Python           │
+│  - 使用 logging 而非 print  │
+│  - 项目使用 FastAPI          │
+│  - 代码风格遵循 PEP8         │
+└─────────────────────────────┘</code></pre>
+
+<li><strong>对话上下文</strong>：当前会话可见，会话结束后丢失</li>
+<li><strong>记忆</strong>：跨会话持久化，每次会话自动加载相关记忆</li>
+
+<h2 id="记忆的自动使用">记忆的自动使用</h2>
+
+<p>Hermes Agent 在每次会话开始时会加载记忆文件作为上下文的一部分。</p>
+<p>这意味着：</p>
+
+<li>用户偏好会自动影响 agent 的行为</li>
+<li>项目上下文帮助 agent 给出更相关的回答</li>
+<li>历史笔记可以被引用和更新</li>
+
+<h2 id="管理记忆文件">管理记忆文件</h2>
+
+<h3 id="手动编辑">手动编辑</h3>
+
+<pre><code class="lang-bash"># 直接编辑记忆文件
+vim ~/.hermes/profiles/default/memories/preferences.md
+
+# 这些文件是普通 Markdown，可以手动修改</code></pre>
+
+<h3 id="备份记忆">备份记忆</h3>
+
+<pre><code class="lang-bash"># 备份所有记忆
+tar czf memories-backup-$(date +%Y%m%d).tar.gz \
+  -C ~/.hermes/profiles/default memories/
+
+# 备份到其他位置
+cp -r ~/.hermes/profiles/default/memories/ /home/pez/backups/</code></pre>
+
+<h3 id="迁移记忆到其他-Profile">迁移记忆到其他 Profile</h3>
+
+<pre><code class="lang-bash"># 复制记忆到另一个 profile
+cp ~/.hermes/profiles/default/memories/*.md \
+   ~/.hermes/profiles/work/memories/</code></pre>
+
+<h3 id="清理过期记忆">清理过期记忆</h3>
+
+<pre><code class="lang-bash"># 删除不需要的记忆文件
+rm ~/.hermes/profiles/default/memories/old-project.md
+
+# 清空某个记忆文件但保留文件
+&gt; ~/.hermes/profiles/default/memories/scratch.md</code></pre>
+
+<h2 id="记忆搜索">记忆搜索</h2>
+
+<pre><code class="lang-bash"># 在记忆中搜索关键词
+grep -ri &quot;python&quot; ~/.hermes/profiles/default/memories/
+
+# 查看最近修改的记忆
+ls -lt ~/.hermes/profiles/default/memories/</code></pre>
+
+<h2 id="常见问题">常见问题</h2>
+
+<h3 id="Q-记忆太多会影响性能吗">Q: 记忆太多会影响性能吗？</h3>
+
+<p>记忆文件会作为上下文加载，内容过多会占用 token。</p>
+<p>建议：</p>
+<li>每个记忆文件控制在 500 行以内</li>
+<li>定期清理过期信息</li>
+<li>使用多个小文件而非一个大文件</li>
+
+<h3 id="Q-如何跨-Profile-共享记忆">Q: 如何跨 Profile 共享记忆？</h3>
+
+<p>Profile 之间记忆完全隔离。需要共享时：</p>
+<li>手动复制文件</li>
+<li>使用符号链接（<code>ln -s</code>）</li>
+
+<h3 id="Q-记忆文件格式要求">Q: 记忆文件格式要求？</h3>
+
+<p>纯 Markdown 文本，无特殊格式要求。</p>
+<p>建议使用标题和列表组织结构，方便 agent 解析。</p>
+
+<h3 id="Q-可以存储多少条记忆">Q: 可以存储多少条记忆？</h3>
+
+<p>无硬性限制，但建议每个文件不超过 10KB，</p>
+<p>总记忆量不超过 100KB，以避免上下文窗口过长。</p>
+</div>
+<div class="file-section"><div class="file-title">Hermes-Agent/07-最佳实践与调试技巧.md</div><h2 id="最佳实践与调试技巧">最佳实践与调试技巧</h2><h1 id="最佳实践与调试技巧">最佳实践与调试技巧</h1>
+
+<blockquote><strong>🎯 全局定位</strong>：Hermes Agent 系列的<strong>运维实战篇</strong>。汇总日常使用中的工作流模式、调试方法、性能优化和常见陷阱，是从"会用"到"用好"的关键进阶。</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🔗 知识串联</strong>：← 上游：<a href="#01-配置与Profile系统">01-配置与Profile系统</a>（配置调试）、<a href="#02-技能Skill开发指南">02-技能Skill开发指南</a>（Skill 调试）、<a href="#04-MCP-Server-Client实战">04-MCP-Server-Client实战</a>（MCP 故障排查）→ 下游：无（本系列终章）→ 横向：<a href="#LLM/模型量化技术全解析：从理论到工程实践">LLM/模型量化技术全解析：从理论到工程实践</a>（本地模型性能优化）、<a href="#深度学习/01-神经网络基础">深度学习/01-神经网络基础</a>（理解模型选择的底层逻辑）</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>⚡ 难度标识</strong>：🟡 中级 — 需要已完成前三篇的配置和使用，具备基本的终端操作能力</blockquote>
+<blockquote></blockquote>
+<blockquote><strong>🛠️ 落地实践</strong>：读完本文后，你应该能独立完成：① 使用 debug 日志定位配置/Skill/MCP 问题 ② 掌握 4 种工作流模式（交互式/自动化/知识积累/批量操作）③ 避免 7 大常见陷阱 ④ 根据任务复杂度选择合适模型控制成本</blockquote>
+
+<h2 id="概述">概述</h2>
+
+<p>本文档汇总 Hermes Agent 日常使用中的工作流模式、调试方法、性能优化建议</p>
+<p>和常见陷阱，帮助你更高效地使用 Hermes Agent。</p>
+
+<h2 id="工作流模式">工作流模式</h2>
+
+<h3 id="模式-1交互式开发助手">模式 1：交互式开发助手</h3>
+
+<p>最适合日常编码场景：</p>
+
+<pre><code class="lang-">用户：帮我实现一个 FastAPI 的用户认证模块
+Agent：（生成代码 + 解释）
+用户：加上 JWT token 刷新机制
+Agent：（增量修改）
+用户：运行测试看看有没有问题
+Agent：（执行测试 + 修复 bug）</code></pre>
+
+<p>技巧：</p>
+<li>一次只描述一个明确的任务</li>
+<li>累进式迭代，不要一次要求太多</li>
+<li>让 agent 先写代码，再测试，再优化</li>
+
+<h3 id="模式-2自动化流水线">模式 2：自动化流水线</h3>
+
+<p>使用 Skill + Cron 组合：</p>
+
+<pre><code class="lang-yaml"># Skill: 代码质量检查
+# triggers: &quot;代码检查&quot;, &quot;code check&quot;
+# -&gt; 运行 lint + test + coverage
+# -&gt; 生成报告
+
+# Cron: 每日自动运行
+# schedule: &quot;0 9 * * 1-5&quot;
+# prompt: &quot;执行代码质量检查并发送报告&quot;</code></pre>
+
+<h3 id="模式-3知识积累式">模式 3：知识积累式</h3>
+
+<p>通过记忆系统持续积累项目知识：</p>
+
+<pre><code class="lang-">第一次对话：了解项目结构 → 保存到记忆
+第二次对话：基于记忆快速定位问题
+第三次对话：积累的上下文让回答更精准</code></pre>
+
+<h3 id="模式-4批量文件操作">模式 4：批量文件操作</h3>
+
+<p>处理大量文件时的高效模式：</p>
+
+<pre><code class="lang-">用户：找出所有使用了 deprecated API 的文件
+Agent：（search_files + read_file 批量分析）
+用户：把它们全部更新到新 API
+Agent：（patch 批量修改）
+用户：确认没有遗漏
+Agent：（再次搜索验证）</code></pre>
+
+<h2 id="调试技巧">调试技巧</h2>
+
+<h3 id="1-开启-Debug-日志">1. 开启 Debug 日志</h3>
+
+<pre><code class="lang-bash"># 设置日志级别
+export HERMES_LOG_LEVEL=debug
+
+# 或在 config.yaml 中
+# log_level: debug
+
+# 启动 agent
+hermes start 2&gt;&amp;1 | tee /tmp/hermes-debug.log</code></pre>
+
+<h3 id="2-检查配置加载">2. 检查配置加载</h3>
+
+<pre><code class="lang-bash"># 查看当前生效配置
+hermes config show
+
+# 验证配置文件语法
+hermes config validate
+
+# 查看当前 profile
+echo $HERMES_PROFILE</code></pre>
+
+<h3 id="3-测试-MCP-连接">3. 测试 MCP 连接</h3>
+
+<pre><code class="lang-bash"># 列出所有 MCP 工具
+hermes tools list
+
+# 测试特定 MCP Server 连接
+echo &#x27;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;initialize&quot;,&quot;params&quot;:{&quot;capabilities&quot;:{}}}&#x27; | \
+  npx -y @modelcontextprotocol/server-filesystem /home/pez
+
+# 查看 MCP 日志
+export MCP_DEBUG=1</code></pre>
+
+<h3 id="4-测试-Skill-触发">4. 测试 Skill 触发</h3>
+
+<pre><code class="lang-bash"># 查看已加载的 skill
+hermes skills list
+
+# 检查 SKILL.md 格式
+python3 -c &quot;
+import yaml
+with open(&#x27;SKILL.md&#x27;) as f:
+    content = f.read()
+    frontmatter = content.split(&#x27;---&#x27;)[1]
+    print(yaml.safe_load(frontmatter))
+&quot;
+
+# 测试 trigger 匹配
+grep -ri &quot;trigger关键词&quot; ~/.hermes/profiles/default/skills/*/SKILL.md</code></pre>
+
+<h3 id="5-检查定时任务">5. 检查定时任务</h3>
+
+<pre><code class="lang-bash"># 列出所有 cron 任务
+hermes cron list
+
+# 查看任务状态
+hermes cron status
+
+# 手动触发一次
+hermes cron run task-name
+
+# 检查 cron 日志
+tail -50 ~/.hermes/logs/cron.log</code></pre>
+
+<h3 id="6-查看记忆内容">6. 查看记忆内容</h3>
+
+<pre><code class="lang-bash"># 列出所有记忆文件
+ls -la ~/.hermes/profiles/default/memories/
+
+# 查看特定记忆
+cat ~/.hermes/profiles/default/memories/preferences.md
+
+# 搜索记忆中的关键词
+grep -r &quot;关键字&quot; ~/.hermes/profiles/default/memories/</code></pre>
+
+<h3 id="7-Token-使用分析">7. Token 使用分析</h3>
+
+<pre><code class="lang-bash"># 查看当前会话的 token 使用
+hermes stats tokens
+
+# 查看历史 token 消耗
+hermes stats tokens --days 7</code></pre>
+
+<h2 id="性能优化">性能优化</h2>
+
+<h3 id="减少上下文长度">减少上下文长度</h3>
+
+<pre><code class="lang-yaml"># config.yaml
+history_length: 20    # 减少历史消息数（默认 50）</code></pre>
+
+<li>长对话及时新开会话</li>
+<li>用 <code>/new</code> 或 <code>/clear</code> 清空上下文</li>
+<li>避免在上下文中放大量无关内容</li>
+
+<h3 id="选择合适的模型">选择合适的模型</h3>
+
+<pre><code class="lang-yaml"># 简单任务用小模型
+model: gpt-4o-mini          # 便宜快速
+# 复杂任务用大模型
+model: gpt-4o               # 更强但更贵</code></pre>
+
+<p>也可以在对话中临时切换：</p>
+
+<pre><code class="lang-">用户：/model gpt-4o-mini
+用户：帮我写个简单的 shell 脚本
+用户：/model gpt-4o
+用户：帮我设计系统架构</code></pre>
+
+<h3 id="优化-MCP-Server">优化 MCP Server</h3>
+
+<pre><code class="lang-yaml">mcp_servers:
+  # 只加载需要的 server
+  filesystem:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-filesystem&quot;, &quot;/home/pez&quot;]
+    # 不要加载整个文件系统，限制到工作目录
+
+  # 不常用的 server 考虑按需加载
+  # postgres:
+  #   command: npx
+  #   args: [&quot;-y&quot;, &quot;@modelcontextprotocol/server-postgres&quot;, &quot;...&quot;]</code></pre>
+
+<h3 id="缓存-npx-包">缓存 npx 包</h3>
+
+<pre><code class="lang-bash"># 预下载 MCP Server 包，避免每次启动都下载
+npx -y @modelcontextprotocol/server-filesystem --help
+npx -y @anthropic/brave-search-mcp --help</code></pre>
+
+<h3 id="使用本地模型">使用本地模型</h3>
+
+<p>对于不需要高精度的任务，使用本地 Ollama 模型：</p>
+
+<pre><code class="lang-yaml">providers:
+  ollama:
+    base_url: http://localhost:11434
+
+model: ollama/qwen2.5</code></pre>
+
+<h3 id="记忆文件精简">记忆文件精简</h3>
+
+<pre><code class="lang-bash"># 定期清理过时记忆
+# 每个文件控制在合理大小
+wc -l ~/.hermes/profiles/default/memories/*.md
+
+# 大文件拆分为多个小文件
+# project-everything.md -&gt; project-api.md + project-frontend.md</code></pre>
+
+<h2 id="常见陷阱">常见陷阱</h2>
+
+<h3 id="陷阱-1Skill-冲突">陷阱 1：Skill 冲突</h3>
+
+<p><strong>问题</strong>：多个 skill 同时触发，行为混乱</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-yaml"># 使用更精确的 trigger
+triggers:
+  - regex: &quot;^帮我审查.*Python.*代码$&quot;  # 更精确
+  # 而不是
+  # - &quot;代码&quot;  # 太宽泛</code></pre>
+
+<h3 id="陷阱-2MCP-Server-启动慢">陷阱 2：MCP Server 启动慢</h3>
+
+<p><strong>问题</strong>：Agent 启动要等所有 MCP Server 就绪</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-yaml">mcp_servers:
+  slow-server:
+    command: python3
+    args: [&quot;/path/to/server.py&quot;]
+    timeout: 60           # 增加超时
+    restart: true          # 崩溃自动重启</code></pre>
+
+<h3 id="陷阱-3记忆污染">陷阱 3：记忆污染</h3>
+
+<p><strong>问题</strong>：旧的记忆影响新的任务</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-bash"># 定期审查记忆
+cat ~/.hermes/profiles/default/memories/*.md
+
+# 删除过时记忆
+rm ~/.hermes/profiles/default/memories/old-project.md
+
+# 或通过对话清理
+# 用户：删除关于 xxx 项目的所有记忆</code></pre>
+
+<h3 id="陷阱-4上下文窗口溢出">陷阱 4：上下文窗口溢出</h3>
+
+<p><strong>问题</strong>：长对话导致上下文超出模型限制</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-yaml"># 减少历史长度
+history_length: 15
+
+# 或在对话中及时重置
+# 用户：/clear</code></pre>
+
+<h3 id="陷阱-5环境变量未加载">陷阱 5：环境变量未加载</h3>
+
+<p><strong>问题</strong>：MCP Server 找不到 API Key</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-bash"># 确保在 .bashrc / .zshrc 中设置
+echo &#x27;export BRAVE_API_KEY=xxx&#x27; &gt;&gt; ~/.bashrc
+source ~/.bashrc
+
+# 或在 config.yaml 中直接配置
+# env:
+#   BRAVE_API_KEY: &quot;actual-key-here&quot;</code></pre>
+
+<h3 id="陷阱-6文件权限问题">陷阱 6：文件权限问题</h3>
+
+<p><strong>问题</strong>：Agent 无法读写某些文件</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-bash"># 检查文件权限
+ls -la ~/.hermes/profiles/default/
+
+# 修复权限
+chmod -R u+rw ~/.hermes/
+
+# MCP Server 的 filesystem 限制了可访问目录
+# 确保目标路径在配置的目录范围内</code></pre>
+
+<h3 id="陷阱-7Profile-搞混">陷阱 7：Profile 搞混</h3>
+
+<p><strong>问题</strong>：在错误的 profile 下创建了内容</p>
+
+<p><strong>解决</strong>：</p>
+<pre><code class="lang-bash"># 确认当前 profile
+echo $HERMES_PROFILE
+hermes config get default_profile
+
+# 移动文件到正确 profile
+mv ~/.hermes/profiles/default/skills/wrong-skill \
+   ~/.hermes/profiles/work/skills/</code></pre>
+
+<h2 id="快捷命令速查">快捷命令速查</h2>
+
+<pre><code class="lang-bash"># 配置
+hermes config show            # 查看配置
+hermes config validate        # 验证配置
+hermes config get &lt;key&gt;       # 获取配置值
+
+# Profile
+hermes profile list           # 列出 profile
+hermes profile current        # 当前 profile
+hermes profile switch &lt;name&gt;  # 切换 profile
+
+# Skills
+hermes skills list            # 列出技能
+hermes skills reload          # 重载技能
+
+# MCP
+hermes tools list             # 列出工具
+hermes mcp restart            # 重启 MCP 连接
+hermes mcp status             # MCP 状态
+
+# Cron
+hermes cron list              # 列出定时任务
+hermes cron status            # 任务状态
+hermes cron run &lt;name&gt;        # 手动触发
+hermes cron logs              # 查看日志
+
+# 记忆
+hermes memory list            # 列出记忆
+hermes memory search &lt;query&gt;  # 搜索记忆
+
+# 其他
+hermes stats                  # 统计信息
+hermes version                # 版本号
+hermes help                   # 帮助信息</code></pre>
+
+<h2 id="高效使用-Checklist">高效使用 Checklist</h2>
+
+<li>[ ] 配置好 <code>config.yaml</code>，设置合适的默认模型</li>
+<li>[ ] 创建 profile 隔离不同场景（work/personal）</li>
+<li>[ ] 为常用工作流编写 Skill</li>
+<li>[ ] 配置必要的 MCP Server（文件系统、搜索等）</li>
+<li>[ ] 设置定期备份的 Cron 任务</li>
+<li>[ ] 积累用户偏好到 Memories</li>
+<li>[ ] 定期清理过时的记忆和日志</li>
+<li>[ ] 使用环境变量管理敏感配置</li>
+<li>[ ] 根据任务复杂度选择模型</li>
+<li>[ ] 长会话及时分段，避免上下文溢出</li>
+</div>
+<div class="file-section"><div class="file-title">Hermes-Agent/MOC-Hermes-Agent.md</div><h2 id="Hermes-Agent">Hermes Agent</h2><h1 id="Hermes-Agent">Hermes Agent</h1>
+
+<blockquote>## 🧭 全局定位</blockquote>
+<blockquote><strong>知识领域</strong>：AI Agent开发 → Hermes Agent平台 → 全栈Agent能力</blockquote>
+<blockquote><strong>在AI知识图谱中的位置</strong>：Hermes Agent是Nous Research出品的AI Agent框架，覆盖配置、技能、插件、MCP、定时任务、记忆六大核心模块</blockquote>
+<blockquote><strong>上下游关系</strong>：上接 <a href="#AI大模型/05-Agent开发/README-Agent开发">Agent开发理论</a>，下启各子模块（01~07）</blockquote>
+
+<blockquote>## 🔗 知识串联</blockquote>
+<blockquote>| 关联主题 | 链接 | 关系 |</blockquote>
+<blockquote>|----------|------|------|</blockquote>
+<blockquote>| Agent开发理论 | <a href="#AI大模型/05-Agent开发/README-Agent开发">AI大模型/05-Agent开发/README-Agent开发</a> | 理论基础 |</blockquote>
+<blockquote>| MCP协议 | <a href="#01-MCP协议概述">01-MCP协议概述</a> | Hermes核心通信协议 |</blockquote>
+<blockquote>| LangChain | <a href="#01-LangChain使用概述">01-LangChain使用概述</a> | 对比框架 |</blockquote>
+<blockquote>| 记忆系统 | <a href="#Hermes-Agent/06-记忆Memories系统">Hermes-Agent/06-记忆Memories系统</a> | 子模块 |</blockquote>
+<blockquote>| 插件系统 | <a href="#Hermes-Agent/03-插件Plugin系统">Hermes-Agent/03-插件Plugin系统</a> | 子模块 |</blockquote>
+<blockquote>| 定时任务 | <a href="#Hermes-Agent/05-Cron定时任务">Hermes-Agent/05-Cron定时任务</a> | 子模块 |</blockquote>
+
+<blockquote>## 💡 落地实践</blockquote>
+<blockquote>- <strong>核心概念</strong>：Skill=行为指令、Plugin=可执行扩展、Memory=跨会话记忆、Cron=定时调度</blockquote>
+<blockquote>- <strong>AI项目应用</strong>：</blockquote>
+<blockquote>- 快速搭建Agent：通过Skill定义行为 + Plugin对接外部服务</blockquote>
+<blockquote>- 自动化运维：Cron定时任务 + AI模式实现智能巡检</blockquote>
+<blockquote>- 个性化Agent：Memory系统存储用户偏好和项目上下文</blockquote>
+<blockquote>- <strong>面试话术</strong>：「Hermes Agent是一个全栈Agent框架，集成了MCP协议、记忆系统、定时任务等生产级能力」</blockquote>
+
+<blockquote>## 📊 难度标识</blockquote>
+<blockquote>- <strong>难度等级</strong>：⭐⭐⭐☆☆ (3/5)</blockquote>
+<blockquote>- <strong>前置要求</strong>：Agent开发基础、MCP协议理解</blockquote>
+<blockquote>- <strong>面试频率</strong>：🔥🔥🔥☆☆ — Agent框架实战能力</blockquote>
+
+<blockquote>Nous Research 的 Hermes Agent 使用与开发指南。</blockquote>
+
+<hr>
+
+<h2 id="文档索引">文档索引</h2>
+
+<li><a href="#Hermes-Agent/01-配置与Profile系统">Hermes-Agent/01-配置与Profile系统</a> — 配置与 Profile 系统</li>
+<li><a href="#Hermes-Agent/02-技能Skill开发指南">Hermes-Agent/02-技能Skill开发指南</a> — 技能 (Skill) 开发指南</li>
+<li><a href="#Hermes-Agent/03-插件Plugin系统">Hermes-Agent/03-插件Plugin系统</a> — 插件 (Plugin) 系统</li>
+<li><a href="#Hermes-Agent/04-MCP-Server-Client实战">Hermes-Agent/04-MCP-Server-Client实战</a> — MCP Server/Client 实战</li>
+<li><a href="#Hermes-Agent/05-Cron定时任务">Hermes-Agent/05-Cron定时任务</a> — Cron 定时任务</li>
+<li><a href="#Hermes-Agent/06-记忆Memories系统">Hermes-Agent/06-记忆Memories系统</a> — 记忆 (Memories) 系统</li>
+<li><a href="#Hermes-Agent/07-最佳实践与调试技巧">Hermes-Agent/07-最佳实践与调试技巧</a> — 最佳实践与调试技巧</li>
+
+<hr>
+
+<p><em>最后更新：2026-05-31</em></p>
+</div></main></div></body></html>
